@@ -1,13 +1,13 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/git/git-2.1.2.ebuild,v 1.1 2014/10/02 08:37:23 polynomial-c Exp $
+# $Id$
 
 EAPI=5
 
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python2_{6,7} )
+PYTHON_COMPAT=( python2_7 )
 [[ ${PV} == *9999 ]] && SCM="git-2"
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
 EGIT_MASTER=pu
@@ -19,11 +19,11 @@ MY_P="${PN}-${MY_PV}"
 
 DOC_VER=${MY_PV}
 
-DESCRIPTION="GIT - the stupid content tracker, the revision control system heavily used by the Linux kernel team"
+DESCRIPTION="stupid content tracker: distributed VCS designed for speed and efficiency"
 HOMEPAGE="http://www.git-scm.com/"
 if [[ ${PV} != *9999 ]]; then
 	SRC_URI_SUFFIX="xz"
-	SRC_URI_GOOG="http://git-core.googlecode.com/files"
+	SRC_URI_GOOG="https://git-core.googlecode.com/files"
 	SRC_URI_KORG="mirror://kernel/software/scm/git"
 	SRC_URI="${SRC_URI_GOOG}/${MY_P}.tar.${SRC_URI_SUFFIX}
 			${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
@@ -34,22 +34,20 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_GOOG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	KEYWORDS="*"
-else
-	SRC_URI=""
-	KEYWORDS=""
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv mediawiki +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg gtk highlight +iconv libressl mediawiki +nls +pcre +perl +python ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
 CDEPEND="
-	dev-libs/openssl
+	!libressl? ( dev-libs/openssl:0= )
+	libressl? ( dev-libs/libressl:= )
 	sys-libs/zlib
 	pcre? ( dev-libs/libpcre )
 	perl? ( dev-lang/perl:=[-build(-)] )
-	tk? ( dev-lang/tk )
+	tk? ( dev-lang/tk:0= )
 	curl? (
 		net-misc/curl
 		webdav? ( dev-libs/expat )
@@ -60,13 +58,14 @@ CDEPEND="
 RDEPEND="${CDEPEND}
 	gpg? ( app-crypt/gnupg )
 	mediawiki? (
+		dev-perl/DateTime-Format-ISO8601
 		dev-perl/HTML-Tree
 		dev-perl/MediaWiki-API
 	)
 	perl? ( dev-perl/Error
 			dev-perl/Net-SMTP-SSL
 			dev-perl/Authen-SASL
-			cgi? ( virtual/perl-CGI highlight? ( app-text/highlight ) )
+			cgi? ( dev-perl/CGI highlight? ( app-text/highlight ) )
 			cvs? ( >=dev-vcs/cvsps-2.1:0 dev-perl/DBI dev-perl/DBD-SQLite )
 			subversion? ( dev-vcs/subversion[-dso,perl] dev-perl/libwww-perl dev-perl/TermReadKey )
 			)
@@ -82,7 +81,6 @@ RDEPEND="${CDEPEND}
 #   .xml/docbook  --(docbook2texi.pl)--> .texi
 #   .texi         --(makeinfo)---------> .info
 DEPEND="${CDEPEND}
-	app-arch/cpio
 	doc? (
 		app-text/asciidoc
 		app-text/docbook2X
@@ -128,24 +126,24 @@ exportmakeopts() {
 	local myopts
 
 	if use blksha1 ; then
-		myopts="${myopts} BLK_SHA1=YesPlease"
+		myopts+=" BLK_SHA1=YesPlease"
 	elif use ppcsha1 ; then
-		myopts="${myopts} PPC_SHA1=YesPlease"
+		myopts+=" PPC_SHA1=YesPlease"
 	fi
 
 	if use curl ; then
-		use webdav || myopts="${myopts} NO_EXPAT=YesPlease"
+		use webdav || myopts+=" NO_EXPAT=YesPlease"
 	else
-		myopts="${myopts} NO_CURL=YesPlease"
+		myopts+=" NO_CURL=YesPlease"
 	fi
 
 	# broken assumptions, because of broken build system ...
-	myopts="${myopts} NO_FINK=YesPlease NO_DARWIN_PORTS=YesPlease"
-	myopts="${myopts} INSTALL=install TAR=tar"
-	myopts="${myopts} SHELL_PATH=${EPREFIX}/bin/sh"
-	myopts="${myopts} SANE_TOOL_PATH="
-	myopts="${myopts} OLD_ICONV="
-	myopts="${myopts} NO_EXTERNAL_GREP="
+	myopts+=" NO_FINK=YesPlease NO_DARWIN_PORTS=YesPlease"
+	myopts+=" INSTALL=install TAR=tar"
+	myopts+=" SHELL_PATH=${EPREFIX}/bin/sh"
+	myopts+=" SANE_TOOL_PATH="
+	myopts+=" OLD_ICONV="
+	myopts+=" NO_EXTERNAL_GREP="
 
 	# For svn-fe
 	extlibs="-lz -lssl ${S}/xdiff/lib.a $(usex threads -lpthread '')"
@@ -154,53 +152,53 @@ exportmakeopts() {
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile
 
 	use iconv \
-		|| myopts="${myopts} NO_ICONV=YesPlease"
+		|| myopts+=" NO_ICONV=YesPlease"
 	use nls \
-		|| myopts="${myopts} NO_GETTEXT=YesPlease"
+		|| myopts+=" NO_GETTEXT=YesPlease"
 	use tk \
-		|| myopts="${myopts} NO_TCLTK=YesPlease"
+		|| myopts+=" NO_TCLTK=YesPlease"
 	use pcre \
-		&& myopts="${myopts} USE_LIBPCRE=yes" \
-		&& extlibs="${extlibs} -lpcre"
+		&& myopts+=" USE_LIBPCRE=yes" \
+		&& extlibs+=" -lpcre"
 	use perl \
-		&& myopts="${myopts} INSTALLDIRS=vendor" \
-		|| myopts="${myopts} NO_PERL=YesPlease"
+		&& myopts+=" INSTALLDIRS=vendor" \
+		|| myopts+=" NO_PERL=YesPlease"
 	use python \
-		|| myopts="${myopts} NO_PYTHON=YesPlease"
+		|| myopts+=" NO_PYTHON=YesPlease"
 	use subversion \
-		|| myopts="${myopts} NO_SVN_TESTS=YesPlease"
+		|| myopts+=" NO_SVN_TESTS=YesPlease"
 	use threads \
-		&& myopts="${myopts} THREADED_DELTA_SEARCH=YesPlease" \
-		|| myopts="${myopts} NO_PTHREADS=YesPlease"
+		&& myopts+=" THREADED_DELTA_SEARCH=YesPlease" \
+		|| myopts+=" NO_PTHREADS=YesPlease"
 	use cvs \
-		|| myopts="${myopts} NO_CVS=YesPlease"
+		|| myopts+=" NO_CVS=YesPlease"
 # Disabled until ~m68k-mint can be keyworded again
 #	if [[ ${CHOST} == *-mint* ]] ; then
-#		myopts="${myopts} NO_MMAP=YesPlease"
-#		myopts="${myopts} NO_IPV6=YesPlease"
-#		myopts="${myopts} NO_STRLCPY=YesPlease"
-#		myopts="${myopts} NO_MEMMEM=YesPlease"
-#		myopts="${myopts} NO_MKDTEMP=YesPlease"
-#		myopts="${myopts} NO_MKSTEMPS=YesPlease"
+#		myopts+=" NO_MMAP=YesPlease"
+#		myopts+=" NO_IPV6=YesPlease"
+#		myopts+=" NO_STRLCPY=YesPlease"
+#		myopts+=" NO_MEMMEM=YesPlease"
+#		myopts+=" NO_MKDTEMP=YesPlease"
+#		myopts+=" NO_MKSTEMPS=YesPlease"
 #	fi
 	if [[ ${CHOST} == ia64-*-hpux* ]]; then
-		myopts="${myopts} NO_NSEC=YesPlease"
+		myopts+=" NO_NSEC=YesPlease"
 	fi
 	if [[ ${CHOST} == *-*-aix* ]]; then
-		myopts="${myopts} NO_FNMATCH_CASEFOLD=YesPlease"
+		myopts+=" NO_FNMATCH_CASEFOLD=YesPlease"
 	fi
 	if [[ ${CHOST} == *-solaris* ]]; then
-		myopts="${myopts} NEEDS_LIBICONV=YesPlease"
+		myopts+=" NEEDS_LIBICONV=YesPlease"
 	fi
 
 	has_version '>=app-text/asciidoc-8.0' \
-		&& myopts="${myopts} ASCIIDOC8=YesPlease"
-	myopts="${myopts} ASCIIDOC_NO_ROFF=YesPlease"
+		&& myopts+=" ASCIIDOC8=YesPlease"
+	myopts+=" ASCIIDOC_NO_ROFF=YesPlease"
 
 	# Bug 290465:
 	# builtin-fetch-pack.c:816: error: 'struct stat' has no member named 'st_mtim'
 	[[ "${CHOST}" == *-uclibc* ]] && \
-		myopts="${myopts} NO_NSEC=YesPlease"
+		myopts+=" NO_NSEC=YesPlease"
 
 	export MY_MAKEOPTS="${myopts}"
 	export EXTLIBS="${extlibs}"
@@ -225,11 +223,16 @@ src_unpack() {
 
 src_prepare() {
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	epatch "${FILESDIR}"/git-2.0.0-r2-optional-cvs.patch
+	epatch "${FILESDIR}"/git-2.2.2-optional-cvs.patch
 
 	# install mediawiki perl modules also in vendor_dir
 	# hack, needs better upstream solution
 	epatch "${FILESDIR}"/git-1.8.5-mw-vendor.patch
+
+	epatch "${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
+
+	# Bug #493306, where FreeBSD 10.x merged libiconv into its libc.
+	epatch "${FILESDIR}"/git-2.5.1-freebsd-10.x-no-iconv.patch
 
 	epatch_user
 
@@ -299,8 +302,8 @@ src_compile() {
 
 	if use perl && use cgi ; then
 		git_emake \
-			gitweb/gitweb.cgi \
-			|| die "emake gitweb/gitweb.cgi failed"
+			gitweb \
+			|| die "emake gitweb (cgi) failed"
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]]; then
@@ -378,6 +381,7 @@ src_install() {
 	use doc && doinfo Documentation/{git,gitman}.info
 
 	newbashcomp contrib/completion/git-completion.bash ${PN}
+	bashcomp_alias git gitk
 	# Not really a bash-completion file (bug #477920)
 	# but still needed uncompressed (bug #507480)
 	insinto /usr/share/${PN}
@@ -510,11 +514,11 @@ src_install() {
 		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
-	fixlocalpod
+	perl_delete_localpod
 }
 
 src_test() {
-	local disabled="t7004-tag.sh" #520270
+	local disabled="" #t7004-tag.sh" #520270
 	local tests_cvs="t9200-git-cvsexportcommit.sh \
 					t9400-git-cvsserver-server.sh \
 					t9401-git-cvsserver-crlf.sh \
