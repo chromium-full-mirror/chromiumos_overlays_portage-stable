@@ -1,6 +1,6 @@
-From e19ad5a8492d83db79a09b459cb17ccee78e0001 Mon Sep 17 00:00:00 2001
+From 4db842b8215a904e434f0f6265204129d64387b1 Mon Sep 17 00:00:00 2001
 From: Robin Johnson <robbat2@gentoo.org>
-Date: Fri, 25 Apr 2014 12:30:42 +0200
+Date: Tue, 7 Jun 2016 13:52:22 +0200
 Subject: [PATCH] Makefile: Add NO_CVS define to disable all CVS interface
  utilities
 
@@ -9,20 +9,36 @@ Forward-ported from v1.8.4 to v1.8.5.1
 Forward-ported from v1.8.5.3 to v1.9.0_rc3
 Forward-ported from 1.9.0_rc3 to current git.git v2.0.0_rc0
 Forward-ported from v2.0.0_rc0 to v2.0.0
+Forward-ported from v2.0.0 to v2.2.2
+Forward-ported from v2.2.2 to v2.8.4
 
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/Makefile git-2.0.0/Makefile
---- git-2.0.0.orig/Makefile	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/Makefile	2014-05-28 16:50:10.148376954 -0700
-@@ -255,6 +255,8 @@
- #
- # Define NO_TCLTK if you do not want Tcl/Tk GUI.
+Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
+---
+ Makefile                           | 51 ++++++++++++++++++++++++++++----------
+ t/t9200-git-cvsexportcommit.sh     |  5 ++++
+ t/t9400-git-cvsserver-server.sh    |  8 +++++-
+ t/t9401-git-cvsserver-crlf.sh      | 15 +++++++----
+ t/t9600-cvsimport.sh               | 41 +++++++++++++++++++-----------
+ t/t9601-cvsimport-vendor-branch.sh | 11 ++++++++
+ t/t9602-cvsimport-branches-tags.sh | 11 ++++++++
+ t/t9603-cvsimport-patchsets.sh     | 11 ++++++++
+ t/test-lib.sh                      |  1 +
+ 9 files changed, 120 insertions(+), 34 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index de5a030..16ab4cd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -267,6 +267,8 @@ all::
+ # Define SANE_TEXT_GREP to "-a" if you use recent versions of GNU grep
+ # and egrep that are pickier when their input contains non-ASCII data.
  #
 +# Define NO_CVS if you do not want any CVS interface utilities.
 +#
  # The TCL_PATH variable governs the location of the Tcl interpreter
  # used to optimize git-gui for your system.  Only used if NO_TCLTK
  # is not set.  Defaults to the bare 'tclsh'.
-@@ -436,6 +438,7 @@
+@@ -473,6 +475,7 @@ LIB_OBJS =
  PROGRAM_OBJS =
  PROGRAMS =
  SCRIPT_PERL =
@@ -30,7 +46,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/Makefile git-2.0.
  SCRIPT_PYTHON =
  SCRIPT_SH =
  SCRIPT_LIB =
-@@ -475,20 +478,21 @@
+@@ -510,13 +513,14 @@ SCRIPT_LIB += git-sh-i18n
  SCRIPT_PERL += git-add--interactive.perl
  SCRIPT_PERL += git-difftool.perl
  SCRIPT_PERL += git-archimport.perl
@@ -48,68 +64,122 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/Makefile git-2.0.
  SCRIPT_PYTHON += git-p4.py
  
  NO_INSTALL += git-remote-testgit
- 
+@@ -524,24 +528,26 @@ NO_INSTALL += git-remote-testgit
  # Generated files for scripts
  SCRIPT_SH_GEN = $(patsubst %.sh,%,$(SCRIPT_SH))
--SCRIPT_PERL_GEN = $(patsubst %.perl,%,$(SCRIPT_PERL))
-+SCRIPT_PERL_GEN = $(patsubst %.perl,%,$(SCRIPT_PERL) $(SCRIPT_PERL_CVS))
+ SCRIPT_PERL_GEN = $(patsubst %.perl,%,$(SCRIPT_PERL))
++SCRIPT_PERL_CVS_GEN = $(patsubst %.perl,%,$(SCRIPT_PERL_CVS))
  SCRIPT_PYTHON_GEN = $(patsubst %.py,%,$(SCRIPT_PYTHON))
  
  SCRIPT_SH_INS = $(filter-out $(NO_INSTALL),$(SCRIPT_SH_GEN))
-@@ -1779,8 +1783,18 @@
- 	  $(join -DMAJOR= -DMINOR=, $(wordlist 1,2,$(subst -, ,$(subst ., ,$(GIT_VERSION))))) \
+ SCRIPT_PERL_INS = $(filter-out $(NO_INSTALL),$(SCRIPT_PERL_GEN))
++SCRIPT_PERL_CVS_INS = $(filter-out $(NO_INSTALL),$(SCRIPT_PERL_CVS_GEN))
+ SCRIPT_PYTHON_INS = $(filter-out $(NO_INSTALL),$(SCRIPT_PYTHON_GEN))
+ 
+ # Individual rules to allow e.g.
+ # "make -C ../.. SCRIPT_PERL=contrib/foo/bar.perl build-perl-script"
+ # from subdirectories like contrib/*/
+ .PHONY: build-perl-script build-sh-script build-python-script
+-build-perl-script: $(SCRIPT_PERL_GEN)
++build-perl-script: $(SCRIPT_PERL_GEN) $(SCRIPT_PERL_CVS_GEN)
+ build-sh-script: $(SCRIPT_SH_GEN)
+ build-python-script: $(SCRIPT_PYTHON_GEN)
+ 
+ .PHONY: install-perl-script install-sh-script install-python-script
+ install-sh-script: $(SCRIPT_SH_INS)
+ 	$(INSTALL) $^ '$(DESTDIR_SQ)$(gitexec_instdir_SQ)'
+-install-perl-script: $(SCRIPT_PERL_INS)
++install-perl-script: $(SCRIPT_PERL_INS) $(SCRIPT_PERL_CVS_INS)
+ 	$(INSTALL) $^ '$(DESTDIR_SQ)$(gitexec_instdir_SQ)'
+ install-python-script: $(SCRIPT_PYTHON_INS)
+ 	$(INSTALL) $^ '$(DESTDIR_SQ)$(gitexec_instdir_SQ)'
+@@ -550,12 +556,13 @@ install-python-script: $(SCRIPT_PYTHON_INS)
+ clean-sh-script:
+ 	$(RM) $(SCRIPT_SH_GEN)
+ clean-perl-script:
+-	$(RM) $(SCRIPT_PERL_GEN)
++	$(RM) $(SCRIPT_PERL_GEN) $(SCRIPT_PERL_CVS_GEN)
+ clean-python-script:
+ 	$(RM) $(SCRIPT_PYTHON_GEN)
+ 
+ SCRIPTS = $(SCRIPT_SH_INS) \
+ 	  $(SCRIPT_PERL_INS) \
++	  $(SCRIPT_PERL_CVS_INS) \
+ 	  $(SCRIPT_PYTHON_INS) \
+ 	  git-instaweb
+ 
+@@ -1776,10 +1783,24 @@ git.res: git.rc GIT-VERSION-FILE
  	  -DGIT_VERSION="\\\"$(GIT_VERSION)\\\"" $< -o $@
  
-+_SCRIPT_PERL_BUILD = 
-+_SCRIPT_PERL_NOBUILD = 
+ # This makes sure we depend on the NO_PERL setting itself.
+-$(SCRIPT_PERL_GEN): GIT-BUILD-OPTIONS
++$(SCRIPT_PERL_GEN) $(SCRIPT_PERL_CVS_GEN): GIT-BUILD-OPTIONS
 +
++_SCRIPT_PERL_GEN =
++_SCRIPT_PERL_NOGEN =
+ 
  ifndef NO_PERL
--$(patsubst %.perl,%,$(SCRIPT_PERL)): perl/perl.mak
+-$(SCRIPT_PERL_GEN): perl/perl.mak
 +
-+_SCRIPT_PERL_BUILD += $(SCRIPT_PERL)
++_SCRIPT_PERL_GEN = $(SCRIPT_PERL_GEN)
 +
 +ifndef NO_CVS
-+_SCRIPT_PERL_BUILD += $(SCRIPT_PERL_CVS)
-+else # NO_CVS
-+_SCRIPT_PERL_NOBUILD += $(SCRIPT_PERL_CVS)
++_SCRIPT_PERL_GEN += $(SCRIPT_PERL_CVS_GEN)
++else
++_SCRIPT_PERL_NOGEN += $(SCRIPT_PERL_CVS_GEN)
++_REASON = NO_CVS
++_REASON_CONTENT = $(NO_CVS)
 +endif # NO_CVS
++
++$(_SCRIPT_PERL_GEN): perl/perl.mak
  
  perl/perl.mak: perl/PM.stamp
  
-@@ -1793,7 +1807,7 @@
+@@ -1792,7 +1813,7 @@ perl/perl.mak: GIT-CFLAGS GIT-PREFIX perl/Makefile perl/Makefile.PL
  	$(QUIET_SUBDIR0)perl $(QUIET_SUBDIR1) PERL_PATH='$(PERL_PATH_SQ)' prefix='$(prefix_SQ)' $(@F)
  
  PERL_DEFINES = $(PERL_PATH_SQ):$(PERLLIB_EXTRA_SQ)
--$(patsubst %.perl,%,$(SCRIPT_PERL)): % : %.perl perl/perl.mak GIT-PERL-DEFINES GIT-VERSION-FILE
-+$(patsubst %.perl,%,$(_SCRIPT_PERL_BUILD)): % : %.perl perl/perl.mak GIT-PERL-DEFINES GIT-VERSION-FILE
+-$(SCRIPT_PERL_GEN): % : %.perl perl/perl.mak GIT-PERL-DEFINES GIT-VERSION-FILE
++$(_SCRIPT_PERL_GEN): % : %.perl perl/perl.mak GIT-PERL-DEFINES GIT-VERSION-FILE
  	$(QUIET_GEN)$(RM) $@ $@+ && \
  	INSTLIBDIR=`MAKEFLAGS= $(MAKE) -C perl -s --no-print-directory instlibdir` && \
  	INSTLIBDIR_EXTRA='$(PERLLIB_EXTRA_SQ)' && \
-@@ -1826,15 +1840,18 @@
- 	$(QUIET_GEN)$(cmd_munge_script) && \
+@@ -1826,14 +1847,18 @@ git-instaweb: git-instaweb.sh GIT-SCRIPT-DEFINES
  	chmod +x $@+ && \
  	mv $@+ $@
  else # NO_PERL
--$(patsubst %.perl,%,$(SCRIPT_PERL)) git-instaweb: % : unimplemented.sh
-+_SCRIPT_PERL_NOBUILD += $(SCRIPT_PERL) $(SCRIPT_PERL_CVS) git-instaweb
+-$(SCRIPT_PERL_GEN) git-instaweb: % : unimplemented.sh
++_SCRIPT_PERL_NOGEN += $(SCRIPT_PERL_GEN) $(SCRIPT_PERL_CVS_GEN) git-instaweb
++_REASON = NO_PERL
++_REASON_CONTENT = $(NO_PERL)
 +endif # NO_PERL
 +
-+# This is any perl scripts that were disabled it might be empty...
-+$(patsubst %.perl,%,$(_SCRIPT_PERL_NOBUILD)): % : unimplemented.sh
++$(_SCRIPT_PERL_NOGEN): % : unimplemented.sh
  	$(QUIET_GEN)$(RM) $@ $@+ && \
  	sed -e '1s|#!.*/sh|#!$(SHELL_PATH_SQ)|' \
- 	    -e 's|@@REASON@@|NO_PERL=$(NO_PERL)|g' \
+-	    -e 's|@@REASON@@|NO_PERL=$(NO_PERL)|g' \
++	    -e 's|@@REASON@@|$(_REASON)=$(_REASON_CONTENT)|g' \
  	    unimplemented.sh >$@+ && \
  	chmod +x $@+ && \
  	mv $@+ $@
 -endif # NO_PERL
  
- ifndef NO_PYTHON
- $(SCRIPT_PYTHON_GEN): GIT-CFLAGS GIT-PREFIX GIT-PYTHON-VARS
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9200-git-cvsexportcommit.sh git-2.0.0/t/t9200-git-cvsexportcommit.sh
---- git-2.0.0.orig/t/t9200-git-cvsexportcommit.sh	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/t/t9200-git-cvsexportcommit.sh	2014-05-28 16:47:41.812727825 -0700
-@@ -11,6 +11,11 @@
+ # This makes sure we depend on the NO_PYTHON setting itself.
+ $(SCRIPT_PYTHON_GEN): GIT-BUILD-OPTIONS
+@@ -2064,7 +2089,7 @@ XGETTEXT_FLAGS_SH = $(XGETTEXT_FLAGS) --language=Shell \
+ XGETTEXT_FLAGS_PERL = $(XGETTEXT_FLAGS) --keyword=__ --language=Perl
+ LOCALIZED_C = $(C_OBJ:o=c) $(LIB_H) $(GENERATED_H)
+ LOCALIZED_SH = $(SCRIPT_SH) git-parse-remote.sh
+-LOCALIZED_PERL = $(SCRIPT_PERL)
++LOCALIZED_PERL = $(SCRIPT_PERL) $(SCRIPT_PERL_CVS)
+ 
+ ifdef XGETTEXT_INCLUDE_TESTS
+ LOCALIZED_C += t/t0200/test.c
+diff --git a/t/t9200-git-cvsexportcommit.sh b/t/t9200-git-cvsexportcommit.sh
+index bb879a5..17be197 100755
+--- a/t/t9200-git-cvsexportcommit.sh
++++ b/t/t9200-git-cvsexportcommit.sh
+@@ -11,6 +11,11 @@ if ! test_have_prereq PERL; then
  	test_done
  fi
  
@@ -121,10 +191,11 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9200-git-cvsex
  cvs >/dev/null 2>&1
  if test $? -ne 1
  then
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9400-git-cvsserver-server.sh git-2.0.0/t/t9400-git-cvsserver-server.sh
---- git-2.0.0.orig/t/t9400-git-cvsserver-server.sh	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/t/t9400-git-cvsserver-server.sh	2014-05-28 16:47:41.812727825 -0700
-@@ -11,9 +11,15 @@
+diff --git a/t/t9400-git-cvsserver-server.sh b/t/t9400-git-cvsserver-server.sh
+index 432c61d..6907b3f 100755
+--- a/t/t9400-git-cvsserver-server.sh
++++ b/t/t9400-git-cvsserver-server.sh
+@@ -11,9 +11,15 @@ cvs CLI client via git-cvsserver server'
  . ./test-lib.sh
  
  if ! test_have_prereq PERL; then
@@ -141,10 +212,11 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9400-git-cvsse
  cvs >/dev/null 2>&1
  if test $? -ne 1
  then
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9401-git-cvsserver-crlf.sh git-2.0.0/t/t9401-git-cvsserver-crlf.sh
---- git-2.0.0.orig/t/t9401-git-cvsserver-crlf.sh	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/t/t9401-git-cvsserver-crlf.sh	2014-05-28 16:47:41.812727825 -0700
-@@ -57,15 +57,20 @@
+diff --git a/t/t9401-git-cvsserver-crlf.sh b/t/t9401-git-cvsserver-crlf.sh
+index f324b9f..e1eed50 100755
+--- a/t/t9401-git-cvsserver-crlf.sh
++++ b/t/t9401-git-cvsserver-crlf.sh
+@@ -57,15 +57,20 @@ check_status_options() {
      return $stat
  }
  
@@ -170,9 +242,10 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9401-git-cvsse
      test_done
  fi
  perl -e 'use DBI; use DBD::SQLite' >/dev/null 2>&1 || {
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport.sh git-2.0.0/t/t9600-cvsimport.sh
---- git-2.0.0.orig/t/t9600-cvsimport.sh	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/t/t9600-cvsimport.sh	2014-05-28 16:47:41.813727843 -0700
+diff --git a/t/t9600-cvsimport.sh b/t/t9600-cvsimport.sh
+index 4c384ff..d601f32 100755
+--- a/t/t9600-cvsimport.sh
++++ b/t/t9600-cvsimport.sh
 @@ -3,14 +3,25 @@
  test_description='git cvsimport basic tests'
  . ./lib-cvs.sh
@@ -202,7 +275,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
  
  	mkdir "$CVSROOT/module" &&
  	$CVS co -d module-cvs module &&
-@@ -42,23 +53,23 @@
+@@ -42,23 +53,23 @@ EOF
  	)
  '
  
@@ -230,7 +303,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
  	(cd module-cvs &&
  	cat <<EOF >o_fortuna &&
  O Fortune,
-@@ -86,7 +97,7 @@
+@@ -86,7 +97,7 @@ EOF
  	)
  '
  
@@ -239,7 +312,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
  
  	(cd module-git &&
  	git config cvsimport.trackRevisions true &&
-@@ -97,7 +108,7 @@
+@@ -97,7 +108,7 @@ test_expect_success PERL 'update git module' '
  
  '
  
@@ -248,7 +321,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
  
  	(cd module-git &&
  	 git log --format="o_fortuna 1.1 %H" -1 HEAD^ &&
-@@ -105,7 +116,7 @@
+@@ -105,7 +116,7 @@ test_expect_success PERL 'update has correct .git/cvs-revisions' '
  	test_cmp expected module-git/.git/cvs-revisions
  '
  
@@ -257,7 +330,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
  
  	(cd module-cvs &&
  		echo 1 >tick &&
-@@ -114,7 +125,7 @@
+@@ -114,7 +125,7 @@ test_expect_success PERL 'update cvs module' '
  	)
  '
  
@@ -266,7 +339,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
  
  	(cd module-git &&
  		git config cvsimport.module module &&
-@@ -126,7 +137,7 @@
+@@ -126,7 +137,7 @@ test_expect_success PERL 'cvsimport.module config works' '
  
  '
  
@@ -275,7 +348,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
  
  	(cd module-git &&
  	 git log --format="o_fortuna 1.1 %H" -1 HEAD^^ &&
-@@ -135,7 +146,7 @@
+@@ -135,7 +146,7 @@ test_expect_success PERL 'second update has correct .git/cvs-revisions' '
  	test_cmp expected module-git/.git/cvs-revisions
  '
  
@@ -284,7 +357,7 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
  
  	$CVS co -d import-from-wt module &&
  	(cd import-from-wt &&
-@@ -148,12 +159,12 @@
+@@ -148,12 +159,12 @@ test_expect_success PERL 'import from a CVS working tree' '
  
  '
  
@@ -299,9 +372,10 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9600-cvsimport
 +test_expect_success 'test entire HEAD' 'test_cmp_branch_tree master'
  
  test_done
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9601-cvsimport-vendor-branch.sh git-2.0.0/t/t9601-cvsimport-vendor-branch.sh
---- git-2.0.0.orig/t/t9601-cvsimport-vendor-branch.sh	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/t/t9601-cvsimport-vendor-branch.sh	2014-05-28 16:47:41.813727843 -0700
+diff --git a/t/t9601-cvsimport-vendor-branch.sh b/t/t9601-cvsimport-vendor-branch.sh
+index 827d39f..d730a41 100755
+--- a/t/t9601-cvsimport-vendor-branch.sh
++++ b/t/t9601-cvsimport-vendor-branch.sh
 @@ -34,6 +34,17 @@
  test_description='git cvsimport handling of vendor branches'
  . ./lib-cvs.sh
@@ -320,9 +394,10 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9601-cvsimport
  setup_cvs_test_repository t9601
  
  test_expect_success PERL 'import a module with a vendor branch' '
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9602-cvsimport-branches-tags.sh git-2.0.0/t/t9602-cvsimport-branches-tags.sh
---- git-2.0.0.orig/t/t9602-cvsimport-branches-tags.sh	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/t/t9602-cvsimport-branches-tags.sh	2014-05-28 16:47:41.813727843 -0700
+diff --git a/t/t9602-cvsimport-branches-tags.sh b/t/t9602-cvsimport-branches-tags.sh
+index e1db323..68f0974 100755
+--- a/t/t9602-cvsimport-branches-tags.sh
++++ b/t/t9602-cvsimport-branches-tags.sh
 @@ -6,6 +6,17 @@
  test_description='git cvsimport handling of branches and tags'
  . ./lib-cvs.sh
@@ -341,9 +416,10 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9602-cvsimport
  setup_cvs_test_repository t9602
  
  test_expect_success PERL 'import module' '
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9603-cvsimport-patchsets.sh git-2.0.0/t/t9603-cvsimport-patchsets.sh
---- git-2.0.0.orig/t/t9603-cvsimport-patchsets.sh	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/t/t9603-cvsimport-patchsets.sh	2014-05-28 16:47:41.813727843 -0700
+diff --git a/t/t9603-cvsimport-patchsets.sh b/t/t9603-cvsimport-patchsets.sh
+index c4c3c49..9b2957d 100755
+--- a/t/t9603-cvsimport-patchsets.sh
++++ b/t/t9603-cvsimport-patchsets.sh
 @@ -14,6 +14,17 @@
  test_description='git cvsimport testing for correct patchset estimation'
  . ./lib-cvs.sh
@@ -361,11 +437,12 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/t9603-cvsimport
 +
  setup_cvs_test_repository t9603
  
- test_expect_failure 'import with criss cross times on revisions' '
-diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/test-lib.sh git-2.0.0/t/test-lib.sh
---- git-2.0.0.orig/t/test-lib.sh	2014-05-28 12:10:36.000000000 -0700
-+++ git-2.0.0/t/test-lib.sh	2014-05-28 16:47:41.813727843 -0700
-@@ -777,6 +777,7 @@
+ test_expect_failure PERL 'import with criss cross times on revisions' '
+diff --git a/t/test-lib.sh b/t/test-lib.sh
+index 0055ebb..5b9bd2e 100644
+--- a/t/test-lib.sh
++++ b/t/test-lib.sh
+@@ -969,6 +969,7 @@ case $(uname -s) in
  esac
  
  ( COLUMNS=1 && test $COLUMNS = 1 ) && test_set_prereq COLUMNS_CAN_BE_1
@@ -373,3 +450,6 @@ diff -Nuar --exclude '*.orig' --exclude '*.rej' git-2.0.0.orig/t/test-lib.sh git
  test -z "$NO_PERL" && test_set_prereq PERL
  test -z "$NO_PYTHON" && test_set_prereq PYTHON
  test -n "$USE_LIBPCRE" && test_set_prereq LIBPCRE
+-- 
+2.8.3
+
