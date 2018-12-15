@@ -1,9 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-
-inherit autotools-utils
+EAPI=6
 
 DESCRIPTION="Parallel bzip2 utility"
 HOMEPAGE="https://github.com/kjn/lbzip2/"
@@ -17,18 +15,22 @@ IUSE="debug symlink"
 RDEPEND="symlink? ( !app-arch/pbzip2[symlink] )"
 DEPEND=""
 
-PATCHES=( "${FILESDIR}"/${PN}-2.3-s_isreg.patch )
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.3-s_isreg.patch
+	# bug 669594
+	"${FILESDIR}"/${PN}-2.5-glibc-2.28.patch
+)
 
 src_configure() {
 	local myeconfargs=(
 		--disable-silent-rules
 		$(use_enable debug tracing)
 	)
-	autotools-utils_src_configure
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
-	autotools-utils_src_install
+	default
 
 	if use symlink; then
 		dosym ${PN} /usr/bin/bzip2
