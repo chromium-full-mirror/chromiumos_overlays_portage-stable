@@ -1,1 +1,0 @@
-certifi-2017.4.17-r1.ebuild
