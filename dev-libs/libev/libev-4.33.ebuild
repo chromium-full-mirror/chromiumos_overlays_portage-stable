@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 inherit autotools eutils multilib-minimal
 
@@ -17,13 +17,13 @@ IUSE="static-libs"
 
 DOCS=( Changes README )
 
+# bug #411847
+PATCHES=( "${FILESDIR}/${PN}-4.25-pc.patch" )
+
 src_prepare() {
+	default
 	sed -i -e "/^include_HEADERS/s/ event.h//" Makefile.am || die
 
-	# bug #411847
-	epatch "${FILESDIR}/${PN}-pc.patch"
-
-	epatch_user
 	eautoreconf
 }
 
@@ -35,6 +35,8 @@ multilib_src_configure() {
 }
 
 multilib_src_install_all() {
-	use static-libs || prune_libtool_files
+	if ! use static-libs; then
+		find "${D}" -name '*.la' -type f -delete || die
+	fi
 	einstalldocs
 }
