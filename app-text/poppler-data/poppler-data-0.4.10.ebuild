@@ -1,12 +1,11 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/poppler-data/poppler-data-0.4.7.ebuild,v 1.10 2015/02/28 14:10:43 ago Exp $
 
-EAPI=5
+EAPI=7
 
 DESCRIPTION="Data files for poppler to support uncommon encodings without xpdfrc"
-HOMEPAGE="http://poppler.freedesktop.org/"
-SRC_URI="http://poppler.freedesktop.org/${P}.tar.gz"
+HOMEPAGE="https://poppler.freedesktop.org/"
+SRC_URI="https://poppler.freedesktop.org/${P}.tar.gz"
 
 LICENSE="BSD GPL-2 MIT"
 KEYWORDS="*"

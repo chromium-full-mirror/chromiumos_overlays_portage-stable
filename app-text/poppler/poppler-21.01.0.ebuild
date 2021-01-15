@@ -1,9 +1,9 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 2005-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit cmake-utils flag-o-matic toolchain-funcs xdg-utils
+inherit cmake toolchain-funcs xdg-utils
 
 if [[ ${PV} == *9999* ]] ; then
 	inherit git-r3
@@ -12,14 +12,14 @@ if [[ ${PV} == *9999* ]] ; then
 else
 	SRC_URI="https://poppler.freedesktop.org/${P}.tar.xz"
 	KEYWORDS="*"
-	SLOT="0/90"   # CHECK THIS WHEN BUMPING!!! SUBSLOT IS libpoppler.so SOVERSION
+	SLOT="0/106"   # CHECK THIS WHEN BUMPING!!! SUBSLOT IS libpoppler.so SOVERSION
 fi
 
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="https://poppler.freedesktop.org/"
 
 LICENSE="GPL-2"
-IUSE="cairo cjk curl cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt5 tiff +utils"
+IUSE="cairo cjk curl +cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt5 tiff +utils"
 
 # No test data provided
 RESTRICT="test"
@@ -57,15 +57,13 @@ RDEPEND="${DEPEND}
 DOCS=( AUTHORS NEWS README.md README-XPDF )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-0.60.1-qt5-dependencies.patch"
-	"${FILESDIR}/${PN}-0.28.1-fix-multilib-configuration.patch"
-	"${FILESDIR}/${PN}-0.78.0-respect-cflags.patch"
-	"${FILESDIR}/${PN}-0.61.0-respect-cflags.patch"
+	"${FILESDIR}/${PN}-20.12.1-qt5-deps.patch"
+	"${FILESDIR}/${PN}-20.12.0-respect-cflags.patch"
 	"${FILESDIR}/${PN}-0.57.0-disable-internal-jpx.patch"
 )
 
 src_prepare() {
-	cmake-utils_src_prepare
+	cmake_src_prepare
 
 	# Clang doesn't grok this flag, the configure nicely tests that, but
 	# cmake just uses it, so remove it if we use clang
@@ -79,9 +77,6 @@ src_prepare() {
 	else
 		einfo "policy(SET CMP0002 OLD) - workaround can be removed"
 	fi
-
-	# we need to up the C++ version, bug #622526, #643278
-	append-cxxflags -std=c++11
 }
 
 src_configure() {
@@ -90,12 +85,11 @@ src_configure() {
 		-DBUILD_GTK_TESTS=OFF
 		-DBUILD_QT5_TESTS=OFF
 		-DBUILD_CPP_TESTS=OFF
+		-DRUN_GPERF_IF_PRESENT=OFF
 		-DENABLE_SPLASH=ON
 		-DENABLE_ZLIB=ON
 		-DENABLE_ZLIB_UNCOMPRESS=OFF
 		-DENABLE_UNSTABLE_API_ABI_HEADERS=ON
-		-DSPLASH_CMYK=OFF
-		-DUSE_FIXEDPOINT=OFF
 		-DUSE_FLOAT=OFF
 		-DWITH_Cairo=$(usex cairo)
 		-DENABLE_LIBCURL=$(usex curl)
@@ -106,17 +100,18 @@ src_configure() {
 		-DENABLE_CMS=$(usex lcms lcms2 none)
 		-DWITH_NSS3=$(usex nss)
 		-DWITH_PNG=$(usex png)
-		$(cmake-utils_use_find_package qt5 Qt5Core)
+		$(cmake_use_find_package qt5 Qt5Core)
 		-DWITH_TIFF=$(usex tiff)
 		-DENABLE_UTILS=$(usex utils)
+		-DENABLE_QT6=OFF
 	)
 	use cairo && mycmakeargs+=( -DWITH_GObjectIntrospection=$(usex introspection) )
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	# live version doesn't provide html documentation
 	if use cairo && use doc && [[ ${PV} != *9999* ]]; then
