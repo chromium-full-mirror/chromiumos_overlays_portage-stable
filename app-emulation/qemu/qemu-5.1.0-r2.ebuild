@@ -3,20 +3,19 @@
 
 EAPI="7"
 
-PYTHON_COMPAT=( python{3_6,3_7,3_8} )
+PYTHON_COMPAT=( python3_{6,7,8,9} )
 PYTHON_REQ_USE="ncurses,readline"
 
-PLOCALES="bg de_DE fr_FR hu it tr zh_CN"
+PLOCALES="bg de_DE fr_FR hu it sv tr zh_CN"
 
 FIRMWARE_ABI_VERSION="4.0.0-r50"
 
-inherit eutils flag-o-matic linux-info toolchain-funcs multilib python-r1 \
+inherit eutils linux-info toolchain-funcs multilib python-r1 \
 	udev fcaps readme.gentoo-r1 pax-utils l10n xdg-utils
 
 if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://git.qemu.org/git/qemu.git"
 	EGIT_SUBMODULES=(
-		slirp
 		tests/fp/berkeley-{test,soft}float-3
 		ui/keycodemapdb
 	)
@@ -35,10 +34,12 @@ SLOT="0"
 
 IUSE="accessibility +aio alsa bzip2 capstone +caps +curl debug doc
 	+fdt glusterfs gnutls gtk infiniband iscsi io-uring
-	jemalloc +jpeg kernel_linux
-	kernel_FreeBSD lzo ncurses nfs nls numa opengl +oss +pin-upstream-blobs
+	jack jemalloc +jpeg kernel_linux
+	kernel_FreeBSD lzo multipath
+	ncurses nfs nls numa opengl +oss +pin-upstream-blobs
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
-	smartcard snappy spice ssh static static-user systemtap tci test usb
+	+slirp
+	smartcard snappy spice ssh static static-user systemtap test usb
 	usbredir vde +vhost-net vhost-user-fs virgl virtfs +vnc vte xattr xen
 	xfs +xkb zstd"
 
@@ -46,7 +47,7 @@ COMMON_TARGETS="aarch64 alpha arm cris hppa i386 m68k microblaze microblazeel
 	mips mips64 mips64el mipsel nios2 or1k ppc ppc64 riscv32 riscv64 s390x
 	sh4 sh4eb sparc sparc64 x86_64 xtensa xtensaeb"
 IUSE_SOFTMMU_TARGETS="${COMMON_TARGETS}
-	lm32 moxie rx tricore unicore32"
+	avr lm32 moxie rx tricore unicore32"
 IUSE_USER_TARGETS="${COMMON_TARGETS}
 	aarch64_be armeb mipsn32 mipsn32el ppc64abi32 ppc64le sparc32plus
 	tilegx"
@@ -66,9 +67,9 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	qemu_softmmu_targets_ppc? ( fdt )
 	qemu_softmmu_targets_riscv32? ( fdt )
 	qemu_softmmu_targets_riscv64? ( fdt )
-	static? ( static-user !alsa !gtk !opengl !pulseaudio !plugins !rbd !snappy )
+	static? ( static-user !alsa !gtk !jack !opengl !pulseaudio !plugins !rbd !snappy )
 	static-user? ( !plugins )
-	virtfs? ( xattr )
+	virtfs? ( caps xattr )
 	vte? ( gtk )
 	plugins? ( !static !static-user )
 "
@@ -120,10 +121,12 @@ SOFTMMU_TOOLS_DEPEND="
 		sys-fabric/librdmacm:=[static-libs(+)]
 	)
 	iscsi? ( net-libs/libiscsi )
-	io-uring? ( sys-libs/liburing[static-libs(+)] )
+	io-uring? ( sys-libs/liburing:=[static-libs(+)] )
+	jack? ( virtual/jack )
 	jemalloc? ( dev-libs/jemalloc )
 	jpeg? ( virtual/jpeg:0=[static-libs(+)] )
 	lzo? ( dev-libs/lzo:2[static-libs(+)] )
+	multipath? ( sys-fs/multipath-tools )
 	ncurses? (
 		sys-libs/ncurses:0=[unicode]
 		sys-libs/ncurses:0=[static-libs(+)]
@@ -146,6 +149,7 @@ SOFTMMU_TOOLS_DEPEND="
 	)
 	sdl-image? ( media-libs/sdl2-image[static-libs(+)] )
 	seccomp? ( >=sys-libs/libseccomp-2.1.0[static-libs(+)] )
+	slirp? ( net-libs/libslirp[static-libs(+)] )
 	smartcard? ( >=app-emulation/libcacard-2.5.0[static-libs(+)] )
 	snappy? ( app-arch/snappy:= )
 	spice? (
@@ -166,13 +170,13 @@ SOFTMMU_TOOLS_DEPEND="
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
 		~sys-firmware/edk2-ovmf-201905[binary]
-		~sys-firmware/ipxe-1.0.0_p20190728[binary]
+		~sys-firmware/ipxe-1.0.0_p20190728[binary,qemu]
 		~sys-firmware/seabios-1.12.0[binary,seavgabios]
 		~sys-firmware/sgabios-0.1_pre8[binary]
 	)
 	!pin-upstream-blobs? (
 		sys-firmware/edk2-ovmf
-		sys-firmware/ipxe
+		sys-firmware/ipxe[qemu]
 		>=sys-firmware/seabios-1.10.2[seavgabios]
 		sys-firmware/sgabios
 	)"
@@ -221,8 +225,9 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.11.1-capstone_include_path.patch
 	"${FILESDIR}"/${PN}-4.0.0-mkdir_systemtap.patch #684902
 	"${FILESDIR}"/${PN}-4.2.0-cflags.patch
-	"${FILESDIR}"/${PN}-5.0.0-epoll-strace.patch
-	"${FILESDIR}"/${PN}-5.0.0-os_find_datadir-search.patch
+	"${FILESDIR}"/${PN}-5.1.0-os_find_datadir-search.patch
+	"${FILESDIR}"/${PN}-5.1.0-pixman-for-vhost-user-gpu.patch
+	"${FILESDIR}"/${PN}-5.1.0-usb-oob-CVE-2020-14364.patch #743649
 )
 
 QA_PREBUILT="
@@ -281,7 +286,7 @@ For systemd:
 
 pkg_pretend() {
 	if use kernel_linux && kernel_is lt 2 6 25; then
-		eerror "This version of KVM requres a host kernel of 2.6.25 or higher."
+		eerror "This version of KVM requires a host kernel of 2.6.25 or higher."
 	elif use kernel_linux; then
 		if ! linux_config_exists; then
 			eerror "Unable to check your kernel for KVM support"
@@ -412,8 +417,19 @@ qemu_src_configure() {
 		--with-confsuffix=/qemu
 		--localstatedir=/var
 		--disable-bsd-user
+		--disable-containers # bug #732972
 		--disable-guest-agent
 		--disable-strip
+
+		# bug #746752: TCG interpreter has a few limitations:
+		# - it does not support FPU
+		# - it's generally slower on non-self-modifying code
+		# It's advantage is support for host architectures
+		# where native codegeneration is not implemented.
+		# Gentoo has qemu keyworded only on targets with
+		# native code generation available. Avoid the interpreter.
+		--disable-tcg-interpreter
+
 		--disable-werror
 		# We support gnutls/nettle for crypto operations.  It is possible
 		# to use gcrypt when gnutls/nettle are disabled (but not when they
@@ -428,7 +444,6 @@ qemu_src_configure() {
 		$(use_enable debug debug-tcg)
 		$(use_enable doc docs)
 		$(use_enable plugins)
-		$(use_enable tci tcg-interpreter)
 		$(use_enable xattr attr)
 	)
 
@@ -460,6 +475,7 @@ qemu_src_configure() {
 		$(conf_notuser jpeg vnc-jpeg)
 		$(conf_notuser kernel_linux kvm)
 		$(conf_notuser lzo)
+		$(conf_notuser multipath mpath)
 		$(conf_notuser ncurses curses)
 		$(conf_notuser nfs libnfs)
 		$(conf_notuser numa)
@@ -470,6 +486,7 @@ qemu_src_configure() {
 		$(conf_notuser sdl)
 		$(conf_notuser sdl-image)
 		$(conf_notuser seccomp)
+		$(conf_notuser slirp slirp system)
 		$(conf_notuser smartcard)
 		$(conf_notuser snappy)
 		$(conf_notuser spice)
@@ -502,6 +519,7 @@ qemu_src_configure() {
 			# Note: backend order matters here: #716202
 			# We iterate from higher-level to lower level.
 			$(usex pulseaudio pa "")
+			$(usev jack)
 			$(usev sdl)
 			$(usev alsa)
 			$(usev oss)
@@ -554,6 +572,10 @@ qemu_src_configure() {
 	else
 		tc-enables-pie && conf_opts+=( --enable-pie )
 	fi
+
+	# Plumb through equivalent of EXTRA_ECONF to allow experiments
+	# like bug #747928.
+	conf_opts+=( ${EXTRA_CONF_QEMU} )
 
 	echo "../configure ${conf_opts[*]}"
 	cd "${builddir}"

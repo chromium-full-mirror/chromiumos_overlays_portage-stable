@@ -18,17 +18,6 @@ diff --git a/os-posix.c b/os-posix.c
 index 3cd52e1e70..f77da94bf6 100644
 --- a/os-posix.c
 +++ b/os-posix.c
-@@ -82,8 +82,9 @@ void os_setup_signal_handling(void)
- 
- /*
-  * Find a likely location for support files using the location of the binary.
-+ * Typically, this would be "$bindir/../share/qemu".
-  * When running from the build tree this will be "$bindir/../pc-bios".
-- * Otherwise, this is CONFIG_QEMU_DATADIR.
-+ * Otherwise, this is CONFIG_QEMU_DATADIR as constructed by configure.
-  */
- char *os_find_datadir(void)
- {
 @@ -93,6 +94,12 @@ char *os_find_datadir(void)
      exec_dir = qemu_get_exec_dir();
      g_return_val_if_fail(exec_dir != NULL, NULL);
