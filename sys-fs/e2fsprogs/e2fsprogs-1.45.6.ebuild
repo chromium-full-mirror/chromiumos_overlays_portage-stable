@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -7,8 +7,7 @@ inherit flag-o-matic systemd toolchain-funcs udev usr-ldscript
 
 DESCRIPTION="Standard EXT2/EXT3/EXT4 filesystem utilities"
 HOMEPAGE="http://e2fsprogs.sourceforge.net/"
-SRC_URI="mirror://sourceforge/e2fsprogs/${P}.tar.xz
-	https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${PV}/${P}.tar.xz
+SRC_URI="https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${PV}/${P}.tar.xz
 	elibc_mintlib? ( mirror://gentoo/${PN}-1.42.9-mint-r1.patch.xz )"
 
 LICENSE="GPL-2 BSD"
