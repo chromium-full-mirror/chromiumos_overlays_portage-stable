@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -15,7 +15,7 @@ SRC_URI="https://www.iana.org/time-zones/repository/releases/tzdata${data_ver}.t
 LICENSE="BSD public-domain"
 SLOT="0"
 KEYWORDS="*"
-IUSE="nls leaps-timezone elibc_FreeBSD"
+IUSE="nls leaps-timezone elibc_FreeBSD zic-slim"
 
 DEPEND="nls? ( virtual/libintl )"
 RDEPEND="${DEPEND}
@@ -43,6 +43,11 @@ src_configure() {
 	fi
 
 	append-cppflags -DHAVE_GETTEXT=$(usex nls 1 0) -DTZ_DOMAIN='\"libc\"'
+
+	# Upstream default is 'slim', but it breaks quite a few programs
+	# that parse /etc/localtime directly: bug# 747538.
+	append-cppflags -DZIC_BLOAT_DEFAULT='\"'$(usex zic-slim slim fat)'\"'
+
 	LDLIBS=""
 	if use nls ; then
 		# See if an external libintl is available. #154181 #578424
