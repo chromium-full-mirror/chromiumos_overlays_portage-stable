@@ -2,13 +2,10 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 <maintainer type="project">
-	<email>x11@gentoo.org</email>
-	<name>X11</name>
+  <email>x11@gentoo.org</email>
+  <name>X11</name>
 </maintainer>
-<use>
-	<flag name="loongson2f">Enable Loongson2f MMI optimizations.</flag>
-</use>
 <upstream>
-	<remote-id type="cpe">cpe:/a:pixman:pixman</remote-id>
+  <remote-id type="cpe">cpe:/a:x.org:libx11</remote-id>
 </upstream>
 </pkgmetadata>

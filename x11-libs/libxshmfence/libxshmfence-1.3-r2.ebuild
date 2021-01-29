@@ -1,14 +1,13 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
+
 XORG_MULTILIB=yes
-inherit xorg-2
+inherit xorg-3
 
 DESCRIPTION="Shared memory fences using futexes"
 
 KEYWORDS="*"
-IUSE=""
 
-RDEPEND=""
 DEPEND="x11-base/xorg-proto"

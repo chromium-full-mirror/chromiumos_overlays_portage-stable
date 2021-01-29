@@ -17,3 +17,4 @@
 +    size = bfd_section_size (section);
      if (symbol->pc >= vma + size)
  	return;
+ 

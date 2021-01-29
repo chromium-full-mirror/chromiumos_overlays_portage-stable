@@ -1,24 +1,22 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 XORG_DOC=doc
 XORG_MULTILIB=yes
-inherit xorg-2
+inherit xorg-3
 
 DESCRIPTION="X.Org X Display Manager Control Protocol library"
 
 KEYWORDS="*"
 IUSE=""
 
-RDEPEND="x11-base/xorg-proto
-	elibc_glibc? ( dev-libs/libbsd )"
-DEPEND="${RDEPEND}"
+RDEPEND="elibc_glibc? ( dev-libs/libbsd )"
+DEPEND="${RDEPEND}
+	x11-base/xorg-proto"
 
 pkg_setup() {
-	xorg-2_pkg_setup
-
 	XORG_CONFIGURE_OPTIONS=(
 		$(use_enable doc docs)
 		$(use_with doc xmlto)

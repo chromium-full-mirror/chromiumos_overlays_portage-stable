@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,8 +13,10 @@ KEYWORDS="*"
 IUSE="ipv6 test"
 RESTRICT="!test? ( test )"
 
-RDEPEND=">=x11-libs/libxcb-1.11.1[${MULTILIB_USEDEP}]
-	!<x11-base/xorg-proto-2019.2"
+RDEPEND="
+	>=x11-libs/libxcb-1.11.1[${MULTILIB_USEDEP}]
+	!<x11-base/xorg-proto-2019.2
+	x11-misc/compose-tables"
 DEPEND="${RDEPEND}
 	x11-base/xorg-proto
 	x11-libs/xtrans"
@@ -28,4 +30,9 @@ pkg_setup() {
 		--without-fop
 		CPP="$(tc-getPROG CPP cpp)"
 	)
+}
+
+src_install() {
+	xorg-3_src_install
+	rm -Rf "${ED}/usr/share/X11/locale"
 }
