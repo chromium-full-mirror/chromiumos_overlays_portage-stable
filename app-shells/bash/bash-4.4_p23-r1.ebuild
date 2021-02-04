@@ -1,16 +1,22 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI=6
 
-inherit eutils flag-o-matic toolchain-funcs multilib
+inherit eutils flag-o-matic toolchain-funcs multilib prefix
 
 # Official patchlevel
-# See ftp://ftp.cwru.edu/pub/bash/bash-4.3-patches/
+# See ftp://ftp.cwru.edu/pub/bash/bash-4.4-patches/
 PLEVEL=${PV##*_p}
 MY_PV=${PV/_p*}
 MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
+is_release() {
+	case ${PV} in
+	*_alpha*|*_beta*|*_rc*) return 1 ;;
+	*) return 0 ;;
+	esac
+}
 [[ ${PV} != *_p* ]] && PLEVEL=0
 patches() {
 	local opt=$1 plevel=${2:-${PLEVEL}} pn=${3:-${PN}} pv=${4:-${MY_PV}}
@@ -28,35 +34,33 @@ patches() {
 }
 
 # The version of readline this bash normally ships with.
-READLINE_VER="6.3"
+READLINE_VER="7.0"
 
 DESCRIPTION="The standard GNU Bourne again shell"
 HOMEPAGE="http://tiswww.case.edu/php/chet/bash/bashtop.html"
-SRC_URI="mirror://gnu/bash/${MY_P}.tar.gz $(patches)"
-[[ ${PV} == *_rc* ]] && SRC_URI+=" ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz"
+if is_release ; then
+	SRC_URI="mirror://gnu/bash/${MY_P}.tar.gz $(patches)"
+else
+	SRC_URI="ftp://ftp.cwru.edu/pub/bash/${MY_P}.tar.gz"
+fi
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
 IUSE="afs bashlogger examples mem-scramble +net nls plugins +readline"
 
-DEPEND=">=sys-libs/ncurses-5.2-r2:0=
+DEPEND="
+	>=sys-libs/ncurses-5.2-r2:0=
 	readline? ( >=sys-libs/readline-${READLINE_VER}:0= )
-	nls? ( virtual/libintl )"
-RDEPEND="${DEPEND}
-	!<sys-apps/portage-2.1.6.7_p1
-	!<sys-apps/paludis-0.26.0_alpha5"
+	nls? ( virtual/libintl )
+"
+RDEPEND="
+	${DEPEND}
+"
 # we only need yacc when the .y files get patched (bash42-005)
-DEPEND+=" virtual/yacc"
+#DEPEND+=" virtual/yacc"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-4.3-mapfile-improper-array-name-validation.patch
-	"${FILESDIR}"/${PN}-4.3-arrayfunc.patch
-	"${FILESDIR}"/${PN}-4.3-protos.patch
-	"${FILESDIR}"/${PN}-4.4-popd-offset-overflow.patch #600174
-)
-
-S=${WORKDIR}/${MY_P}
+S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
 	if is-flag -malign-double ; then #7332
@@ -76,26 +80,40 @@ src_unpack() {
 
 src_prepare() {
 	# Include official patches
-	[[ ${PLEVEL} -gt 0 ]] && epatch $(patches -s)
+	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 $(patches -s)
+
+	eapply "${FILESDIR}/${PN}-4.4-jobs_overflow.patch" #644720
+	eapply "${FILESDIR}/${PN}-4.4-set-SHOBJ_STATUS.patch" #644720
 
 	# Clean out local libs so we know we use system ones w/releases.
-	if [[ ${PV} != *_rc* ]] ; then
+	if is_release ; then
 		rm -rf lib/{readline,termcap}/*
 		touch lib/{readline,termcap}/Makefile.in # for config.status
 		sed -ri -e 's:\$[(](RL|HIST)_LIBSRC[)]/[[:alpha:]]*.h::g' Makefile.in || die
 	fi
 
+	# Prefixify hardcoded path names. No-op for non-prefix.
+	hprefixify pathnames.h.in
+
 	# Avoid regenerating docs after patches #407985
 	sed -i -r '/^(HS|RL)USER/s:=.*:=:' doc/Makefile.in || die
 	touch -r . doc/*
 
-	epatch "${PATCHES[@]}"
-
-	epatch_user
+	eapply_user
 }
 
 src_configure() {
-	local myconf=()
+	local myconf=(
+		--disable-profiling
+		--with-curses
+		$(use_enable mem-scramble)
+		$(use_enable net net-redirections)
+		$(use_enable readline)
+		$(use_enable readline bang-history)
+		$(use_enable readline history)
+		$(use_with afs)
+		$(use_with mem-scramble bash-malloc)
+	)
 
 	# For descriptions of these, see config-top.h
 	# bashrc/#26952 bash_logout/#90488 ssh/#24762 mktemp/#574426
@@ -106,7 +124,6 @@ src_configure() {
 		-DSYS_BASH_LOGOUT=\'\"${EPREFIX}/etc/bash/bash_logout\"\' \
 		-DNON_INTERACTIVE_LOGIN_SHELLS \
 		-DSSH_SOURCE_BASHRC \
-		-DUSE_MKTEMP -DUSE_MKSTEMP \
 		$(use bashlogger && echo -DSYSLOG_HISTORY)
 
 	# Don't even think about building this statically without
@@ -122,14 +139,14 @@ src_configure() {
 	# be safe.
 	# Exact cached version here doesn't really matter as long as it
 	# is at least what's in the DEPEND up above.
-	export ac_cv_rl_version=${READLINE_VER}
+	export ac_cv_rl_version=${READLINE_VER%%_*}
 
 	# Force linking with system curses ... the bundled termcap lib
 	# sucks bad compared to ncurses.  For the most part, ncurses
 	# is here because readline needs it.  But bash itself calls
 	# ncurses in one or two small places :(.
 
-	if [[ ${PV} != *_rc* ]] ; then
+	if is_release ; then
 		# Use system readline only with released versions.
 		myconf+=( --with-installed-readline=. )
 	fi
@@ -146,19 +163,7 @@ src_configure() {
 			configure || die
 	fi
 	tc-export AR #444070
-	econf \
-		--docdir='$(datarootdir)'/doc/${PF} \
-		--htmldir='$(docdir)/html' \
-		--with-curses \
-		$(use_with afs) \
-		$(use_enable net net-redirections) \
-		--disable-profiling \
-		$(use_enable mem-scramble) \
-		$(use_with mem-scramble bash-malloc) \
-		$(use_enable readline) \
-		$(use_enable readline history) \
-		$(use_enable readline bang-history) \
-		"${myconf[@]}"
+	econf "${myconf[@]}"
 }
 
 src_compile() {
@@ -175,12 +180,12 @@ src_install() {
 	default
 
 	dodir /bin
-	mv "${ED}"/usr/bin/bash "${ED}"/bin/ || die
+	mv "${ED%/}"/usr/bin/bash "${ED%/}"/bin/ || die
 	dosym bash /bin/rbash
 
 	insinto /etc/bash
 	doins "${FILESDIR}"/bash_logout
-	doins "${FILESDIR}"/bashrc
+	doins "$(prefixify_ro "${FILESDIR}"/bashrc)"
 	keepdir /etc/bash/bashrc.d
 	insinto /etc/skel
 	for f in bash{_logout,_profile,rc} ; do
@@ -199,8 +204,8 @@ src_install() {
 	fi
 	sed -i \
 		"${sed_args[@]}" \
-		"${ED}"/etc/skel/.bashrc \
-		"${ED}"/etc/bash/bashrc || die
+		"${ED%/}"/etc/skel/.bashrc \
+		"${ED%/}"/etc/bash/bashrc || die
 
 	if use plugins ; then
 		exeinto /usr/$(get_libdir)/bash
@@ -212,12 +217,12 @@ src_install() {
 	if use examples ; then
 		for d in examples/{functions,misc,scripts,startup-files} ; do
 			exeinto /usr/share/doc/${PF}/${d}
-			insinto /usr/share/doc/${PF}/${d}
+			docinto ${d}
 			for f in ${d}/* ; do
 				if [[ ${f##*/} != PERMISSION ]] && [[ ${f##*/} != *README ]] ; then
 					doexe ${f}
 				else
-					doins ${f}
+					dodoc ${f}
 				fi
 			done
 		done
