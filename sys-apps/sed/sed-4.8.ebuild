@@ -1,7 +1,7 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit flag-o-matic toolchain-funcs
 
@@ -22,13 +22,13 @@ RDEPEND="
 	)
 "
 DEPEND="${RDEPEND}
-	nls? ( sys-devel/gettext )
 	static? (
 		acl? ( virtual/acl[static-libs(+)] )
 		nls? ( virtual/libintl[static-libs(+)] )
 		selinux? ( sys-libs/libselinux[static-libs(+)] )
 	)
 "
+BDEPEND="nls? ( sys-devel/gettext )"
 
 src_configure() {
 	local myconf=()
@@ -38,12 +38,11 @@ src_configure() {
 		myconf+=( --program-prefix=g )
 	fi
 
-	export ac_cv_search_setfilecon=$(usex selinux -lselinux)
-	export ac_cv_header_selinux_{context,selinux}_h=$(usex selinux)
 	use static && append-ldflags -static
 	myconf+=(
 		$(use_enable acl)
 		$(use_enable nls)
+		$(use_with selinux)
 	)
 	econf "${myconf[@]}"
 }
