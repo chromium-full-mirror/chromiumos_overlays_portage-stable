@@ -41,12 +41,6 @@ multilib_src_configure() {
 		-Dgtk=disabled
 		-Dlibpng=disabled
 		-Dopenmp=$openmp # only used in unit tests
-
-		# Pixman can't be built with clang's integrated assembler.
-		# Fallback to GNU assembler.
-		# https://crbug.com/793487
-		# https://bugs.gentoo.org/768138
-		-Dc_args=-fno-integrated-as
 	)
 	meson_src_configure
 }
