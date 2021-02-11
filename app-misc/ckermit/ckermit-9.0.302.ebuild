@@ -1,33 +1,37 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-misc/ckermit/ckermit-8.0.211-r4.ebuild,v 1.5 2013/06/10 17:42:53 vapier Exp $
 
-EAPI="4"
+EAPI="7"
 
-inherit versionator eutils flag-o-matic toolchain-funcs
+inherit flag-o-matic toolchain-funcs
 
 # Columbia University only uses the third component, e.g. cku211.tar.gz for
 # what we would call 8.0.211.
-MY_P="cku$( get_version_component_range 3 ${PV} )"
+MY_P="cku$(ver_cut 3)"
 
 DESCRIPTION="combined serial and network communication software package"
 SRC_URI="ftp://kermit.columbia.edu/kermit/archives/${MY_P}.tar.gz"
-HOMEPAGE="http://www.kermit-project.org/"
+HOMEPAGE="http://www.kermitproject.org/"
 
 LICENSE="Kermit"
 SLOT="0"
 KEYWORDS="*"
 IUSE="ncurses"
 
-DEPEND="ncurses? ( >=sys-libs/ncurses-5.2 )"
+DEPEND="ncurses? ( >=sys-libs/ncurses-5.2:= )"
 RDEPEND="${DEPEND}
 	net-dialup/lrzsz"
 
 S=${WORKDIR}
 
+PATCHES=(
+	"${FILESDIR}"/${P}-cleanup.patch
+	"${FILESDIR}"/${PN}-8.0.211-build-wart.patch
+)
+
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-cleanup.patch
-	epatch "${FILESDIR}"/${P}-build-wart.patch
+	default
+
 	tc-export_build_env BUILD_CC
 	sed -i -r \
 		-e 's:"(CC2?) = gcc":"\1=$(CC)":g' \
@@ -47,29 +51,24 @@ src_compile() {
 		append-libs "$($(tc-getPKG_CONFIG) --libs ncurses)"
 	fi
 
-	append-cppflags -DHAVE_PTMX -D_XOPEN_SOURCE -D_BSD_SOURCE #202840
-	append-cppflags -DHAVE_CRYPT_H
+	append-cppflags -DHAVE_PTMX -D_XOPEN_SOURCE -D_BSD_SOURCE -D_DEFAULT_SOURCE #202840
+	append-cppflags -DHAVE_CRYPT_H -DHAVE_OPENPTY
+	append-cppflags -DNOARROWKEYS # bug #669332
 	emake \
 		CC="$(tc-getCC)" \
 		KFLAGS="${CPPFLAGS}" \
-		LIBS="-lcrypt -lresolv ${LIBS}" \
+		LIBS="-lcrypt -lresolv -lutil ${LIBS}" \
 		LNKFLAGS="${LDFLAGS}" \
 		linuxa
 }
 
 src_install() {
-	dodir /usr/bin /usr/share/man/man1
-	emake \
-		DESTDIR="${ED}" \
-		BINDIR=/usr/bin \
-		MANDIR="${ED}"/usr/share/man/man1 \
-		MANEXT=1 \
-		install
+	emake DESTDIR="${ED}" prefix=/usr manroot=/usr/share install
 	dodoc *.txt
 
 	# make the correct symlink
 	rm "${ED}"/usr/bin/kermit-sshsub || die
-	dosym /usr/bin/kermit /usr/bin/kermit-sshsub
+	dosym kermit /usr/bin/kermit-sshsub
 
 	# the ckermit.ini script is calling the wrong kermit binary --
 	# the one from ${D}
