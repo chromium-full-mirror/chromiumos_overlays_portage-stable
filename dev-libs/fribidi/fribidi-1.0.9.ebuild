@@ -1,13 +1,13 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit multilib-minimal
 
 DESCRIPTION="A free implementation of the unicode bidirectional algorithm"
 HOMEPAGE="https://fribidi.org/"
-SRC_URI="https://github.com/fribidi/fribidi/releases/download/v${PV}/${P}.tar.bz2"
+SRC_URI="https://github.com/fribidi/fribidi/releases/download/v${PV}/${P}.tar.xz"
 
 LICENSE="LGPL-2.1+"
 SLOT="0"
@@ -15,10 +15,12 @@ KEYWORDS="*"
 IUSE="static-libs"
 
 RDEPEND=""
-DEPEND="${RDEPEND}
-	virtual/pkgconfig[${MULTILIB_USEDEP}]"
+DEPEND=""
+BDEPEND="
+	virtual/pkgconfig
+"
 
-DOCS=( AUTHORS NEWS README ChangeLog THANKS )
+DOCS=( AUTHORS NEWS ChangeLog THANKS ) # README points at README.md which wasn't disted with EAPI-7
 
 multilib_src_configure() {
 	local myeconfargs=(
