@@ -1,13 +1,10 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/m4/m4-1.4.16.ebuild,v 1.13 2013/02/18 01:07:35 zmedico Exp $
 
-EAPI="3"
-
-inherit eutils
+EAPI="6"
 
 DESCRIPTION="GNU macro processor"
-HOMEPAGE="http://www.gnu.org/software/m4/m4.html"
+HOMEPAGE="https://www.gnu.org/software/m4/m4.html"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-3"
@@ -20,8 +17,9 @@ DEPEND="app-arch/xz-utils"
 RDEPEND=""
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-fix-test-readlink.patch #376639
-	epatch "${FILESDIR}"/${P}-no-gets.patch #424978
+	eapply "${FILESDIR}"/${P}-darwin17-printf-n.patch
+	eapply "${FILESDIR}"/${P}-glibc228.patch #663924
+	default
 }
 
 src_configure() {
@@ -35,18 +33,17 @@ src_configure() {
 
 src_test() {
 	[[ -d /none ]] && die "m4 tests will fail with /none/" #244396
-	emake check || die
+	emake check
 }
 
 src_install() {
-	emake install DESTDIR="${D}" || die
+	default
 	# autoconf-2.60 for instance, first checks gm4, then m4.  If we don't have
 	# gm4, it might find gm4 from outside the prefix on for instance Darwin
-	use prefix && dosym /usr/bin/m4 /usr/bin/gm4
-	dodoc BACKLOG ChangeLog NEWS README* THANKS TODO
+	use prefix && dosym m4 /usr/bin/gm4
 	if use examples ; then
 		docinto examples
-		dodoc examples/*
+		dodoc -r examples/
 		rm -f "${ED}"/usr/share/doc/${PF}/examples/Makefile*
 	fi
 }
