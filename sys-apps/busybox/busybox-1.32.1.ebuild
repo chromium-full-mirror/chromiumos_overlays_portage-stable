@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # See `man savedconfig.eclass` for info on how to use USE=savedconfig.
 
-EAPI=6
+EAPI=7
 
 inherit flag-o-matic savedconfig toolchain-funcs
 
@@ -26,14 +26,18 @@ REQUIRED_USE="pam? ( !static )"
 RESTRICT="test"
 
 COMMON_DEPEND="!static? ( selinux? ( sys-libs/libselinux ) )
-	pam? ( sys-libs/pam )"
+	pam? ( sys-libs/pam )
+	virtual/libcrypt:="
 DEPEND="${COMMON_DEPEND}
-	static? ( selinux? ( sys-libs/libselinux[static-libs(+)] ) )
+	static? (
+		virtual/libcrypt[static-libs]
+		selinux? ( sys-libs/libselinux[static-libs(+)] )
+	)
 	>=sys-kernel/linux-headers-2.6.39"
 RDEPEND="${COMMON_DEPEND}
 	mdev? ( !<sys-apps/openrc-0.13 )"
 
-S=${WORKDIR}/${MY_P}
+S="${WORKDIR}/${MY_P}"
 
 busybox_config_option() {
 	local flag=$1 ; shift
@@ -178,6 +182,10 @@ src_configure() {
 	# this opt only controls mounting with <linux-2.6.23
 	busybox_config_option n FEATURE_MOUNT_NFS
 
+	# glibc-2.26 and later does not ship RPC implientation
+	busybox_config_option n FEATURE_HAVE_RPC
+	busybox_config_option n FEATURE_INETD_RPC
+
 	# default a bunch of uncommon options to off
 	local opt
 	for opt in \
@@ -294,7 +302,7 @@ src_install() {
 }
 
 pkg_preinst() {
-	if use make-symlinks && [[ ! ${VERY_BRAVE_OR_VERY_DUMB} == "yes" ]] && [[ ${ROOT} == "/" ]] ; then
+	if use make-symlinks && [[ ! ${VERY_BRAVE_OR_VERY_DUMB} == "yes" ]] && [[ -z "${ROOT}" ]] ; then
 		ewarn "setting USE=make-symlinks and emerging to / is very dangerous."
 		ewarn "it WILL overwrite lots of system programs like: ls bash awk grep (bug 60805 for full list)."
 		ewarn "If you are creating a binary only and not merging this is probably ok."
