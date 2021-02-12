@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit flag-o-matic multilib-minimal
+inherit flag-o-matic multilib-minimal toolchain-funcs
 
 DESCRIPTION="Libraries/utilities to handle ELF objects (drop in replacement for libelf)"
 HOMEPAGE="http://elfutils.org/"
@@ -12,23 +12,29 @@ SRC_URI="https://sourceware.org/elfutils/ftp/${PV}/${P}.tar.bz2"
 LICENSE="|| ( GPL-2+ LGPL-3+ ) utils? ( GPL-3+ )"
 SLOT="0"
 KEYWORDS="*"
-IUSE="bzip2 lzma nls static-libs test +threads +utils"
+IUSE="bzip2 lzma nls static-libs test +threads +utils valgrind zstd"
 
 RDEPEND=">=sys-libs/zlib-1.2.8-r1[static-libs?,${MULTILIB_USEDEP}]
 	bzip2? ( >=app-arch/bzip2-1.0.6-r4[static-libs?,${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1[static-libs?,${MULTILIB_USEDEP}] )
-	!dev-libs/libelf"
-DEPEND="${RDEPEND}"
+	zstd? ( app-arch/zstd:=[static-libs?,${MULTILIB_USEDEP}] )
+	!dev-libs/libelf
+"
+DEPEND="${RDEPEND}
+	valgrind? ( dev-util/valgrind )
+"
 BDEPEND="nls? ( sys-devel/gettext )
 	>=sys-devel/flex-2.5.4a
-	sys-devel/m4"
-
+	sys-devel/m4
+"
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-0.118-PaX-support.patch
 	"${FILESDIR}"/${PN}-0.175-disable-biarch-test-PR24158.patch
 	"${FILESDIR}"/${PN}-0.177-disable-large.patch
+	"${FILESDIR}"/${PN}-0.180-PaX-support.patch
+	"${FILESDIR}"/${PN}-0.179-CC-in-tests.patch
+	"${FILESDIR}"/${PN}-0.181-CC-in-tests-p2.patch
 )
 
 src_prepare() {
@@ -43,6 +49,11 @@ src_prepare() {
 
 src_configure() {
 	use test && append-flags -g #407135
+
+	# Symbol aliases are implemented as asm statements.
+	# Will require porting: https://gcc.gnu.org/PR48200
+	filter-flags '-flto*'
+
 	multilib-minimal_src_configure
 }
 
@@ -50,15 +61,21 @@ multilib_src_configure() {
 	ECONF_SOURCE="${S}" econf \
 		$(use_enable nls) \
 		$(use_enable threads thread-safety) \
+		$(use_enable valgrind) \
+		--disable-debuginfod \
+		--disable-libdebuginfod \
 		--program-prefix="eu-" \
 		--with-zlib \
 		$(use_with bzip2 bzlib) \
-		$(use_with lzma)
+		$(use_with lzma) \
+		$(use_with zstd)
 }
 
 multilib_src_test() {
+	# CC is a workaround for tests using ${CC-gcc}
 	env	LD_LIBRARY_PATH="${BUILD_DIR}/libelf:${BUILD_DIR}/libebl:${BUILD_DIR}/libdw:${BUILD_DIR}/libasm" \
 		LC_ALL="C" \
+		CC="$(tc-getCC)" \
 		emake check VERBOSE=1
 }
 
