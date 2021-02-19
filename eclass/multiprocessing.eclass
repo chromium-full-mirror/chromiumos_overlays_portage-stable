@@ -1,6 +1,5 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: multiprocessing.eclass
 # @MAINTAINER:
@@ -8,29 +7,20 @@
 # @AUTHOR:
 # Brian Harring <ferringb@gentoo.org>
 # Mike Frysinger <vapier@gentoo.org>
-# @BLURB: parallelization with bash (wtf?)
+# @BLURB: multiprocessing helper functions
 # @DESCRIPTION:
-# The multiprocessing eclass contains a suite of functions that allow ebuilds
-# to quickly run things in parallel using shell code.
+# The multiprocessing eclass contains a suite of utility functions
+# that could be helpful to controlling parallel multiple job execution.
+# The most common use is processing MAKEOPTS in order to obtain job
+# count.
 #
-# It has two modes: pre-fork and post-fork.  If you don't want to dive into any
-# more nuts & bolts, just use the pre-fork mode.  For main threads that mostly
-# spawn children and then wait for them to finish, use the pre-fork mode.  For
-# main threads that do a bit of processing themselves, use the post-fork mode.
-# You may mix & match them for longer computation loops.
 # @EXAMPLE:
 #
 # @CODE
-# # First initialize things:
-# multijob_init
-#
-# # Then hash a bunch of files in parallel:
-# for n in {0..20} ; do
-# 	multijob_child_init md5sum data.${n} > data.${n}
-# done
-#
-# # Then wait for all the children to finish:
-# multijob_finish
+# src_compile() {
+#   # custom build system that does not support most of MAKEOPTS
+#   ./mybs -j$(makeopts_jobs)
+# }
 # @CODE
 
 if [[ -z ${_MULTIPROCESSING_ECLASS} ]]; then
@@ -51,6 +41,38 @@ bashpid() {
 	# But this will show the right value:
 	#   (bashpid)
 	sh -c 'echo ${PPID}'
+}
+
+# @FUNCTION: get_nproc
+# @USAGE: [${fallback:-1}]
+# @DESCRIPTION:
+# Attempt to figure out the number of processing units available.
+# If the value can not be determined, prints the provided fallback
+# instead. If no fallback is provided, defaults to 1.
+get_nproc() {
+	local nproc
+
+	# GNU
+	if type -P nproc &>/dev/null; then
+		nproc=$(nproc)
+	fi
+
+	# BSD
+	if [[ -z ${nproc} ]] && type -P sysctl &>/dev/null; then
+		nproc=$(sysctl -n hw.ncpu 2>/dev/null)
+	fi
+
+	# fallback to python2.6+
+	# note: this may fail (raise NotImplementedError)
+	if [[ -z ${nproc} ]] && type -P python &>/dev/null; then
+		nproc=$(python -c 'import multiprocessing; print(multiprocessing.cpu_count());' 2>/dev/null)
+	fi
+
+	if [[ -n ${nproc} ]]; then
+		echo "${nproc}"
+	else
+		echo "${1:-1}"
+	fi
 }
 
 # @FUNCTION: makeopts_jobs
