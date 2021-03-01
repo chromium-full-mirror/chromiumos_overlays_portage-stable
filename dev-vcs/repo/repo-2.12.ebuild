@@ -30,6 +30,8 @@ RESTRICT="nomirror"
 
 S=${WORKDIR}
 
+src_unpack() { :; }
+
 src_install() {
 	python_foreach_impl python_newscript "${DISTDIR}/${P}" ${PN}
 }
