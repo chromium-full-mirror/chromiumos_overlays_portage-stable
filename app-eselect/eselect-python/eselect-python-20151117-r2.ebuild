@@ -35,12 +35,12 @@ src_install() {
 	emake DESTDIR="${D}" install || die
 
 	local f
-	for f in python{,2,3}; do
+	for f in python{,3}; do
 		# can't use symlinks here since random stuff
 		# loves to do readlink on sys.executable...
 		newbin "${EPREFIX}/usr/lib/python-exec/python-exec2" "${f}"
 	done
-	for f in python{,2,3}-config 2to3 idle pydoc pyvenv; do
+	for f in python{,3}-config 2to3 idle pydoc pyvenv; do
 		dosym ../lib/python-exec/python-exec2 /usr/bin/"${f}"
 	done
 }
@@ -49,7 +49,7 @@ pkg_preinst() {
 	local py
 
 	# Copy python[23] selection from the old format (symlink)
-	for py in 2 3; do
+	for py in 3; do
 		# default to none
 		declare -g "PREV_PYTHON${py}"=
 
@@ -71,7 +71,7 @@ pkg_postinst() {
 		eselect python update --if-unset
 	fi
 
-	for py in 2 3; do
+	for py in 3; do
 		local pyvar=PREV_PYTHON${py}
 		if [[ -n ${!pyvar} ]]; then
 			einfo "Setting Python${py} to ${!pyvar}"
