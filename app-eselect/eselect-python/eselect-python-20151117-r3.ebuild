@@ -1,1 +1,0 @@
-eselect-python-20151117-r2.ebuild
