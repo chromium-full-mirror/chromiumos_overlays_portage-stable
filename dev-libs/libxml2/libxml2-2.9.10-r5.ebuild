@@ -1,15 +1,15 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6,7,8,9} )
 PYTHON_REQ_USE="xml"
 
 inherit libtool flag-o-matic python-r1 autotools prefix multilib-minimal
 
 DESCRIPTION="XML C parser and toolkit"
-HOMEPAGE="http://www.xmlsoft.org/"
+HOMEPAGE="http://www.xmlsoft.org/ https://gitlab.gnome.org/GNOME/libxml2"
 
 LICENSE="MIT"
 SLOT="2"
@@ -26,7 +26,7 @@ XSTS_TARBALL_2="xsts-2004-01-14.tar.gz"
 XMLCONF_TARBALL="xmlts20080827.tar.gz"
 
 SRC_URI="ftp://xmlsoft.org/${PN}/${PN}-${PV/_rc/-rc}.tar.gz
-	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-patchset.tar.xz
+	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-r1-patchset.tar.xz
 	test? (
 		${XSTS_HOME}/${XSTS_NAME_1}/${XSTS_TARBALL_1}
 		${XSTS_HOME}/${XSTS_NAME_2}/${XSTS_TARBALL_2}
@@ -55,7 +55,7 @@ src_unpack() {
 	# ${A} isn't used to avoid unpacking of test tarballs into $WORKDIR,
 	# as they are needed as tarballs in ${S}/xstc instead and not unpacked
 	unpack ${P/_rc/-rc}.tar.gz
-	unpack ${P}-patchset.tar.xz
+	unpack ${P}-r1-patchset.tar.xz
 	cd "${S}" || die
 
 	if use test; then
@@ -78,11 +78,9 @@ src_prepare() {
 	# Patches needed for prefix support
 	eapply "${FILESDIR}"/${PN}-2.7.1-catalog_path.patch
 
-	eprefixify catalog.c xmlcatalog.c runtest.c xmllint.c
+	eapply "${FILESDIR}"/${P}-remove-TRUE.patch
 
-	# Fix build for Windows platform
-	# https://bugzilla.gnome.org/show_bug.cgi?id=760456
-	# eapply "${FILESDIR}"/${PN}-2.8.0_rc1-winnt.patch
+	eprefixify catalog.c xmlcatalog.c runtest.c xmllint.c
 
 	# Fix python detection, bug #567066
 	# https://bugzilla.gnome.org/show_bug.cgi?id=760458
@@ -90,6 +88,12 @@ src_prepare() {
 
 	# Fix python tests when building out of tree #565576
 	eapply "${FILESDIR}"/${PN}-2.9.8-out-of-tree-test.patch
+
+	# bug #745162
+	eapply "${FILESDIR}"/${PN}-2.9.8-python3-unicode-errors.patch
+
+	# https://gitlab.gnome.org/GNOME/libxml2/-/issues/178
+	eapply "${FILESDIR}"/${PN}-2.9.10-xmllint-utf8.patch
 
 	if [[ ${CHOST} == *-darwin* ]] ; then
 		# Avoid final linking arguments for python modules
@@ -177,15 +181,6 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	# on windows, xmllint is installed by interix libxml2 in parent prefix.
-	# this is the version to use. the native winnt version does not support
-	# symlinks, which makes repoman fail if the portage tree is linked in
-	# from another location (which is my default). -- mduft
-	if [[ ${CHOST} == *-winnt* ]]; then
-		rm -rf "${ED}"/usr/bin/xmllint
-		rm -rf "${ED}"/usr/bin/xmlcatalog
-	fi
-
 	rm -rf "${ED}"/usr/share/doc/${P}
 	einstalldocs
 
@@ -200,7 +195,7 @@ multilib_src_install_all() {
 pkg_postinst() {
 	# We don't want to do the xmlcatalog during stage1, as xmlcatalog will not
 	# be in / and stage1 builds to ROOT=/tmp/stage1root. This fixes bug #208887.
-	if [[ "${ROOT}" != "/" ]]; then
+	if [[ -n ${ROOT} ]]; then
 		elog "Skipping XML catalog creation for stage building (bug #208887)."
 	else
 		# need an XML catalog, so no-one writes to a non-existent one
