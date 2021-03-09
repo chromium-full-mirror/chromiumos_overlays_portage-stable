@@ -1,59 +1,54 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{5,6,7} pypy pypy3 )
+PYTHON_COMPAT=( python3_{6,7,8,9} pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
-inherit eutils distutils-r1
+inherit distutils-r1
 
 DESCRIPTION="A full-featured template engine for Python"
-HOMEPAGE="http://jinja.pocoo.org/ https://pypi.org/project/Jinja2/"
-
+HOMEPAGE="https://jinja.palletsprojects.com/ https://pypi.org/project/Jinja2/"
 # pypi tarball is missing tests
 SRC_URI="https://github.com/pallets/jinja/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="doc examples test"
-RESTRICT="!test? ( test )"
+IUSE="examples"
 
 RDEPEND="
 	dev-python/markupsafe[${PYTHON_USEDEP}]
-	dev-python/setuptools[${PYTHON_USEDEP}]
 	!dev-python/jinja:compat"
-DEPEND="${RDEPEND}
-	doc? ( dev-python/sphinx[${PYTHON_USEDEP}] )
-	test? ( dev-python/pytest[${PYTHON_USEDEP}] )"
+
+distutils_enable_sphinx docs \
+	dev-python/sphinx-issues \
+	dev-python/pallets-sphinx-themes
+distutils_enable_tests pytest
 
 # XXX: handle Babel better?
 
-wrap_opts() {
-	local mydistutilsargs=()
+src_prepare() {
+	# avoid unnecessary dep on extra sphinxcontrib modules
+	sed -i '/sphinxcontrib.log_cabinet/ d' docs/conf.py || die
 
-	if [[ ${EPYTHON} == python* ]]; then
-		mydistutilargs+=( --with-debugsupport )
-	fi
-
-	"${@}"
+	distutils-r1_src_prepare
 }
 
 python_compile() {
-	wrap_opts distutils-r1_python_compile
+	distutils-r1_python_compile
+
+	if ! python_is_python3; then
+		rm "${BUILD_DIR}"/lib/jinja2/async*.py || die
+	fi
 }
 
-python_compile_all() {
-	use doc && emake -C docs html
-}
-
-python_test() {
-	py.test || die
+python_install() {
+	distutils-r1_python_install --skip-build
 }
 
 python_install_all() {
-	use doc && local HTML_DOCS=( docs/_build/html/. )
 	if use examples ; then
 		docinto examples
 		dodoc -r examples/.
