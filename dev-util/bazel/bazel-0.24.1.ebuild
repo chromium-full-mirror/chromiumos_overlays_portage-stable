@@ -54,6 +54,9 @@ src_unpack() {
 
 src_prepare() {
 	default
+	# Apply upstream grpc gettid patches, https://crbug.com/1187317 .
+	cd third_party/grpc || die
+	eapply "${FILESDIR}/bazel-0.24-grpc-gettid-rename.patch"
 
 	# F: fopen_wr
 	# S: deny
