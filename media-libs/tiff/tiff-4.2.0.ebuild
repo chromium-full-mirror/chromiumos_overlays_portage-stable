@@ -1,7 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit autotools libtool multilib-minimal
 
@@ -13,6 +13,7 @@ LICENSE="libtiff"
 SLOT="0"
 KEYWORDS="*"
 IUSE="+cxx jbig jpeg lzma static-libs test webp zlib zstd"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	jbig? ( >=media-libs/jbigkit-2.1:=[${MULTILIB_USEDEP}] )
@@ -25,14 +26,6 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 REQUIRED_USE="test? ( jpeg )" #483132
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-4.0.10-CVE-2018-17000-tif_dirwrite-null-dereference.patch
-	"${FILESDIR}"/${PN}-4.0.10-CVE-2019-6128-pal2rgb-leak.patch
-	"${FILESDIR}"/${PN}-4.0.10-CVE-2019-7663-tiffcpIntegerOverflow.patch
-	"${FILESDIR}"/${P}-CVE-2019-14973-fix-integer-overflow.patch
-	"${FILESDIR}"/${P}-CVE-2019-17546-RGBA-integer-overflow.patch
-)
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/tiffconf.h
@@ -81,6 +74,6 @@ multilib_src_test() {
 }
 
 multilib_src_install_all() {
-	find "${ED}" -name '*.la' -delete || die
+	find "${ED}" -type f -name '*.la' -delete || die
 	rm "${ED}"/usr/share/doc/${PF}/{COPYRIGHT,README*,RELEASE-DATE,TODO,VERSION} || die
 }
