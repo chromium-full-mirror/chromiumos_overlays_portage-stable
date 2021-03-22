@@ -1,4 +1,4 @@
-From 1d3a35734efa1a1778612bb60cbbb495f65d3fc0 Mon Sep 17 00:00:00 2001
+From 0c5ced8704ce69d7c84c2cc7cb26335616464468 Mon Sep 17 00:00:00 2001
 From: Robin Johnson <robbat2@gentoo.org>
 Date: Tue, 14 May 2019 08:53:06 +0200
 Subject: [PATCH] Makefile: Add NO_CVS define to disable all CVS interface
@@ -16,6 +16,7 @@ Forward-ported from v2.10.0 to v2.12.0
 Forward-ported from v2.12.0 to v2.17.0-rc1
 Forward-ported from v2.17.0-rc1 to v2.18.0-rc1
 Forward-ported from v2.18.0-rc1 to v2.22.0-rc0
+Forward-ported from v2.22.0-rc0 to v2.31.0-rc0
 
 Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
 ---
@@ -31,10 +32,10 @@ Signed-off-by: Lars Wendler <polynomial-c@gentoo.org>
  9 files changed, 118 insertions(+), 33 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index f965509b3c..ab8b22faf1 100644
+index 9b1bde2e0e..ae993a07fa 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -327,6 +327,8 @@ all::
+@@ -305,6 +305,8 @@ all::
  # Define SANE_TEXT_GREP to "-a" if you use recent versions of GNU grep
  # and egrep that are pickier when their input contains non-ASCII data.
  #
@@ -43,7 +44,7 @@ index f965509b3c..ab8b22faf1 100644
  # The TCL_PATH variable governs the location of the Tcl interpreter
  # used to optimize git-gui for your system.  Only used if NO_TCLTK
  # is not set.  Defaults to the bare 'tclsh'.
-@@ -597,6 +599,7 @@ PROGRAM_OBJS =
+@@ -580,6 +582,7 @@ PROGRAM_OBJS =
  PROGRAMS =
  EXCLUDED_PROGRAMS =
  SCRIPT_PERL =
@@ -51,7 +52,7 @@ index f965509b3c..ab8b22faf1 100644
  SCRIPT_PYTHON =
  SCRIPT_SH =
  SCRIPT_LIB =
-@@ -632,31 +635,33 @@ SCRIPT_LIB += git-sh-i18n
+@@ -612,31 +615,33 @@ SCRIPT_LIB += git-sh-setup
  
  SCRIPT_PERL += git-add--interactive.perl
  SCRIPT_PERL += git-archimport.perl
@@ -90,7 +91,7 @@ index f965509b3c..ab8b22faf1 100644
  	$(INSTALL) $^ '$(DESTDIR_SQ)$(gitexec_instdir_SQ)'
  install-python-script: $(SCRIPT_PYTHON_GEN)
  	$(INSTALL) $^ '$(DESTDIR_SQ)$(gitexec_instdir_SQ)'
-@@ -665,12 +670,13 @@ install-python-script: $(SCRIPT_PYTHON_GEN)
+@@ -645,12 +650,13 @@ install-python-script: $(SCRIPT_PYTHON_GEN)
  clean-sh-script:
  	$(RM) $(SCRIPT_SH_GEN)
  clean-perl-script:
@@ -105,7 +106,7 @@ index f965509b3c..ab8b22faf1 100644
  	  $(SCRIPT_PYTHON_GEN) \
  	  git-instaweb
  
-@@ -2189,13 +2195,27 @@ git.res: git.rc GIT-VERSION-FILE GIT-PREFIX
+@@ -2233,13 +2239,27 @@ git.res: git.rc GIT-VERSION-FILE GIT-PREFIX
  	  -DGIT_VERSION="\\\"$(GIT_VERSION)\\\"" -i $< -o $@
  
  # This makes sure we depend on the NO_PERL setting itself.
@@ -134,7 +135,7 @@ index f965509b3c..ab8b22faf1 100644
  PERL_HEADER_TEMPLATE = perl/header_templates/fixed_prefix.template.pl
  PERL_DEFINES = $(PERL_PATH_SQ):$(PERLLIB_EXTRA_SQ):$(perllibdir_SQ)
  
-@@ -2216,7 +2236,7 @@ endif
+@@ -2260,7 +2280,7 @@ endif
  
  PERL_DEFINES += $(gitexecdir) $(perllibdir) $(localedir)
  
@@ -143,7 +144,7 @@ index f965509b3c..ab8b22faf1 100644
  	$(QUIET_GEN)$(RM) $@ $@+ && \
  	sed -e '1{' \
  	    -e '	s|#!.*perl|#!$(PERL_PATH_SQ)|' \
-@@ -2262,14 +2282,18 @@ git-instaweb: git-instaweb.sh GIT-SCRIPT-DEFINES
+@@ -2306,14 +2326,18 @@ git-instaweb: git-instaweb.sh GIT-SCRIPT-DEFINES
  	chmod +x $@+ && \
  	mv $@+ $@
  else # NO_PERL
@@ -165,8 +166,8 @@ index f965509b3c..ab8b22faf1 100644
  
  # This makes sure we depend on the NO_PYTHON setting itself.
  $(SCRIPT_PYTHON_GEN): GIT-BUILD-OPTIONS
-@@ -2518,7 +2542,7 @@ LOCALIZED_SH = $(SCRIPT_SH)
- LOCALIZED_SH += git-parse-remote.sh
+@@ -2569,7 +2593,7 @@ LOCALIZED_C = $(C_OBJ:o=c) $(LIB_H) $(GENERATED_H)
+ LOCALIZED_SH = $(SCRIPT_SH)
  LOCALIZED_SH += git-rebase--preserve-merges.sh
  LOCALIZED_SH += git-sh-setup.sh
 -LOCALIZED_PERL = $(SCRIPT_PERL)
@@ -191,10 +192,10 @@ index c5946cb0b8..223fd5409b 100755
  if test $? -ne 1
  then
 diff --git a/t/t9400-git-cvsserver-server.sh b/t/t9400-git-cvsserver-server.sh
-index a5e5dca753..ef6d9c911c 100755
+index 2d29d486ee..2ca6db10e0 100755
 --- a/t/t9400-git-cvsserver-server.sh
 +++ b/t/t9400-git-cvsserver-server.sh
-@@ -11,9 +11,15 @@ cvs CLI client via git-cvsserver server'
+@@ -14,9 +14,15 @@ export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
  . ./test-lib.sh
  
  if ! test_have_prereq PERL; then
@@ -212,10 +213,10 @@ index a5e5dca753..ef6d9c911c 100755
  if test $? -ne 1
  then
 diff --git a/t/t9401-git-cvsserver-crlf.sh b/t/t9401-git-cvsserver-crlf.sh
-index 84787eee9a..eecba88527 100755
+index a34805acdc..0d7759f73b 100755
 --- a/t/t9401-git-cvsserver-crlf.sh
 +++ b/t/t9401-git-cvsserver-crlf.sh
-@@ -57,15 +57,20 @@ check_status_options() {
+@@ -60,15 +60,20 @@ check_status_options() {
      return $stat
  }
  
@@ -242,10 +243,10 @@ index 84787eee9a..eecba88527 100755
  fi
  perl -e 'use DBI; use DBD::SQLite' >/dev/null 2>&1 || {
 diff --git a/t/t9600-cvsimport.sh b/t/t9600-cvsimport.sh
-index 251fdd66c4..596cd9d35d 100755
+index 5680849218..7288db820b 100755
 --- a/t/t9600-cvsimport.sh
 +++ b/t/t9600-cvsimport.sh
-@@ -8,14 +8,25 @@ if ! test_have_prereq NOT_ROOT; then
+@@ -11,14 +11,25 @@ if ! test_have_prereq NOT_ROOT; then
  	test_done
  fi
  
@@ -274,7 +275,7 @@ index 251fdd66c4..596cd9d35d 100755
  
  	mkdir "$CVSROOT/module" &&
  	$CVS co -d module-cvs module &&
-@@ -47,23 +58,23 @@ EOF
+@@ -50,23 +61,23 @@ EOF
  	)
  '
  
@@ -302,7 +303,7 @@ index 251fdd66c4..596cd9d35d 100755
  	(cd module-cvs &&
  	cat <<EOF >o_fortuna &&
  O Fortune,
-@@ -91,7 +102,7 @@ EOF
+@@ -94,7 +105,7 @@ EOF
  	)
  '
  
@@ -311,7 +312,7 @@ index 251fdd66c4..596cd9d35d 100755
  
  	(cd module-git &&
  	git config cvsimport.trackRevisions true &&
-@@ -102,7 +113,7 @@ test_expect_success PERL 'update git module' '
+@@ -105,7 +116,7 @@ test_expect_success PERL 'update git module' '
  
  '
  
@@ -320,7 +321,7 @@ index 251fdd66c4..596cd9d35d 100755
  
  	(cd module-git &&
  	 git log --format="o_fortuna 1.1 %H" -1 HEAD^ &&
-@@ -110,7 +121,7 @@ test_expect_success PERL 'update has correct .git/cvs-revisions' '
+@@ -113,7 +124,7 @@ test_expect_success PERL 'update has correct .git/cvs-revisions' '
  	test_cmp expected module-git/.git/cvs-revisions
  '
  
@@ -329,7 +330,7 @@ index 251fdd66c4..596cd9d35d 100755
  
  	(cd module-cvs &&
  		echo 1 >tick &&
-@@ -119,7 +130,7 @@ test_expect_success PERL 'update cvs module' '
+@@ -122,7 +133,7 @@ test_expect_success PERL 'update cvs module' '
  	)
  '
  
@@ -338,7 +339,7 @@ index 251fdd66c4..596cd9d35d 100755
  
  	(cd module-git &&
  		git config cvsimport.module module &&
-@@ -131,7 +142,7 @@ test_expect_success PERL 'cvsimport.module config works' '
+@@ -134,7 +145,7 @@ test_expect_success PERL 'cvsimport.module config works' '
  
  '
  
@@ -347,7 +348,7 @@ index 251fdd66c4..596cd9d35d 100755
  
  	(cd module-git &&
  	 git log --format="o_fortuna 1.1 %H" -1 HEAD^^ &&
-@@ -140,7 +151,7 @@ test_expect_success PERL 'second update has correct .git/cvs-revisions' '
+@@ -143,7 +154,7 @@ test_expect_success PERL 'second update has correct .git/cvs-revisions' '
  	test_cmp expected module-git/.git/cvs-revisions
  '
  
@@ -356,7 +357,7 @@ index 251fdd66c4..596cd9d35d 100755
  
  	$CVS co -d import-from-wt module &&
  	(cd import-from-wt &&
-@@ -153,12 +164,12 @@ test_expect_success PERL 'import from a CVS working tree' '
+@@ -156,12 +167,12 @@ test_expect_success PERL 'import from a CVS working tree' '
  
  '
  
@@ -367,16 +368,16 @@ index 251fdd66c4..596cd9d35d 100755
  
  '
  
--test_expect_success PERL 'test entire HEAD' 'test_cmp_branch_tree master'
-+test_expect_success 'test entire HEAD' 'test_cmp_branch_tree master'
+-test_expect_success PERL 'test entire HEAD' 'test_cmp_branch_tree main'
++test_expect_success 'test entire HEAD' 'test_cmp_branch_tree main'
  
  test_done
 diff --git a/t/t9601-cvsimport-vendor-branch.sh b/t/t9601-cvsimport-vendor-branch.sh
-index 827d39f5bf..d730a41f67 100755
+index 116cddba3a..a7e7299c81 100755
 --- a/t/t9601-cvsimport-vendor-branch.sh
 +++ b/t/t9601-cvsimport-vendor-branch.sh
-@@ -34,6 +34,17 @@
- test_description='git cvsimport handling of vendor branches'
+@@ -37,6 +37,17 @@ export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
+ 
  . ./lib-cvs.sh
  
 +if ! test_have_prereq PERL
@@ -394,11 +395,11 @@ index 827d39f5bf..d730a41f67 100755
  
  test_expect_success PERL 'import a module with a vendor branch' '
 diff --git a/t/t9602-cvsimport-branches-tags.sh b/t/t9602-cvsimport-branches-tags.sh
-index e1db323f54..68f097401f 100755
+index e5266c9a87..0e1878ffd3 100755
 --- a/t/t9602-cvsimport-branches-tags.sh
 +++ b/t/t9602-cvsimport-branches-tags.sh
-@@ -6,6 +6,17 @@
- test_description='git cvsimport handling of branches and tags'
+@@ -9,6 +9,17 @@ export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
+ 
  . ./lib-cvs.sh
  
 +if ! test_have_prereq PERL
@@ -416,11 +417,11 @@ index e1db323f54..68f097401f 100755
  
  test_expect_success PERL 'import module' '
 diff --git a/t/t9603-cvsimport-patchsets.sh b/t/t9603-cvsimport-patchsets.sh
-index 3e64b11eac..606980b05c 100755
+index 0e9daa5768..598c8595c5 100755
 --- a/t/t9603-cvsimport-patchsets.sh
 +++ b/t/t9603-cvsimport-patchsets.sh
-@@ -14,6 +14,17 @@
- test_description='git cvsimport testing for correct patchset estimation'
+@@ -17,6 +17,17 @@ export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
+ 
  . ./lib-cvs.sh
  
 +if ! test_have_prereq PERL
@@ -438,10 +439,10 @@ index 3e64b11eac..606980b05c 100755
  
  test_expect_failure PERL 'import with criss cross times on revisions' '
 diff --git a/t/test-lib.sh b/t/test-lib.sh
-index 908ddb9c46..9a06440599 100644
+index d3f6af6a65..588067bfd8 100644
 --- a/t/test-lib.sh
 +++ b/t/test-lib.sh
-@@ -1428,6 +1428,7 @@ case $uname_s in
+@@ -1482,6 +1482,7 @@ parisc* | hppa*)
  esac
  
  ( COLUMNS=1 && test $COLUMNS = 1 ) && test_set_prereq COLUMNS_CAN_BE_1
@@ -450,5 +451,5 @@ index 908ddb9c46..9a06440599 100644
  test -z "$NO_PTHREADS" && test_set_prereq PTHREADS
  test -z "$NO_PYTHON" && test_set_prereq PYTHON
 -- 
-2.21.0
+2.30.1
 
