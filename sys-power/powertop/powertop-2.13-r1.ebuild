@@ -42,6 +42,8 @@ RDEPEND="
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.8-ncurses_tinfo.patch
 	"${FILESDIR}"/0001-configure.ac-Use-PKG_PROG_PKG_CONFIG-macro.patch
+	"${FILESDIR}"/0002-intel_cpus-Enable-Alder-Lake-desktop-platform-suppor.patch
+	"${FILESDIR}"/0003-intel_cpus-Enable-Alder-Lake-mobile-platform-support.patch
 )
 
 pkg_setup() {
