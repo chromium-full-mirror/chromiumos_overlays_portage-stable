@@ -1,28 +1,31 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit flag-o-matic
 
 DESCRIPTION="Use this to make tarballs :)"
 HOMEPAGE="https://www.gnu.org/software/tar/"
-SRC_URI="mirror://gnu/tar/${P}.tar.bz2
-	mirror://gnu-alpha/tar/${P}.tar.bz2"
+SRC_URI="mirror://gnu/tar/${P}.tar.xz
+	https://alpha.gnu.org/gnu/tar/${P}.tar.xz"
 
 LICENSE="GPL-3+"
 SLOT="0"
+[[ -n "$(ver_cut 3)" ]] && [[ "$(ver_cut 3)" -ge 90 ]] || \
 KEYWORDS="*"
-IUSE="acl elibc_glibc minimal nls selinux static userland_GNU xattr"
+IUSE="acl elibc_glibc minimal nls selinux userland_GNU xattr"
 
-LIB_DEPEND="acl? ( virtual/acl[static-libs(+)] )"
-
-RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )
-	selinux? ( sys-libs/libselinux )"
+RDEPEND="
+	acl? ( virtual/acl )
+	selinux? ( sys-libs/libselinux )
+"
 DEPEND="${RDEPEND}
-	nls? ( >=sys-devel/gettext-0.10.35 )
-	static? ( ${LIB_DEPEND} )
-	xattr? ( elibc_glibc? ( sys-apps/attr ) )"
+	xattr? ( elibc_glibc? ( sys-apps/attr ) )
+"
+BDEPEND="
+	nls? ( sys-devel/gettext )
+"
 
 src_prepare() {
 	default
@@ -36,11 +39,10 @@ src_prepare() {
 }
 
 src_configure() {
-	use static && append-ldflags -static
 	local myeconfargs=(
-		--bindir="${EPREFIX%/}"/bin
+		--bindir="${EPREFIX}"/bin
 		--enable-backup-scripts
-		--libexecdir="${EPREFIX%/}"/usr/sbin
+		--libexecdir="${EPREFIX}"/usr/sbin
 		$(usex userland_GNU "" "--program-prefix=g")
 		$(use_with acl posix-acls)
 		$(use_enable nls)
@@ -68,11 +70,11 @@ src_install() {
 		dosym tar /bin/gtar
 	fi
 
-	mv "${ED%/}"/usr/sbin/${p}backup{,-tar} || die
-	mv "${ED%/}"/usr/sbin/${p}restore{,-tar} || die
+	mv "${ED}"/usr/sbin/${p}backup{,-tar} || die
+	mv "${ED}"/usr/sbin/${p}restore{,-tar} || die
 
 	if use minimal ; then
-		find "${ED%/}"/etc "${ED%/}"/*bin/ "${ED%/}"/usr/*bin/ \
+		find "${ED}"/etc "${ED}"/*bin/ "${ED}"/usr/*bin/ \
 			-type f -a '!' '(' -name tar -o -name ${p}tar ')' \
 			-delete || die
 	fi
