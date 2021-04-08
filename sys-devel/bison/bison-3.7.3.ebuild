@@ -1,51 +1,67 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-inherit flag-o-matic eutils
+inherit flag-o-matic
+
+PATCH_TAR="${PN}-3.7.3-patches-01.tar.xz"
 
 DESCRIPTION="A general-purpose (yacc-compatible) parser generator"
 HOMEPAGE="https://www.gnu.org/software/bison/"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz
-	https://dev.gentoo.org/~mgorny/dist/${P}-patchset.tar.xz"
+	https://dev.gentoo.org/~whissi/dist/bison/${PATCH_TAR}
+	https://dev.gentoo.org/~polynomial-c/dist/bison/${PATCH_TAR}"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
 IUSE="examples nls static test"
+RESTRICT="!test? ( test )"
 
-RDEPEND=">=sys-devel/m4-1.4.16"
-DEPEND="${RDEPEND}
+# gettext _IS_ required in RDEPEND because >=bison-3.7 links against
+# libtextstyle.so!!! (see bug #740754)
+DEPEND="
+	>=sys-devel/m4-1.4.16
+	>=sys-devel/gettext-0.21
+"
+RDEPEND="${DEPEND}"
+BDEPEND="
 	sys-devel/flex
 	examples? ( dev-lang/perl )
-	nls? ( sys-devel/gettext )
-	test? ( dev-lang/perl )"
+	test? ( dev-lang/perl )
+"
 
-DOCS=( AUTHORS ChangeLog-2012 NEWS README THANKS TODO ) # ChangeLog-1998 PACKAGING README-alpha README-release
+DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO ) # ChangeLog-2012 ChangeLog-1998 PACKAGING README-alpha README-release
 
 src_prepare() {
-	epatch "${WORKDIR}"/${P}-patchset/${P}-optional-perl.patch #538300
-	epatch "${WORKDIR}"/${P}-patchset/${P}-darwin17-printf-n.patch #632500
-	epatch "${WORKDIR}"/${P}-patchset/${P}-fix-tests-gcc-7.patch #638308
+	# Record date to avoid 'config.status --recheck' & regen of 'tests/package.m4'
+	touch -r configure.ac old.configure.ac || die
+	touch -r configure old.configure || die
+
+	eapply "${WORKDIR}"/patches
+	default
+
+	# Restore date after patching
+	touch -r old.configure.ac configure.ac || die
+	touch -r old.configure configure || die
+
 	# The makefiles make the man page depend on the configure script
 	# which we patched above.  Touch it to prevent regeneration.
-	touch doc/bison.1 #548778 #538300#9
+	touch doc/bison.1 || die #548778 #538300#9
+
 	# Avoid regenerating the info page when the timezone is diff. #574492
 	sed -i '2iexport TZ=UTC' build-aux/mdate-sh || die
-	# ugly workaround to avoid maintainer mode (see #647410 and #648012)
-	printf '#!/bin/sh\nexit 0\n' > build-aux/missing || die
 }
 
 src_configure() {
 	use static && append-ldflags -static
 
-	# We don't need perl unless we run tests.
-	use test || export ac_cv_path_PERL=true
-	econf \
-		--docdir='$(datarootdir)'/doc/${PF} \
-		$(use_enable examples) \
+	local myeconfargs=(
+		$(use_enable examples)
 		$(use_enable nls)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
@@ -57,9 +73,6 @@ src_install() {
 
 	# We do not need liby.a
 	rm -r "${ED}"/usr/lib* || die
-
-	# Move to documentation directory and leave compressing for EAPI>=4
-	mv "${ED}"/usr/share/${PN}/README "${ED}"/usr/share/doc/${PF}/README.data
 }
 
 pkg_postinst() {
