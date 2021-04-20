@@ -6,12 +6,10 @@
 	<name>Gentoo Base System</name>
 </maintainer>
 <upstream>
+	<remote-id type="cpe">cpe:/a:dosfstools_project:dosfstools</remote-id>
 	<remote-id type="github">dosfstools/dosfstools</remote-id>
 </upstream>
 <use>
 	<flag name="compat">Install symlinks for legacy names of the tools</flag>
 </use>
-<upstream>
-	<remote-id type="cpe">cpe:/a:dosfstools_project:dosfstools</remote-id>
-</upstream>
 </pkgmetadata>

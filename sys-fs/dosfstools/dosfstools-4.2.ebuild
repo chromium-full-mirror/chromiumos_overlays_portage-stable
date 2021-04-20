@@ -1,35 +1,36 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI=7
 
 inherit toolchain-funcs flag-o-matic
 
 DESCRIPTION="DOS filesystem tools - provides mkdosfs, mkfs.msdos, mkfs.vfat"
 HOMEPAGE="https://github.com/dosfstools/dosfstools"
-SRC_URI="https://github.com/dosfstools/dosfstools/releases/download/v${PV}/${P}.tar.xz"
+SRC_URI="https://github.com/dosfstools/dosfstools/releases/download/v${PV}/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
-IUSE="compat test +udev"
+IUSE="compat +iconv test"
+RESTRICT="!test? ( test )"
 
-CDEPEND="udev? ( virtual/libudev )"
-DEPEND="${CDEPEND}
+BDEPEND="
 	test? ( app-editors/vim-core )
-	udev? ( virtual/pkgconfig )"
-RDEPEND="${CDEPEND}"
+	iconv? ( virtual/libiconv )
+"
 
 src_configure() {
-	econf \
-		--docdir="${EPREFIX}"/usr/share/doc/${PF} \
-		$(use_enable compat compat-symlinks) \
-		$(use_with udev)
+	local myeconfargs=(
+		$(use_enable compat compat-symlinks)
+		$(use_with iconv)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
 	default
-	if ! use compat; then
+	if ! use compat ; then
 		# Keep fsck -t vfat and mkfs -t vfat working, bug 584980.
 		dosym fsck.fat /usr/sbin/fsck.vfat
 		dosym mkfs.fat /usr/sbin/mkfs.vfat
