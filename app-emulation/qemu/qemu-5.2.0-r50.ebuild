@@ -1,22 +1,23 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
-PYTHON_COMPAT=( python3_{6,7,8,9} )
+PYTHON_COMPAT=( python3_{6,7,8} )
 PYTHON_REQ_USE="ncurses,readline"
 
-PLOCALES="bg de_DE fr_FR hu it sv tr zh_CN"
+FIRMWARE_ABI_VERSION="5.2.0-r50"
 
-FIRMWARE_ABI_VERSION="4.0.0-r50"
-
-inherit eutils linux-info toolchain-funcs multilib python-r1 \
-	udev fcaps readme.gentoo-r1 pax-utils l10n xdg-utils
+inherit eutils linux-info toolchain-funcs multilib python-r1
+inherit udev fcaps readme.gentoo-r1 pax-utils l10n xdg-utils
+inherit flag-o-matic
 
 if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://git.qemu.org/git/qemu.git"
 	EGIT_SUBMODULES=(
-		tests/fp/berkeley-{test,soft}float-3
+		meson
+		tests/fp/berkeley-softfloat-3
+		tests/fp/berkeley-testfloat-3
 		ui/keycodemapdb
 	)
 	inherit git-r3
@@ -32,16 +33,16 @@ HOMEPAGE="http://www.qemu.org http://www.linux-kvm.org"
 LICENSE="GPL-2 LGPL-2 BSD-2"
 SLOT="0"
 
-IUSE="accessibility +aio alsa bzip2 capstone +caps +curl debug doc
+IUSE="accessibility +aio alsa bzip2 capstone +caps +curl debug +doc
 	+fdt glusterfs gnutls gtk infiniband iscsi io-uring
 	jack jemalloc +jpeg kernel_linux
 	kernel_FreeBSD lzo multipath
 	ncurses nfs nls numa opengl +oss +pin-upstream-blobs
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
-	smartcard snappy spice ssh static static-user systemtap test usb
+	smartcard snappy spice ssh static static-user systemtap test udev usb
 	usbredir vde +vhost-net vhost-user-fs virgl virtfs +vnc vte xattr xen
-	xfs +xkb zstd"
+	xfs zstd"
 
 COMMON_TARGETS="aarch64 alpha arm cris hppa i386 m68k microblaze microblazeel
 	mips mips64 mips64el mipsel nios2 or1k ppc ppc64 riscv32 riscv64 s390x
@@ -69,8 +70,10 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	qemu_softmmu_targets_riscv64? ( fdt )
 	static? ( static-user !alsa !gtk !jack !opengl !pulseaudio !plugins !rbd !snappy )
 	static-user? ( !plugins )
+	vhost-user-fs? ( caps seccomp )
 	virtfs? ( caps xattr )
 	vte? ( gtk )
+	multipath? ( udev )
 	plugins? ( !static !static-user )
 "
 
@@ -93,7 +96,6 @@ ALL_DEPEND="
 # softmmu targets (qemu-system-*).
 SOFTMMU_TOOLS_DEPEND="
 	dev-libs/libxml2[static-libs(+)]
-	xkb? ( x11-libs/libxkbcommon[static-libs(+)] )
 	>=x11-libs/pixman-0.28.0[static-libs(+)]
 	accessibility? (
 		app-accessibility/brltty[api]
@@ -157,6 +159,7 @@ SOFTMMU_TOOLS_DEPEND="
 		>=app-emulation/spice-0.12.0[static-libs(+)]
 	)
 	ssh? ( >=net-libs/libssh-0.8.6[static-libs(+)] )
+	udev? ( virtual/libudev[static-libs(+)] )
 	usb? ( >=virtual/libusb-1-r2[static-libs(+)] )
 	usbredir? ( >=sys-apps/usbredir-0.6[static-libs(+)] )
 	vde? ( net-misc/vde[static-libs(+)] )
@@ -167,25 +170,27 @@ SOFTMMU_TOOLS_DEPEND="
 	zstd? ( >=app-arch/zstd-1.4.0[static-libs(+)] )
 "
 
+SEABIOS_VERSION="1.14.0"
+
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
-		~sys-firmware/edk2-ovmf-201905[binary]
-		~sys-firmware/ipxe-1.0.0_p20190728[binary,qemu]
-		~sys-firmware/seabios-1.12.0[binary,seavgabios]
-		~sys-firmware/sgabios-0.1_pre8[binary]
+		~sys-firmware/edk2-ovmf-202008[binary]
+		~sys-firmware/ipxe-1.21.1[binary,qemu]
+		~sys-firmware/seabios-${SEABIOS_VERSION}[binary,seavgabios]
+		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
 	!pin-upstream-blobs? (
 		sys-firmware/edk2-ovmf
 		sys-firmware/ipxe[qemu]
-		>=sys-firmware/seabios-1.10.2[seavgabios]
+		>=sys-firmware/seabios-${SEABIOS_VERSION}[seavgabios]
 		sys-firmware/sgabios
 	)"
-PPC64_FIRMWARE_DEPEND="
+PPC_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
-		~sys-firmware/seabios-1.12.0[binary,seavgabios]
+		~sys-firmware/seabios-${SEABIOS_VERSION}[binary,seavgabios]
 	)
 	!pin-upstream-blobs? (
-		>=sys-firmware/seabios-1.10.2[seavgabios]
+		>=sys-firmware/seabios-${SEABIOS_VERSION}[seavgabios]
 	)
 "
 
@@ -208,7 +213,8 @@ CDEPEND="
 	)
 	qemu_softmmu_targets_i386? ( ${X86_FIRMWARE_DEPEND} )
 	qemu_softmmu_targets_x86_64? ( ${X86_FIRMWARE_DEPEND} )
-	qemu_softmmu_targets_ppc64? ( ${PPC64_FIRMWARE_DEPEND} )
+	qemu_softmmu_targets_ppc? ( ${PPC_FIRMWARE_DEPEND} )
+	qemu_softmmu_targets_ppc64? ( ${PPC_FIRMWARE_DEPEND} )
 "
 DEPEND="${CDEPEND}
 	kernel_linux? ( >=sys-kernel/linux-headers-2.6.35 )
@@ -223,11 +229,12 @@ RDEPEND="${CDEPEND}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.11.1-capstone_include_path.patch
-	"${FILESDIR}"/${PN}-4.0.0-mkdir_systemtap.patch #684902
-	"${FILESDIR}"/${PN}-4.2.0-cflags.patch
-	"${FILESDIR}"/${PN}-5.1.0-os_find_datadir-search.patch
-	"${FILESDIR}"/${PN}-5.1.0-pixman-for-vhost-user-gpu.patch
-	"${FILESDIR}"/${PN}-5.1.0-usb-oob-CVE-2020-14364.patch #743649
+	"${FILESDIR}"/${PN}-5.2.0-cleaner-werror.patch
+	"${FILESDIR}"/${PN}-5.2.0-disable-keymap.patch
+	"${FILESDIR}"/${PN}-5.2.0-strings.patch
+	"${FILESDIR}"/${PN}-5.2.0-fix-firmware-path.patch
+	"${FILESDIR}"/${PN}-5.2.0-no-pie-ld.patch
+	"${FILESDIR}"/${PN}-5.2.0-dce-locks.patch
 )
 
 QA_PREBUILT="
@@ -235,10 +242,13 @@ QA_PREBUILT="
 	usr/share/qemu/openbios-ppc
 	usr/share/qemu/openbios-sparc64
 	usr/share/qemu/openbios-sparc32
+	usr/share/qemu/opensbi-riscv64-generic-fw_dynamic.elf
+	usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.elf
 	usr/share/qemu/palcode-clipper
 	usr/share/qemu/s390-ccw.img
 	usr/share/qemu/s390-netboot.img
-	usr/share/qemu/u-boot.e500"
+	usr/share/qemu/u-boot.e500
+"
 
 QA_WX_LOAD="usr/bin/qemu-i386
 	usr/bin/qemu-x86_64
@@ -261,7 +271,8 @@ QA_WX_LOAD="usr/bin/qemu-i386
 	usr/bin/qemu-armeb
 	usr/bin/qemu-sparc32plus
 	usr/bin/qemu-s390x
-	usr/bin/qemu-unicore32"
+	usr/bin/qemu-unicore32
+"
 
 DOC_CONTENTS="If you don't have kvm compiled into the kernel, make sure you have the
 kernel module loaded before running kvm. The easiest way to ensure that the
@@ -336,7 +347,7 @@ check_targets() {
 	local var=$1 mak=$2
 	local detected sorted
 
-	pushd "${S}"/default-configs >/dev/null || die
+	pushd "${S}"/default-configs/targets/ >/dev/null || die
 
 	# Force C locale until glibc is updated. #564936
 	detected=$(echo $(printf '%s\n' *-${mak}.mak | sed "s:-${mak}.mak::" | LC_COLLATE=C sort -u))
@@ -351,44 +362,22 @@ check_targets() {
 	popd >/dev/null
 }
 
-handle_locales() {
-	# Make sure locale list is kept up-to-date.
-	local detected sorted
-	detected=$(echo $(cd po && printf '%s\n' *.po | grep -v messages.po | sed 's:.po$::' | sort -u))
-	sorted=$(echo $(printf '%s\n' ${PLOCALES} | sort -u))
-	if [[ ${sorted} != "${detected}" ]] ; then
-		eerror "The ebuild needs to be kept in sync."
-		eerror "PLOCALES: ${sorted}"
-		eerror " po/*.po: ${detected}"
-		die "sync PLOCALES"
-	fi
-
-	# Deal with selective install of locales.
-	if use nls ; then
-		# Delete locales the user does not want. #577814
-		rm_loc() { rm po/$1.po || die; }
-		l10n_for_each_disabled_locale_do rm_loc
-	else
-		# Cheap hack to disable gettext .mo generation.
-		rm -f po/*.po
-	fi
-}
-
 src_prepare() {
+	# workaround -fcommon breakage: bug #726560
+	[[ ${PV} == 5.2.0 ]] || die "Check if -fcommon hack is needed"
+	filter-flags -fcommon
+
 	check_targets IUSE_SOFTMMU_TARGETS softmmu
 	check_targets IUSE_USER_TARGETS linux-user
 
 	default
 
 	# Use correct toolchain to fix cross-compiling
-	tc-export AR AS LD NM OBJCOPY PKG_CONFIG RANLIB
+	tc-export AR AS LD NM OBJCOPY PKG_CONFIG RANLIB STRINGS
 	export WINDRES=${CHOST}-windres
 
 	# Verbose builds
 	MAKEOPTS+=" V=1"
-
-	# Run after we've applied all patches.
-	handle_locales
 
 	# Remove bundled copy of libfdt
 	rm -r dtc || die
@@ -414,7 +403,6 @@ qemu_src_configure() {
 		--datadir=/usr/share
 		--docdir=/usr/share/doc/${PF}/html
 		--mandir=/usr/share/man
-		--with-confsuffix=/qemu
 		--localstatedir=/var
 		--disable-bsd-user
 		--disable-containers # bug #732972
@@ -443,6 +431,7 @@ qemu_src_configure() {
 		$(use_enable debug debug-info)
 		$(use_enable debug debug-tcg)
 		$(use_enable doc docs)
+		$(use_enable nls gettext)
 		$(use_enable plugins)
 		$(use_enable xattr attr)
 	)
@@ -454,6 +443,22 @@ qemu_src_configure() {
 			echo "--disable-${2:-$1}"
 		else
 			use_enable "$@"
+		fi
+	}
+	# Enable option only for softmmu build, but not 'user' or 'tools'
+	conf_softmmu() {
+		if [[ ${buildtype} == "softmmu" ]] ; then
+			use_enable "$@"
+		else
+			echo "--disable-${2:-$1}"
+		fi
+	}
+	# Enable option only for tools build, but not 'user' or 'softmmu'
+	conf_tools() {
+		if [[ ${buildtype} == "tools" ]] ; then
+			use_enable "$@"
+		else
+			echo "--disable-${2:-$1}"
 		fi
 	}
 	conf_opts+=(
@@ -484,18 +489,20 @@ qemu_src_configure() {
 		$(conf_notuser rbd)
 		$(conf_notuser sasl vnc-sasl)
 		$(conf_notuser sdl)
-		$(conf_notuser sdl-image)
+		$(conf_softmmu sdl-image)
 		$(conf_notuser seccomp)
 		$(conf_notuser slirp slirp system)
 		$(conf_notuser smartcard)
 		$(conf_notuser snappy)
 		$(conf_notuser spice)
 		$(conf_notuser ssh libssh)
+		$(conf_notuser udev libudev)
 		$(conf_notuser usb libusb)
 		$(conf_notuser usbredir usb-redir)
 		$(conf_notuser vde)
 		$(conf_notuser vhost-net)
 		$(conf_notuser vhost-user-fs)
+		$(conf_tools vhost-user-fs virtiofsd)
 		$(conf_notuser virgl virglrenderer)
 		$(conf_notuser virtfs)
 		$(conf_notuser vnc)
@@ -503,7 +510,8 @@ qemu_src_configure() {
 		$(conf_notuser xen)
 		$(conf_notuser xen xen-pci-passthrough)
 		$(conf_notuser xfs xfsctl)
-		$(conf_notuser xkb xkbcommon)
+		# use prebuilt keymaps, bug #759604
+		--disable-xkbcommon
 		$(conf_notuser zstd)
 	)
 
@@ -572,6 +580,9 @@ qemu_src_configure() {
 	else
 		tc-enables-pie && conf_opts+=( --enable-pie )
 	fi
+
+	# Meson will not use a cross-file unless cross_prefix is set.
+	tc-is-cross-compiler && conf_opts+=( --cross-prefix="${CHOST}-" )
 
 	# Plumb through equivalent of EXTRA_ECONF to allow experiments
 	# like bug #747928.
@@ -723,7 +734,7 @@ src_install() {
 		[[ -e check-report.html ]] && dodoc check-report.html
 
 		if use kernel_linux; then
-			udev_newrules "${FILESDIR}"/65-kvm.rules-r1 65-kvm.rules
+			udev_newrules "${FILESDIR}"/65-kvm.rules-r2 65-kvm.rules
 		fi
 
 		if use python; then
@@ -744,7 +755,7 @@ src_install() {
 	doins "${FILESDIR}/bridge.conf"
 
 	cd "${S}"
-	dodoc Changelog MAINTAINERS docs/specs/pci-ids.txt
+	dodoc MAINTAINERS docs/specs/pci-ids.txt
 	newdoc pc-bios/README README.pc-bios
 
 	# Disallow stripping of prebuilt firmware files.
@@ -766,8 +777,8 @@ src_install() {
 		rm "${ED}/usr/share/qemu/vgabios-stdvga.bin"
 		rm "${ED}/usr/share/qemu/vgabios-virtio.bin"
 		rm "${ED}/usr/share/qemu/vgabios-vmware.bin"
-		# PPC64 loads vgabios-stdvga
-		if use qemu_softmmu_targets_x86_64 || use qemu_softmmu_targets_i386 || use qemu_softmmu_targets_ppc64; then
+		# PPC/PPC64 loads vgabios-stdvga
+		if use qemu_softmmu_targets_x86_64 || use qemu_softmmu_targets_i386 || use qemu_softmmu_targets_ppc || use qemu_softmmu_targets_ppc64; then
 			dosym ../seavgabios/vgabios-isavga.bin /usr/share/qemu/vgabios.bin
 			dosym ../seavgabios/vgabios-cirrus.bin /usr/share/qemu/vgabios-cirrus.bin
 			dosym ../seavgabios/vgabios-qxl.bin /usr/share/qemu/vgabios-qxl.bin
