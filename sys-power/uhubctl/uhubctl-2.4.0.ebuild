@@ -1,7 +1,9 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
+
+inherit toolchain-funcs
 
 DESCRIPTION="USB hub per-port power control"
 HOMEPAGE="https://github.com/mvp/uhubctl"
@@ -16,6 +18,16 @@ DEPEND="virtual/libusb:1"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
-	sed -i "s#\$(shell git describe --abbrev=4 --dirty --always --tags)#${PV}#" Makefile || die
-	eapply_user
+	default
+
+	sed -i \
+		-e "s/^GIT_VERSION/#&/" \
+		Makefile \
+		|| die
+
+	tc-export PKG_CONFIG
+}
+
+src_compile() {
+	emake CC="$(tc-getCC)"
 }
