@@ -1,23 +1,26 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 XORG_DOC=doc
 XORG_MULTILIB=yes
-inherit xorg-2
+inherit xorg-3
 
 DESCRIPTION="X.Org Session Management library"
 
 KEYWORDS="*"
-IUSE="doc ipv6 +uuid"
+IUSE="ipv6 +uuid"
 
 RDEPEND="x11-base/xorg-proto
 	>=x11-libs/libICE-1.0.8-r1[${MULTILIB_USEDEP}]
 	x11-libs/xtrans
-	!elibc_FreeBSD? ( !elibc_SunOS? ( !elibc_Darwin? (
-		uuid? ( >=sys-apps/util-linux-2.24.1-r3[${MULTILIB_USEDEP}] )
-	) ) )"
+	uuid? (
+		elibc_Darwin? ( sys-libs/native-uuid )
+		!elibc_FreeBSD? ( !elibc_SunOS? ( !elibc_Darwin? (
+			>=sys-apps/util-linux-2.24.1-r3[${MULTILIB_USEDEP}]
+		) ) )
+	)"
 DEPEND="${RDEPEND}"
 
 src_configure() {
@@ -29,8 +32,8 @@ src_configure() {
 	if use uuid ; then
 		case ${CHOST} in
 			*-solaris*|*-darwin*)
-				if [[ ! -d ${EROOT}usr/include/uuid ]] &&
-					[[ -d ${ROOT}usr/include/uuid ]]
+				if [[ ! -d ${EROOT}/usr/include/uuid ]] &&
+					[[ -d ${ROOT}/usr/include/uuid ]]
 				then
 					# Solaris and Darwin have uuid provided by the host
 					# system.  Since util-linux's version is based on this
@@ -39,19 +42,20 @@ src_configure() {
 					# installed, while in fact we don't
 					withuuid="--without-libuuid"
 					export HAVE_LIBUUID=yes
-					export LIBUUID_CFLAGS="-I${ROOT}usr/include/uuid"
+					export LIBUUID_CFLAGS="-I${ROOT}/usr/include/uuid"
 					# Darwin has uuid in libSystem
 					[[ ${CHOST} == *-solaris* ]] &&	export LIBUUID_LIBS="-luuid"
 				fi
 				;;
 		esac
 	fi
-	XORG_CONFIGURE_OPTIONS=(
+
+	local XORG_CONFIGURE_OPTIONS=(
 		$(use_enable ipv6)
 		$(use_enable doc docs)
 		$(use_with doc xmlto)
 		${withuuid}
 		--without-fop
 	)
-	xorg-2_src_configure
+	xorg-3_src_configure
 }
