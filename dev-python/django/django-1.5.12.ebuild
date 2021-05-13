@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-PYTHON_COMPAT=( python2_7 pypy )
+PYTHON_COMPAT=( python2_7 pypy python3_{6,7} )
 PYTHON_REQ_USE='sqlite?,threads(+)'
 WEBAPP_NO_AUTO_INSTALL="yes"
 
@@ -19,7 +19,8 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="doc mysql postgres sqlite test"
 
-RDEPEND="dev-python/imaging[${PYTHON_USEDEP}]
+RDEPEND="( $(python_gen_cond_dep 'dev-python/imaging[${PYTHON_USEDEP}]' 'python2*' ) )
+	( $(python_gen_cond_dep 'dev-python/pillow[${PYTHON_USEDEP}]' 'python3*' ) )
 	postgres? ( $(python_gen_cond_dep 'dev-python/psycopg:2[${PYTHON_USEDEP}]' 'python*') )
 	mysql? ( $(python_gen_cond_dep '>=dev-python/mysql-python-1.2.3[${PYTHON_USEDEP}]' 'python*') )"
 DEPEND="${RDEPEND}
