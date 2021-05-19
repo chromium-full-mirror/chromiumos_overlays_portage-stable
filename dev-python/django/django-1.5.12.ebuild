@@ -35,7 +35,8 @@ S="${WORKDIR}/${MY_P}"
 WEBAPP_MANUAL_SLOT="yes"
 
 PATCHES=( "${FILESDIR}"/${PN}-1.5.4-objects.patch \
-		"${FILESDIR}"/${PN}-1.5-py3tests.patch )
+		"${FILESDIR}"/${PN}-1.5-py3tests.patch \
+		"${FILESDIR}"/${PN}-1.5-py35.patch )
 
 python_compile_all() {
 	if use doc; then
