@@ -27,6 +27,7 @@ RDEPEND="sys-fs/mtools
 	dev-perl/Digest-SHA1"
 DEPEND="${RDEPEND}
 	dev-lang/nasm
+	sys-apps/util-linux:=
 	>=sys-boot/gnu-efi-3.0u
 	virtual/os-headers"
 
