@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -15,6 +15,7 @@ SLOT="0"
 KEYWORDS="*"
 
 IUSE="X +introspection test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=media-libs/harfbuzz-1.4.2:=[glib(+),truetype(+),${MULTILIB_USEDEP}]
@@ -33,7 +34,7 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	dev-util/glib-utils
 	>=dev-util/gtk-doc-am-1.20
-	virtual/pkgconfig[${MULTILIB_USEDEP}]
+	virtual/pkgconfig
 	test? ( media-fonts/cantarell )
 	X? ( x11-base/xorg-proto )
 	!<=sys-devel/autoconf-2.63:2.5

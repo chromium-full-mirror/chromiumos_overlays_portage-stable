@@ -9,7 +9,6 @@ inherit xorg-3
 
 DESCRIPTION="X.Org Xi library"
 KEYWORDS="*"
-IUSE=""
 
 RDEPEND="
 	>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]
@@ -18,11 +17,12 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	x11-base/xorg-proto"
 
-pkg_setup() {
-	XORG_CONFIGURE_OPTIONS=(
+src_configure() {
+	local XORG_CONFIGURE_OPTIONS=(
 		$(use_enable doc specs)
 		$(use_with doc xmlto)
 		$(use_with doc asciidoc)
 		--without-fop
 	)
+	xorg-3_src_configure
 }

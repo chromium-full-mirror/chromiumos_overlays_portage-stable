@@ -10,16 +10,16 @@ inherit xorg-3
 DESCRIPTION="X.Org X Display Manager Control Protocol library"
 
 KEYWORDS="*"
-IUSE=""
 
 RDEPEND="elibc_glibc? ( dev-libs/libbsd )"
 DEPEND="${RDEPEND}
 	x11-base/xorg-proto"
 
-pkg_setup() {
-	XORG_CONFIGURE_OPTIONS=(
+src_configure() {
+	local XORG_CONFIGURE_OPTIONS=(
 		$(use_enable doc docs)
 		$(use_with doc xmlto)
 		--without-fop
 	)
+	xorg-3_src_configure
 }

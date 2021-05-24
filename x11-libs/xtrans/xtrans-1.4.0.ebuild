@@ -10,15 +10,12 @@ inherit xorg-3
 
 DESCRIPTION="X.Org xtrans library"
 KEYWORDS="*"
-IUSE=""
 
-RDEPEND=""
-DEPEND=""
-
-pkg_setup() {
-	XORG_CONFIGURE_OPTIONS=(
+src_configure() {
+	local XORG_CONFIGURE_OPTIONS=(
 		$(use_enable doc docs)
 		$(use_with doc xmlto)
 		--without-fop
 	)
+	xorg-3_src_configure
 }
