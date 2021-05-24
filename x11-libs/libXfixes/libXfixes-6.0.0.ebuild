@@ -14,4 +14,4 @@ KEYWORDS="*"
 RDEPEND="
 	>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}
-	x11-base/xorg-proto"
+	>=x11-base/xorg-proto-2021.4"
