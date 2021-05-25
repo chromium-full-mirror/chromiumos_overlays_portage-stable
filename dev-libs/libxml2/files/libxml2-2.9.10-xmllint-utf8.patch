@@ -1,3 +1,5 @@
+https://bugs.gentoo.org/749849
+
 From 50f06b3efb638efb0abd95dc62dca05ae67882c2 Mon Sep 17 00:00:00 2001
 From: Nick Wellnhofer <wellnhofer@aevum.de>
 Date: Fri, 7 Aug 2020 21:54:27 +0200
@@ -10,12 +12,6 @@ Thanks to @SuhwanSong and the Agency for Defense Development (ADD) for
 the report.
 
 Fixes #178.
----
- xmllint.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/xmllint.c b/xmllint.c
-index f6a8e463..c647486f 100644
 --- a/xmllint.c
 +++ b/xmllint.c
 @@ -528,6 +528,12 @@ static void
@@ -32,5 +28,3 @@ index f6a8e463..c647486f 100644
      if (result) {
  	xmlGenericError(xmlGenericErrorContext, "%s", result);
 -- 
-GitLab
-
