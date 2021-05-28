@@ -1,11 +1,13 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
+
+inherit autotools
 
 DESCRIPTION="Parallel bzip2 utility"
 HOMEPAGE="https://github.com/kjn/lbzip2/"
-SRC_URI="http://archive.lbzip2.org/${P}.tar.gz"
+SRC_URI="https://dev.gentoo.org/~whissi/dist/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -17,13 +19,16 @@ DEPEND=""
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.3-s_isreg.patch
-	# bug 669594
-	"${FILESDIR}"/${PN}-2.5-glibc-2.28.patch
+	"${FILESDIR}"/${P}-fix-unaligned.patch
 )
+
+src_prepare() {
+	default
+	eautoreconf
+}
 
 src_configure() {
 	local myeconfargs=(
-		--disable-silent-rules
 		$(use_enable debug tracing)
 	)
 	econf "${myeconfargs[@]}"
