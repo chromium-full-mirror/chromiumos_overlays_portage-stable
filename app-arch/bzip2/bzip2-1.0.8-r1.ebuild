@@ -1,16 +1,16 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # XXX: atm, libbz2.a is always PIC :(, so it is always built quickly
 #      (since we're building shared libs) ...
 
-EAPI=6
+EAPI=7
 
-inherit toolchain-funcs multilib-minimal
+inherit toolchain-funcs multilib-minimal usr-ldscript
 
 DESCRIPTION="A high-quality data compressor used extensively by Gentoo Linux"
 HOMEPAGE="https://sourceware.org/bzip2/"
-SRC_URI="mirror://gentoo/${P}.tar.gz"
+SRC_URI="https://sourceware.org/pub/${PN}/${P}.tar.gz"
 
 LICENSE="BZIP2"
 SLOT="0/1" # subslot = SONAME
@@ -19,16 +19,12 @@ IUSE="static static-libs"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.0.4-makefile-CFLAGS.patch
-	"${FILESDIR}"/${PN}-1.0.6-saneso.patch
+	"${FILESDIR}"/${PN}-1.0.8-saneso.patch
 	"${FILESDIR}"/${PN}-1.0.4-man-links.patch #172986
 	"${FILESDIR}"/${PN}-1.0.6-progress.patch
 	"${FILESDIR}"/${PN}-1.0.3-no-test.patch
-	"${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
-	"${FILESDIR}"/${PN}-1.0.6-mingw.patch #393573
-	"${FILESDIR}"/${PN}-1.0.6-out-of-tree-build.patch
-	"${FILESDIR}"/${PN}-1.0.6-CVE-2016-3189.patch #620466
-	"${FILESDIR}"/${PN}-1.0.6-ubsan-error.patch
-	"${FILESDIR}"/${PN}-1.0.6-nselectors-upper-bound-check.patch
+	"${FILESDIR}"/${PN}-1.0.8-mingw.patch #393573
+	"${FILESDIR}"/${PN}-1.0.8-out-of-tree-build.patch
 )
 
 DOCS=( CHANGES README{,.COMPILATION.PROBLEMS,.XML.STUFF} manual.pdf )
@@ -75,6 +71,14 @@ multilib_src_install() {
 	for v in libbz2.so{,.{${PV%%.*},${PV%.*}}} ; do
 		dosym libbz2.so.${PV} /usr/$(get_libdir)/${v}
 	done
+
+	# Install libbz2.so.1.0 due to accidental soname change in 1.0.7.
+	# Reference: 98da0ad82192d21ad74ae52366ea8466e2acea24.
+	# OK to remove one year after 2020-04-11.
+	if [[ ! -L "${ED}/usr/$(get_libdir)/libbz2.so.1.0" ]]; then
+		dosym libbz2.so.${PV} "/usr/$(get_libdir)/libbz2.so.1.0"
+	fi
+
 	use static-libs && dolib.a libbz2.a
 
 	if multilib_is_native_abi ; then
