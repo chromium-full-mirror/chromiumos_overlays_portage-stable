@@ -1,14 +1,13 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-arch/lzop/lzop-1.03.ebuild,v 1.9 2011/08/25 20:24:32 mattst88 Exp $
 
-EAPI=2
+EAPI="6"
 
 DESCRIPTION="Utility for fast (even real-time) compression/decompression"
-HOMEPAGE="http://www.lzop.org/"
-SRC_URI="http://www.lzop.org/download/${P}.tar.gz"
+HOMEPAGE="https://www.lzop.org/"
+SRC_URI="https://www.lzop.org/download/${P}.tar.gz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="*"
 IUSE=""
@@ -25,8 +24,7 @@ src_test() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
-	dodoc AUTHORS ChangeLog NEWS README THANKS
-	dodoc doc/lzop.{txt,ps}
-	dohtml doc/*.html
+	# do not install COPYING or redundant conversions of manpage
+	emake DESTDIR="${D}" install \
+		dist_doc_DATA="AUTHORS NEWS README THANKS"
 }
