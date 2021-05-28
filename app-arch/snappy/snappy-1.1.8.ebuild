@@ -1,7 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
+
+CMAKE_ECLASS=cmake
 inherit cmake-multilib
 
 DESCRIPTION="A high-speed compression/decompression library by Google"
@@ -11,10 +13,8 @@ SRC_URI="https://github.com/google/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="BSD"
 SLOT="0/${PV%%.*}"
 KEYWORDS="*"
-IUSE="static-libs test"
-# upstream killed static lib support with build system update
-# (and we have packages depending on the flag)
-REQUIRED_USE="!static-libs"
+IUSE="test"
+RESTRICT="!test? ( test )"
 
 # all test dependencies are optional:
 # - gflags-2.2 is supposedly needed for command-line option parsing
@@ -35,7 +35,7 @@ src_prepare() {
 	# it off
 	sed -i -e '/run_microbenchmarks/s:true:false:' snappy-test.cc || die
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 }
 
 multilib_src_configure() {
@@ -54,7 +54,7 @@ multilib_src_configure() {
 		-DHAVE_LIBZ=NO
 		-DHAVE_LIBLZO2=NO
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 multilib_src_test() {
