@@ -1,9 +1,9 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{5,6,7} pypy )
+PYTHON_COMPAT=( python3_{6,7,8,9} )
 DISTUTILS_OPTIONAL="1"
 DISTUTILS_IN_SOURCE_BUILD="1"
 
@@ -17,7 +17,7 @@ SLOT="0/$(ver_cut 1)"
 RDEPEND="python? ( ${PYTHON_DEPS} )"
 DEPEND="${RDEPEND}"
 
-IUSE="python test"
+IUSE="python static-libs test"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 LICENSE="MIT python? ( Apache-2.0 )"
@@ -32,6 +32,13 @@ else
 	KEYWORDS="*"
 	SRC_URI="https://github.com/google/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 fi
+
+# tests are currently broken, see https://github.com/google/brotli/issues/850
+RESTRICT="test"
+
+PATCHES=(
+	"${FILESDIR}/${PV}-linker.patch"
+)
 
 src_prepare() {
 	use python && distutils-r1_src_prepare
@@ -57,7 +64,7 @@ src_compile() {
 	use python && distutils-r1_src_compile
 }
 
-python_test(){
+python_test() {
 	esetup.py test || die
 }
 
@@ -71,6 +78,7 @@ src_test() {
 
 multilib_src_install() {
 	cmake-utils_src_install
+	use static-libs || rm "${ED}"/usr/$(get_libdir)/*.a || die
 }
 multilib_src_install_all() {
 	use python && distutils-r1_src_install
