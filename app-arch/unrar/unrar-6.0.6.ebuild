@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic multilib toolchain-funcs
+inherit multilib toolchain-funcs
 
 MY_PN="${PN}src"
 
@@ -13,9 +13,8 @@ SRC_URI="https://www.rarlab.com/rar/${MY_PN}-${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="unRAR"
 # subslot = soname version
-SLOT="0/5"
+SLOT="0/6"
 KEYWORDS="*"
-IUSE=""
 
 RDEPEND="!<=app-arch/unrar-gpl-0.0.1_p20080417"
 
@@ -39,7 +38,7 @@ src_prepare() {
 }
 
 src_configure() {
-	mkdir -p build-{lib,bin}
+	mkdir -p build-{lib,bin} || die
 	printf 'VPATH = ..\ninclude ../makefile' > build-lib/Makefile || die
 	cp build-{lib,bin}/Makefile || die
 }
