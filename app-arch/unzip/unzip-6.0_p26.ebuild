@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI=7
 
-inherit eutils toolchain-funcs flag-o-matic
+inherit toolchain-funcs flag-o-matic
 
 MY_PV="${PV//.}"
 MY_PV="${MY_PV%_p*}"
@@ -32,6 +32,7 @@ src_prepare() {
 
 	eapply "${FILESDIR}"/${PN}-6.0-no-exec-stack.patch
 	eapply "${FILESDIR}"/${PN}-6.0-format-security.patch
+	eapply "${FILESDIR}"/${PN}-6.0-fix-false-overlap-detection-on-32bit-systems.patch
 	use natspec && eapply "${FILESDIR}/${PN}-6.0-natspec.patch" #275244
 	sed -i -r \
 		-e '/^CFLAGS/d' \
@@ -57,14 +58,15 @@ src_prepare() {
 
 src_configure() {
 	case ${CHOST} in
-	i?86*-*linux*)       TARGET="linux_asm" ;;
-	*linux*)             TARGET="linux_noasm" ;;
-	i?86*-*bsd* | \
-	i?86*-dragonfly*)    TARGET="freebsd" ;; # mislabelled bsd with x86 asm
-	*bsd* | *dragonfly*) TARGET="bsd" ;;
-	*-darwin*)           TARGET="macosx" ;;
-	*-cygwin*)           TARGET="cygwin" ;;
-	*) die "Unknown target; please update the ebuild to handle ${CHOST}	" ;;
+		i?86*-*linux*)       TARGET="linux_asm" ;;
+		*linux*)             TARGET="linux_noasm" ;;
+		i?86*-*bsd* | \
+		i?86*-dragonfly*)    TARGET="freebsd" ;; # mislabelled bsd with x86 asm
+		*bsd* | *dragonfly*) TARGET="bsd" ;;
+		*-darwin*)           TARGET="macosx" ;;
+		*-solaris*)          TARGET="generic" ;;
+		*-cygwin*)           TARGET="generic" ;;
+		*) die "Unknown target; please update the ebuild to handle ${CHOST}	" ;;
 	esac
 
 	[[ ${CHOST} == *linux* ]] && append-cppflags -DNO_LCHMOD
@@ -75,7 +77,7 @@ src_configure() {
 
 src_compile() {
 	ASFLAGS="${ASFLAGS} $(get_abi_var CFLAGS)" \
-	emake -f unix/Makefile ${TARGET}
+		emake -f unix/Makefile ${TARGET}
 }
 
 src_install() {
