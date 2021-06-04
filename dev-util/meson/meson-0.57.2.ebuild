@@ -1,4 +1,4 @@
-# Copyright 2016-2020 Gentoo Authors
+# Copyright 2016-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -77,6 +77,9 @@ python_test() {
 
 		# test_cross_file_system_paths
 		unset XDG_DATA_HOME
+
+		# 'test cases/unit/73 summary' expects 80 columns
+		export COLUMNS=80
 
 		${EPYTHON} -u run_tests.py
 	) || die "Testing failed with ${EPYTHON}"
