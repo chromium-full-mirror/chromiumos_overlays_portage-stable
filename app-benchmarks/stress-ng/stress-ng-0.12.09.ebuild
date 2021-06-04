@@ -27,12 +27,16 @@ RDEPEND="${DEPEND}"
 
 DOCS=( "README" "README.Android" "TODO" "syscalls.txt" )
 
-PATCHES=(
-	"${FILESDIR}/${PN}-0.11.23-makefile.patch"
-	"${FILESDIR}/${PN}-0.12.02-fix-build-breaking-HAVE_USTAT-typo.patch"
-)
+src_prepare() {
+	default
+
+	# Don't reset build jobs to '-j0'
+	sed -e '/-f Makefile.config/s/-j//' -i Makefile || die
+}
 
 src_compile() {
+	export MAN_COMPRESS=0
+	export VERBOSE=1
 	tc-export CC
 
 	default
