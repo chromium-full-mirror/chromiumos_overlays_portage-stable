@@ -1,7 +1,7 @@
 DEFINED_PHASES=-
 DESCRIPTION=Virtual for command-line pagers
-EAPI=0
+EAPI=6
 KEYWORDS=*
-RDEPEND=|| ( sys-apps/less sys-apps/more sys-apps/most sys-apps/util-linux app-text/lv )
+RDEPEND=|| ( sys-apps/less sys-apps/most sys-apps/util-linux[ncurses] app-text/lv app-editors/vim[vim-pager] )
 SLOT=0
-_md5_=0d6cbf94f04025b78fa3978b3e66823e
+_md5_=0b92aa1440df48785e688f31d8509493
