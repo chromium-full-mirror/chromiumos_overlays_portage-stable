@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,12 +10,16 @@ HOMEPAGE="https://www.gnu.org/software/grep/"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz
 	mirror://gentoo/${P}.tar.xz"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="*"
 IUSE="nls pcre static"
 
-LIB_DEPEND="pcre? ( >=dev-libs/libpcre-7.8-r1[static-libs(+)] )"
+# We lack dev-libs/libsigsegv[static-libs] for now
+REQUIRED_USE="static? ( !sparc )"
+
+LIB_DEPEND="pcre? ( >=dev-libs/libpcre-7.8-r1[static-libs(+)] )
+	sparc? ( dev-libs/libsigsegv )"
 RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )
 	nls? ( virtual/libintl )
 	virtual/libiconv"
@@ -39,8 +43,13 @@ src_prepare() {
 
 src_configure() {
 	use static && append-ldflags -static
-	# don't link against libsigsegv even when available
-	export ac_cv_libsigsegv=no
+
+	# We used to turn this off unconditionally (bug #673524) but we now
+	# allow it for cases where libsigsegv is better for userspace handling
+	# of stack overflows.
+	# In particular, it's necessary for sparc: bug #768135
+	export ac_cv_libsigsegv=$(usex sparc)
+
 	# Always use pkg-config to get lib info for pcre.
 	export ac_cv_search_pcre_compile=$(
 		usex pcre "$($(tc-getPKG_CONFIG) --libs $(usex static --static '') libpcre)" ''
