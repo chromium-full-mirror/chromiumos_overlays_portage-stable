@@ -1,16 +1,14 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit flag-o-matic toolchain-funcs
 
 MY_P="${P/-/_}"
 DESCRIPTION="Lists open files for running Unix processes"
-HOMEPAGE="ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/"
-SRC_URI="ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/${MY_P}.tar.bz2
-	ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/OLD/${MY_P}.tar.bz2
-	http://www.mirrorservice.org/sites/lsof.itap.purdue.edu/pub/tools/unix/lsof/${MY_P}.tar.bz2"
+HOMEPAGE="https://github.com/lsof-org/lsof"
+SRC_URI="https://github.com/lsof-org/lsof/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="lsof"
 SLOT="0"
@@ -19,21 +17,19 @@ IUSE="examples ipv6 rpc selinux"
 
 RDEPEND="rpc? ( net-libs/libtirpc )
 	selinux? ( sys-libs/libselinux )"
-DEPEND="${RDEPEND}
-	rpc? ( virtual/pkgconfig )"
+DEPEND="${RDEPEND}"
+BDEPEND="
+	sys-apps/groff
+	rpc? ( virtual/pkgconfig )
+"
 
-S="${WORKDIR}/${MY_P}/${MY_P}_src"
+# needs fixing first
+RESTRICT="test"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-4.85-cross.patch #432120
-	"${FILESDIR}"/${PN}-4.90-darwin-cppfix.patch #648084
+	"${FILESDIR}"/${PN}-4.94-arm-sigbus-fix.patch
 )
-
-src_unpack() {
-	unpack ${A}
-	cd ${MY_P} || die
-	unpack ./${MY_P}_src.tar
-}
 
 src_prepare() {
 	default
@@ -49,6 +45,10 @@ src_prepare() {
 		-e '/test -r/s:test -r \$\{LSOF_INCLUDE\}/([[:alnum:]/._]*):echo "#include <\1>" | ${LSOF_CC} ${LSOF_CFGF} -E - >/dev/null 2>\&1:g' \
 		-e 's:grep (.*) \$\{LSOF_INCLUDE\}/([[:alnum:]/._]*):echo "#include <\2>" | ${LSOF_CC} ${LSOF_CFGF} -E -P -dD - 2>/dev/null | grep \1:' \
 		Configure || die
+
+	# "create" man-page (bug #689462)
+	# inspired by shipped "makeman" ksh script
+	soelim < Lsof.8 > lsof.8 || die
 }
 
 target() {
