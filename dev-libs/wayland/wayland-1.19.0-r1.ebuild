@@ -35,6 +35,11 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 
+PATCHES=(
+	"${FILESDIR}"/0001-connection-test-Encode-size-in-message-headers-corre.patch
+	"${FILESDIR}"/0002-connection-Handle-non-nullable-strings-in-wl_connect.patch
+)
+
 multilib_src_configure() {
 	local emesonargs=(
 		$(meson_native_use_bool doc documentation)
