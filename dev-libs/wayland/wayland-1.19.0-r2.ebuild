@@ -38,6 +38,8 @@ RDEPEND="${DEPEND}"
 PATCHES=(
 	"${FILESDIR}"/0001-connection-test-Encode-size-in-message-headers-corre.patch
 	"${FILESDIR}"/0002-connection-Handle-non-nullable-strings-in-wl_connect.patch
+	"${FILESDIR}"/0003-util-Avoid-undefined-behaviour-in-for_each_helper.patch
+	"${FILESDIR}"/0004-server-Fix-undefined-behavior-in-wl_socket_init_for_.patch
 )
 
 multilib_src_configure() {
