@@ -22,8 +22,6 @@ DEPEND="${RDEPEND}"
 
 S="${WORKDIR}/lcms2-${PV}"
 
-PATCHES=("${FILESDIR}"/${P}-BE-test.patch)
-
 src_prepare() {
 	default
 	elibtoolize  # for Prefix/Solaris
