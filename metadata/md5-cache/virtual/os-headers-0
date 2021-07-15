@@ -1,7 +1,0 @@
-DEFINED_PHASES=-
-DESCRIPTION=Virtual for operating system headers
-EAPI=1
-KEYWORDS=*
-RDEPEND=!prefix? ( || ( sys-kernel/linux-headers:0 sys-freebsd/freebsd-lib ) )
-SLOT=0
-_md5_=46641ef13ae5b46f6d31f94ffa157682
