@@ -1,7 +1,0 @@
-DEFINED_PHASES=-
-DESCRIPTION=Virtual for the C library
-EAPI=1
-KEYWORDS=*
-RDEPEND=!prefix? ( elibc_glibc? ( sys-libs/glibc:2.2 ) elibc_uclibc? ( sys-libs/uclibc ) elibc_FreeBSD? ( sys-freebsd/freebsd-lib ) )
-SLOT=0
-_md5_=9b2e9913477327d8940bcae5fc3b098d
