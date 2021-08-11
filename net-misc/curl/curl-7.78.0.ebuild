@@ -12,7 +12,7 @@ SRC_URI="https://curl.haxx.se/download/${P}.tar.xz"
 LICENSE="curl"
 SLOT="0"
 KEYWORDS="*"
-IUSE="adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls metalink nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl sslv3 static-libs test telnet +tftp threads winssl zstd"
+IUSE="adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl sslv3 static-libs test telnet +tftp threads winssl zstd"
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_winssl"
 IUSE+=" nghttp3 quiche"
 IUSE+=" elibc_Winnt"
@@ -48,7 +48,7 @@ RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 			app-misc/ca-certificates
 		)
 		openssl? (
-			dev-libs/openssl:0=[sslv3=,static-libs?,${MULTILIB_USEDEP}]
+			dev-libs/openssl:0=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		nss? (
 			dev-libs/nss:0[${MULTILIB_USEDEP}]
@@ -64,7 +64,6 @@ RDEPEND="ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:0=[static-libs?,${MULTILIB_USEDEP}] )
 	adns? ( net-dns/c-ares:0[${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
-	metalink? ( >=media-libs/libmetalink-0.1.1[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
 	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
 	sys-libs/zlib[${MULTILIB_USEDEP}]
@@ -104,9 +103,6 @@ PATCHES=(
 
 src_prepare() {
 	default
-
-	sed -i '/LD_LIBRARY_PATH=/d' configure.ac || die #382241
-	sed -i '/CURL_MAC_CFLAGS/d' configure.ac || die #637252
 
 	eprefixify curl-config.in
 	eautoreconf
@@ -189,6 +185,7 @@ multilib_src_configure() {
 		$(use_enable imap)
 		$(use_enable ldap)
 		$(use_enable ldap ldaps)
+		--disable-ntlm
 		--disable-ntlm-wb
 		$(use_enable pop3)
 		--enable-rt
@@ -222,13 +219,11 @@ multilib_src_configure() {
 		--without-bearssl
 		$(use_with brotli)
 		--without-cyassl
-		--without-darwinssl
 		--without-fish-functions-dir
 		$(use_with http2 nghttp2)
 		--without-hyper
 		$(use_with idn libidn2)
 		$(use_with kerberos gssapi "${EPREFIX}"/usr)
-		$(use_with metalink libmetalink)
 		--without-libgsasl
 		--without-libpsl
 		$(use_with nghttp3)
