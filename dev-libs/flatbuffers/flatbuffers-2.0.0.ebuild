@@ -10,7 +10,7 @@ HOMEPAGE="https://google.github.io/flatbuffers/"
 SRC_URI="https://github.com/google/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
-SLOT="0"
+SLOT="0/2"  # The subslot matches the SONAME major version number.
 KEYWORDS="*"
 IUSE="static-libs test"
 
