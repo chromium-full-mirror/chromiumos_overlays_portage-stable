@@ -12,14 +12,14 @@ if [[ ${PV} == *9999* ]] ; then
 else
 	SRC_URI="https://poppler.freedesktop.org/${P}.tar.xz"
 	KEYWORDS="*"
-	SLOT="0/106"   # CHECK THIS WHEN BUMPING!!! SUBSLOT IS libpoppler.so SOVERSION
+	SLOT="0/111"   # CHECK THIS WHEN BUMPING!!! SUBSLOT IS libpoppler.so SOVERSION
 fi
 
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="https://poppler.freedesktop.org/"
 
 LICENSE="GPL-2"
-IUSE="cairo cjk curl +cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt5 tiff +utils"
+IUSE="boost cairo cjk curl +cxx debug doc +introspection +jpeg +jpeg2k +lcms nss png qt5 tiff +utils"
 
 # No test data provided
 RESTRICT="test"
@@ -53,12 +53,15 @@ DEPEND="
 RDEPEND="${DEPEND}
 	cjk? ( app-text/poppler-data )
 "
+DEPEND+="
+	boost? ( dev-libs/boost )
+"
 
 DOCS=( AUTHORS NEWS README.md README-XPDF )
 
 PATCHES=(
 	"${FILESDIR}/${PN}-20.12.1-qt5-deps.patch"
-	"${FILESDIR}/${PN}-20.12.0-respect-cflags.patch"
+	"${FILESDIR}/${PN}-21.04.0-respect-cflags.patch"
 	"${FILESDIR}/${PN}-0.57.0-disable-internal-jpx.patch"
 )
 
@@ -85,8 +88,9 @@ src_configure() {
 		-DBUILD_GTK_TESTS=OFF
 		-DBUILD_QT5_TESTS=OFF
 		-DBUILD_CPP_TESTS=OFF
+		-DBUILD_MANUAL_TESTS=OFF
 		-DRUN_GPERF_IF_PRESENT=OFF
-		-DENABLE_SPLASH=ON
+		-DENABLE_BOOST="$(usex boost)"
 		-DENABLE_ZLIB=ON
 		-DENABLE_ZLIB_UNCOMPRESS=OFF
 		-DENABLE_UNSTABLE_API_ABI_HEADERS=ON
