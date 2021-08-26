@@ -1,9 +1,9 @@
-# Copyright 2003-2020 Gentoo Authors
+# Copyright 2003-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic multilib-minimal toolchain-funcs
+inherit flag-o-matic multilib-minimal
 
 DESCRIPTION="Libraries/utilities to handle ELF objects (drop in replacement for libelf)"
 HOMEPAGE="http://elfutils.org/"
@@ -33,8 +33,9 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-0.175-disable-biarch-test-PR24158.patch
 	"${FILESDIR}"/${PN}-0.177-disable-large.patch
 	"${FILESDIR}"/${PN}-0.180-PaX-support.patch
-	"${FILESDIR}"/${PN}-0.179-CC-in-tests.patch
-	"${FILESDIR}"/${PN}-0.181-CC-in-tests-p2.patch
+	"${FILESDIR}"/${PN}-0.185-static-inline.patch
+	"${FILESDIR}"/${PN}-0.185-pull-advance_pc-in-file-scope.patch
+	"${FILESDIR}"/${PN}-0.185-configure.ac-rework-gnu99-ext-check-to-allow-clang.patch
 )
 
 src_prepare() {
@@ -72,10 +73,8 @@ multilib_src_configure() {
 }
 
 multilib_src_test() {
-	# CC is a workaround for tests using ${CC-gcc}
 	env	LD_LIBRARY_PATH="${BUILD_DIR}/libelf:${BUILD_DIR}/libebl:${BUILD_DIR}/libdw:${BUILD_DIR}/libasm" \
 		LC_ALL="C" \
-		CC="$(tc-getCC)" \
 		emake check VERBOSE=1
 }
 
