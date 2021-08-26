@@ -3,7 +3,7 @@
 
 EAPI=7
 
-CMAKE_MAKEFILE_GENERATOR="emake" # Fixed in 3.19, see commit 491dddfb; bug #596460
+CMAKE_MAKEFILE_GENERATOR="emake" # TODO RunCMake.LinkWhatYouUse fails consistently w/ ninja
 CMAKE_REMOVE_MODULES_LIST=( none )
 inherit bash-completion-r1 cmake elisp-common flag-o-matic multiprocessing \
 	toolchain-funcs virtualx xdg-utils
@@ -55,12 +55,12 @@ PATCHES=(
 	# prefix
 	"${FILESDIR}"/${PN}-3.16.0_rc4-darwin-bundle.patch
 	"${FILESDIR}"/${PN}-3.14.0_rc3-prefix-dirs.patch
-	# Next patch requires new work from prefix people
-	#"${FILESDIR}"/${PN}-3.1.0-darwin-isysroot.patch
+	"${FILESDIR}"/${PN}-3.19.1-darwin-gcc.patch
 
 	# handle gentoo packaging in find modules
 	"${FILESDIR}"/${PN}-3.17.0_rc1-FindBLAS.patch
-	"${FILESDIR}"/${PN}-3.17.0_rc1-FindLAPACK.patch
+	# Next patch needs to be reworked
+	#"${FILESDIR}"/${PN}-3.17.0_rc1-FindLAPACK.patch
 	"${FILESDIR}"/${PN}-3.5.2-FindQt4.patch
 
 	# respect python eclasses
@@ -120,7 +120,7 @@ cmake_src_test() {
 		-j "$(makeopts_jobs)" \
 		--test-load "$(makeopts_loadavg)" \
 		${ctestargs} \
-		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.IncompatibleQt|RunCMake.ObsoleteQtMacros|RunCMake.PrecompileHeaders|RunCMake.CPack_(DEB|RPM)|TestUpload)" \
+		-E "(BootstrapTest|BundleUtilities|ConfigSources|CMakeOnly.AllFindModules|CPackComponentsDEB-components-depend2|CompileOptions|CTest.UpdateCVS|DependencyGraph|Fortran|RunCMake.CompilerLauncher|RunCMake.IncompatibleQt|RunCMake.ObsoleteQtMacros|RunCMake.PrecompileHeaders|RunCMake.CPack_(DEB|RPM)|TestUpload)" \
 		|| die "Tests failed"
 
 	popd > /dev/null
@@ -129,10 +129,28 @@ cmake_src_test() {
 src_prepare() {
 	cmake_src_prepare
 
-	# disable Xcode hooks, bug #652134
 	if [[ ${CHOST} == *-darwin* ]] ; then
-		sed -i -e 's/__APPLE__/__DISABLED_APPLE__/' \
-			Source/cmGlobalXCodeGenerator.cxx || die
+		# disable Xcode hooks, bug #652134
+		sed -i -e 's/cm\(\|Global\|Local\)XCode[^.]\+\.\(cxx\|h\)//' \
+			Source/CMakeLists.txt || die
+		sed -i -e '/define CMAKE_USE_XCODE/s/XCODE/NO_XCODE/' \
+			-e '/cmGlobalXCodeGenerator.h/d' \
+			Source/cmake.cxx || die
+		# disable isysroot usage with GCC, we've properly instructed
+		# where things are via GCC configuration and ldwrapper
+		sed -i -e '/cmake_gnu_set_sysroot_flag/d' \
+			Modules/Platform/Apple-GNU-*.cmake || die
+		# disable isysroot usage with clang as well
+		sed -i -e '/_SYSROOT_FLAG/d' \
+			Modules/Platform/Apple-Clang.cmake || die
+		# don't set a POSIX standard, system headers don't like that, #757426
+		sed -i -e 's/^#if !defined(_WIN32) && !defined(__sun)/& \&\& !defined(__APPLE__)/' \
+			Source/cmLoadCommandCommand.cxx \
+			Source/cmStandardLexer.h \
+			Source/cmSystemTools.cxx \
+			Source/cmTimestamp.cxx
+		sed -i -e 's/^#if !defined(_POSIX_C_SOURCE) && !defined(_WIN32) && !defined(__sun)/& \&\& !defined(__APPLE__)/' \
+			Source/cmStandardLexer.h
 	fi
 
 	# Add gcc libs to the default link paths
