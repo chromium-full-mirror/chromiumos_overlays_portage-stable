@@ -1,1 +1,2 @@
-include /OWNERS
+# This ebuild, robin-hood-hasing, exists only for the vulkan-layers ebuild.
+include chromiumos/overlays/chromiumos-overlay:/media-libs/vulkan-layers/OWNERS
