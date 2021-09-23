@@ -1,8 +1,8 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit gnome.org meson multilib-minimal xdg-utils
+EAPI=7
+inherit gnome.org meson-multilib xdg-utils
 
 DESCRIPTION="Library providing GLib serialization and deserialization for the JSON format"
 HOMEPAGE="https://wiki.gnome.org/Projects/JsonGlib"
@@ -13,18 +13,19 @@ KEYWORDS="*"
 IUSE="gtk-doc +introspection"
 
 RDEPEND="
-	>=dev-libs/glib-2.44.0:2[${MULTILIB_USEDEP}]
+	>=dev-libs/glib-2.54.0:2[${MULTILIB_USEDEP}]
 	introspection? ( >=dev-libs/gobject-introspection-0.9.5:= )
 "
+DEPEND="${RDEPEND}"
 # TODO: Can we use a newer docbook-xml-dtd, or is one needed at all?
-DEPEND="${RDEPEND}
+BDEPEND="
 	~app-text/docbook-xml-dtd-4.1.2
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
 	dev-util/glib-utils
 	gtk-doc? ( >=dev-util/gtk-doc-1.20 )
 	>=sys-devel/gettext-0.18
-	virtual/pkgconfig[${MULTILIB_USEDEP}]
+	virtual/pkgconfig
 "
 
 src_prepare() {
@@ -37,21 +38,9 @@ src_prepare() {
 
 multilib_src_configure() {
 	local emesonargs=(
-		-Dintrospection=$(multilib_native_usex introspection true false)
-		-Ddocs=$(multilib_native_usex gtk-doc true false)
-		-Dman=true
+		$(meson_native_use_feature introspection)
+		$(meson_native_use_feature gtk-doc gtk_doc)
+		$(meson_native_true man)
 	)
 	meson_src_configure
-}
-
-multilib_src_compile() {
-	meson_src_compile
-}
-
-multilib_src_install() {
-	meson_src_install
-}
-
-multilib_src_test() {
-	meson_src_test
 }
