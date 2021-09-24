@@ -1,37 +1,69 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-AUTOTOOLS_AUTO_DEPEND="no"
+EAPI=7
 
-inherit autotools toolchain-funcs multilib multilib-minimal
+AUTOTOOLS_AUTO_DEPEND="no"
+inherit autotools multilib-minimal usr-ldscript
+
+CYGWINPATCHES=(
+	"https://github.com/cygwinports/zlib/raw/22a3462cae33a82ad966ea0a7d6cbe8fc1368fec/1.2.11-gzopen_w.patch -> ${PN}-1.2.11-cygwin-gzopen_w.patch"
+	"https://github.com/cygwinports/zlib/raw/22a3462cae33a82ad966ea0a7d6cbe8fc1368fec/1.2.7-minizip-cygwin.patch -> ${PN}-1.2.7-cygwin-minizip.patch"
+)
 
 DESCRIPTION="Standard (de)compression library"
-HOMEPAGE="http://www.zlib.net/"
-SRC_URI="http://zlib.net/${P}.tar.gz
+HOMEPAGE="https://zlib.net/"
+SRC_URI="https://zlib.net/${P}.tar.gz
 	http://www.gzip.org/zlib/${P}.tar.gz
-	http://www.zlib.net/current/beta/${P}.tar.gz"
+	http://www.zlib.net/current/beta/${P}.tar.gz
+	elibc_Cygwin? ( ${CYGWINPATCHES[*]} )"
 
 LICENSE="ZLIB"
-SLOT="0"
+SLOT="0/1" # subslot = SONAME
 KEYWORDS="*"
 IUSE="minizip static-libs"
 
-DEPEND="minizip? ( ${AUTOTOOLS_DEPEND} )"
-RDEPEND="abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20130224
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)
-	!<dev-libs/libxml2-2.7.7" #309623
+BDEPEND="minizip? ( ${AUTOTOOLS_DEPEND} )"
+# See #309623 for libxml2
+RDEPEND="
+	!<dev-libs/libxml2-2.7.7
+	!sys-libs/zlib-ng[compat]
+"
+DEPEND="${RDEPEND}"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.2.11-fix-deflateParams-usage.patch
+	"${FILESDIR}"/${PN}-1.2.11-minizip-drop-crypt-header.patch #658536
+)
 
 src_prepare() {
+	default
+
+	if use elibc_Cygwin ; then
+		local p
+		for p in "${CYGWINPATCHES[@]}" ; do
+			# Strip out the "... -> " from the array
+			eapply -p2 "${DISTDIR}/${p#*> }"
+		done
+	fi
+
 	if use minizip ; then
 		cd contrib/minizip || die
 		eautoreconf
 	fi
 
 	case ${CHOST} in
-	*-mingw*|mingw*)
+	*-cygwin*)
+		# do not use _wopen, is a mingw symbol only
+		sed -i -e '/define WIDECHAR/d' "${S}"/gzguts.h || die
+		# zlib1.dll is the mingw name, need cygz.dll
+		# cygz.dll is loaded by toolchain, put into subdir
+		sed -i -e 's|zlib1.dll|win32/cygz.dll|' win32/Makefile.gcc || die
+		;;
+	esac
+
+	case ${CHOST} in
+	*-mingw*|mingw*|*-cygwin*)
 		# uses preconfigured Makefile rather than configure script
 		multilib_copy_sources
 		;;
@@ -42,16 +74,18 @@ echoit() { echo "$@"; "$@"; }
 
 multilib_src_configure() {
 	case ${CHOST} in
-	*-mingw*|mingw*)
+	*-mingw*|mingw*|*-cygwin*)
 		;;
-	*)      # not an autoconf script, so can't use econf
+	*)
 		local uname=$("${EPREFIX}"/usr/share/gnuconfig/config.sub "${CHOST}" | cut -d- -f3) #347167
-		echoit "${S}"/configure \
-			--shared \
-			--prefix="${EPREFIX}/usr" \
-			--libdir="${EPREFIX}/usr/$(get_libdir)" \
-			${uname:+--uname=${uname}} \
-			|| die
+		local myconf=(
+			--shared
+			--prefix="${EPREFIX}/usr"
+			--libdir="${EPREFIX}/usr/$(get_libdir)"
+			${uname:+--uname=${uname}}
+		)
+		# not an autoconf script, so can't use econf
+		echoit "${S}"/configure "${myconf[@]}" || die
 		;;
 	esac
 
@@ -66,10 +100,10 @@ multilib_src_configure() {
 
 multilib_src_compile() {
 	case ${CHOST} in
-	*-mingw*|mingw*)
+	*-mingw*|mingw*|*-cygwin*)
 		emake -f win32/Makefile.gcc STRIP=true PREFIX=${CHOST}-
 		sed \
-			-e 's|@prefix@|/usr|g' \
+			-e 's|@prefix@|'"${EPREFIX}"'/usr|g' \
 			-e 's|@exec_prefix@|${prefix}|g' \
 			-e 's|@libdir@|${exec_prefix}/'$(get_libdir)'|g' \
 			-e 's|@sharedlibdir@|${exec_prefix}/'$(get_libdir)'|g' \
@@ -92,7 +126,7 @@ sed_macros() {
 
 multilib_src_install() {
 	case ${CHOST} in
-	*-mingw*|mingw*)
+	*-mingw*|mingw*|*-cygwin*)
 		emake -f win32/Makefile.gcc install \
 			BINARY_PATH="${ED}/usr/bin" \
 			LIBRARY_PATH="${ED}/usr/$(get_libdir)" \
@@ -115,7 +149,9 @@ multilib_src_install() {
 		sed_macros "${ED}"/usr/include/minizip/*.h
 	fi
 
-	use static-libs || rm -f "${ED}"/usr/$(get_libdir)/lib{z,minizip}.{a,la} #419645
+	if ! use static-libs ; then
+		rm -f "${ED}"/usr/$(get_libdir)/lib{z,minizip}.{a,la} || die #419645
+	fi
 }
 
 multilib_src_install_all() {
