@@ -1,27 +1,31 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libaio/libaio-0.3.110.ebuild,v 1.8 2015/03/09 19:22:19 vapier Exp $
 
-EAPI=5
+EAPI="7"
 
-inherit eutils multilib-minimal toolchain-funcs flag-o-matic
+inherit multilib-minimal toolchain-funcs flag-o-matic usr-ldscript
 
 DESCRIPTION="Asynchronous input/output library that uses the kernels native interface"
-HOMEPAGE="https://git.fedorahosted.org/cgit/libaio.git/  http://lse.sourceforge.net/io/aio.html"
-SRC_URI="https://fedorahosted.org/releases/${PN:0:1}/${PN:1:1}/${PN}/${P}.tar.gz"
-
+HOMEPAGE="https://pagure.io/libaio"
+if [[ "${PV}" == 9999 ]] ; then
+	inherit git-r3
+	EGIT_REPO_URI="https://pagure.io/libaio.git"
+else
+	SRC_URI="https://releases.pagure.org/${PN}/${P}.tar.gz"
+	KEYWORDS="*"
+fi
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="*"
 IUSE="static-libs test"
+RESTRICT="!test? ( test )"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.3.112-cppflags.patch
+	"${FILESDIR}"/${PN}-0.3.111-optional-werror.patch
+)
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}"/${PN}-0.3.109-install.patch \
-		"${FILESDIR}"/${PN}-0.3.109-x32.patch \
-		"${FILESDIR}"/${PN}-0.3.109-testcase-8.patch \
-		"${FILESDIR}"/${PN}-0.3.110-cppflags.patch \
-		"${FILESDIR}"/${PN}-0.3.110-optional-werror.patch
+	default
 
 	local sed_args=(
 		-e "/^prefix=/s:/usr:${EPREFIX}/usr:"
