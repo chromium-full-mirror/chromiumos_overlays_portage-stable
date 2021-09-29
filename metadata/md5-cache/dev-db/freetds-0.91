@@ -10,5 +10,5 @@ RDEPEND=iodbc? ( dev-db/libiodbc ) kerberos? ( virtual/krb5 ) odbc? ( dev-db/uni
 RESTRICT=test
 SLOT=0
 SRC_URI=http://ibiblio.org/pub/Linux/ALPHA/freetds/stable/freetds-0.91.tar.gz
-_eclasses_=autotools	d0e5375d47f4c809f406eb892e531513	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	605c126bed8d87e4378d5ff1645330cb
+_eclasses_=autotools	d0e5375d47f4c809f406eb892e531513	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=60abd17426be7747be916ce23e2fa593
