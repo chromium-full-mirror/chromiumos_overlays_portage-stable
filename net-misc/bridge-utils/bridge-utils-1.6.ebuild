@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -8,15 +8,15 @@ inherit autotools linux-info toolchain-funcs
 DESCRIPTION="Tools for configuring the Linux kernel 802.1d Ethernet Bridge"
 HOMEPAGE="http://bridge.sourceforge.net/"
 #SRC_URI="mirror://sourceforge/bridge/${P}.tar.gz"
-SRC_URI="mirror://kernel/linux/utils/net/${PN}/${P}.tar.xz"
+SRC_URI="https://www.kernel.org/pub/linux/utils/net/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
+IUSE="selinux"
 
 DEPEND="virtual/os-headers"
-RDEPEND=""
+RDEPEND="selinux? ( sec-policy/selinux-brctl )"
 
 CONFIG_CHECK="~BRIDGE"
 WARNING_BRIDGE="CONFIG_BRIDGE is required to get bridge devices in the kernel"
@@ -29,6 +29,9 @@ get_headers() {
 }
 
 src_prepare() {
+	local PATCHES=(
+		"${FILESDIR}"/libbridge-substitute-AR-variable-from-configure.patch
+	)
 	default
 	eautoreconf
 }
@@ -44,7 +47,7 @@ src_configure() {
 	econf "${myeconfargs[@]}"
 }
 
-src_install () {
+src_install() {
 	emake install DESTDIR="${D}"
 	dodoc AUTHORS ChangeLog README THANKS TODO \
 		doc/{FAQ,FIREWALL,HOWTO,PROJECTS,RPM-GPG-KEY,SMPNOTES,WISHLIST}
