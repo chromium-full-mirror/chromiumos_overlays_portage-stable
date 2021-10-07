@@ -1,27 +1,39 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
 
-inherit eutils toolchain-funcs unpacker
+# Note: if bumping pax-utils because of syscall changes in glibc, please
+# revbump glibc and update the dependency in its ebuild for the affected
+# versions.
+PYTHON_COMPAT=( python3_{6..9} )
+
+inherit python-single-r1 toolchain-funcs
 
 DESCRIPTION="ELF utils that can check files for security relevant properties"
 HOMEPAGE="https://wiki.gentoo.org/index.php?title=Project:Hardened/PaX_Utilities"
 SRC_URI="mirror://gentoo/${P}.tar.xz
-	https://dev.gentoo.org/~slyfox/distfiles/${P}.tar.xz"
+	https://dev.gentoo.org/~sam/distfiles/${P}.tar.xz
+	https://dev.gentoo.org/~vapier/dist/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="caps debug python seccomp"
+IUSE="caps debug kernel_linux python seccomp"
 
 RDEPEND="caps? ( >=sys-libs/libcap-2.24 )
-	python? ( dev-python/pyelftools )
-	seccomp? ( sys-libs/libseccomp )"
-DEPEND="${RDEPEND}
+	python? (
+		${PYTHON_DEPS}
+		$(python_gen_cond_dep '
+			dev-python/pyelftools[${PYTHON_USEDEP}]
+		')
+	)
+"
+DEPEND="${RDEPEND}"
+BDEPEND="
 	caps? ( virtual/pkgconfig )
-	seccomp? ( virtual/pkgconfig )
-	app-arch/xz-utils"
+"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 _emake() {
 	emake \
@@ -32,11 +44,15 @@ _emake() {
 		"$@"
 }
 
+pkg_setup() {
+	if use python; then
+		python-single-r1_pkg_setup
+	fi
+}
+
 src_configure() {
 	# Avoid slow configure+gnulib+make if on an up-to-date Linux system
-	if use prefix || ! use kernel_linux || \
-		has_version '<sys-libs/glibc-2.10'
-	then
+	if use prefix || ! use kernel_linux; then
 		econf $(use_with caps) $(use_with debug) $(use_with python) $(use_with seccomp)
 	else
 		tc-export CC PKG_CONFIG
@@ -53,4 +69,6 @@ src_test() {
 
 src_install() {
 	_emake DESTDIR="${D}" PKGDOCDIR='$(DOCDIR)'/${PF} install
+
+	use python && python_fix_shebang "${ED}"/usr/bin/lddtree
 }
