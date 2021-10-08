@@ -1,7 +1,7 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# NB: The $PV tracks the *repo launcher version*, not the last signed release
+# NB: The ${PV} tracks the *repo launcher version*, not the last signed release
 # of the repo project.  The launcher only gets a new update when changes are
 # made in it.
 
@@ -12,7 +12,7 @@ PYTHON_COMPAT=( python3_{6..9} )
 inherit bash-completion-r1 python-r1
 
 # This file rarely changes, so track it independently.
-COMP_VER="511a0e54f5801a3f36c00fac478a596d83867d10"
+COMP_VER="v2.17"
 COMP_NAME="${PN}-${COMP_VER}-bash-completion.sh.base64"
 
 DESCRIPTION="Google tool for managing git, particularly multiple repos"
