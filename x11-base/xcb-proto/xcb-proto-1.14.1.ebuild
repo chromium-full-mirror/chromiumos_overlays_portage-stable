@@ -1,13 +1,12 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python{3_6,3_7,3_8} )
+PYTHON_COMPAT=( python3_{6,7,8,9} )
 XORG_TARBALL_SUFFIX="xz"
 XORG_MODULE=proto/
 XORG_MULTILIB=yes
-XORG_STATIC=no
 
 inherit python-r1 xorg-3
 
@@ -22,7 +21,6 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 DEPEND=""
 RDEPEND="
 	${PYTHON_DEPS}
-	!x11-proto/xcb-proto
 "
 BDEPEND="
 	${PYTHON_DEPS}
