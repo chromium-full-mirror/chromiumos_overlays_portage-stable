@@ -53,6 +53,8 @@ src_prepare() {
 	# musl patchset from:
 	# http://cgit.openembedded.org/openembedded-core/tree/meta/recipes-core/systemd/systemd
 	use elibc_musl && eapply "${WORKDIR}/${P}-musl"
+	eapply "${FILESDIR}/247-tmpfiles-add-action-modifier.patch"
+	eapply "${FILESDIR}/247-tmpfiles-Use-upstream-version-of-add-action-modifier.patch"
 	default
 }
 
