@@ -1,38 +1,36 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit multilib toolchain-funcs multilib-minimal flag-o-matic
 
 DESCRIPTION="Various utilities dealing with the PCI bus"
-HOMEPAGE="http://mj.ucw.cz/sw/pciutils/ https://git.kernel.org/?p=utils/pciutils/pciutils.git"
-SRC_URI="ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/${P}.tar.gz"
+HOMEPAGE="https://mj.ucw.cz/sw/pciutils/ https://git.kernel.org/?p=utils/pciutils/pciutils.git"
+SRC_URI="https://mj.ucw.cz/download/linux/pci/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
 IUSE="dns +kmod static-libs +udev zlib"
+REQUIRED_USE="static-libs? ( !udev )"
 
 # Have the sub-libs in RDEPEND with [static-libs] since, logically,
 # our libpci.a depends on libz.a/etc... at runtime.
 LIB_DEPEND="
 	zlib? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+),${MULTILIB_USEDEP}] )
-	udev? ( >=virtual/libudev-208[static-libs(+),${MULTILIB_USEDEP}] )
 "
 DEPEND="
 	kmod? ( sys-apps/kmod )
+	udev? ( >=virtual/libudev-208[${MULTILIB_USEDEP}] )
 	static-libs? ( ${LIB_DEPEND} )
-	!static-libs? ( ${LIB_DEPEND//static-libs(+),} )
+	!static-libs? ( ${LIB_DEPEND//static-libs([+-]),} )
 "
 RDEPEND="
 	${DEPEND}
 	sys-apps/hwids
 "
-DEPEND="
-	${DEPEND}
-	kmod? ( virtual/pkgconfig )
-"
+BDEPEND="kmod? ( virtual/pkgconfig )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.1.9-static-pc.patch
@@ -113,7 +111,7 @@ multilib_src_install_all() {
 }
 
 pkg_postinst() {
-	if [[ ${REPLACING_VERSIONS} ]] && [[ ${REPLACING_VERSIONS} < 3.2.0 ]]; then
+	if [[ ${REPLACING_VERSIONS} ]] && ver_test ${REPLACING_VERSIONS} -lt 3.2.0 ; then
 		elog "The 'network-cron' USE flag is gone; if you want a more up-to-date"
 		elog "pci.ids file, you should use sys-apps/hwids-99999999 (live ebuild)."
 	fi
