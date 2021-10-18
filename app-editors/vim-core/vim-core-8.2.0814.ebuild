@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,7 +11,7 @@ if [[ ${PV} == 9999* ]] ; then
 	EGIT_CHECKOUT_DIR=${WORKDIR}/vim-${PV}
 else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> vim-${PV}.tar.gz
-		https://dev.gentoo.org/~radhermit/vim/vim-8.2.0210-gentoo-patches.tar.bz2"
+		https://dev.gentoo.org/~zlogene/distfiles/app-editors/vim/vim-8.2.0360-gentoo-patches.tar.xz"
 	KEYWORDS="*"
 fi
 
@@ -77,7 +77,7 @@ src_prepare() {
 	# which isn't even in the source file being invalid, we'll do some trickery
 	# to make the error never occur. bug 66162 (02 October 2004 ciaranm)
 	find "${S}" -name '*.c' | while read c; do
-	    echo >> "$c" || die "echo failed"
+		echo >> "$c" || die "echo failed"
 	done
 
 	# Try to avoid sandbox problems. Bug #114475.
