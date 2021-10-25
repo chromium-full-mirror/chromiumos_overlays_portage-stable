@@ -30,6 +30,7 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.40-fbsd.patch
 	"${FILESDIR}"/${PN}-1.42.13-fix-build-cflags.patch #516854
+	"${FILESDIR}"/${PN}-1.46-add-extended-option-for-prezeroed-storage.patch
 
 	# Upstream patches (can usually removed with next version bump)
 )
