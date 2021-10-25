@@ -13,7 +13,7 @@ SRC_URI="https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${PV}/$
 LICENSE="GPL-2 BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="cron fuse nls static-libs elibc_FreeBSD"
+IUSE="cron fuse lto nls static-libs +threads elibc_FreeBSD"
 
 RDEPEND="~sys-libs/${PN}-libs-${PV}
 	>=sys-apps/util-linux-2.16
@@ -77,13 +77,14 @@ src_configure() {
 		--enable-symlink-install
 		--enable-elf-shlibs
 		$(tc-has-tls || echo --disable-tls)
-		--without-included-gettext
 		$(use_enable fuse fuse2fs)
 		$(use_enable nls)
 		--disable-libblkid
 		--disable-libuuid
 		--disable-fsck
 		--disable-uuidd
+		$(use_enable lto)
+		$(use_with threads pthread)
 	)
 	ac_cv_path_LDCONFIG=: econf "${myeconfargs[@]}"
 
