@@ -204,7 +204,7 @@ src_install() {
 	fi
 
 	local -x EPYTHON=pypy3
-	local -x PYTHON=${EROOT}${dest}/pypy3-c-${PV}
+	local -x PYTHON=${ED}${dest}/pypy3-c
 
 	echo "EPYTHON='${EPYTHON}'" > epython.py || die
 	python_moduleinto /usr/lib/pypy3.6/site-packages
