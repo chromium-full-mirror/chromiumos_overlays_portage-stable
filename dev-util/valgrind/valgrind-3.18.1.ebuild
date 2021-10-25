@@ -5,7 +5,7 @@ EAPI=7
 inherit autotools flag-o-matic toolchain-funcs multilib pax-utils
 
 DESCRIPTION="An open-source memory debugger for GNU/Linux"
-HOMEPAGE="http://www.valgrind.org"
+HOMEPAGE="https://www.valgrind.org"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="mpi"
@@ -14,7 +14,7 @@ if [[ ${PV} == "9999" ]]; then
 	EGIT_REPO_URI="https://sourceware.org/git/${PN}.git"
 	inherit git-r3
 else
-	SRC_URI="ftp://sourceware.org/pub/valgrind/${P}.tar.bz2"
+	SRC_URI="https://sourceware.org/pub/valgrind/${P}.tar.bz2"
 	KEYWORDS="*"
 fi
 
@@ -32,8 +32,6 @@ src_prepare() {
 	eapply "${FILESDIR}"/${PN}-3.7.0-respect-flags.patch
 
 	eapply "${FILESDIR}"/${PN}-3.15.0-Build-ldst_multiple-test-with-fno-pie.patch
-
-	eapply "${FILESDIR}"/${PN}-3.17.0-lld.patch
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# upstream doesn't support this, but we don't build with
