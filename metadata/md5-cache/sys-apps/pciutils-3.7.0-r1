@@ -11,5 +11,5 @@ RDEPEND=kmod? ( sys-apps/kmod ) udev? ( >=virtual/libudev-208[abi_x86_32(-)?,abi
 REQUIRED_USE=static-libs? ( !udev )
 SLOT=0
 SRC_URI=https://mj.ucw.cz/download/linux/pci/pciutils-3.7.0.tar.gz
-_eclasses_=eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	5d5921a298e95441da2f85be419894c0	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	09a8beb8e6a8e02dc1e1bd83ac353741	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=b07eadef1473b20c576c5abab45ea5e8
