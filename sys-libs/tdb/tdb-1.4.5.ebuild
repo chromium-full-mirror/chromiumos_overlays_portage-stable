@@ -1,34 +1,31 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE="threads(+)"
-
 inherit waf-utils multilib-minimal python-single-r1
 
-DESCRIPTION="A simple database API"
-HOMEPAGE="http://tdb.samba.org/"
-SRC_URI="http://samba.org/ftp/tdb/${P}.tar.gz"
+DESCRIPTION="Simple database API"
+HOMEPAGE="https://tdb.samba.org/"
+SRC_URI="https://samba.org/ftp/tdb/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
 IUSE="python"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+RESTRICT="test"
 
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-
-RDEPEND="!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )
+RDEPEND="
+	!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )
 	python? ( ${PYTHON_DEPS} )"
-DEPEND="
-	${RDEPEND}
-	${PYTHON_DEPS}
+DEPEND="${RDEPEND}"
+BDEPEND="${PYTHON_DEPS}
 	app-text/docbook-xml-dtd:4.2"
 
 WAF_BINARY="${S}/buildtools/bin/waf"
-
-RESTRICT="test"
 
 src_prepare() {
 	default
@@ -38,7 +35,7 @@ src_prepare() {
 
 multilib_src_configure() {
 	local extra_opts=()
-	if ! multilib_is_native_abi || ! use python; then
+	if ! multilib_is_native_abi || ! use python ; then
 		extra_opts+=( --disable-python )
 	fi
 
