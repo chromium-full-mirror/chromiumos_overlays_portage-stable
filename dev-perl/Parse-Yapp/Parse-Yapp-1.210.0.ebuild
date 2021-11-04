@@ -21,7 +21,8 @@ DEPEND="${RDEPEND}
 mydoc="docs/*"
 
 src_configure() {
-	local libdir=$(get_libdir)
-	myconf="LIB=/usr/${libdir}"
+	PERLVER=$(/usr/bin/perl -e "\$_ = \$^V; s/v//; print")
+	PERL5LIBDIR="/usr/$(get_libdir)/perl5/vendor_perl/${PERLVER}"
+	myconf="LIB=${PERL5LIBDIR}"
 	perl-module_src_configure
 }
