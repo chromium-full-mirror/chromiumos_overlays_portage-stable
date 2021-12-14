@@ -17,10 +17,11 @@ HOMEPAGE="https://wayland.freedesktop.org/ https://gitlab.freedesktop.org/waylan
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="doc"
+IUSE="doc test"
+RESTRICT="!test? ( test )"
 
 BDEPEND="
-	~dev-util/wayland-scanner-${PV}[$MULTILIB_USEDEP]
+	~dev-util/wayland-scanner-${PV}
 	virtual/pkgconfig
 	doc? (
 		>=app-doc/doxygen-1.6[dot]
@@ -35,19 +36,13 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 
-PATCHES=(
-	"${FILESDIR}"/0001-connection-test-Encode-size-in-message-headers-corre.patch
-	"${FILESDIR}"/0002-connection-Handle-non-nullable-strings-in-wl_connect.patch
-	"${FILESDIR}"/0003-util-Avoid-undefined-behaviour-in-for_each_helper.patch
-	"${FILESDIR}"/0004-server-Fix-undefined-behavior-in-wl_socket_init_for_.patch
-)
-
 multilib_src_configure() {
 	local emesonargs=(
 		$(meson_native_use_bool doc documentation)
 		$(meson_native_true dtd_validation)
 		-Dlibraries=true
 		-Dscanner=false
+		$(meson_use test tests)
 	)
 	meson_src_configure
 }

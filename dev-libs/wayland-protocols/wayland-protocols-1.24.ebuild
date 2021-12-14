@@ -1,14 +1,16 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+
+inherit meson
 
 DESCRIPTION="Wayland protocol files"
 HOMEPAGE="https://wayland.freedesktop.org/"
 
 if [[ ${PV} = 9999* ]]; then
 	EGIT_REPO_URI="https://gitlab.freedesktop.org/wayland/${PN}.git/"
-	inherit git-r3 autotools
+	inherit git-r3
 else
 	SRC_URI="https://wayland.freedesktop.org/releases/${P}.tar.xz"
 	KEYWORDS="*"
@@ -16,22 +18,21 @@ fi
 
 LICENSE="MIT"
 SLOT="0"
-IUSE=""
+IUSE="test"
+RESTRICT="!test? ( test )"
 
-DEPEND="dev-libs/wayland"
-RDEPEND="${DEPEND}"
-BDEPEND="virtual/pkgconfig"
+DEPEND="
+	test? ( dev-libs/wayland )
+"
+RDEPEND=""
+BDEPEND="
+	dev-util/wayland-scanner
+	virtual/pkgconfig
+"
 
-src_prepare() {
-	default
-
-	[[ ${PV} == 9999 ]] && eautoreconf
-}
-
-src_test() {
-	export XDG_RUNTIME_DIR="${T}/runtime-dir"
-	mkdir "${XDG_RUNTIME_DIR}" || die
-	chmod 0700 "${XDG_RUNTIME_DIR}" || die
-
-	default
+src_configure() {
+	local emesonargs=(
+		$(meson_use test tests)
+	)
+	meson_src_configure
 }
