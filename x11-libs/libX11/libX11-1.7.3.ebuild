@@ -5,6 +5,7 @@ EAPI=7
 
 XORG_DOC=doc
 XORG_MULTILIB=yes
+XORG_TARBALL_SUFFIX=xz
 inherit toolchain-funcs xorg-3
 
 # Note: please bump this with x11-misc/compose-tables
@@ -16,7 +17,6 @@ RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=x11-libs/libxcb-1.11.1[${MULTILIB_USEDEP}]
-	!<x11-base/xorg-proto-2019.2
 	x11-misc/compose-tables"
 DEPEND="${RDEPEND}
 	x11-base/xorg-proto
