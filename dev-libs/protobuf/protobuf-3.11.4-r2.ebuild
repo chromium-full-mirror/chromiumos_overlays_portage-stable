@@ -60,6 +60,7 @@ multilib_src_configure() {
 	local options=(
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
 		CXX_FOR_BUILD="$(tc-getBUILD_CXX)"
+		OBJC="$(tc-getBUILD_CC)"
 		$(use_enable static-libs static)
 		$(use_with zlib)
 	)
