@@ -3,23 +3,24 @@
 
 EAPI=7
 
-PATCH_VER=1
+PATCH_VER=0
 PATCH_DEV=dilfridge
 
-inherit eutils libtool toolchain-funcs multilib-minimal
+inherit libtool toolchain-funcs multilib-minimal
 
 MY_PN="binutils"
 MY_P="${MY_PN}-${PV}"
 PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
-PATCH_DEV=${PATCH_DEV:-slyfox}
+PATCH_DEV=${PATCH_DEV:-dilfridge}
 
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
 SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_P}.tar.xz
 	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
-SLOT="0/${PV}"
+SLOT="0/${PV%_p?}"
 IUSE="64-bit-bfd cet multitarget nls static-libs"
 KEYWORDS="*"
 
@@ -30,16 +31,14 @@ RDEPEND="${DEPEND}
 	>=sys-devel/binutils-config-5
 "
 
-PATCHES=("${FILESDIR}"/${PN}-2.35.1-cet.patch)
-
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/${MY_P%_p?}"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/bfd.h
 )
 
 src_prepare() {
-	if [[ ! -z ${PATCH_VER} ]] ; then
+	if [[ -n ${PATCH_VER} ]] ; then
 		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
 		eapply "${WORKDIR}/patch"/*.patch
 	fi
