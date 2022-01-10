@@ -26,7 +26,7 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
-	>=dev-util/spirv-headers-1.5.4.2_pre20210327
+	dev-util/spirv-headers
 	doc? ( dev-ruby/asciidoctor )
 	test? (
 		dev-cpp/gtest
