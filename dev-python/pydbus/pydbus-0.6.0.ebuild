@@ -15,10 +15,6 @@ LICENSE="LGPL-2.1"
 KEYWORDS="*"
 SLOT="0"
 
-IUSE="test"
-RESTRICT="!test? ( test )"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-
 RDEPEND="
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
 	sys-apps/dbus
