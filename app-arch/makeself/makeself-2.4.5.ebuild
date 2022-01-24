@@ -1,18 +1,24 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI="7"
 
 inherit optfeature
 
 DESCRIPTION="Shell script that generates a self-extractible tar.gz"
-HOMEPAGE="http://www.megastep.org/makeself/"
+HOMEPAGE="https://makeself.io/"
 SRC_URI="https://github.com/megastep/makeself/archive/refs/tags/release-${PV}.tar.gz -> ${P}.tar.gz"
-S="${WORKDIR}/${PN}-release-${PV}"
 
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="*"
+
+# NB: The test framework requires bashunit (which isn't a big deal), but the
+# tests themselves are not of great quality.  You should avoid running them
+# yourself as they like to run commands like gpg against your own ~/ settings.
+RESTRICT="test"
+
+S="${WORKDIR}/${PN}-release-${PV}"
 
 src_compile() { :; }
 
