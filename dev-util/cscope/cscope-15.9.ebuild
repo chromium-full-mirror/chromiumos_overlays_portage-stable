@@ -1,10 +1,9 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/cscope/cscope-15.8a.ebuild,v 1.10 2015/01/22 13:01:32 ulm Exp $
 
-EAPI=4
+EAPI=7
 
-inherit autotools elisp-common eutils toolchain-funcs
+inherit autotools elisp-common toolchain-funcs
 
 DESCRIPTION="Interactively examine a C program"
 HOMEPAGE="http://cscope.sourceforge.net/"
@@ -15,18 +14,25 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="emacs"
 
-RDEPEND=">=sys-libs/ncurses-5.2
-	emacs? ( virtual/emacs )"
-DEPEND="${RDEPEND}
-	sys-devel/flex
+RDEPEND=">=sys-libs/ncurses-5.2:0=
+	emacs? ( >=app-editors/emacs-23.1:* )"
+DEPEND="${RDEPEND}"
+BDEPEND="sys-devel/flex
 	virtual/pkgconfig
 	virtual/yacc"
 
 SITEFILE="50${PN}-gentoo.el"
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-15.7a-ocs-sysdir.patch" #269305
+	eapply "${FILESDIR}/${PN}-15.7a-ocs-sysdir.patch" #269305
+	eapply "${FILESDIR}/${PN}-15.9-pkgconfig.patch"
+	eapply_user
+	mv configure.{in,ac} || die
 	eautoreconf		  # prevent maintainer mode later on
+}
+
+src_configure() {
+	econf --with-ncurses="${EPREFIX}"/usr
 }
 
 src_compile() {
