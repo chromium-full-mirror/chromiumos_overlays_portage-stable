@@ -34,6 +34,7 @@ DEPEND="${RDEPEND}"
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.2.11-fix-deflateParams-usage.patch
 	"${FILESDIR}"/${PN}-1.2.11-minizip-drop-crypt-header.patch #658536
+	"${FILESDIR}"/${PN}-1.2.11-configure-fix-AR-RANLIB-NM-detection.patch #831628
 )
 
 src_prepare() {
@@ -149,8 +150,15 @@ multilib_src_install() {
 		sed_macros "${ED}"/usr/include/minizip/*.h
 	fi
 
+	if use minizip; then
+		# This might not exist if slibtool is used.
+		# https://bugs.gentoo.org/816756
+		rm -f "${ED}"/usr/$(get_libdir)/libminizip.la || die
+	fi
+
 	if ! use static-libs ; then
-		rm -f "${ED}"/usr/$(get_libdir)/lib{z,minizip}.{a,la} || die #419645
+		# https://bugs.gentoo.org/419645
+		rm "${ED}"/usr/$(get_libdir)/libz.a || die
 	fi
 }
 
