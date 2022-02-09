@@ -21,10 +21,7 @@ IUSE="bzip2 gdbm +jit libressl ncurses sqlite test tk"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	|| (
-		dev-python/pypy3-exe:${PV}[bzip2?,ncurses?]
-		dev-python/pypy3-exe-bin:${PV}
-	)
+	dev-python/pypy3-exe-bin:${PV}
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:0= )
 	gdbm? ( sys-libs/gdbm:0= )
