@@ -11,14 +11,9 @@ PYTHON_COMPAT=( python3_{6..9} )
 
 inherit bash-completion-r1 python-r1
 
-# This file rarely changes, so track it independently.
-COMP_VER="v2.17"
-COMP_NAME="${PN}-${COMP_VER}-bash-completion.sh.base64"
-
 DESCRIPTION="Google tool for managing git, particularly multiple repos"
 HOMEPAGE="https://gerrit.googlesource.com/git-repo"
-SRC_URI="https://storage.googleapis.com/git-repo-downloads/${P}
-	https://gerrit.googlesource.com/git-repo/+/${COMP_VER}/completion.bash?format=TEXT -> ${COMP_NAME}"
+SRC_URI="https://github.com/GerritCodeReview/git-repo/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -30,13 +25,10 @@ RDEPEND="${PYTHON_DEPS}
 	!app-admin/radmind
 	!dev-util/repo"
 
-S=${WORKDIR}
-
-src_unpack() {
-	base64 -d <"${DISTDIR}/${COMP_NAME}" >completion.bash || die
-}
+S="${WORKDIR}/git-${P}"
 
 src_install() {
-	python_foreach_impl python_newscript "${DISTDIR}/${P}" ${PN}
+	python_foreach_impl python_doscript ${PN}
 	newbashcomp completion.bash ${PN}
+	doman man/*.[0-9]
 }
