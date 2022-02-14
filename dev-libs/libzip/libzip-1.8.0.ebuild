@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -12,7 +12,7 @@ SRC_URI="https://www.nih.at/libzip/${P}.tar.xz"
 LICENSE="BSD"
 SLOT="0/5"
 KEYWORDS="*"
-IUSE="bzip2 gnutls libressl lzma mbedtls ssl static-libs test tools"
+IUSE="bzip2 gnutls lzma mbedtls ssl static-libs test tools"
 REQUIRED_USE="test? ( tools )"
 
 RESTRICT="!test? ( test )"
@@ -28,16 +28,11 @@ DEPEND="
 		)
 		!gnutls? (
 			mbedtls? ( net-libs/mbedtls:= )
-			!mbedtls? (
-				!libressl? ( dev-libs/openssl:0= )
-				libressl? ( dev-libs/libressl:0= )
-			)
+			!mbedtls? ( dev-libs/openssl:0= )
 		)
 	)
 "
 RDEPEND="${DEPEND}"
-
-PATCHES=( "${FILESDIR}"/${P}-missing-header.patch ) # bug 733326
 
 pkg_setup() {
 	# Upstream doesn't support building dynamic & static
@@ -107,7 +102,11 @@ src_compile() {
 }
 
 src_test() {
-	[[ ${MULTIBUILD_VARIANT} = shared ]] && cmake_src_test
+	run_tests() {
+		[[ ${MULTIBUILD_VARIANT} = shared ]] && cmake_src_test
+	}
+
+	multibuild_foreach_variant run_tests
 }
 
 src_install() {
