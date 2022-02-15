@@ -1,21 +1,26 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit linux-info toolchain-funcs
+EAPI=7
+
+inherit linux-info toolchain-funcs plocale
 
 DESCRIPTION="Pipe Viewer: a tool for monitoring the progress of data through a pipe"
-HOMEPAGE="http://www.ivarch.com/programs/pv.shtml"
-SRC_URI="http://www.ivarch.com/programs/sources/${P}.tar.bz2"
+HOMEPAGE="https://www.ivarch.com/programs/pv.shtml"
+SRC_URI="https://www.ivarch.com/programs/sources/${P}.tar.bz2"
 
 LICENSE="Artistic-2"
 SLOT="0"
 KEYWORDS="*"
 IUSE="debug nls"
 
-PV_LINGUAS=( de fr pl pt )
+PLOCALES="de fr pl pt"
+PLOCALE_BACKUP="en"
 
 DOCS=( README doc/NEWS doc/TODO )
+
+# Doesn't build a library.
+QA_CONFIGURE_OPTIONS="--disable-static"
 
 pkg_setup() {
 	if use kernel_linux; then
@@ -34,20 +39,22 @@ src_prepare() {
 	sed -i \
 		-e 's:$(LD) $(LDFLAGS) -o:$(AR) rc:' \
 		autoconf/make/modules.mk~ || die
+
+	sed -i -e 's:usleep 200000 || ::g' tests/019-remote-cksum || die
+
+	disable_locale() {
+		local locale=${1}
+		sed -i configure -e "/ALL_LINGUAS=/s:${locale}::g" || die
+	}
+
+	plocale_find_changes src/nls '' '.po'
+	plocale_for_each_disabled_locale disable_locale
 }
 
 src_configure() {
 	tc-export AR
-	local lingua
-	for lingua in ${PV_LINGUAS[@]}; do
-		if ! has ${lingua} ${LINGUAS-${lingua}}; then
-			sed -i configure -e "/ALL_LINGUAS=/s:${lingua}::g" || die
-		fi
-	done
-	econf $(use_enable debug debugging) $(use_enable nls)
-}
 
-src_test() {
-	sed -i -e 's:usleep 200000 || ::g' tests/019-remote-cksum || die
-	default
+	econf \
+		$(use_enable debug debugging) \
+		$(use_enable nls)
 }
