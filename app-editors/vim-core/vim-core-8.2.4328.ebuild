@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -193,7 +193,8 @@ src_install() {
 		rm -rv "${ED}${vimfiles}"/{macros,print,tools,tutor} || die "rm failed"
 		rm -v "${ED}"/usr/bin/vimtutor || die "rm failed"
 
-		# Delete defaults.vim to avoid conflicts with one from vim[minimal]
+		# A section related to defaults.vim was deleted here on ChromeOS
+		# to work around an upstream bug: https://bugs.gentoo.org/834447
 		rm -v "${ED}${vimfiles}"/defaults.vim || die "rm failed"
 
 		local keep_colors="default"
