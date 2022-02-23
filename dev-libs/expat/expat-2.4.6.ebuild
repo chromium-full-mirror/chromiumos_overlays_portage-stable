@@ -1,9 +1,10 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 AUTOTOOLS_AUTO_DEPEND=no
-inherit autotools eutils libtool multilib toolchain-funcs multilib-minimal usr-ldscript
+AT_NOEAUTOHEADER=yes  # because expat_config.h.in would need post-processing
+inherit autotools multilib-minimal
 
 DESCRIPTION="Stream-oriented XML parser library"
 HOMEPAGE="https://libexpat.github.io/"
@@ -12,7 +13,7 @@ SRC_URI="https://github.com/libexpat/libexpat/releases/download/R_${PV//\./_}/ex
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
-IUSE="elibc_FreeBSD examples static-libs unicode"
+IUSE="examples static-libs unicode"
 BDEPEND="unicode? ( ${AUTOTOOLS_DEPEND} )"
 
 DOCS=( README.md )
@@ -72,12 +73,6 @@ multilib_src_install() {
 		sed -i -e '/^Libs/s:-lexpat:&w:' expatw.pc || die
 		popd >/dev/null
 	fi
-
-	if multilib_is_native_abi ; then
-		# libgeom in /lib and ifconfig in /sbin require libexpat on FreeBSD since
-		# we stripped the libbsdxml copy starting from freebsd-lib-8.2-r1
-		use elibc_FreeBSD && gen_usr_ldscript -a expat
-	fi
 }
 
 multilib_src_install_all() {
@@ -87,7 +82,7 @@ multilib_src_install_all() {
 
 	# Note: Use of HTML_DOCS would add unwanted "doc" subfolder
 	docinto html
-	dodoc doc/*.{css,html,png}
+	dodoc doc/*.{css,html}
 
 	if use examples; then
 		docinto examples
