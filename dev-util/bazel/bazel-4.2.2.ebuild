@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit bash-completion-r1 java-pkg-2 multiprocessing
+inherit bash-completion-r1 bazel java-pkg-2 multiprocessing
 
 DESCRIPTION="Fast and correct automated build system"
 HOMEPAGE="https://bazel.build/"
@@ -24,28 +24,15 @@ DEPEND="${RDEPEND}
 	app-arch/zip"
 
 S="${WORKDIR}"
-
-bazel-get-flags() {
-	local i fs=()
-	for i in ${CFLAGS}; do
-		fs+=( "--copt=${i}" "--host_copt=${i}" )
-	done
-	for i in ${CXXFLAGS}; do
-		fs+=( "--cxxopt=${i}" "--host_cxxopt=${i}" )
-	done
-	for i in ${CPPFLAGS}; do
-		fs+=( "--copt=${i}" "--host_copt=${i}" )
-		fs+=( "--cxxopt=${i}" "--host_cxxopt=${i}" )
-	done
-	for i in ${LDFLAGS}; do
-		fs+=( "--linkopt=${i}" "--host_linkopt=${i}" )
-	done
-	echo "${fs[*]}"
-}
+PATCHES=(
+	"${FILESDIR}/${PN}-3.2.0-include-limits-for-gcc-11.patch"
+	"${FILESDIR}/${PN}-4.2.2-absl_numeric_limits.patch"
+)
 
 pkg_setup() {
-	echo ${PATH} | grep -q ccache && \
+	if has ccache ${FEATURES}; then
 		ewarn "${PN} usually fails to compile with ccache, you have been warned"
+	fi
 	java-pkg-2_pkg_setup
 }
 
@@ -67,7 +54,7 @@ src_prepare() {
 }
 
 src_compile() {
-	export EXTRA_BAZEL_ARGS="--jobs=$(makeopts_jobs) $(bazel-get-flags) --host_javabase=@local_jdk//:jdk"
+	export EXTRA_BAZEL_ARGS="--jobs=$(makeopts_jobs) $(bazel_get_flags) --host_javabase=@local_jdk//:jdk"
 	if use static-libs; then
 		export BAZEL_LINKOPTS=-static-libs:-static-libgcc BAZEL_LINKLIBS=-l%:libstdc++.a:-lm
 	fi
