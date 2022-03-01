@@ -1,16 +1,15 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE="ncurses,readline"
 
-FIRMWARE_ABI_VERSION="5.2.0-r50"
+FIRMWARE_ABI_VERSION="6.2.0"
 
-inherit eutils linux-info toolchain-funcs multilib python-r1
-inherit udev fcaps readme.gentoo-r1 pax-utils l10n xdg-utils
-inherit flag-o-matic
+inherit linux-info toolchain-funcs python-r1 udev fcaps readme.gentoo-r1 \
+		pax-utils xdg-utils
 
 if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://git.qemu.org/git/qemu.git"
@@ -28,15 +27,15 @@ else
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
-HOMEPAGE="http://www.qemu.org http://www.linux-kvm.org"
+HOMEPAGE="https://www.qemu.org https://www.linux-kvm.org"
 
 LICENSE="GPL-2 LGPL-2 BSD-2"
 SLOT="0"
 
-IUSE="accessibility +aio alsa bzip2 capstone +caps +curl debug +doc
-	+fdt glusterfs gnutls gtk infiniband iscsi io-uring
-	jack jemalloc +jpeg kernel_linux
-	kernel_FreeBSD lzo multipath
+IUSE="accessibility +aio alsa bpf bzip2 capstone +caps +curl debug +doc
+	+fdt fuse glusterfs +gnutls gtk infiniband iscsi io-uring
+	jack jemalloc +jpeg
+	lzo multipath
 	ncurses nfs nls numa opengl +oss +pin-upstream-blobs
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
@@ -44,14 +43,52 @@ IUSE="accessibility +aio alsa bzip2 capstone +caps +curl debug +doc
 	usbredir vde +vhost-net vhost-user-fs virgl virtfs +vnc vte xattr xen
 	xfs zstd"
 
-COMMON_TARGETS="aarch64 alpha arm cris hppa i386 m68k microblaze microblazeel
-	mips mips64 mips64el mipsel nios2 or1k ppc ppc64 riscv32 riscv64 s390x
-	sh4 sh4eb sparc sparc64 x86_64 xtensa xtensaeb"
-IUSE_SOFTMMU_TARGETS="${COMMON_TARGETS}
-	avr lm32 moxie rx tricore unicore32"
-IUSE_USER_TARGETS="${COMMON_TARGETS}
-	aarch64_be armeb mipsn32 mipsn32el ppc64abi32 ppc64le sparc32plus
-	tilegx"
+COMMON_TARGETS="
+	aarch64
+	alpha
+	arm
+	cris
+	hppa
+	i386
+	m68k
+	microblaze
+	microblazeel
+	mips
+	mips64
+	mips64el
+	mipsel
+	nios2
+	or1k
+	ppc
+	ppc64
+	riscv32
+	riscv64
+	s390x
+	sh4
+	sh4eb
+	sparc
+	sparc64
+	x86_64
+	xtensa
+	xtensaeb
+"
+IUSE_SOFTMMU_TARGETS="
+	${COMMON_TARGETS}
+	avr
+	rx
+	tricore
+"
+IUSE_USER_TARGETS="
+	${COMMON_TARGETS}
+	aarch64_be
+	armeb
+	hexagon
+	mipsn32
+	mipsn32el
+	ppc64abi32
+	ppc64le
+	sparc32plus
+"
 
 use_softmmu_targets=$(printf ' qemu_softmmu_targets_%s' ${IUSE_SOFTMMU_TARGETS})
 use_user_targets=$(printf ' qemu_user_targets_%s' ${IUSE_USER_TARGETS})
@@ -68,10 +105,14 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	qemu_softmmu_targets_ppc? ( fdt )
 	qemu_softmmu_targets_riscv32? ( fdt )
 	qemu_softmmu_targets_riscv64? ( fdt )
-	static? ( static-user !alsa !gtk !jack !opengl !pulseaudio !plugins !rbd !snappy )
+	qemu_softmmu_targets_x86_64? ( fdt )
+	sdl-image? ( sdl )
+	static? ( static-user !alsa !gtk !jack !opengl !pulseaudio !plugins !rbd !snappy !udev )
 	static-user? ( !plugins )
 	vhost-user-fs? ( caps seccomp )
+	virgl? ( opengl )
 	virtfs? ( caps xattr )
+	vnc? ( gnutls )
 	vte? ( gtk )
 	multipath? ( udev )
 	plugins? ( !static !static-user )
@@ -103,11 +144,13 @@ SOFTMMU_TOOLS_DEPEND="
 	)
 	aio? ( dev-libs/libaio[static-libs(+)] )
 	alsa? ( >=media-libs/alsa-lib-1.0.13 )
+	bpf? ( dev-libs/libbpf:= )
 	bzip2? ( app-arch/bzip2[static-libs(+)] )
 	capstone? ( dev-libs/capstone:= )
 	caps? ( sys-libs/libcap-ng[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
 	fdt? ( >=sys-apps/dtc-1.5.0[static-libs(+)] )
+	fuse? ( >=sys-fs/fuse-3.1:3[static-libs(+)] )
 	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
 	gnutls? (
 		dev-libs/nettle:=[static-libs(+)]
@@ -118,9 +161,7 @@ SOFTMMU_TOOLS_DEPEND="
 		vte? ( x11-libs/vte:2.91 )
 	)
 	infiniband? (
-		sys-fabric/libibumad:=[static-libs(+)]
-		sys-fabric/libibverbs:=[static-libs(+)]
-		sys-fabric/librdmacm:=[static-libs(+)]
+		sys-cluster/rdma-core[static-libs(+)]
 	)
 	iscsi? ( net-libs/libiscsi )
 	io-uring? ( sys-libs/liburing:=[static-libs(+)] )
@@ -130,8 +171,8 @@ SOFTMMU_TOOLS_DEPEND="
 	lzo? ( dev-libs/lzo:2[static-libs(+)] )
 	multipath? ( sys-fs/multipath-tools )
 	ncurses? (
-		sys-libs/ncurses:0=[unicode]
-		sys-libs/ncurses:0=[static-libs(+)]
+		sys-libs/ncurses:=[unicode(+)]
+		sys-libs/ncurses:=[static-libs(+)]
 	)
 	nfs? ( >=net-fs/libnfs-1.9.3:=[static-libs(+)] )
 	numa? ( sys-process/numactl[static-libs(+)] )
@@ -139,7 +180,7 @@ SOFTMMU_TOOLS_DEPEND="
 		virtual/opengl
 		media-libs/libepoxy[static-libs(+)]
 		media-libs/mesa[static-libs(+)]
-		media-libs/mesa[egl,gbm]
+		media-libs/mesa[egl(+),gbm(+)]
 	)
 	png? ( media-libs/libpng:0=[static-libs(+)] )
 	pulseaudio? ( media-sound/pulseaudio )
@@ -159,7 +200,7 @@ SOFTMMU_TOOLS_DEPEND="
 		>=app-emulation/spice-0.12.0[static-libs(+)]
 	)
 	ssh? ( >=net-libs/libssh-0.8.6[static-libs(+)] )
-	udev? ( virtual/libudev[static-libs(+)] )
+	udev? ( virtual/libudev:= )
 	usb? ( >=virtual/libusb-1-r2[static-libs(+)] )
 	usbredir? ( >=sys-apps/usbredir-0.6[static-libs(+)] )
 	vde? ( net-misc/vde[static-libs(+)] )
@@ -170,17 +211,18 @@ SOFTMMU_TOOLS_DEPEND="
 	zstd? ( >=app-arch/zstd-1.4.0[static-libs(+)] )
 "
 
+EDK2_OVMF_VERSION="202105"
 SEABIOS_VERSION="1.14.0"
 
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
-		~sys-firmware/edk2-ovmf-202008[binary]
+		~sys-firmware/edk2-ovmf-${EDK2_OVMF_VERSION}[binary]
 		~sys-firmware/ipxe-1.21.1[binary,qemu]
 		~sys-firmware/seabios-${SEABIOS_VERSION}[binary,seavgabios]
 		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
 	!pin-upstream-blobs? (
-		sys-firmware/edk2-ovmf
+		>=sys-firmware/edk2-ovmf-${EDK2_OVMF_VERSION}
 		sys-firmware/ipxe[qemu]
 		>=sys-firmware/seabios-${SEABIOS_VERSION}[seavgabios]
 		sys-firmware/sgabios
@@ -199,7 +241,10 @@ BDEPEND="
 	dev-lang/perl
 	sys-apps/texinfo
 	virtual/pkgconfig
-	doc? ( dev-python/sphinx )
+	doc? (
+		dev-python/sphinx[${PYTHON_USEDEP}]
+		dev-python/sphinx_rtd_theme[${PYTHON_USEDEP}]
+	)
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
 		dev-libs/glib[utils]
@@ -229,12 +274,9 @@ RDEPEND="${CDEPEND}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.11.1-capstone_include_path.patch
-	"${FILESDIR}"/${PN}-5.2.0-cleaner-werror.patch
 	"${FILESDIR}"/${PN}-5.2.0-disable-keymap.patch
-	"${FILESDIR}"/${PN}-5.2.0-strings.patch
-	"${FILESDIR}"/${PN}-5.2.0-fix-firmware-path.patch
-	"${FILESDIR}"/${PN}-5.2.0-no-pie-ld.patch
-	"${FILESDIR}"/${PN}-5.2.0-dce-locks.patch
+	"${FILESDIR}"/${PN}-6.0.0-make.patch
+	"${FILESDIR}"/${PN}-6.1.0-strings.patch
 )
 
 QA_PREBUILT="
@@ -342,12 +384,12 @@ pkg_pretend() {
 	fi
 }
 
-# Sanity check to make sure target lists are kept up-to-date.
+# Check to make sure target lists are kept up-to-date.
 check_targets() {
 	local var=$1 mak=$2
 	local detected sorted
 
-	pushd "${S}"/default-configs/targets/ >/dev/null || die
+	pushd "${S}"/configs/targets/ >/dev/null || die
 
 	# Force C locale until glibc is updated. #564936
 	detected=$(echo $(printf '%s\n' *-${mak}.mak | sed "s:-${mak}.mak::" | LC_COLLATE=C sort -u))
@@ -363,10 +405,6 @@ check_targets() {
 }
 
 src_prepare() {
-	# workaround -fcommon breakage: bug #726560
-	[[ ${PV} == 5.2.0 ]] || die "Check if -fcommon hack is needed"
-	filter-flags -fcommon
-
 	check_targets IUSE_SOFTMMU_TARGETS softmmu
 	check_targets IUSE_USER_TARGETS linux-user
 
@@ -381,6 +419,11 @@ src_prepare() {
 
 	# Remove bundled copy of libfdt
 	rm -r dtc || die
+
+	# ChromeOS: Fix unprefixed call to pkg-config. Upstream bugs:
+	# https://bugs.gentoo.org/867766
+	# https://gitlab.com/qemu-project/qemu/-/issues/1185
+	sed -i -e 's/pkg-config --modversion/${pkg-config} --modversion/g' configure
 }
 
 ##
@@ -428,6 +471,10 @@ qemu_src_configure() {
 		--cc="$(tc-getCC)"
 		--cxx="$(tc-getCXX)"
 		--host-cc="$(tc-getBUILD_CC)"
+		# ChromeOS: Fix unprefixed call to clang. Upstream bugs:
+		# https://bugs.gentoo.org/867766
+		# https://gitlab.com/qemu-project/qemu/-/issues/1185
+		--objcc="$(tc-getCC)"
 		$(use_enable debug debug-info)
 		$(use_enable debug debug-tcg)
 		$(use_enable doc docs)
@@ -461,14 +508,23 @@ qemu_src_configure() {
 			echo "--disable-${2:-$1}"
 		fi
 	}
+	# Special case for the malloc flag, because the --disable flag does
+	# not exist and trying like above will break configuring.
+	conf_malloc() {
+		if [[ ! ${buildtype} == "user" ]] ; then
+			usex "${1}" "--enable-malloc=${1}" ""
+		fi
+	}
 	conf_opts+=(
 		$(conf_notuser accessibility brlapi)
 		$(conf_notuser aio linux-aio)
+		$(conf_softmmu bpf)
 		$(conf_notuser bzip2)
 		$(conf_notuser capstone)
 		$(conf_notuser caps cap-ng)
 		$(conf_notuser curl)
 		$(conf_notuser fdt)
+		$(conf_notuser fuse)
 		$(conf_notuser glusterfs)
 		$(conf_notuser gnutls)
 		$(conf_notuser gnutls nettle)
@@ -476,7 +532,7 @@ qemu_src_configure() {
 		$(conf_notuser infiniband rdma)
 		$(conf_notuser iscsi libiscsi)
 		$(conf_notuser io-uring linux-io-uring)
-		$(conf_notuser jemalloc jemalloc)
+		$(conf_malloc jemalloc)
 		$(conf_notuser jpeg vnc-jpeg)
 		$(conf_notuser kernel_linux kvm)
 		$(conf_notuser lzo)
@@ -504,7 +560,7 @@ qemu_src_configure() {
 		$(conf_notuser vhost-user-fs)
 		$(conf_tools vhost-user-fs virtiofsd)
 		$(conf_notuser virgl virglrenderer)
-		$(conf_notuser virtfs)
+		$(conf_softmmu virtfs)
 		$(conf_notuser vnc)
 		$(conf_notuser vte)
 		$(conf_notuser xen)
@@ -533,7 +589,7 @@ qemu_src_configure() {
 			$(usev oss)
 		)
 		conf_opts+=(
-			--audio-drv-list=$(printf "%s," "${audio_opts[@]}")
+			--audio-drv-list="${audio_opts// /,}"
 		)
 	fi
 
@@ -591,11 +647,6 @@ qemu_src_configure() {
 	echo "../configure ${conf_opts[*]}"
 	cd "${builddir}"
 	../configure "${conf_opts[@]}" || die "configure failed"
-
-	# FreeBSD's kernel does not support QEMU assigning/grabbing
-	# host USB devices yet
-	use kernel_FreeBSD && \
-		sed -i -E -e "s|^(HOST_USB=)bsd|\1stub|" "${S}"/config-host.mak
 }
 
 src_configure() {
@@ -812,7 +863,7 @@ src_install() {
 firmware_abi_change() {
 	local pv
 	for pv in ${REPLACING_VERSIONS}; do
-		if ver_test $pv -lt ${FIRMWARE_ABI_VERSION}; then
+		if ver_test ${pv} -lt ${FIRMWARE_ABI_VERSION}; then
 			return 0
 		fi
 	done
