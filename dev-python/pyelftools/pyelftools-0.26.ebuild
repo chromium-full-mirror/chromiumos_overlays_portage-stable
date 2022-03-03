@@ -1,14 +1,15 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
+PYTHON_COMPAT=( python3_{6,7,8,9} )
 inherit distutils-r1
 
 DESCRIPTION="pure-Python library for analyzing ELF files and DWARF debugging information"
-HOMEPAGE="https://pypi.python.org/pypi/pyelftools https://github.com/eliben/pyelftools"
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
+HOMEPAGE="https://pypi.org/project/pyelftools/ https://github.com/eliben/pyelftools"
+# PyPI tarball lacks some test files
+SRC_URI="https://github.com/eliben/pyelftools/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="public-domain"
 SLOT="0"
