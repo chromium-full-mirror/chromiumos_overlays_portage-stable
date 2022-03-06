@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -26,20 +26,23 @@ COMMON_DEPEND="!media-libs/jpeg:0
 BDEPEND=">=dev-util/cmake-3.16.5
 	amd64? ( ${ASM_DEPEND} )
 	x86? ( ${ASM_DEPEND} )
-	amd64-fbsd? ( ${ASM_DEPEND} )
-	x86-fbsd? ( ${ASM_DEPEND} )
 	amd64-linux? ( ${ASM_DEPEND} )
 	x86-linux? ( ${ASM_DEPEND} )
 	x64-macos? ( ${ASM_DEPEND} )
 	x64-cygwin? ( ${ASM_DEPEND} )"
 
 DEPEND="${COMMON_DEPEND}
-	java? ( >=virtual/jdk-1.8:* )"
+	java? ( >=virtual/jdk-1.8:*[-headless-awt] )"
 
 RDEPEND="${COMMON_DEPEND}
 	java? ( >=virtual/jre-1.8:* )"
 
 MULTILIB_WRAPPED_HEADERS=( /usr/include/jconfig.h )
+
+PATCHES=(
+	# Upstream patch
+	"${FILESDIR}"/${P}-arm64-relro.patch
+)
 
 src_prepare() {
 	local FILE
