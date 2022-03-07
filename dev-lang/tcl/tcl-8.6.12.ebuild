@@ -1,9 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools flag-o-matic multilib-minimal toolchain-funcs
+# Please bump with dev-lang/tk!
+
+inherit autotools flag-o-matic multilib-minimal multilib toolchain-funcs
 
 MY_P="${PN}${PV}"
 
@@ -23,7 +25,7 @@ SPARENT="${WORKDIR}/${MY_P}"
 S="${SPARENT}"/unix
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-8.5.13-multilib.patch
+	"${FILESDIR}"/${PN}-8.6.10-multilib.patch
 	"${FILESDIR}"/${PN}-8.6.8-conf.patch # Bug 125971
 	"${FILESDIR}"/${PN}-8.6.9-include-spec.patch # Bug 731120
 )
@@ -37,6 +39,12 @@ src_prepare() {
 	pushd "${SPARENT}" &>/dev/null || die
 	default
 	popd &>/dev/null || die
+
+	# httpold tests require netowk
+	rm ../tests/httpold.test \
+		../tests/env.test \
+		../tests/http.test \
+		|| die
 
 	# workaround stack check issues, bug #280934
 	use hppa && append-cflags "-DTCL_NO_STACK_CHECK=1"
@@ -90,7 +98,7 @@ multilib_src_install() {
 		-e "/^TCL_BUILD_STUB_LIB_PATH=/s:$(pwd):${EPREFIX}/usr/${mylibdir}:g" \
 		-e "/^TCL_LIBW_FILE=/s:'libtcl${v1}..TCL_DBGX..so':\"libtcl${v1}\$\{TCL_DBGX\}.so\":g" \
 		-i "${ED}"/usr/${mylibdir}/tclConfig.sh || die
-	if use prefix && [[ ${CHOST} != *-darwin* && ${CHOST} != *-mint* ]] ; then
+	if use prefix && [[ ${CHOST} != *-darwin* ]] ; then
 		sed \
 			-e "/^TCL_CC_SEARCH_FLAGS=/s|'$|:${EPREFIX}/usr/${mylibdir}'|g" \
 			-e "/^TCL_LD_SEARCH_FLAGS=/s|'$|:${EPREFIX}/usr/${mylibdir}'|" \
@@ -110,21 +118,6 @@ multilib_src_install() {
 
 	if multilib_is_native_abi; then
 		dosym tclsh${v1} /usr/bin/tclsh
-		dodoc "${SPARENT}"/{ChangeLog*,README,changes}
+		dodoc "${SPARENT}"/{ChangeLog*,README.md,changes}
 	fi
-}
-
-pkg_postinst() {
-	for version in ${REPLACING_VERSIONS}; do
-		if ver_test 8.6 -lt ${version}; then
-			echo
-			ewarn "You're upgrading from <${P}, you must recompile the other"
-			ewarn "packages on your system that link with tcl after the upgrade"
-			ewarn "completes. To perform this action, please run revdep-rebuild"
-			ewarn "in package app-portage/gentoolkit."
-			ewarn "If you have dev-lang/tk and dev-tcltk/tclx installed you should"
-			ewarn "upgrade them before this recompilation, too,"
-			echo
-		fi
-	done
 }
