@@ -3,11 +3,12 @@
 
 # @ECLASS: meson-multilib.eclass
 # @MAINTAINER:
-# Author: Matt Turner <mattst88@gentoo.org>
+# Matt Turner <mattst88@gentoo.org>
 # @AUTHOR:
-# Author: Michał Górny <mgorny@gentoo.org>
-# Author: Matt Turner <mattst88@gentoo.org>
-# @SUPPORTED_EAPIS: 7
+# Michał Górny <mgorny@gentoo.org>
+# Matt Turner <mattst88@gentoo.org>
+# @SUPPORTED_EAPIS: 7 8
+# @PROVIDES: meson multilib-minimal
 # @BLURB: meson wrapper for multilib builds
 # @DESCRIPTION:
 # The meson-multilib.eclass provides a glue between meson.eclass(5)
@@ -20,13 +21,13 @@
 # in multilib-minimal, yet they ought to call appropriate meson
 # phase rather than 'default'.
 
+case ${EAPI} in
+	7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
+
 if [[ -z ${_MESON_MULTILIB_ECLASS} ]] ; then
 _MESON_MULTILIB_ECLASS=1
-
-case ${EAPI:-0} in
-	7) ;;
-	*) die "EAPI=${EAPI} is not supported" ;;
-esac
 
 inherit meson multilib-minimal
 
@@ -125,7 +126,7 @@ meson-multilib_src_install() {
 }
 
 multilib_src_install() {
-	meson_src_install "${_meson_args[@]}"
+	meson_install "${_meson_args[@]}"
 }
 
 fi
