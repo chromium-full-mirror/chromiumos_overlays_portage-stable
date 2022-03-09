@@ -1,2 +1,1 @@
-# By default everyone may approve.
-*
+include /app-emulation/qemu/OWNERS
