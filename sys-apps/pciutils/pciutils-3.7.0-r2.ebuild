@@ -28,7 +28,7 @@ DEPEND="
 "
 RDEPEND="
 	${DEPEND}
-	sys-apps/hwids
+	sys-apps/hwdata
 "
 BDEPEND="kmod? ( virtual/pkgconfig )"
 
@@ -70,7 +70,7 @@ pemake() {
 		PKG_CONFIG="$(tc-getPKG_CONFIG)" \
 		RANLIB="$(tc-getRANLIB)" \
 		DNS=$(usex dns) \
-		IDSDIR='$(SHAREDIR)/misc' \
+		IDSDIR='$(SHAREDIR)/hwdata' \
 		MANDIR='$(SHAREDIR)/man' \
 		PREFIX="${EPREFIX}/usr" \
 		SHARED="yes" \
@@ -103,16 +103,9 @@ multilib_src_install() {
 multilib_src_install_all() {
 	dodoc ChangeLog README TODO
 
-	rm "${ED}"/usr/sbin/update-pciids "${ED}"/usr/share/misc/pci.ids \
-		"${ED}"/usr/share/man/man8/update-pciids.8*
+	rm "${ED}"/usr/sbin/update-pciids "${ED}"/usr/share/man/man8/update-pciids.8* || die
+	rm -r "${ED}"/usr/share/hwdata || die
 
 	newinitd "${FILESDIR}"/init.d-pciparm pciparm
 	newconfd "${FILESDIR}"/conf.d-pciparm pciparm
-}
-
-pkg_postinst() {
-	if [[ ${REPLACING_VERSIONS} ]] && ver_test ${REPLACING_VERSIONS} -lt 3.2.0 ; then
-		elog "The 'network-cron' USE flag is gone; if you want a more up-to-date"
-		elog "pci.ids file, you should use sys-apps/hwids-99999999 (live ebuild)."
-	fi
 }
