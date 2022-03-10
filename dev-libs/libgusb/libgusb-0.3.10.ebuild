@@ -1,13 +1,13 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 VALA_USE_DEPEND="vapigen"
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE="xml(+)"
 
-inherit meson multilib-minimal python-any-r1 vala
+inherit meson-multilib python-any-r1 vala
 
 DESCRIPTION="GObject wrapper for libusb"
 HOMEPAGE="https://github.com/hughsie/libgusb"
@@ -24,7 +24,7 @@ RDEPEND="
 	>=dev-libs/glib-2.44.0:2[${MULTILIB_USEDEP}]
 	virtual/libusb:1[udev,${MULTILIB_USEDEP}]
 	introspection? ( >=dev-libs/gobject-introspection-1.54:= )
-	sys-apps/hwids
+	sys-apps/hwdata
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -53,22 +53,11 @@ multilib_src_configure() {
 	local emesonargs=(
 		-Ddefault_library=$(usex static-libs both shared)
 		$(meson_use test tests)
-		-Dvapi=$(multilib_native_usex vala true false)
-		-Dusb_ids="${EPREFIX}"/usr/share/misc/usb.ids
-		-Ddocs=$(multilib_native_usex gtk-doc true false)
-		-Dintrospection=$(multilib_native_usex introspection true false)
+		$(meson_native_use_bool vala vapi)
+		-Dusb_ids="${EPREFIX}"/usr/share/hwdata/usb.ids
+		$(meson_native_use_bool gtk-doc docs)
+		$(meson_native_use_bool introspection)
+
 	)
 	meson_src_configure
-}
-
-multilib_src_compile() {
-	meson_src_compile
-}
-
-multilib_src_test() {
-	meson_src_test
-}
-
-multilib_src_install() {
-	meson_src_install
 }
