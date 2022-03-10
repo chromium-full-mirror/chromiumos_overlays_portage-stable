@@ -24,8 +24,11 @@ BDEPEND="
 	virtual/pkgconfig
 	python? ( ${PYTHON_DEPS} )"
 RDEPEND="${DEPEND}
-	sys-apps/hwids
-	python? ( ${PYTHON_DEPS} )"
+	python? (
+		${PYTHON_DEPS}
+		sys-apps/hwdata
+	)
+"
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
@@ -40,7 +43,7 @@ src_prepare() {
 src_configure() {
 	local myeconfargs=(
 		--datarootdir="${EPREFIX}/usr/share"
-		--datadir="${EPREFIX}/usr/share/misc"
+		--datadir="${EPREFIX}/usr/share/hwdata"
 	)
 	econf "${myeconfargs[@]}"
 }
