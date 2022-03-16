@@ -1,0 +1,11 @@
+BDEPEND=sys-devel/flex
+DEFINED_PHASES=configure prepare
+DESCRIPTION=the programmers calculator
+EAPI=7
+HOMEPAGE=https://github.com/vapier/pcalc
+KEYWORDS=*
+LICENSE=GPL-2
+SLOT=0
+SRC_URI=mirror://sourceforge/pcalc/pcalc-5.tar.xz
+_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_md5_=2dba619841c55293b3f2218a291a3bec
