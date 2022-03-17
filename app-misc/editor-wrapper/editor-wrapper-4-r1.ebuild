@@ -1,23 +1,28 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-misc/editor-wrapper/editor-wrapper-4.ebuild,v 1.7 2011/12/29 21:37:29 ulm Exp $
 
-EAPI=4
+EAPI=7
 
 DESCRIPTION="Wrapper scripts that will execute EDITOR or PAGER"
-HOMEPAGE="http://www.gentoo.org/"
-SRC_URI=""
+# There is no upstream, everything is in FILESDIR.
+HOMEPAGE="https://wiki.gentoo.org/wiki/No_homepage"
 
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
 
 S="${WORKDIR}"
 
 src_prepare() {
 	sed -e 's/@VAR@/EDITOR/g' "${FILESDIR}/${P}.sh" >editor || die
 	sed -e 's/@VAR@/PAGER/g'  "${FILESDIR}/${P}.sh" >pager  || die
+	if use prefix ; then
+		sed -i \
+			-e "s:#!/bin/sh:#!/usr/bin/env sh:" \
+			-e "s: /etc/profile: \"${EPREFIX}/etc/profile\":" \
+			editor pager || die
+	fi
+	eapply_user
 }
 
 src_install() {
