@@ -1,22 +1,21 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 MY_PN=SPIRV-Tools
 CMAKE_ECLASS="cmake"
-PYTHON_COMPAT=( python3_{6..9} )
-PYTHON_REQ_USE="xml(+)"
+PYTHON_COMPAT=( python3_{6,7,8,9} )
 inherit cmake-multilib python-any-r1
 
 if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/KhronosGroup/${MY_PN}.git"
 	inherit git-r3
 else
-	EGIT_COMMIT="sdk-${PV}.0"
+	EGIT_COMMIT="ab8eb607750208066e2d57eff6a34dbaf05f5ada"
 	SRC_URI="https://github.com/KhronosGroup/${MY_PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="*"
-	S="${WORKDIR}"/${MY_PN}-${EGIT_COMMIT}
+	S="${WORKDIR}"/${MY_PN}-${PV}
 fi
 
 DESCRIPTION="Provides an API and commands for processing SPIR-V modules"
@@ -27,7 +26,7 @@ SLOT="0"
 # Tests fail upon finding symbols that do not match a regular expression
 # in the generated library. Easily hit with non-standard compiler flags
 RESTRICT="test"
-COMMON_DEPEND="~dev-util/spirv-headers-${PV}"
+COMMON_DEPEND="dev-util/spirv-headers"
 DEPEND="${COMMON_DEPEND}"
 RDEPEND=""
 BDEPEND="${PYTHON_DEPS}
