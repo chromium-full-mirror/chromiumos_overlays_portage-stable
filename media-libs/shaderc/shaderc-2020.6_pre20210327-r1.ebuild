@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python{3_6,3_7,3_8,3_9} )
 
 CMAKE_ECLASS=cmake
 
@@ -11,8 +11,8 @@ inherit cmake-multilib python-any-r1
 
 DESCRIPTION="Collection of tools, libraries and tests for shader compilation"
 HOMEPAGE="https://github.com/google/shaderc"
-EGIT_COMMIT="${PV}"
-SRC_URI="https://github.com/google/${PN}/archive/v${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
+EGIT_COMMIT="3fe94c6a76d2b617e7fb20fdf3cde98001a274e3"
+SRC_URI="https://github.com/google/${PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
 
 LICENSE="Apache-2.0"
@@ -21,12 +21,12 @@ KEYWORDS="*"
 IUSE="doc test"
 
 RDEPEND="
-	~dev-util/glslang-1.3.204[${MULTILIB_USEDEP}]
-	~dev-util/spirv-tools-1.3.204[${MULTILIB_USEDEP}]
+	>=dev-util/glslang-11.2.0[${MULTILIB_USEDEP}]
+	>=dev-util/spirv-tools-2021.0_pre20210327[${MULTILIB_USEDEP}]
 "
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
-	~dev-util/spirv-headers-1.3.204
+	dev-util/spirv-headers
 	doc? ( dev-ruby/asciidoctor )
 	test? (
 		dev-cpp/gtest
