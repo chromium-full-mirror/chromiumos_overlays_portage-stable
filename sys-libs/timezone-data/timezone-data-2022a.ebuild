@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -15,13 +15,16 @@ SRC_URI="https://www.iana.org/time-zones/repository/releases/tzdata${data_ver}.t
 LICENSE="BSD public-domain"
 SLOT="0"
 KEYWORDS="*"
-IUSE="nls leaps-timezone elibc_FreeBSD zic-slim"
+IUSE="nls leaps-timezone zic-slim"
 
 DEPEND="nls? ( virtual/libintl )"
 RDEPEND="${DEPEND}
 	!sys-libs/glibc[vanilla(+)]"
 
-S=${WORKDIR}
+src_unpack() {
+	mkdir -p "${S}" && cd "${S}" || die
+	default
+}
 
 src_prepare() {
 	default
@@ -38,7 +41,7 @@ src_configure() {
 
 	append-lfs-flags #471102
 
-	if use elibc_FreeBSD || use elibc_Darwin ; then
+	if use elibc_Darwin ; then
 		append-cppflags -DSTD_INSPIRED #138251
 	fi
 
@@ -62,7 +65,6 @@ src_configure() {
 _emake() {
 	emake \
 		REDO=$(usex leaps-timezone posix_right posix_only) \
-		TZDATA_TEXT= \
 		TOPDIR="${EPREFIX}" \
 		ZICDIR='$(TOPDIR)/usr/bin' \
 		"$@"
@@ -150,28 +152,39 @@ configure_tz_data() {
 	fi
 
 	if ! tz=$(get_TIMEZONE) ; then
-		einfo "Assuming your empty ${etc_lt} file is what you want; skipping update."
+		einfo "Assuming your empty ${src} file is what you want; skipping update."
 		return 0
 	fi
+
 	if [[ "${tz}" == "FOOKABLOIE" ]] ; then
-		elog "You do not have TIMEZONE set in ${src}."
-
-		if [[ ! -e "${etc_lt}" ]] ; then
-			cp -f "${EROOT}"/usr/share/zoneinfo/Factory "${etc_lt}"
-			elog "Setting ${etc_lt} to Factory."
-		else
-			elog "Skipping auto-update of ${etc_lt}."
-		fi
+		einfo "You do not have a timezone set in ${src}; skipping update."
 		return 0
 	fi
 
-	if [[ ! -e "${EROOT}/usr/share/zoneinfo/${tz}" ]] ; then
-		elog "You have an invalid TIMEZONE setting in ${src}"
-		elog "Your ${etc_lt} has been reset to Factory; enjoy!"
-		tz="Factory"
+	local tzpath="${EROOT}/usr/share/zoneinfo/${tz}"
+
+	if [[ ! -e ${tzpath} ]]; then
+		ewarn "The timezone specified in ${src} is not valid."
+		return 1
 	fi
-	einfo "Updating ${etc_lt} with ${EROOT}/usr/share/zoneinfo/${tz}"
-	cp -f "${EROOT}/usr/share/zoneinfo/${tz}" "${etc_lt}"
+
+	if [[ -f ${etc_lt} ]]; then
+		# If a regular file already exists, copy over it.
+		ewarn "Found a regular file at ${etc_lt}."
+		ewarn "Some software may expect a symlink instead."
+		ewarn "You may convert it to a symlink by removing the file and running:"
+		ewarn "  emerge --config sys-libs/timezone-data"
+		einfo "Copying ${tzpath} to ${etc_lt}."
+		cp -f "${tzpath}" "${etc_lt}"
+	else
+		# Otherwise, create a symlink and remove the timezone file.
+		tzpath="../usr/share/zoneinfo/${tz}"
+		einfo "Linking ${tzpath} at ${etc_lt}."
+		if ln -snf "${tzpath}" "${etc_lt}"; then
+			einfo "Removing ${src}."
+			rm -f "${src}"
+		fi
+	fi
 }
 
 pkg_config() {
