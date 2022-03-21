@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_7 python3_{6..9} )
 inherit pax-utils python-any-r1 toolchain-funcs
 
 MY_P=pypy3.6-v${PV/_/}
@@ -18,7 +18,7 @@ LICENSE="MIT"
 SLOT="0/pypy36-pp73"
 KEYWORDS="*"
 IUSE="bzip2 gdbm +jit libressl ncurses sqlite test tk"
-RESTRICT="!test? ( test )"
+RESTRICT="test"
 
 RDEPEND="
 	dev-python/pypy3-exe-bin:${PV}
