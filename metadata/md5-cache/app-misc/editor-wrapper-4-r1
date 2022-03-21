@@ -1,8 +1,8 @@
 DEFINED_PHASES=install prepare
 DESCRIPTION=Wrapper scripts that will execute EDITOR or PAGER
-EAPI=4
-HOMEPAGE=http://www.gentoo.org/
+EAPI=7
+HOMEPAGE=https://wiki.gentoo.org/wiki/No_homepage
 KEYWORDS=*
 LICENSE=MIT
 SLOT=0
-_md5_=8e26f2ac75f26bd90af7e651ee31c32e
+_md5_=1ac1a14b0e4173cec20606cd017f9e69
