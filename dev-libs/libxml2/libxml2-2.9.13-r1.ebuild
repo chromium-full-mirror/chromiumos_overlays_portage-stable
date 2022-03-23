@@ -1,14 +1,15 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 # Note: Please bump in sync with dev-libs/libxslt
 
-PYTHON_COMPAT=( python3_{6,7,8,9} )
+PATCHSET_VERSION="2.9.12-r5-patchset"
+
+PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE="xml"
-VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielveillard.asc
-inherit autotools flag-o-matic prefix python-r1 multilib-minimal verify-sig
+inherit autotools flag-o-matic gnome.org prefix python-r1 multilib-minimal
 
 XSTS_HOME="http://www.w3.org/XML/2004/xml-schema-test-suite"
 XSTS_NAME_1="xmlschema2002-01-16"
@@ -18,28 +19,26 @@ XSTS_TARBALL_2="xsts-2004-01-14.tar.gz"
 XMLCONF_TARBALL="xmlts20130923.tar.gz"
 DESCRIPTION="XML C parser and toolkit"
 HOMEPAGE="http://www.xmlsoft.org/ https://gitlab.gnome.org/GNOME/libxml2"
-SRC_URI="
-	ftp://xmlsoft.org/${PN}/${PN}-${PV/_rc/-rc}.tar.gz
+SRC_URI+="
+	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-${PATCHSET_VERSION}.tar.bz2
 	test? (
 		${XSTS_HOME}/${XSTS_NAME_1}/${XSTS_TARBALL_1}
 		${XSTS_HOME}/${XSTS_NAME_2}/${XSTS_TARBALL_2}
 		https://www.w3.org/XML/Test/${XMLCONF_TARBALL}
 	)
-	verify-sig? ( ftp://xmlsoft.org/${PN}/${PN}-${PV/_rc/-rc}.tar.gz.asc )
 "
 S="${WORKDIR}/${PN}-${PV%_rc*}"
 
 LICENSE="MIT"
 SLOT="2"
 KEYWORDS="*"
-IUSE="debug examples icu ipv6 lzma +python readline static-libs test"
+IUSE="debug examples icu lzma +python readline static-libs test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 BDEPEND="
 	dev-util/gtk-doc-am
 	virtual/pkgconfig
-	verify-sig? ( app-crypt/openpgp-keys-danielveillard )
 "
 RDEPEND="
 	>=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
@@ -54,36 +53,34 @@ MULTILIB_CHOST_TOOLS=(
 	/usr/bin/xml2-config
 )
 
-DOCS=( AUTHORS ChangeLog NEWS README TODO TODO_SCHEMAS )
+DOCS=( NEWS README.md TODO TODO_SCHEMAS python/TODO )
 
 PATCHES=(
+	## Gentoo
 	# Patches needed for prefix support
-	"${FILESDIR}"/${PN}-2.7.1-catalog_path.patch
+	"${WORKDIR}"/${PN}-2.7.1-catalog_path.patch
 
 	# Fix python detection, bug #567066
 	# https://bugzilla.gnome.org/show_bug.cgi?id=760458
-	"${FILESDIR}"/${PN}-2.9.2-python-ABIFLAG.patch
+	"${WORKDIR}"/${PN}-2.9.2-python-ABIFLAG.patch
 
 	# Fix python tests when building out of tree #565576
-	"${FILESDIR}"/${PN}-2.9.8-out-of-tree-test.patch
+	"${WORKDIR}"/${PN}-2.9.8-out-of-tree-test.patch
 
 	# bug #745162
-	"${FILESDIR}"/${PN}-2.9.8-python3-unicode-errors.patch
+	"${WORKDIR}"/${PN}-2.9.8-python3-unicode-errors.patch
 
-	# Avoid failure on missing fuzz.h when running tests
-	"${FILESDIR}"/${PN}-2.9.11-disable-fuzz-tests.patch
+	# Don't bother copying Python's libraries (bug #798942)
+	"${WORKDIR}"/${PN}-2.9.12-dont-copy-python-ldflags.patch
 )
 
 src_unpack() {
-	local tarname=${P/_rc/-rc}.tar.gz
-
-	if use verify-sig ; then
-		verify-sig_verify_detached "${DISTDIR}"/${tarname}{,.asc}
-	fi
+	local tarname=${P/_rc/-rc}.tar.xz
 
 	# ${A} isn't used to avoid unpacking of test tarballs into ${WORKDIR},
 	# as they are needed as tarballs in ${S}/xstc instead and not unpacked
-	unpack ${tarname}
+	unpack ${tarname} ${PN}-${PATCHSET_VERSION}.tar.bz2
+
 	cd "${S}" || die
 
 	if use test ; then
@@ -111,6 +108,7 @@ src_prepare() {
 	# in /usr/lib/python?.?/site-packages/libxml2mod.la among things.
 	# We now need to run eautoreconf at the end to prevent maintainer mode.
 	#elibtoolize
+	# Needed for https://gitlab.gnome.org/GNOME/libxml2/-/issues/338 too in 2.9.13
 	eautoreconf
 }
 
@@ -130,11 +128,11 @@ multilib_src_configure() {
 
 	libxml2_configure() {
 		ECONF_SOURCE="${S}" econf \
+			--enable-ipv6 \
 			--with-html-subdir=${PF}/html \
 			$(use_with debug run-debug) \
 			$(use_with icu) \
 			$(use_with lzma) \
-			$(use_enable ipv6) \
 			$(use_enable static-libs static) \
 			$(multilib_native_use_with readline) \
 			$(multilib_native_use_with readline history) \
