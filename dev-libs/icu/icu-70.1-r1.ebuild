@@ -1,44 +1,37 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit flag-o-matic toolchain-funcs autotools multilib-minimal
+PYTHON_COMPAT=( python3_{6,7,8} )
+inherit autotools flag-o-matic multilib-minimal python-any-r1 toolchain-funcs
 
 DESCRIPTION="International Components for Unicode"
-HOMEPAGE="http://www.icu-project.org/"
-SRC_URI="http://download.icu-project.org/files/icu4c/${PV/_/}/icu4c-${PV//./_}-src.tgz"
+HOMEPAGE="https://icu.unicode.org/"
+SRC_URI="https://github.com/unicode-org/icu/releases/download/release-${PV//./-}/icu4c-${PV//./_}-src.tgz"
+S="${WORKDIR}/${PN}/source"
 
 LICENSE="BSD"
-
 SLOT="0/${PV}"
-
 KEYWORDS="*"
 IUSE="debug doc examples static-libs"
 
-DEPEND="
+BDEPEND="${PYTHON_DEPS}
+	sys-devel/autoconf-archive
+	virtual/pkgconfig
 	doc? ( app-doc/doxygen[dot] )
 "
-BDEPEND="
-	virtual/pkgconfig
-"
-
-S="${WORKDIR}/${PN}/source"
 
 MULTILIB_CHOST_TOOLS=(
 	/usr/bin/icu-config
 )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-58.1-remove-bashisms.patch"
-	"${FILESDIR}/${PN}-58.2-darwin.patch"
-	"${FILESDIR}/${P}-CVE-2018-18928.patch"
+	"${FILESDIR}/${PN}-70.1-fix-ucptrietest.patch"
 )
 
 src_prepare() {
 	default
-
-	local variable
 
 	# Disable renaming as it is stupid thing to do
 	sed -i \
@@ -92,6 +85,11 @@ multilib_src_configure() {
 		--with-cross-build="${WORKDIR}"/host
 	)
 
+	# work around cross-endian testing failures with LTO #757681
+	if tc-is-cross-compiler && is-flagq '-flto*' ; then
+		myeconfargs+=( --disable-strict )
+	fi
+
 	# icu tries to use clang by default
 	tc-export CC CXX
 
@@ -137,7 +135,6 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
+	local HTML_DOCS=( ../readme.html )
 	einstalldocs
-	docinto html
-	dodoc ../readme.html
 }

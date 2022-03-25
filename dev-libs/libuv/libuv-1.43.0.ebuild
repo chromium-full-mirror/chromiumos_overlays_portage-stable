@@ -1,21 +1,28 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+
 inherit autotools multilib-minimal
 
 DESCRIPTION="Cross-platform asychronous I/O"
 HOMEPAGE="https://github.com/libuv/libuv"
-SRC_URI="https://github.com/libuv/libuv/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+
+if [[ ${PV} = 9999* ]]; then
+	EGIT_REPO_URI="https://github.com/libuv/libuv.git"
+	inherit git-r3
+else
+	SRC_URI="https://github.com/libuv/libuv/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="*"
+fi
 
 LICENSE="BSD BSD-2 ISC MIT"
 SLOT="0/1"
-KEYWORDS="*"
-IUSE="static-libs"
-RESTRICT="test"
 
-DEPEND="sys-devel/libtool
-	virtual/pkgconfig[${MULTILIB_USEDEP}]"
+BDEPEND="
+	sys-devel/libtool
+	virtual/pkgconfig
+"
 
 src_prepare() {
 	default
@@ -23,25 +30,29 @@ src_prepare() {
 	echo "m4_define([UV_EXTRA_AUTOMAKE_FLAGS], [serial-tests])" \
 		> m4/libuv-extra-automake-flags.m4 || die
 
+	if [[ ${CHOST} == *-darwin* && ${CHOST##*darwin} -le 9 ]] ; then
+		eapply "${FILESDIR}"/${PN}-1.41.0-darwin.patch
+	fi
+
 	# upstream fails to ship a configure script
 	eautoreconf
 }
 
 multilib_src_configure() {
 	local myeconfargs=(
+		--disable-static
 		cc_cv_cflags__g=no
-		$(use_enable static-libs static)
 	)
+
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
 multilib_src_test() {
-	mkdir "${BUILD_DIR}"/test || die
 	cp -pPR "${S}"/test/fixtures "${BUILD_DIR}"/test/fixtures || die
 	default
 }
 
 multilib_src_install_all() {
 	einstalldocs
-	find "${D}" -name '*.la' -delete || die
+	find "${ED}" -name '*.la' -delete || die
 }

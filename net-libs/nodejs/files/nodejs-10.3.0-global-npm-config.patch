@@ -15,6 +15,5 @@
 +      defaults.globalconfig = path.resolve(globalconfig, 'npmrc')
 +      defaults.globalignorefile = path.resolve(globalconfig, 'npmignore')
 +    })
- 
+
      conf.addFile(conf.get('globalconfig'), 'global')
- 
