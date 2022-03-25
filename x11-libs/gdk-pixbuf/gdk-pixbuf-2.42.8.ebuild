@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,7 +11,7 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/gdk-pixbuf"
 LICENSE="LGPL-2.1+"
 SLOT="2"
 KEYWORDS="*"
-IUSE="+introspection jpeg tiff"
+IUSE="gtk-doc +introspection jpeg tiff"
 
 # TODO: For windows/darwin support: shared-mime-info conditional, native_windows_loaders option review
 DEPEND="
@@ -20,6 +20,7 @@ DEPEND="
 	>=media-libs/libpng-1.4:0=[${MULTILIB_USEDEP}]
 	jpeg? ( virtual/jpeg:0=[${MULTILIB_USEDEP}] )
 	tiff? ( >=media-libs/tiff-3.9.2:0=[${MULTILIB_USEDEP}] )
+	gtk-doc? ( >=dev-util/gi-docgen-2021.1 )
 	introspection? ( >=dev-libs/gobject-introspection-1.54:= )
 "
 RDEPEND="${DEPEND}
@@ -52,21 +53,21 @@ src_prepare() {
 	# See upstream bug #667068
 	# First check that the pattern is present, to catch upstream changes on bumps,
 	# because sed doesn't return failure code if it doesn't do any replacements
-	grep -q "foreach png: \[ 'libpng16', 'libpng15', 'libpng14', 'libpng13', 'libpng12', 'libpng10' \]" meson.build || die "libpng check order has changed upstream"
-	sed -e "s/foreach png: \[ 'libpng16', 'libpng15', 'libpng14', 'libpng13', 'libpng12', 'libpng10' \]/foreach png: \[ 'libpng', 'libpng16', 'libpng15', 'libpng14', 'libpng13', 'libpng12', 'libpng10' \]/" -i meson.build || die
+	grep -q "foreach png: \[ 'libpng16', 'libpng15', 'libpng14', 'libpng12', 'libpng13', 'libpng10' \]" meson.build || die "libpng check order has changed upstream"
+	sed -e "s/foreach png: \[ 'libpng16', 'libpng15', 'libpng14', 'libpng12', 'libpng13', 'libpng10' \]/foreach png: \[ 'libpng', 'libpng16', 'libpng15', 'libpng14', 'libpng12', 'libpng13', 'libpng10' \]/" -i meson.build || die
 }
 
 multilib_src_configure() {
 	local emesonargs=(
-		-Dpng=true
-		$(meson_use tiff)
-		$(meson_use jpeg)
+		-Dpng=enabled
+		$(meson_feature tiff)
+		$(meson_feature jpeg)
 		-Dbuiltin_loaders=png,jpeg
 		-Drelocatable=false
 		#native_windows_loaders
 		-Dinstalled_tests=false
 		-Dgio_sniffing=true
-		-Dgtk_doc=false
+		$(meson_native_use_bool gtk-doc gtk_doc)
 		$(meson_native_use_feature introspection)
 		$(meson_native_true man)
 	)
@@ -76,9 +77,11 @@ multilib_src_configure() {
 
 multilib_src_install_all() {
 	einstalldocs
-	insinto /usr/share/gtk-doc/html
-	doins -r "${S}"/docs/gdk-pixbuf
-	doins -r "${S}"/docs/gdk-pixdata
+	if use gtk-doc; then
+		mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+		mv "${ED}"/usr/share/doc/gdk-pixbuf "${ED}"/usr/share/gtk-doc/html/ || die
+		mv "${ED}"/usr/share/doc/gdk-pixdata "${ED}"/usr/share/gtk-doc/html/ || die
+	fi
 }
 
 pkg_preinst() {
@@ -100,9 +103,6 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	# causes segfault if set, see bug 375615
-	unset __GL_NO_DSO_FINALIZER
-
 	xdg_pkg_postinst
 	multilib_foreach_abi gnome2_gdk_pixbuf_update
 }
