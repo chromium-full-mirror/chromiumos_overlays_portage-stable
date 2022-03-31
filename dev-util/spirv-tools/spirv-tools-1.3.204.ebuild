@@ -33,6 +33,10 @@ RDEPEND=""
 BDEPEND="${PYTHON_DEPS}
 	${COMMON_DEPEND}"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.3.204-Fix-CMake-for-librt.patch
+)
+
 multilib_src_configure() {
 	local mycmakeargs=(
 		"-DSPIRV-Headers_SOURCE_DIR=${ESYSROOT}/usr/"
