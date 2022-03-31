@@ -12,4 +12,4 @@ RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://wayland.freedesktop.org/releases/wayland-1.20.0.tar.xz
 _eclasses_=meson	1cac59cd2074f59abbe00de88e93af9f	meson-multilib	84c0d4019bf29be0d9d0a2d98fb8b0d9	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	132cbb376048d079b5a012f5467c4e7f	python-utils-r1	157a6a7a3e99c7dbdf81acc9dd4f57cd	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=e470d10487ce295e71fa12adbafe586e
+_md5_=68f8d0fff57ae2897b5a13d8bcd3df8d
