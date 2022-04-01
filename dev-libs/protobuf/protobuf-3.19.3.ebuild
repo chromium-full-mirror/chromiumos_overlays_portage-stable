@@ -1,4 +1,4 @@
-# Copyright 2008-2020 Gentoo Authors
+# Copyright 2008-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -21,7 +21,7 @@ else
 fi
 
 LICENSE="BSD"
-SLOT="0/22"
+SLOT="0/30"
 KEYWORDS="*"
 IUSE="emacs examples static-libs test zlib"
 RESTRICT="!test? ( test )"
@@ -33,15 +33,37 @@ RDEPEND="emacs? ( app-editors/emacs:* )
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-3.11.0-disable_no-warning-test.patch"
-	"${FILESDIR}/${PN}-3.11.0-system_libraries.patch"
-	"${FILESDIR}/${PN}-3.11.0-protoc_input_output_files.patch"
+	"${FILESDIR}/${PN}-3.19.0-disable_no-warning-test.patch"
+	"${FILESDIR}/${PN}-3.19.0-system_libraries.patch"
+	"${FILESDIR}/${PN}-3.16.0-protoc_input_output_files.patch"
 )
 
 DOCS=(CHANGES.txt CONTRIBUTORS.txt README.md)
 
 src_prepare() {
 	default
+
+	# https://github.com/protocolbuffers/protobuf/issues/7413
+	sed -e "/^AC_PROG_CXX_FOR_BUILD$/d" -i configure.ac || die
+
+	# https://github.com/protocolbuffers/protobuf/issues/8082
+	sed -e "/^TEST_F(IoTest, LargeOutput) {$/,/^}$/d" -i src/google/protobuf/io/zero_copy_stream_unittest.cc || die
+
+	# https://github.com/protocolbuffers/protobuf/issues/8459
+	sed \
+		-e "/^TEST(ArenaTest, BlockSizeSmallerThanAllocation) {$/a\\  if (sizeof(void*) == 4) {\n    GTEST_SKIP();\n  }" \
+		-e "/^TEST(ArenaTest, SpaceAllocated_and_Used) {$/a\\  if (sizeof(void*) == 4) {\n    GTEST_SKIP();\n  }" \
+		-i src/google/protobuf/arena_unittest.cc || die
+
+	# https://github.com/protocolbuffers/protobuf/issues/8460
+	sed -e "/^TEST(AnyTest, TestPackFromSerializationExceedsSizeLimit) {$/a\\  if (sizeof(void*) == 4) {\n    GTEST_SKIP();\n  }" -i src/google/protobuf/any_test.cc || die
+
+	# https://github.com/protocolbuffers/protobuf/issues/9392
+	sed -e "s/^AC_PROG_OBJC$/AS_CASE([\$target_os], [darwin*], [AC_PROG_OBJC], [AM_CONDITIONAL([am__fastdepOBJC], [false])])/" -i configure.ac || die
+
+	# https://github.com/protocolbuffers/protobuf/issues/9433
+	sed -e "/^[[:space:]]*static_assert(alignof(T) <= 8, \"\");$/d" -i src/google/protobuf/descriptor.cc || die
+
 	eautoreconf
 }
 
@@ -58,9 +80,6 @@ src_configure() {
 
 multilib_src_configure() {
 	local options=(
-		CC_FOR_BUILD="$(tc-getBUILD_CC)"
-		CXX_FOR_BUILD="$(tc-getBUILD_CXX)"
-		OBJC="$(tc-getBUILD_CC)"
 		$(use_enable static-libs static)
 		$(use_with zlib)
 	)
@@ -98,7 +117,7 @@ multilib_src_test() {
 }
 
 multilib_src_install_all() {
-	find "${D}" -name "*.la" -type f -delete || die
+	find "${ED}" -name "*.la" -delete || die
 
 	insinto /usr/share/vim/vimfiles/syntax
 	doins editors/proto.vim
