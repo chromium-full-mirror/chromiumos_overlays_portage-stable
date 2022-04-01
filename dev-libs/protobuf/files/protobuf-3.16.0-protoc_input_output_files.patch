@@ -2,7 +2,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
 
 --- /src/google/protobuf/compiler/command_line_interface.cc
 +++ /src/google/protobuf/compiler/command_line_interface.cc
-@@ -938,6 +938,28 @@
+@@ -1110,6 +1110,28 @@
    }
  
    if (mode_ == MODE_ENCODE || mode_ == MODE_DECODE) {
@@ -31,7 +31,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
      if (codec_type_.empty()) {
        // HACK:  Define an EmptyMessage type to use for decoding.
        DescriptorPool pool;
-@@ -946,13 +968,20 @@
+@@ -1118,13 +1140,20 @@
        file.add_message_type()->set_name("EmptyMessage");
        GOOGLE_CHECK(pool.BuildFile(file) != NULL);
        codec_type_ = "EmptyMessage";
@@ -58,7 +58,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
      }
    }
  
-@@ -990,6 +1019,11 @@
+@@ -1163,6 +1192,11 @@
    for (int i = 0; i < proto_path_.size(); i++) {
      source_tree->MapPath(proto_path_[i].first, proto_path_[i].second);
    }
@@ -70,9 +70,9 @@ https://github.com/protocolbuffers/protobuf/pull/235
  
    // Map input files to virtual paths if possible.
    if (!MakeInputsBeProtoPathRelative(source_tree, fallback_database)) {
-@@ -1650,6 +1684,12 @@
- 
-     codec_type_ = value;
+@@ -1885,6 +1919,12 @@
+   } else if (name == "--deterministic_output") {
+     deterministic_output_ = true;
  
 +  } else if (name == "--protobuf_in") {
 +    protobuf_in_path_ = value;
@@ -83,75 +83,53 @@ https://github.com/protocolbuffers/protobuf/pull/235
    } else if (name == "--error_format") {
      if (value == "gcc") {
        error_format_ = ERROR_FORMAT_GCC;
-@@ -1786,29 +1826,50 @@
-          "  -h, --help                  Show this text and exit.\n"
-          "  --encode=MESSAGE_TYPE       Read a text-format message of the "
-          "given type\n"
--         "                              from standard input and write it in "
--         "binary\n"
--         "                              to standard output.  The message type "
--         "must\n"
-+         "                              and write it in binary.  The message "
-+         "type must\n"
-          "                              be defined in PROTO_FILES or their "
-          "imports.\n"
-+         "                              The input/output protobuf files are "
-+         "specified\n"
-+         "                              using the --protobuf_in and "
-+         "--protobuf_out\n"
-+         "                              command line flags.\n"
-          "  --decode=MESSAGE_TYPE       Read a binary message of the given "
--         "type from\n"
--         "                              standard input and write it in text "
--         "format\n"
--         "                              to standard output.  The message type "
--         "must\n"
--         "                              be defined in PROTO_FILES or their "
--         "imports.\n"
-+         "type and\n"
-+         "                              write it in text format.  The message "
-+         "type\n"
-+         "                              must be defined in PROTO_FILES or "
-+         "their imports.\n"
-+         "                              The input/output protobuf files are "
-+         "specified\n"
-+         "                              using the --protobuf_in and "
-+         "--protobuf_out\n"
-+         "                              command line flags.\n"
-          "  --decode_raw                Read an arbitrary protocol message "
--         "from\n"
--         "                              standard input and write the raw "
--         "tag/value\n"
--         "                              pairs in text format to standard "
--         "output.  No\n"
-+         "and write\n"
-+         "                              the raw tag/value pairs in text format."
-+         "  No\n"
-          "                              PROTO_FILES should be given when using "
-          "this\n"
--         "                              flag.\n"
-+         "                              flag.  The input/output protobuf files "
-+         "are\n"
-+         "                              specified using the --protobuf_in and\n"
-+         "                              --protobuf_out command line flags.\n"
-+         "  --protobuf_in=FILE          Absolute path to the protobuf file "
-+         "from which\n"
-+         "                              input of encoding/decoding operation "
-+         "will be\n"
-+         "                              read.  If omitted, input will be read "
-+         "from\n"
-+         "                              standard input.\n"
-+         "  --protobuf_out=FILE         Absolute path to the protobuf file "
-+         "to which\n"
-+         "                              output of encoding/decoding operation "
-+         "will be\n"
-+         "                              written.  If omitted, output will be "
-+         "written to\n"
-+         "                              standard output.\n"
-          "  --descriptor_set_in=FILES   Specifies a delimited list of FILES\n"
-          "                              each containing a FileDescriptorSet "
-          "(a\n"
-@@ -2123,7 +2184,9 @@
+@@ -2018,22 +2058,38 @@
+   --version                   Show version info and exit.
+   -h, --help                  Show this text and exit.
+   --encode=MESSAGE_TYPE       Read a text-format message of the given type
+-                              from standard input and write it in binary
+-                              to standard output.  The message type must
++                              from input protobuf file and write it in binary
++                              to output protobuf file.  The message type must
+                               be defined in PROTO_FILES or their imports.
++                              The input/output protobuf files are specified
++                              using the --protobuf_in and --protobuf_out
++                              command line flags.
+   --deterministic_output      When using --encode, ensure map fields are
+                               deterministically ordered. Note that this order
+                               is not canonical, and changes across builds or
+                               releases of protoc.
+   --decode=MESSAGE_TYPE       Read a binary message of the given type from
+-                              standard input and write it in text format
+-                              to standard output.  The message type must
++                              input protobuf file and write it in text format
++                              to output protobuf file.  The message type must
+                               be defined in PROTO_FILES or their imports.
++                              The input/output protobuf files are specified
++                              using the --protobuf_in and --protobuf_out
++                              command line flags.
+   --decode_raw                Read an arbitrary protocol message from
+-                              standard input and write the raw tag/value
+-                              pairs in text format to standard output.  No
++                              input protobuf file and write the raw tag/value
++                              pairs in text format to output protobuf file.  No
+                               PROTO_FILES should be given when using this
+-                              flag.
++                              flag.  The input/output protobuf files are
++                              specified using the --protobuf_in and
++                              --protobuf_out command line flags.
++  --protobuf_in=FILE          Absolute path to the protobuf file from which
++                              input of encoding/decoding operation will be
++                              read.  If omitted, input will be read from
++                              standard input.
++  --protobuf_out=FILE         Absolute path to the protobuf file to which
++                              output of encoding/decoding operation will be
++                              written.  If omitted, output will be written to
++                              standard output.
+   --descriptor_set_in=FILES   Specifies a delimited list of FILES
+                               each containing a FileDescriptorSet (a
+                               protocol buffer defined in descriptor.proto).
+@@ -2344,7 +2400,9 @@
    return true;
  }
  
@@ -162,7 +140,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
    // Look up the type.
    const Descriptor* type = pool->FindMessageTypeByName(codec_type_);
    if (type == NULL) {
-@@ -2135,15 +2198,15 @@
+@@ -2356,15 +2414,15 @@
    std::unique_ptr<Message> message(dynamic_factory.GetPrototype(type)->New());
  
    if (mode_ == MODE_ENCODE) {
@@ -186,7 +164,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
      // Input is text.
 --- /src/google/protobuf/compiler/command_line_interface.h
 +++ /src/google/protobuf/compiler/command_line_interface.h
-@@ -288,7 +288,9 @@
+@@ -292,7 +292,9 @@
        GeneratorContext* generator_context, std::string* error);
  
    // Implements --encode and --decode.
@@ -197,7 +175,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
  
    // Implements the --descriptor_set_out option.
    bool WriteDescriptorSet(
-@@ -420,6 +422,13 @@
+@@ -427,6 +429,13 @@
    // parsed FileDescriptorSets to be used for loading protos.  Otherwise, empty.
    std::vector<std::string> descriptor_set_in_names_;
  
@@ -213,7 +191,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
    std::string descriptor_set_out_name_;
 --- /src/google/protobuf/compiler/command_line_interface_unittest.cc
 +++ /src/google/protobuf/compiler/command_line_interface_unittest.cc
-@@ -95,7 +95,7 @@
+@@ -99,7 +99,7 @@
    virtual void SetUp();
    virtual void TearDown();
  
@@ -222,7 +200,7 @@ https://github.com/protocolbuffers/protobuf/pull/235
    // command is automatically split on spaces, and the string "$tmpdir"
    // is replaced with TestTempDir().
    void Run(const std::string& command);
-@@ -2491,6 +2491,17 @@
+@@ -2626,6 +2626,17 @@
                std::string::npos);
    }
  
@@ -240,8 +218,8 @@ https://github.com/protocolbuffers/protobuf/pull/235
   private:
    void WriteUnittestProtoDescriptorSet() {
      unittest_proto_descriptor_set_filename_ =
-@@ -2585,6 +2596,19 @@
-       "net/proto2/internal/no_such_file.proto: No such file or directory\n");
+@@ -2749,6 +2760,19 @@
+       "Can only use --deterministic_output with --encode.\n");
  }
  
 +TEST_P(EncodeDecodeTest, RedirectInputOutput) {
