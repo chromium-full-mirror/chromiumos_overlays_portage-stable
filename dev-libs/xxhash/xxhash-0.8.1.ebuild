@@ -1,0 +1,43 @@
+# Copyright 1999-2022 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit toolchain-funcs
+
+DESCRIPTION="Extremely fast non-cryptographic hash algorithm"
+HOMEPAGE="http://www.xxhash.net"
+SRC_URI="https://github.com/Cyan4973/xxHash/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+
+LICENSE="BSD-2 GPL-2+"
+# https://abi-laboratory.pro/tracker/timeline/xxhash
+SLOT="0"
+KEYWORDS="*"
+IUSE="static-libs"
+
+S="${WORKDIR}/xxHash-${PV}"
+
+# ChromeOS specific blocker since dev-go/xxhash had a file conflict before 2.1.2-r2.
+RDEPEND="!<=dev-go/xxhash-2.1.2-r1"
+
+src_compile() {
+	PREFIX="${EPREFIX}/usr" \
+	LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
+	emake AR="$(tc-getAR)" CC="$(tc-getCC)"
+}
+
+src_install() {
+	PREFIX="${EPREFIX}/usr" \
+	LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
+	MANDIR="${EPREFIX}/usr/share/man/man1" \
+	emake DESTDIR="${D}" install
+
+	# link man pages by hand, bug #829159
+	dosym xxhsum.1 /usr/share/man/man1/xxh32sum.1
+	dosym xxhsum.1 /usr/share/man/man1/xxh64sum.1
+	dosym xxhsum.1 /usr/share/man/man1/xxh128sum.1
+
+	if ! use static-libs ; then
+		rm "${ED}"/usr/$(get_libdir)/libxxhash.a || die
+	fi
+}

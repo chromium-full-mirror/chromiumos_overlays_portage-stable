@@ -1,6 +1,24 @@
---- /Makefile.am
-+++ /Makefile.am
-@@ -11,28 +11,10 @@
+From c080d329298e841d7d4e1380ff7ec88de5cb3b02 Mon Sep 17 00:00:00 2001
+From: Arfrever Frehtes Taifersar Arahesis <Arfrever@Apache.Org>
+Date: Fri, 28 Jan 2022 15:14:59 +0800
+Subject: [PATCH] protobuf-3.19.0: system_libraries
+
+Use system version of GoogleTest,
+which will unbundle gtest, gmock libraries
+
+Signed-off-by: Arfrever Frehtes Taifersar Arahesis <Arfrever@Apache.Org>
+Signed-off-by: Yixun Lan <dlan@gentoo.org>
+---
+ Makefile.am     | 20 +-------------------
+ configure.ac    |  7 -------
+ src/Makefile.am | 33 ++++++---------------------------
+ 3 files changed, 7 insertions(+), 53 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 41d4061..b24f8f4 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -11,28 +11,10 @@ SUBDIRS = . src
  # Always include third_party directories in distributions.
  DIST_SUBDIRS = src conformance benchmarks third_party/googletest
  
@@ -30,11 +48,13 @@
  	  echo "Making clean in conformance"; \
  	  cd conformance && $(MAKE) $(AM_MAKEFLAGS) clean; \
  	fi; \
---- /configure.ac
-+++ /configure.ac
-@@ -223,12 +223,5 @@
- esac
- AM_CONDITIONAL([OBJC_CONFORMANCE_TEST], [test $OBJC_CONFORMANCE_TEST = 1])
+diff --git a/configure.ac b/configure.ac
+index 02085ca..449fb3d 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -236,12 +236,5 @@ if test "x$ANDROID_TEST" = xyes; then
+ fi
+ AC_SUBST([LIBLOG_LIBS])
  
 -# HACK:  Make gmock's configure script pick up our copy of CFLAGS and CXXFLAGS,
 -#   since the flags added by ACX_CHECK_SUNCC must be used when compiling gmock
@@ -45,11 +65,13 @@
 -
  AC_CONFIG_FILES([Makefile src/Makefile benchmarks/Makefile conformance/Makefile protobuf.pc protobuf-lite.pc])
  AC_OUTPUT
---- /src/Makefile.am
-+++ /src/Makefile.am
-@@ -708,19 +708,11 @@
-   google/protobuf/testing/file.cc                              \
-   google/protobuf/testing/file.h
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 7e86b62..47d759f 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -716,19 +716,11 @@ COMMON_TEST_SOURCES =                                          \
+   google/protobuf/testing/googletest.cc                        \
+   google/protobuf/testing/googletest.h
  
 -GOOGLETEST_BUILD_DIR=../third_party/googletest/googletest
 -GOOGLEMOCK_BUILD_DIR=../third_party/googletest/googlemock
@@ -68,7 +90,7 @@
  # Disable optimization for tests unless the user explicitly asked for it,
  # since test_util.cc takes forever to compile with optimization (with GCC).
  # See configure.ac for more info.
-@@ -812,12 +804,8 @@
+@@ -820,12 +812,8 @@ $(am_protobuf_test_OBJECTS): unittest_proto_middleman
  # Run cpp_unittest again with PROTOBUF_TEST_NO_DESCRIPTORS defined.
  protobuf_lazy_descriptor_test_LDADD = $(PTHREAD_LIBS) libprotobuf.la \
                        libprotoc.la                                   \
@@ -83,7 +105,7 @@
  protobuf_lazy_descriptor_test_CXXFLAGS = $(NO_OPT_CXXFLAGS)
  protobuf_lazy_descriptor_test_SOURCES =                        \
    google/protobuf/compiler/cpp/cpp_unittest.cc                 \
-@@ -838,11 +826,7 @@
+@@ -847,11 +835,7 @@ COMMON_LITE_TEST_SOURCES =                                             \
  # full runtime and we want to make sure this test builds without full
  # runtime.
  protobuf_lite_test_LDADD = $(PTHREAD_LIBS) libprotobuf-lite.la     \
@@ -96,7 +118,7 @@
  protobuf_lite_test_CXXFLAGS = $(NO_OPT_CXXFLAGS)
  protobuf_lite_test_SOURCES =                                           \
    google/protobuf/lite_unittest.cc                                     \
-@@ -854,11 +838,7 @@
+@@ -863,11 +847,7 @@ $(am_protobuf_lite_test_OBJECTS): unittest_proto_middleman
  # gtest when building the test internally our memory sanitizer doesn't detect
  # memory leaks (don't know why).
  protobuf_lite_arena_test_LDADD = $(PTHREAD_LIBS) libprotobuf-lite.la \
@@ -109,7 +131,7 @@
  protobuf_lite_arena_test_CXXFLAGS = $(NO_OPT_CXXFLAGS)
  protobuf_lite_arena_test_SOURCES =       \
    google/protobuf/lite_arena_unittest.cc \
-@@ -868,8 +848,7 @@
+@@ -877,8 +857,7 @@ $(am_protobuf_lite_arena_test_OBJECTS): unittest_proto_middleman
  
  # Test plugin binary.
  test_plugin_LDADD = $(PTHREAD_LIBS) libprotobuf.la libprotoc.la \
@@ -118,4 +140,7 @@
 +                    -lgtest
  test_plugin_SOURCES =                                          \
    google/protobuf/compiler/mock_code_generator.cc              \
-   google/protobuf/testing/file.cc                              \
+   google/protobuf/compiler/test_plugin.cc                      \
+-- 
+2.34.1
+
