@@ -1,42 +1,65 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-PYTHON_COMPAT=( python2_7 )
+inherit toolchain-funcs
 
-inherit python-r1 toolchain-funcs
+if [[ ${PV} == 9999* ]] ; then
+	EGIT_REPO_URI="https://github.com/yasm/yasm.git"
+	inherit autotools git-r3
+else
+	SRC_URI="https://www.tortall.net/projects/yasm/releases/${P}.tar.gz"
+	KEYWORDS="*"
+fi
 
 DESCRIPTION="An assembler for x86 and x86_64 instruction sets"
-HOMEPAGE="http://yasm.tortall.net/"
-SRC_URI="http://www.tortall.net/projects/yasm/releases/${P}.tar.gz"
+HOMEPAGE="https://yasm.tortall.net/"
 
 LICENSE="BSD-2 BSD || ( Artistic GPL-2 LGPL-2 )"
 SLOT="0"
-KEYWORDS="*"
-IUSE="nls python"
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+IUSE="nls"
 
-RDEPEND="
-	nls? ( virtual/libintl )
-	python? ( ${PYTHON_DEPS} )"
-DEPEND="
-	${RDEPEND}
+BDEPEND="
 	nls? ( sys-devel/gettext )
-	python? ( >=dev-python/cython-0.14[${PYTHON_USEDEP}] )"
+"
+DEPEND="
+	nls? ( virtual/libintl )
+"
+RDEPEND="${DEPEND}
+"
+
+if [[ ${PV} == 9999* ]]; then
+	BDEPEND+="
+		app-text/xmlto
+		app-text/docbook-xml-dtd:4.1.2
+		dev-lang/python
+	"
+fi
+
+src_prepare() {
+	default
+
+	if [[ ${PV} == 9999* ]]; then
+		eautoreconf
+		python modules/arch/x86/gen_x86_insn.py || die
+	fi
+}
 
 src_configure() {
-	use python && python_export_best
-
-	XMLTO=: \
-	econf \
-		CC_FOR_BUILD=$(tc-getBUILD_CC) \
-		CCLD_FOR_BUILD=$(tc-getBUILD_CC) \
-		$(use_enable python) \
-		$(use_enable python python-bindings) \
+	local myconf=(
+		CC_FOR_BUILD="$(tc-getBUILD_CC)"
+		CCLD_FOR_BUILD="$(tc-getBUILD_CC)"
+		--disable-warnerror
+		--disable-python
+		--disable-python-bindings
 		$(use_enable nls)
+	)
+
+	econf "${myconf[@]}"
 }
 
 src_test() {
-	emake check
+	# https://bugs.gentoo.org/718870
+	emake -j1 check
 }
