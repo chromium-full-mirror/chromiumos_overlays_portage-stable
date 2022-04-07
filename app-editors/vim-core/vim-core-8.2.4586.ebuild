@@ -28,7 +28,8 @@ IUSE="nls acl minimal"
 
 BDEPEND="sys-devel/autoconf"
 # Avoid icon file collision, bug #673880
-RDEPEND="!!<app-editors/gvim-8.1.0648"
+RDEPEND="!!<app-editors/gvim-8.1.0648
+	!<app-editors/vim-8.2.4328-r1"
 PDEPEND="!minimal? ( app-vim/gentoo-syntax )"
 
 pkg_setup() {
@@ -192,10 +193,6 @@ src_install() {
 		rm -rv "${ED}${vimfiles}"/{compiler,doc,ftplugin,indent} || die "rm failed"
 		rm -rv "${ED}${vimfiles}"/{macros,print,tools,tutor} || die "rm failed"
 		rm -v "${ED}"/usr/bin/vimtutor || die "rm failed"
-
-		# A section related to defaults.vim was deleted here on ChromeOS
-		# to work around an upstream bug: https://bugs.gentoo.org/834447
-		rm -v "${ED}${vimfiles}"/defaults.vim || die "rm failed"
 
 		local keep_colors="default"
 		ignore=$(rm -fr "${ED}${vimfiles}"/colors/!(${keep_colors}).vim )
