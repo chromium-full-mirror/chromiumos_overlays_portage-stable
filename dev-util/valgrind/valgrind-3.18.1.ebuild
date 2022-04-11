@@ -109,11 +109,13 @@ src_install() {
 	fi
 }
 
-pkg_postinst() {
-	elog "Valgrind will not work if glibc does not have debug symbols."
-	elog "To fix this you can add splitdebug to FEATURES in make.conf"
-	elog "and remerge glibc.  See:"
-	elog "https://bugs.gentoo.org/show_bug.cgi?id=214065"
-	elog "https://bugs.gentoo.org/show_bug.cgi?id=274771"
-	elog "https://bugs.gentoo.org/show_bug.cgi?id=388703"
-}
+# Disable warning on Chrome OS since we always build with splitdebug:
+# https://groups.google.com/a/google.com/g/chromeos-chatty-eng/c/Sar_iRtykzU/m/5IBcCGBeBQAJ
+#pkg_postinst() {
+#	elog "Valgrind will not work if glibc does not have debug symbols."
+#	elog "To fix this you can add splitdebug to FEATURES in make.conf"
+#	elog "and remerge glibc.  See:"
+#	elog "https://bugs.gentoo.org/show_bug.cgi?id=214065"
+#	elog "https://bugs.gentoo.org/show_bug.cgi?id=274771"
+#	elog "https://bugs.gentoo.org/show_bug.cgi?id=388703"
+#}
