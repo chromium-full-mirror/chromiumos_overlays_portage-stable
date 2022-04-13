@@ -1,0 +1,15 @@
+BDEPEND=dev-lang/perl doc? ( app-arch/unzip )
+DEFINED_PHASES=configure install
+DEPEND=sys-libs/zlib virtual/jpeg:0= ssl? ( gnutls? ( net-libs/gnutls:= ) !gnutls? ( dev-libs/openssl:= ) ) test? ( app-text/ghostscript-gpl[tiff(+)] media-libs/tiff sys-apps/diffutils )
+DESCRIPTION=Command-line tool for structural, content-preserving transformation of PDF files
+EAPI=7
+HOMEPAGE=http://qpdf.sourceforge.net/
+IUSE=doc examples gnutls ssl test
+KEYWORDS=*
+LICENSE=|| ( Apache-2.0 Artistic-2 )
+RDEPEND=sys-libs/zlib virtual/jpeg:0= ssl? ( gnutls? ( net-libs/gnutls:= ) !gnutls? ( dev-libs/openssl:= ) )
+RESTRICT=!test? ( test )
+SLOT=0/28
+SRC_URI=mirror://sourceforge/qpdf/qpdf-10.6.3.tar.gz doc? ( mirror://sourceforge/qpdf/qpdf-10.6.3-doc.zip )
+_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_md5_=227b3651e1a238e4574b4e7ed21fc17c
