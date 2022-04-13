@@ -1,0 +1,14 @@
+BDEPEND=dev-util/ninja dev-util/cmake
+DEFINED_PHASES=compile configure install prepare setup test
+DEPEND=vbe-mode? ( >=dev-libs/libx86-1.1 )
+DESCRIPTION=Program that can get information from a PnP monitor
+EAPI=7
+HOMEPAGE=http://www.polypux.org/projects/read-edid/
+IUSE=vbe-mode kernel_linux
+KEYWORDS=*
+LICENSE=GPL-2
+RDEPEND=vbe-mode? ( >=dev-libs/libx86-1.1 )
+SLOT=0
+SRC_URI=http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz
+_eclasses_=cmake	b22e256fd899c7e0c747e8834eff121a	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	09a8beb8e6a8e02dc1e1bd83ac353741	linux-info	327865b9921771330775d971263dc234	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	132cbb376048d079b5a012f5467c4e7f	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_md5_=292bb44cc0c8e769c207da45909ac735
