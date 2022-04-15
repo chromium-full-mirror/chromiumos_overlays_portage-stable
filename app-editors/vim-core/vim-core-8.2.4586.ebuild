@@ -28,8 +28,10 @@ IUSE="nls acl minimal"
 
 BDEPEND="sys-devel/autoconf"
 # Avoid icon file collision, bug #673880
+# ncurses added as dep for Chrome OS: https://bugs.gentoo.org/834447
 RDEPEND="!!<app-editors/gvim-8.1.0648
-	!<app-editors/vim-8.2.4328-r1"
+	!<app-editors/vim-8.2.4328-r1
+	>=sys-libs/ncurses-5.2-r2:0="
 PDEPEND="!minimal? ( app-vim/gentoo-syntax )"
 
 pkg_setup() {
