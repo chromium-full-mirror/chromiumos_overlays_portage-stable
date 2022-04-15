@@ -45,8 +45,7 @@ RDEPEND="
 	lua? ( ${LUA_DEPS}
 		$(lua_gen_impl_dep 'deprecated' lua5-1)
 	)
-	~app-editors/vim-core-${PV}
-	!<app-editors/vim-core-8.2.4328-r1
+	!minimal? ( ~app-editors/vim-core-${PV} )
 	vim-pager? ( app-editors/vim-core[-minimal] )
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
@@ -317,6 +316,12 @@ src_install() {
 		insinto ${vimfiles}/macros
 		doins runtime/macros/manpager.sh
 		fperms a+x ${vimfiles}/macros/manpager.sh
+	fi
+
+	# Fix an issue of missing defaults.vim when USE=minimal.
+	if use minimal ; then
+		insinto ${vimfiles}
+		doins runtime/defaults.vim
 	fi
 
 	domenu runtime/vim.desktop
