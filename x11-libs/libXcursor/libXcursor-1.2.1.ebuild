@@ -4,6 +4,7 @@
 EAPI=7
 
 XORG_MULTILIB=yes
+XORG_TARBALL_SUFFIX=xz
 inherit xorg-3
 
 DESCRIPTION="X.Org Xcursor library"
@@ -14,7 +15,8 @@ IUSE="doc"
 RDEPEND=">=x11-libs/libXrender-0.9.8[${MULTILIB_USEDEP}]
 	>=x11-libs/libXfixes-5.0.1[${MULTILIB_USEDEP}]
 	>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	x11-base/xorg-proto"
 
 XORG_CONFIGURE_OPTIONS=(
 	--with-icondir="${EPREFIX}"/usr/share/cursors/xorg-x11
