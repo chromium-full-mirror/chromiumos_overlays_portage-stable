@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit autotools libtool ltprune multilib toolchain-funcs
+inherit autotools libtool toolchain-funcs
 
 DESCRIPTION="Apache Portable Runtime Library"
 HOMEPAGE="https://apr.apache.org/"
@@ -12,12 +12,13 @@ SRC_URI="mirror://apache/apr/${P}.tar.bz2"
 LICENSE="Apache-2.0"
 SLOT="1/${PV%.*}"
 KEYWORDS="*"
-IUSE="doc elibc_FreeBSD older-kernels-compatibility selinux static-libs +urandom"
+IUSE="doc older-kernels-compatibility selinux static-libs +urandom"
 
-CDEPEND="elibc_glibc? ( >=sys-apps/util-linux-2.16 )
-	elibc_mintlib? ( >=sys-apps/util-linux-2.18 )"
+# See bug #815265 for libcrypt dependency
+CDEPEND="virtual/libcrypt:=
+	elibc_glibc? ( >=sys-apps/util-linux-2.16 )"
 RDEPEND="${CDEPEND}
-	selinux? ( sec-policy/selinux-apache )"
+	selinux? ( sec-policy/selinux-base-policy )"
 DEPEND="${CDEPEND}
 	>=sys-devel/libtool-2.4.2
 	doc? ( app-doc/doxygen )"
@@ -29,6 +30,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.5.0-libtool.patch
 	"${FILESDIR}"/${PN}-1.5.0-cross-types.patch
 	"${FILESDIR}"/${PN}-1.5.0-sysroot.patch #385775
+	"${FILESDIR}"/${PN}-1.6.3-skip-known-failing-tests.patch
+	"${FILESDIR}"/${PN}-1.7.0-autoconf-2.70.patch #750353
 )
 
 src_prepare() {
@@ -48,9 +51,8 @@ src_configure() {
 		--enable-posix-shm
 		--enable-threads
 		$(use_enable static-libs static)
+		--with-installbuilddir="${EPREFIX}"/usr/share/${PN}/build
 	)
-
-	[[ ${CHOST} == *-mint* ]] && export ac_cv_func_poll=no
 
 	if use older-kernels-compatibility; then
 		local apr_cv_accept4 apr_cv_dup3 apr_cv_epoll_create1 apr_cv_sock_cloexec
@@ -85,7 +87,7 @@ src_configure() {
 	if use urandom; then
 		myconf+=( --with-devrandom=/dev/urandom )
 	elif (( ${CHOST#*-hpux11.} <= 11 )); then
-		: # no /dev/*random on hpux11.11 and before, $PN detects this.
+		: # no /dev/*random on hpux11.11 and before, ${PN} detects this.
 	else
 		myconf+=( --with-devrandom=/dev/random )
 	fi
@@ -106,6 +108,14 @@ src_configure() {
 			myconf+=( --disable-nonportable-atomics )
 			;;
 		esac
+	else
+		if use ppc || use sparc || use mips; then
+			# Avoid libapr containing undefined references (underlinked)
+			# undefined reference to `__sync_val_compare_and_swap_8'
+			# (May be possible to fix via libatomic linkage in future?)
+			# bug #740464
+			myconf+=( --disable-nonportable-atomics )
+		fi
 	fi
 
 	econf "${myconf[@]}"
@@ -127,13 +137,17 @@ src_compile() {
 	fi
 }
 
+src_test() {
+	# Building tests in parallel is broken
+	emake -j1 check
+}
+
 src_install() {
 	default
 
-	# Prallel install breaks since apr-1.5.1
-	#make -j1 DESTDIR="${D}" install || die
-
-	prune_libtool_files --all
+	if ! use static-libs; then
+		find "${ED}" -name '*.la' -delete || die
+	fi
 
 	if use doc; then
 		docinto html
@@ -143,5 +157,5 @@ src_install() {
 	# This file is only used on AIX systems, which Gentoo is not,
 	# and causes collisions between the SLOTs, so remove it.
 	# Even in Prefix, we don't need this on AIX.
-	rm -f "${ED%/}/usr/$(get_libdir)/apr.exp"
+	rm "${ED}/usr/$(get_libdir)/apr.exp" || die
 }
