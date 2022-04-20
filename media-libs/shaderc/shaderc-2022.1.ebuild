@@ -21,12 +21,12 @@ KEYWORDS="*"
 IUSE="doc test"
 
 RDEPEND="
-	~dev-util/glslang-1.3.204[${MULTILIB_USEDEP}]
-	~dev-util/spirv-tools-1.3.204[${MULTILIB_USEDEP}]
+	>=dev-util/glslang-1.3.204[${MULTILIB_USEDEP}]
+	>=dev-util/spirv-tools-1.3.204[${MULTILIB_USEDEP}]
 "
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
-	~dev-util/spirv-headers-1.3.204
+	>=dev-util/spirv-headers-1.3.204
 	doc? ( dev-ruby/asciidoctor )
 	test? (
 		dev-cpp/gtest

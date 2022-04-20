@@ -12,7 +12,7 @@ if [[ ${PV} == *9999* ]]; then
 else
 	SRC_URI="https://github.com/KhronosGroup/${MY_PN}/archive/sdk-${PV}.0.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="*"
-	S="${WORKDIR}"/${MY_PN}-${PV}
+	S="${WORKDIR}"/${MY_PN}-sdk-${PV}.0
 fi
 
 DESCRIPTION="Vulkan Header files and API registry"
