@@ -1,43 +1,44 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/gzip.asc
+inherit flag-o-matic verify-sig
 
 DESCRIPTION="Standard GNU compressor"
 HOMEPAGE="https://www.gnu.org/software/gzip/"
 SRC_URI="mirror://gnu/gzip/${P}.tar.xz
-	https://alpha.gnu.org/gnu/gzip/${P}.tar.xz
-	mirror://gentoo/${P}.tar.xz"
+	https://alpha.gnu.org/gnu/gzip/${P}.tar.xz"
+SRC_URI+=" verify-sig? (
+		mirror://gnu/gzip/${P}.tar.xz.sig
+		https://alpha.gnu.org/gnu/gzip/${P}.tar.xz.sig
+	)"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
 IUSE="pic static"
 
+BDEPEND="verify-sig? ( sec-keys/openpgp-keys-gzip )"
+
 PATCHES=(
 	"${FILESDIR}/${PN}-1.3.8-install-symlinks.patch"
 )
 
-src_prepare() {
-	default
-	if [[ ${CHOST} == *darwin* && ${CHOST##*darwin} -le 17 ]] ; then
-		# Fix older Darwin inline definition problem
-		sed -i -e '/define _GL_EXTERN_INLINE_STDHEADER_BUG/s/_BUG/_DISABLE/' \
-			lib/config.hin || die
-	fi
-}
-
 src_configure() {
 	use static && append-flags -static
-	# avoid text relocation in gzip
+
+	# Avoid text relocation in gzip
 	use pic && export DEFS="NO_ASM"
-	econf --disable-gcc-warnings #663928
+
+	# bug #663928
+	econf --disable-gcc-warnings
 }
 
 src_install() {
 	default
+
 	docinto txt
 	dodoc algorithm.doc gzip.doc
 
