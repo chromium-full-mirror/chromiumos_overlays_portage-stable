@@ -1,43 +1,44 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-inherit eutils multiprocessing savedconfig toolchain-funcs
+inherit multiprocessing savedconfig toolchain-funcs
 
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/gfto/toybox.git"
+	EGIT_REPO_URI="https://github.com/landley/toybox.git"
 else
-	SRC_URI="http://landley.net/code/toybox/downloads/${P}.tar.gz"
+	SRC_URI="https://landley.net/code/toybox/downloads/${P}.tar.gz"
 	KEYWORDS="*"
 fi
 
-# makefile is stupid
-RESTRICT="test"
-
 DESCRIPTION="Common linux commands in a multicall binary"
-HOMEPAGE="http://landley.net/code/toybox/"
+HOMEPAGE="https://landley.net/code/toybox/"
 
-# The source code does not explicitly say that it's BSD, but the author has repeatedly said it
-LICENSE="BSD-2"
+LICENSE="0BSD"
 SLOT="0"
-IUSE=""
+
+DEPEND="virtual/libcrypt:="
+RDEPEND="${DEPEND}"
 
 src_prepare() {
-	epatch_user
+	default
 	restore_config .config
 }
 
 src_configure() {
 	tc-export CC STRIP
 	export HOSTCC="$(tc-getBUILD_CC)"
-	if [ -f .config ]; then
+	# Respect CFLAGS
+	export OPTIMIZE="${CFLAGS}"
+
+	if [[ -f .config ]]; then
 		yes "" | emake -j1 oldconfig > /dev/null
 		return 0
 	else
 		einfo "Could not locate user configfile, so we will save a default one"
-		emake defconfig > /dev/null
+		emake -j1 defconfig > /dev/null
 	fi
 }
 
