@@ -12,4 +12,4 @@ chirantan@chromium.org
 jrosenth@chromium.org
 manojgupta@chromium.org
 
-include chromiumos/chromite:/OWNERS.build
+include chromiumos/owners:v1:/infra/OWNERS.build

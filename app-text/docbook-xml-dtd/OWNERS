@@ -1,2 +1,2 @@
 # Used by many SDK packages.
-include chromiumos/chromite:/OWNERS.build
+include chromiumos/owners:v1:/infra/OWNERS.build
