@@ -1,0 +1,10 @@
+DEFINED_PHASES=postinst prepare
+DESCRIPTION=Eselect module for management of multiple Python versions
+EAPI=7
+HOMEPAGE=https://wiki.gentoo.org/wiki/Project:Python
+KEYWORDS=*
+LICENSE=GPL-2
+RDEPEND=>=app-admin/eselect-1.2.3 >=dev-lang/python-exec-2.4.2
+SLOT=0
+SRC_URI=https://dev.gentoo.org/~chutzpah/dist/misc/eselect-python-20200719.tar.bz2
+_md5_=a0b9023e142070abed625f299e5c49a3
