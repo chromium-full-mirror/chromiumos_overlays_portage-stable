@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 # Maintainer notes:
 # - http_rewrite-independent pcre-support makes sense for matching locations without an actual rewrite
@@ -17,10 +17,16 @@ EAPI=5
 GENTOO_DEPEND_ON_PERL="no"
 
 # devel_kit (https://github.com/simpl/ngx_devel_kit, BSD license)
-DEVEL_KIT_MODULE_PV="0.3.0"
-DEVEL_KIT_MODULE_P="ngx_devel_kit-${DEVEL_KIT_MODULE_PV}-r1"
+DEVEL_KIT_MODULE_PV="0.3.1"
+DEVEL_KIT_MODULE_P="ngx_devel_kit-${DEVEL_KIT_MODULE_PV}"
 DEVEL_KIT_MODULE_URI="https://github.com/simpl/ngx_devel_kit/archive/v${DEVEL_KIT_MODULE_PV}.tar.gz"
 DEVEL_KIT_MODULE_WD="${WORKDIR}/ngx_devel_kit-${DEVEL_KIT_MODULE_PV}"
+
+# ngx_brotli (https://github.com/google/ngx_brotli, BSD-2)
+HTTP_BROTLI_MODULE_PV="1.0.0rc"
+HTTP_BROTLI_MODULE_P="ngx_brotli-${HTTP_BROTLI_MODULE_PV}"
+HTTP_BROTLI_MODULE_URI="https://github.com/google/ngx_brotli/archive/v${HTTP_BROTLI_MODULE_PV}.tar.gz"
+HTTP_BROTLI_MODULE_WD="${WORKDIR}/ngx_brotli-${HTTP_BROTLI_MODULE_PV}"
 
 # http_uploadprogress (https://github.com/masterzen/nginx-upload-progress-module, BSD-2 license)
 HTTP_UPLOAD_PROGRESS_MODULE_PV="0.9.2"
@@ -29,7 +35,7 @@ HTTP_UPLOAD_PROGRESS_MODULE_URI="https://github.com/masterzen/nginx-upload-progr
 HTTP_UPLOAD_PROGRESS_MODULE_WD="${WORKDIR}/nginx-upload-progress-module-${HTTP_UPLOAD_PROGRESS_MODULE_PV}"
 
 # http_headers_more (https://github.com/agentzh/headers-more-nginx-module, BSD license)
-HTTP_HEADERS_MORE_MODULE_PV="0.32"
+HTTP_HEADERS_MORE_MODULE_PV="0.33"
 HTTP_HEADERS_MORE_MODULE_P="ngx_http_headers_more-${HTTP_HEADERS_MORE_MODULE_PV}"
 HTTP_HEADERS_MORE_MODULE_URI="https://github.com/agentzh/headers-more-nginx-module/archive/v${HTTP_HEADERS_MORE_MODULE_PV}.tar.gz"
 HTTP_HEADERS_MORE_MODULE_WD="${WORKDIR}/headers-more-nginx-module-${HTTP_HEADERS_MORE_MODULE_PV}"
@@ -47,28 +53,29 @@ HTTP_SLOWFS_CACHE_MODULE_URI="http://labs.frickle.com/files/ngx_slowfs_cache-${H
 HTTP_SLOWFS_CACHE_MODULE_WD="${WORKDIR}/ngx_slowfs_cache-${HTTP_SLOWFS_CACHE_MODULE_PV}"
 
 # http_fancyindex (https://github.com/aperezdc/ngx-fancyindex, BSD license)
-HTTP_FANCYINDEX_MODULE_PV="0.4.1"
+HTTP_FANCYINDEX_MODULE_PV="0.4.4"
 HTTP_FANCYINDEX_MODULE_P="ngx_http_fancyindex-${HTTP_FANCYINDEX_MODULE_PV}"
 HTTP_FANCYINDEX_MODULE_URI="https://github.com/aperezdc/ngx-fancyindex/archive/v${HTTP_FANCYINDEX_MODULE_PV}.tar.gz"
 HTTP_FANCYINDEX_MODULE_WD="${WORKDIR}/ngx-fancyindex-${HTTP_FANCYINDEX_MODULE_PV}"
 
 # http_lua (https://github.com/openresty/lua-nginx-module, BSD license)
-HTTP_LUA_MODULE_PV="0.10.7"
+HTTP_LUA_MODULE_PV="0.10.15"
 HTTP_LUA_MODULE_P="ngx_http_lua-${HTTP_LUA_MODULE_PV}"
 HTTP_LUA_MODULE_URI="https://github.com/openresty/lua-nginx-module/archive/v${HTTP_LUA_MODULE_PV}.tar.gz"
 HTTP_LUA_MODULE_WD="${WORKDIR}/lua-nginx-module-${HTTP_LUA_MODULE_PV}"
+LUA_COMPAT=( luajit )
 
 # http_auth_pam (https://github.com/stogh/ngx_http_auth_pam_module/, http://web.iti.upv.es/~sto/nginx/, BSD-2 license)
-HTTP_AUTH_PAM_MODULE_PV="1.5.1"
+HTTP_AUTH_PAM_MODULE_PV="1.5.2"
 HTTP_AUTH_PAM_MODULE_P="ngx_http_auth_pam-${HTTP_AUTH_PAM_MODULE_PV}"
 HTTP_AUTH_PAM_MODULE_URI="https://github.com/stogh/ngx_http_auth_pam_module/archive/v${HTTP_AUTH_PAM_MODULE_PV}.tar.gz"
 HTTP_AUTH_PAM_MODULE_WD="${WORKDIR}/ngx_http_auth_pam_module-${HTTP_AUTH_PAM_MODULE_PV}"
 
 # http_upstream_check (https://github.com/yaoweibin/nginx_upstream_check_module, BSD license)
-HTTP_UPSTREAM_CHECK_MODULE_PV="0.3.0-10-gf3bdb7b"
+HTTP_UPSTREAM_CHECK_MODULE_PV="9aecf15ec379fe98f62355c57b60c0bc83296f04"
 HTTP_UPSTREAM_CHECK_MODULE_P="ngx_http_upstream_check-${HTTP_UPSTREAM_CHECK_MODULE_PV}"
-HTTP_UPSTREAM_CHECK_MODULE_URI="https://github.com/yaoweibin/nginx_upstream_check_module/archive/v${HTTP_UPSTREAM_CHECK_MODULE_PV}.tar.gz"
-HTTP_UPSTREAM_CHECK_MODULE_WD="${WORKDIR}/nginx_upstream_check_module-f3bdb7b85a194e2ad58e3c306c1d021ee76da2f5"
+HTTP_UPSTREAM_CHECK_MODULE_URI="https://github.com/yaoweibin/nginx_upstream_check_module/archive/${HTTP_UPSTREAM_CHECK_MODULE_PV}.tar.gz"
+HTTP_UPSTREAM_CHECK_MODULE_WD="${WORKDIR}/nginx_upstream_check_module-${HTTP_UPSTREAM_CHECK_MODULE_PV}"
 
 # http_metrics (https://github.com/zenops/ngx_metrics, BSD license)
 HTTP_METRICS_MODULE_PV="0.1.1"
@@ -76,39 +83,45 @@ HTTP_METRICS_MODULE_P="ngx_metrics-${HTTP_METRICS_MODULE_PV}"
 HTTP_METRICS_MODULE_URI="https://github.com/madvertise/ngx_metrics/archive/v${HTTP_METRICS_MODULE_PV}.tar.gz"
 HTTP_METRICS_MODULE_WD="${WORKDIR}/ngx_metrics-${HTTP_METRICS_MODULE_PV}"
 
+# http_vhost_traffic_status (https://github.com/vozlt/nginx-module-vts, BSD license)
+HTTP_VHOST_TRAFFIC_STATUS_MODULE_PV="46d85558e344dfe2b078ce757fd36c69a1ec2dd3"
+HTTP_VHOST_TRAFFIC_STATUS_MODULE_P="ngx_http_vhost_traffic_status-${HTTP_VHOST_TRAFFIC_STATUS_MODULE_PV}"
+HTTP_VHOST_TRAFFIC_STATUS_MODULE_URI="https://github.com/vozlt/nginx-module-vts/archive/${HTTP_VHOST_TRAFFIC_STATUS_MODULE_PV}.tar.gz"
+HTTP_VHOST_TRAFFIC_STATUS_MODULE_WD="${WORKDIR}/nginx-module-vts-${HTTP_VHOST_TRAFFIC_STATUS_MODULE_PV}"
+
 # naxsi-core (https://github.com/nbs-system/naxsi, GPLv2+)
-HTTP_NAXSI_MODULE_PV="0.55.1"
+HTTP_NAXSI_MODULE_PV="0.56"
 HTTP_NAXSI_MODULE_P="ngx_http_naxsi-${HTTP_NAXSI_MODULE_PV}"
 HTTP_NAXSI_MODULE_URI="https://github.com/nbs-system/naxsi/archive/${HTTP_NAXSI_MODULE_PV}.tar.gz"
 HTTP_NAXSI_MODULE_WD="${WORKDIR}/naxsi-${HTTP_NAXSI_MODULE_PV}/naxsi_src"
 
 # nginx-rtmp-module (https://github.com/arut/nginx-rtmp-module, BSD license)
-RTMP_MODULE_PV="1.1.10"
+RTMP_MODULE_PV="1.2.1"
 RTMP_MODULE_P="ngx_rtmp-${RTMP_MODULE_PV}"
 RTMP_MODULE_URI="https://github.com/arut/nginx-rtmp-module/archive/v${RTMP_MODULE_PV}.tar.gz"
 RTMP_MODULE_WD="${WORKDIR}/nginx-rtmp-module-${RTMP_MODULE_PV}"
 
 # nginx-dav-ext-module (https://github.com/arut/nginx-dav-ext-module, BSD license)
-HTTP_DAV_EXT_MODULE_PV="0.0.3"
+HTTP_DAV_EXT_MODULE_PV="3.0.0"
 HTTP_DAV_EXT_MODULE_P="ngx_http_dav_ext-${HTTP_DAV_EXT_MODULE_PV}"
 HTTP_DAV_EXT_MODULE_URI="https://github.com/arut/nginx-dav-ext-module/archive/v${HTTP_DAV_EXT_MODULE_PV}.tar.gz"
 HTTP_DAV_EXT_MODULE_WD="${WORKDIR}/nginx-dav-ext-module-${HTTP_DAV_EXT_MODULE_PV}"
 
 # echo-nginx-module (https://github.com/openresty/echo-nginx-module, BSD license)
-HTTP_ECHO_MODULE_PV="0.60"
+HTTP_ECHO_MODULE_PV="0.62"
 HTTP_ECHO_MODULE_P="ngx_http_echo-${HTTP_ECHO_MODULE_PV}"
 HTTP_ECHO_MODULE_URI="https://github.com/openresty/echo-nginx-module/archive/v${HTTP_ECHO_MODULE_PV}.tar.gz"
 HTTP_ECHO_MODULE_WD="${WORKDIR}/echo-nginx-module-${HTTP_ECHO_MODULE_PV}"
 
 # mod_security for nginx (https://modsecurity.org/, Apache-2.0)
 # keep the MODULE_P here consistent with upstream to avoid tarball duplication
-HTTP_SECURITY_MODULE_PV="2.9.1"
+HTTP_SECURITY_MODULE_PV="2.9.3"
 HTTP_SECURITY_MODULE_P="modsecurity-${HTTP_SECURITY_MODULE_PV}"
 HTTP_SECURITY_MODULE_URI="https://www.modsecurity.org/tarball/${HTTP_SECURITY_MODULE_PV}/${HTTP_SECURITY_MODULE_P}.tar.gz"
 HTTP_SECURITY_MODULE_WD="${WORKDIR}/${HTTP_SECURITY_MODULE_P}"
 
 # push-stream-module (http://www.nginxpushstream.com, https://github.com/wandenberg/nginx-push-stream-module, GPL-3)
-HTTP_PUSH_STREAM_MODULE_PV="0.5.2"
+HTTP_PUSH_STREAM_MODULE_PV="0.5.4"
 HTTP_PUSH_STREAM_MODULE_P="ngx_http_push_stream-${HTTP_PUSH_STREAM_MODULE_PV}"
 HTTP_PUSH_STREAM_MODULE_URI="https://github.com/wandenberg/nginx-push-stream-module/archive/${HTTP_PUSH_STREAM_MODULE_PV}.tar.gz"
 HTTP_PUSH_STREAM_MODULE_WD="${WORKDIR}/nginx-push-stream-module-${HTTP_PUSH_STREAM_MODULE_PV}"
@@ -126,46 +139,64 @@ HTTP_MOGILEFS_MODULE_URI="https://github.com/vkholodkov/nginx-mogilefs-module/ar
 HTTP_MOGILEFS_MODULE_WD="${WORKDIR}/nginx_mogilefs_module-${HTTP_MOGILEFS_MODULE_PV}"
 
 # memc-module (https://github.com/openresty/memc-nginx-module, BSD-2)
-HTTP_MEMC_MODULE_PV="0.17"
+HTTP_MEMC_MODULE_PV="0.19"
 HTTP_MEMC_MODULE_P="ngx_memc_module-${HTTP_MEMC_MODULE_PV}"
 HTTP_MEMC_MODULE_URI="https://github.com/openresty/memc-nginx-module/archive/v${HTTP_MEMC_MODULE_PV}.tar.gz"
 HTTP_MEMC_MODULE_WD="${WORKDIR}/memc-nginx-module-${HTTP_MEMC_MODULE_PV}"
 
 # nginx-ldap-auth-module (https://github.com/kvspb/nginx-auth-ldap, BSD-2)
-HTTP_LDAP_MODULE_PV="49a8b4d28fc4a518563c82e0b52821e5f37db1fc"
+HTTP_LDAP_MODULE_PV="42d195d7a7575ebab1c369ad3fc5d78dc2c2669c"
 HTTP_LDAP_MODULE_P="nginx-auth-ldap-${HTTP_LDAP_MODULE_PV}"
 HTTP_LDAP_MODULE_URI="https://github.com/kvspb/nginx-auth-ldap/archive/${HTTP_LDAP_MODULE_PV}.tar.gz"
 HTTP_LDAP_MODULE_WD="${WORKDIR}/nginx-auth-ldap-${HTTP_LDAP_MODULE_PV}"
+
+# geoip2 (https://github.com/leev/ngx_http_geoip2_module, BSD-2)
+GEOIP2_MODULE_PV="3.3"
+GEOIP2_MODULE_P="ngx_http_geoip2_module-${GEOIP2_MODULE_PV}"
+GEOIP2_MODULE_URI="https://github.com/leev/ngx_http_geoip2_module/archive/${GEOIP2_MODULE_PV}.tar.gz"
+GEOIP2_MODULE_WD="${WORKDIR}/ngx_http_geoip2_module-${GEOIP2_MODULE_PV}"
+
+# njs-module (https://github.com/nginx/njs, as-is)
+NJS_MODULE_PV="0.6.0"
+NJS_MODULE_P="njs-${NJS_MODULE_PV}"
+NJS_MODULE_URI="https://github.com/nginx/njs/archive/${NJS_MODULE_PV}.tar.gz"
+NJS_MODULE_WD="${WORKDIR}/njs-${NJS_MODULE_PV}"
 
 # We handle deps below ourselves
 SSL_DEPS_SKIP=1
 AUTOTOOLS_AUTO_DEPEND="no"
 
-inherit autotools ssl-cert toolchain-funcs perl-module flag-o-matic user systemd versionator multilib
+inherit autotools lua-single ssl-cert toolchain-funcs perl-module flag-o-matic user systemd multilib pax-utils
 
 DESCRIPTION="Robust, small and high performance http and reverse proxy server"
 HOMEPAGE="https://nginx.org"
 SRC_URI="https://nginx.org/download/${P}.tar.gz
 	${DEVEL_KIT_MODULE_URI} -> ${DEVEL_KIT_MODULE_P}.tar.gz
-	nginx_modules_http_upload_progress? ( ${HTTP_UPLOAD_PROGRESS_MODULE_URI} -> ${HTTP_UPLOAD_PROGRESS_MODULE_P}.tar.gz )
-	nginx_modules_http_headers_more? ( ${HTTP_HEADERS_MORE_MODULE_URI} -> ${HTTP_HEADERS_MORE_MODULE_P}.tar.gz )
-	nginx_modules_http_cache_purge? ( ${HTTP_CACHE_PURGE_MODULE_URI} -> ${HTTP_CACHE_PURGE_MODULE_P}.tar.gz )
-	nginx_modules_http_slowfs_cache? ( ${HTTP_SLOWFS_CACHE_MODULE_URI} -> ${HTTP_SLOWFS_CACHE_MODULE_P}.tar.gz )
-	nginx_modules_http_fancyindex? ( ${HTTP_FANCYINDEX_MODULE_URI} -> ${HTTP_FANCYINDEX_MODULE_P}.tar.gz )
-	nginx_modules_http_lua? ( ${HTTP_LUA_MODULE_URI} -> ${HTTP_LUA_MODULE_P}.tar.gz )
+	nginx_modules_http_auth_ldap? ( ${HTTP_LDAP_MODULE_URI} -> ${HTTP_LDAP_MODULE_P}.tar.gz )
 	nginx_modules_http_auth_pam? ( ${HTTP_AUTH_PAM_MODULE_URI} -> ${HTTP_AUTH_PAM_MODULE_P}.tar.gz )
-	nginx_modules_http_upstream_check? ( ${HTTP_UPSTREAM_CHECK_MODULE_URI} -> ${HTTP_UPSTREAM_CHECK_MODULE_P}.tar.gz )
-	nginx_modules_http_metrics? ( ${HTTP_METRICS_MODULE_URI} -> ${HTTP_METRICS_MODULE_P}.tar.gz )
-	nginx_modules_http_naxsi? ( ${HTTP_NAXSI_MODULE_URI} -> ${HTTP_NAXSI_MODULE_P}.tar.gz )
-	rtmp? ( ${RTMP_MODULE_URI} -> ${RTMP_MODULE_P}.tar.gz )
+	nginx_modules_http_brotli? ( ${HTTP_BROTLI_MODULE_URI} -> ${HTTP_BROTLI_MODULE_P}.tar.gz )
+	nginx_modules_http_cache_purge? ( ${HTTP_CACHE_PURGE_MODULE_URI} -> ${HTTP_CACHE_PURGE_MODULE_P}.tar.gz )
 	nginx_modules_http_dav_ext? ( ${HTTP_DAV_EXT_MODULE_URI} -> ${HTTP_DAV_EXT_MODULE_P}.tar.gz )
 	nginx_modules_http_echo? ( ${HTTP_ECHO_MODULE_URI} -> ${HTTP_ECHO_MODULE_P}.tar.gz )
-	nginx_modules_http_security? ( ${HTTP_SECURITY_MODULE_URI} -> ${HTTP_SECURITY_MODULE_P}.tar.gz )
-	nginx_modules_http_push_stream? ( ${HTTP_PUSH_STREAM_MODULE_URI} -> ${HTTP_PUSH_STREAM_MODULE_P}.tar.gz )
-	nginx_modules_http_sticky? ( ${HTTP_STICKY_MODULE_URI} -> ${HTTP_STICKY_MODULE_P}.tar.bz2 )
-	nginx_modules_http_mogilefs? ( ${HTTP_MOGILEFS_MODULE_URI} -> ${HTTP_MOGILEFS_MODULE_P}.tar.gz )
+	nginx_modules_http_fancyindex? ( ${HTTP_FANCYINDEX_MODULE_URI} -> ${HTTP_FANCYINDEX_MODULE_P}.tar.gz )
+	nginx_modules_http_geoip2? ( ${GEOIP2_MODULE_URI} -> ${GEOIP2_MODULE_P}.tar.gz )
+	nginx_modules_http_headers_more? ( ${HTTP_HEADERS_MORE_MODULE_URI} -> ${HTTP_HEADERS_MORE_MODULE_P}.tar.gz )
+	nginx_modules_http_javascript? ( ${NJS_MODULE_URI} -> ${NJS_MODULE_P}.tar.gz )
+	nginx_modules_http_lua? ( ${HTTP_LUA_MODULE_URI} -> ${HTTP_LUA_MODULE_P}.tar.gz )
 	nginx_modules_http_memc? ( ${HTTP_MEMC_MODULE_URI} -> ${HTTP_MEMC_MODULE_P}.tar.gz )
-	nginx_modules_http_auth_ldap? ( ${HTTP_LDAP_MODULE_URI} -> ${HTTP_LDAP_MODULE_P}.tar.gz )"
+	nginx_modules_http_metrics? ( ${HTTP_METRICS_MODULE_URI} -> ${HTTP_METRICS_MODULE_P}.tar.gz )
+	nginx_modules_http_mogilefs? ( ${HTTP_MOGILEFS_MODULE_URI} -> ${HTTP_MOGILEFS_MODULE_P}.tar.gz )
+	nginx_modules_http_naxsi? ( ${HTTP_NAXSI_MODULE_URI} -> ${HTTP_NAXSI_MODULE_P}.tar.gz )
+	nginx_modules_http_push_stream? ( ${HTTP_PUSH_STREAM_MODULE_URI} -> ${HTTP_PUSH_STREAM_MODULE_P}.tar.gz )
+	nginx_modules_http_security? ( ${HTTP_SECURITY_MODULE_URI} -> ${HTTP_SECURITY_MODULE_P}.tar.gz )
+	nginx_modules_http_slowfs_cache? ( ${HTTP_SLOWFS_CACHE_MODULE_URI} -> ${HTTP_SLOWFS_CACHE_MODULE_P}.tar.gz )
+	nginx_modules_http_sticky? ( ${HTTP_STICKY_MODULE_URI} -> ${HTTP_STICKY_MODULE_P}.tar.bz2 )
+	nginx_modules_http_upload_progress? ( ${HTTP_UPLOAD_PROGRESS_MODULE_URI} -> ${HTTP_UPLOAD_PROGRESS_MODULE_P}.tar.gz )
+	nginx_modules_http_upstream_check? ( ${HTTP_UPSTREAM_CHECK_MODULE_URI} -> ${HTTP_UPSTREAM_CHECK_MODULE_P}.tar.gz )
+	nginx_modules_http_vhost_traffic_status? ( ${HTTP_VHOST_TRAFFIC_STATUS_MODULE_URI} -> ${HTTP_VHOST_TRAFFIC_STATUS_MODULE_P}.tar.gz )
+	nginx_modules_stream_geoip2? ( ${GEOIP2_MODULE_URI} -> ${GEOIP2_MODULE_P}.tar.gz )
+	nginx_modules_stream_javascript? ( ${NJS_MODULE_URI} -> ${NJS_MODULE_P}.tar.gz )
+	rtmp? ( ${RTMP_MODULE_URI} -> ${RTMP_MODULE_P}.tar.gz )"
 
 LICENSE="BSD-2 BSD SSLeay MIT GPL-2 GPL-2+
 	nginx_modules_http_security? ( Apache-2.0 )
@@ -178,35 +209,46 @@ KEYWORDS="*"
 RESTRICT="test"
 
 NGINX_MODULES_STD="access auth_basic autoindex browser charset empty_gif
-	fastcgi geo gzip limit_req limit_conn map memcached proxy referer
-	rewrite scgi ssi split_clients upstream_ip_hash userid uwsgi"
+	fastcgi geo grpc gzip limit_req limit_conn map memcached mirror
+	proxy referer rewrite scgi ssi split_clients upstream_hash
+	upstream_ip_hash upstream_keepalive upstream_least_conn
+	upstream_zone userid uwsgi"
 NGINX_MODULES_OPT="addition auth_request dav degradation flv geoip gunzip
 	gzip_static image_filter mp4 perl random_index realip secure_link
 	slice stub_status sub xslt"
-NGINX_MODULES_STREAM="access limit_conn upstream"
+NGINX_MODULES_STREAM_STD="access geo limit_conn map return split_clients
+	upstream_hash upstream_least_conn upstream_zone"
+NGINX_MODULES_STREAM_OPT="geoip realip ssl_preread"
 NGINX_MODULES_MAIL="imap pop3 smtp"
 NGINX_MODULES_3RD="
-	http_upload_progress
-	http_headers_more
-	http_cache_purge
-	http_slowfs_cache
-	http_fancyindex
-	http_lua
+	http_auth_ldap
 	http_auth_pam
-	http_upstream_check
-	http_metrics
-	http_naxsi
+	http_brotli
+	http_cache_purge
 	http_dav_ext
 	http_echo
-	http_security
-	http_push_stream
-	http_sticky
-	http_mogilefs
+	http_fancyindex
+	http_geoip2
+	http_headers_more
+	http_javascript
+	http_lua
 	http_memc
-	http_auth_ldap"
+	http_metrics
+	http_mogilefs
+	http_naxsi
+	http_push_stream
+	http_security
+	http_slowfs_cache
+	http_sticky
+	http_upload_progress
+	http_upstream_check
+	http_vhost_traffic_status
+	stream_geoip2
+	stream_javascript
+"
 
-IUSE="aio debug +http +http2 +http-cache ipv6 libatomic libressl luajit +pcre
-	pcre-jit rtmp selinux ssl threads userland_GNU vim-syntax"
+IUSE="aio debug +http +http2 +http-cache +ipv6 libatomic +pcre
+	pcre-jit rtmp selinux ssl threads vim-syntax"
 
 for mod in $NGINX_MODULES_STD; do
 	IUSE="${IUSE} +nginx_modules_http_${mod}"
@@ -216,7 +258,11 @@ for mod in $NGINX_MODULES_OPT; do
 	IUSE="${IUSE} nginx_modules_http_${mod}"
 done
 
-for mod in $NGINX_MODULES_STREAM; do
+for mod in $NGINX_MODULES_STREAM_STD; do
+	IUSE="${IUSE} nginx_modules_stream_${mod}"
+done
+
+for mod in $NGINX_MODULES_STREAM_OPT; do
 	IUSE="${IUSE} nginx_modules_stream_${mod}"
 done
 
@@ -233,40 +279,33 @@ done
 IUSE="${IUSE} nginx_modules_http_spdy"
 
 CDEPEND="
+	virtual/libcrypt:=
 	pcre? ( dev-libs/libpcre:= )
 	pcre-jit? ( dev-libs/libpcre:=[jit] )
 	ssl? (
-		!libressl? ( dev-libs/openssl:0= )
-		libressl? ( dev-libs/libressl:= )
+		dev-libs/openssl:0=
 	)
 	http2? (
-		!libressl? ( >=dev-libs/openssl-1.0.1c:0= )
-		libressl? ( dev-libs/libressl:= )
+		>=dev-libs/openssl-1.0.1c:0=
 	)
 	http-cache? (
-		userland_GNU? (
-			!libressl? ( dev-libs/openssl:0= )
-			libressl? ( dev-libs/libressl:= )
-		)
+		dev-libs/openssl:0=
 	)
+	nginx_modules_http_brotli? ( app-arch/brotli:= )
 	nginx_modules_http_geoip? ( dev-libs/geoip )
+	nginx_modules_http_geoip2? ( dev-libs/libmaxminddb:= )
 	nginx_modules_http_gunzip? ( sys-libs/zlib )
 	nginx_modules_http_gzip? ( sys-libs/zlib )
 	nginx_modules_http_gzip_static? ( sys-libs/zlib )
 	nginx_modules_http_image_filter? ( media-libs/gd:=[jpeg,png] )
 	nginx_modules_http_perl? ( >=dev-lang/perl-5.8:= )
 	nginx_modules_http_rewrite? ( dev-libs/libpcre:= )
-	nginx_modules_http_secure_link? (
-		userland_GNU? (
-			!libressl? ( dev-libs/openssl:0= )
-			libressl? ( dev-libs/libressl:= )
-		)
-	)
+	nginx_modules_http_secure_link? ( dev-libs/openssl:0= )
 	nginx_modules_http_xslt? ( dev-libs/libxml2:= dev-libs/libxslt )
-	nginx_modules_http_lua? ( !luajit? ( dev-lang/lua:0= ) luajit? ( dev-lang/luajit:2= ) )
-	nginx_modules_http_auth_pam? ( virtual/pam )
+	nginx_modules_http_lua? ( ${LUA_DEPS} )
+	nginx_modules_http_auth_pam? ( sys-libs/pam )
 	nginx_modules_http_metrics? ( dev-libs/yajl:= )
-	nginx_modules_http_dav_ext? ( dev-libs/expat )
+	nginx_modules_http_dav_ext? ( dev-libs/libxml2 )
 	nginx_modules_http_security? (
 		dev-libs/apr:=
 		dev-libs/apr-util:=
@@ -274,20 +313,28 @@ CDEPEND="
 		net-misc/curl
 		www-servers/apache
 	)
-	nginx_modules_http_auth_ldap? ( net-nds/openldap[ssl?] )"
+	nginx_modules_http_auth_ldap? ( net-nds/openldap:=[ssl?] )
+	nginx_modules_stream_geoip? ( dev-libs/geoip )
+	nginx_modules_stream_geoip2? ( dev-libs/libmaxminddb:= )"
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-nginx )
 	!www-servers/nginx:mainline"
 DEPEND="${CDEPEND}
-	nginx_modules_http_security? ( ${AUTOTOOLS_DEPEND} )
 	arm? ( dev-libs/libatomic_ops )
 	libatomic? ( dev-libs/libatomic_ops )"
+BDEPEND="nginx_modules_http_brotli? ( virtual/pkgconfig )
+	nginx_modules_http_security? ( ${AUTOTOOLS_DEPEND} )"
 PDEPEND="vim-syntax? ( app-vim/nginx-syntax )"
 
 REQUIRED_USE="pcre-jit? ( pcre )
-	nginx_modules_http_lua? ( nginx_modules_http_rewrite )
+	nginx_modules_http_fancyindex? ( nginx_modules_http_addition )
+	nginx_modules_http_grpc? ( http2 )
+	nginx_modules_http_lua? (
+		${LUA_REQUIRED_USE}
+		nginx_modules_http_rewrite
+	)
 	nginx_modules_http_naxsi? ( pcre )
-	nginx_modules_http_dav_ext? ( nginx_modules_http_dav )
+	nginx_modules_http_dav_ext? ( nginx_modules_http_dav nginx_modules_http_xslt )
 	nginx_modules_http_metrics? ( nginx_modules_http_stub_status )
 	nginx_modules_http_security? ( pcre )
 	nginx_modules_http_push_stream? ( ssl )"
@@ -324,30 +371,38 @@ pkg_setup() {
 		eerror "Please disable either flag and try again."
 		die "Can't compile mogilefs with threads support"
 	fi
+
+	use nginx_modules_http_lua && lua-single_pkg_setup
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-1.4.1-fix-perl-install-path.patch"
-	epatch "${FILESDIR}/${PN}-httpoxy-mitigation-r1.patch"
+	eapply "${FILESDIR}/${PN}-1.4.1-fix-perl-install-path.patch"
+	eapply "${FILESDIR}/${PN}-httpoxy-mitigation-r1.patch"
 
-	if use nginx_modules_http_upstream_check; then
-		epatch -p0 "${HTTP_UPSTREAM_CHECK_MODULE_WD}/check_1.9.2+".patch
+	if use nginx_modules_http_brotli; then
+		cd "${HTTP_BROTLI_MODULE_WD}" || die
+		eapply "${FILESDIR}"/http_brotli-detect-brotli-r3.patch
+		cd "${S}" || die
 	fi
 
-	if use nginx_modules_http_lua; then
-		sed -i -e 's/-llua5.1/-llua/' "${HTTP_LUA_MODULE_WD}/config" || die
+	if use nginx_modules_http_upstream_check; then
+		eapply -p0 "${FILESDIR}"/http_upstream_check-nginx-1.11.5+.patch
+	fi
+
+	if use nginx_modules_http_cache_purge; then
+		cd "${HTTP_CACHE_PURGE_MODULE_WD}" || die
+		eapply "${FILESDIR}"/http_cache_purge-1.11.6+.patch
+		cd "${S}" || die
 	fi
 
 	if use nginx_modules_http_security; then
 		cd "${HTTP_SECURITY_MODULE_WD}" || die
 
-		epatch "${FILESDIR}"/http_security-pr_1158.patch
-
 		eautoreconf
 
-		if use luajit ; then
+		if use nginx_modules_http_lua; then
 			sed -i \
-				-e 's|^\(LUA_PKGNAMES\)=.*|\1="luajit"|' \
+				-e "s|^\(LUA_PKGNAMES\)=.*|\1=\"${ELUA}\"|" \
 				configure || die
 		fi
 
@@ -356,13 +411,7 @@ src_prepare() {
 
 	if use nginx_modules_http_upload_progress; then
 		cd "${HTTP_UPLOAD_PROGRESS_MODULE_WD}" || die
-		epatch "${FILESDIR}"/http_uploadprogress-issue_50-r1.patch
-		cd "${S}" || die
-	fi
-
-	if use nginx_modules_http_memc; then
-		cd "${HTTP_MEMC_MODULE_WD}" || die
-		epatch "${FILESDIR}"/http_memc-0.17-issue_26.patch
+		eapply "${FILESDIR}"/http_uploadprogress-issue_50-r1.patch
 		cd "${S}" || die
 	fi
 
@@ -379,6 +428,8 @@ src_prepare() {
 			sed -i -e "/${module}/d" auto/install || die
 		fi
 	done
+
+	eapply_user
 }
 
 src_configure() {
@@ -401,7 +452,6 @@ src_configure() {
 	use aio       && myconf+=( --with-file-aio )
 	use debug     && myconf+=( --with-debug )
 	use http2     && myconf+=( --with-http_v2_module )
-	use ipv6      && myconf+=( --with-ipv6 )
 	use libatomic && myconf+=( --with-libatomic )
 	use pcre      && myconf+=( --with-pcre )
 	use pcre-jit  && myconf+=( --with-pcre-jit )
@@ -455,13 +505,8 @@ src_configure() {
 
 	if use nginx_modules_http_lua; then
 		http_enabled=1
-		if use luajit; then
-			export LUAJIT_LIB=$(pkg-config --variable libdir luajit)
-			export LUAJIT_INC=$(pkg-config --variable includedir luajit)
-		else
-			export LUA_LIB=$(pkg-config --variable libdir lua)
-			export LUA_INC=$(pkg-config --variable includedir lua)
-		fi
+		export LUAJIT_LIB=$(dirname $(lua_get_shared_lib))
+		export LUAJIT_INC=$(lua_get_include_dir)
 		myconf+=( --add-module=${DEVEL_KIT_MODULE_WD} )
 		myconf+=( --add-module=${HTTP_LUA_MODULE_WD} )
 	fi
@@ -531,7 +576,25 @@ src_configure() {
 		myconf+=( --add-module=${HTTP_LDAP_MODULE_WD} )
 	fi
 
-	if use http || use http-cache || use http2; then
+	if use nginx_modules_http_vhost_traffic_status; then
+		http_enabled=1
+		myconf+=( --add-module=${HTTP_VHOST_TRAFFIC_STATUS_MODULE_WD} )
+	fi
+
+	if use nginx_modules_http_geoip2 || use nginx_modules_stream_geoip2; then
+		myconf+=( --add-module=${GEOIP2_MODULE_WD} )
+	fi
+
+	if use nginx_modules_http_javascript || use nginx_modules_stream_javascript; then
+		myconf+=( --add-module="${NJS_MODULE_WD}/nginx" )
+	fi
+
+	if use nginx_modules_http_brotli; then
+		http_enabled=1
+		myconf+=( --add-module=${HTTP_BROTLI_MODULE_WD} )
+	fi
+
+	if use http || use http-cache || use http2 || use nginx_modules_http_javascript; then
 		http_enabled=1
 	fi
 
@@ -543,20 +606,24 @@ src_configure() {
 	fi
 
 	# Stream modules
-	for mod in $NGINX_MODULES_STREAM; do
+	for mod in $NGINX_MODULES_STREAM_STD; do
 		if use nginx_modules_stream_${mod}; then
 			stream_enabled=1
 		else
-			# Treat stream upstream slightly differently
-			if ! use nginx_modules_stream_upstream; then
-				myconf+=( --without-stream_upstream_hash_module )
-				myconf+=( --without-stream_upstream_least_conn_module )
-				myconf+=( --without-stream_upstream_zone_module )
-			else
-				myconf+=( --without-stream_${mod}_module )
-			fi
+			myconf+=( --without-stream_${mod}_module )
 		fi
 	done
+
+	for mod in $NGINX_MODULES_STREAM_OPT; do
+		if use nginx_modules_stream_${mod}; then
+			stream_enabled=1
+			myconf+=( --with-stream_${mod}_module )
+		fi
+	done
+
+	if use nginx_modules_stream_geoip2 || use nginx_modules_stream_javascript; then
+		stream_enabled=1
+	fi
 
 	if [ $stream_enabled ]; then
 		myconf+=( --with-stream )
@@ -584,11 +651,21 @@ src_configure() {
 
 	# https://bugs.gentoo.org/286772
 	export LANG=C LC_ALL=C
-	tc-export CC
+	tc-export AR CC
 
 	if ! use prefix; then
 		myconf+=( --user=${PN} )
 		myconf+=( --group=${PN} )
+	fi
+
+	local WITHOUT_IPV6=
+	if ! use ipv6; then
+		WITHOUT_IPV6=" -DNGX_HAVE_INET6=0"
+	fi
+
+	if [[ -n "${EXTRA_ECONF}" ]]; then
+		myconf+=( ${EXTRA_ECONF} )
+		ewarn "EXTRA_ECONF applied. Now you are on your own, good luck!"
 	fi
 
 	./configure \
@@ -597,14 +674,15 @@ src_configure() {
 		--error-log-path="${EPREFIX}"/var/log/${PN}/error_log \
 		--pid-path="${EPREFIX}"/run/${PN}.pid \
 		--lock-path="${EPREFIX}"/run/lock/${PN}.lock \
-		--with-cc-opt="-I${EROOT}usr/include" \
-		--with-ld-opt="-L${EROOT}usr/$(get_libdir)" \
+		--with-cc-opt="-I${ESYSROOT}/usr/include${WITHOUT_IPV6}" \
+		--with-ld-opt="-L${ESYSROOT}/usr/$(get_libdir)" \
 		--http-log-path="${EPREFIX}"/var/log/${PN}/access_log \
 		--http-client-body-temp-path="${EPREFIX}${NGINX_HOME_TMP}"/client \
 		--http-proxy-temp-path="${EPREFIX}${NGINX_HOME_TMP}"/proxy \
 		--http-fastcgi-temp-path="${EPREFIX}${NGINX_HOME_TMP}"/fastcgi \
 		--http-scgi-temp-path="${EPREFIX}${NGINX_HOME_TMP}"/scgi \
 		--http-uwsgi-temp-path="${EPREFIX}${NGINX_HOME_TMP}"/uwsgi \
+		--with-compat \
 		"${myconf[@]}" || die "configure failed"
 
 	# A purely cosmetic change that makes nginx -V more readable. This can be
@@ -622,9 +700,9 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D%/}" install
+	emake DESTDIR="${D}" install
 
-	cp "${FILESDIR}"/nginx.conf-r2 "${ED}"etc/nginx/nginx.conf || die
+	cp "${FILESDIR}"/nginx.conf-r2 "${ED}"/etc/nginx/nginx.conf || die
 
 	newinitd "${FILESDIR}"/nginx.initd-r4 nginx
 	newconfd "${FILESDIR}"/nginx.confd nginx
@@ -636,7 +714,7 @@ src_install() {
 
 	# just keepdir. do not copy the default htdocs files (bug #449136)
 	keepdir /var/www/localhost
-	rm -rf "${D}"usr/html || die
+	rm -rf "${ED}"/usr/html || die
 
 	# set up a list of directories to keep
 	local keepdir_list="${NGINX_HOME_TMP}"/client
@@ -661,6 +739,13 @@ src_install() {
 	# logrotate
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/nginx.logrotate-r1 nginx
+
+	# Don't create /run
+	rm -rf "${ED}"/run || die
+
+	if use lua_single_target_luajit; then
+		pax-mark m "${ED}/usr/sbin/nginx"
+	fi
 
 	if use nginx_modules_http_perl; then
 		cd "${S}"/objs/src/http/modules/perl/ || die
@@ -711,7 +796,7 @@ src_install() {
 
 	if use nginx_modules_http_dav_ext; then
 		docinto ${HTTP_DAV_EXT_MODULE_P}
-		dodoc "${HTTP_DAV_EXT_MODULE_WD}"/README
+		dodoc "${HTTP_DAV_EXT_MODULE_WD}"/README.rst
 	fi
 
 	if use nginx_modules_http_echo; then
@@ -721,7 +806,7 @@ src_install() {
 
 	if use nginx_modules_http_security; then
 		docinto ${HTTP_SECURITY_MODULE_P}
-		dodoc "${HTTP_SECURITY_MODULE_WD}"/{CHANGES,README.TXT,authors.txt}
+		dodoc "${HTTP_SECURITY_MODULE_WD}"/{CHANGES,README.md,authors.txt}
 	fi
 
 	if use nginx_modules_http_push_stream; then
@@ -747,20 +832,30 @@ src_install() {
 
 pkg_postinst() {
 	if use ssl; then
-		if [[ ! -f "${EROOT}"etc/ssl/${PN}/${PN}.key ]]; then
+		if [[ ! -f "${EROOT}"/etc/ssl/${PN}/${PN}.key ]]; then
 			install_cert /etc/ssl/${PN}/${PN}
-			use prefix || chown ${PN}:${PN} "${EROOT}"etc/ssl/${PN}/${PN}.{crt,csr,key,pem}
+			use prefix || chown ${PN}:${PN} "${EROOT}"/etc/ssl/${PN}/${PN}.{crt,csr,key,pem}
 		fi
 	fi
 
 	if use nginx_modules_http_spdy; then
+		ewarn ""
 		ewarn "In nginx 1.9.5 the spdy module was superseded by http2."
 		ewarn "Update your configs and package.use accordingly."
 	fi
 
+	if use nginx_modules_http_lua; then
+		ewarn ""
+		ewarn "While you can build lua 3rd party module against ${P}"
+		ewarn "the author warns that >=${PN}-1.11.11 is still not an"
+		ewarn "officially supported target yet. You are on your own."
+		ewarn "Expect runtime failures, memory leaks and other problems!"
+	fi
+
 	if use nginx_modules_http_lua && use http2; then
+		ewarn ""
 		ewarn "Lua 3rd party module author warns against using ${P} with"
-		ewarn "NGINX_MODULES_HTTP=\"lua http2\". For more info, see http://git.io/OldLsg"
+		ewarn "NGINX_MODULES_HTTP=\"lua http2\". For more info, see https://git.io/OldLsg"
 	fi
 
 	local _n_permission_layout_checks=0
@@ -788,7 +883,7 @@ pkg_postinst() {
 			break
 		fi
 
-		local _replacing_version_branch=$(get_version_component_range 1-2 "${_replacing_version}")
+		local _replacing_version_branch=$(ver_cut 1-2 "${_replacing_version}")
 		debug-print "Updating an existing installation (v${_replacing_version}; branch '${_replacing_version_branch}') ..."
 
 		# Do we need to adjust permissions to fix CVE-2013-0337 (bug #458726, #469094)?
@@ -796,7 +891,7 @@ pkg_postinst() {
 		# do not need to distinguish between stable and mainline
 		local _need_to_fix_CVE2013_0337=1
 
-		if version_is_at_least "1.4.1-r2" "${_replacing_version}"; then
+		if ver_test ${_replacing_version} -ge 1.4.1-r2; then
 			# We are updating an installation which should already be fixed
 			_need_to_fix_CVE2013_0337=0
 			debug-print "Skipping CVE-2013-0337 ... existing installation should not be affected!"
@@ -807,7 +902,7 @@ pkg_postinst() {
 
 		# Do we need to inform about HTTPoxy mitigation?
 		# In repository since commit 8be44f76d4ac02cebcd1e0e6e6284bb72d054b0f
-		if ! version_is_at_least "1.10" "${_replacing_version_branch}"; then
+		if ver_test ${_replacing_version_branch} -lt 1.10; then
 			# Updating from <1.10
 			_has_to_show_httpoxy_mitigation_notice=1
 			debug-print "Need to inform about HTTPoxy mitigation!"
@@ -830,7 +925,7 @@ pkg_postinst() {
 					_fixed_in_pvr=
 			esac
 
-			if [[ -z "${_fixed_in_pvr}" ]] || version_is_at_least "${_fixed_in_pvr}" "${_replacing_version}"; then
+			if [[ -z "${_fixed_in_pvr}" ]] || ver_test ${_replacing_version} -ge ${_fixed_in_pvr}; then
 				# We are updating an installation where we already informed
 				# that we are mitigating HTTPoxy per default
 				_has_to_show_httpoxy_mitigation_notice=0
@@ -845,7 +940,7 @@ pkg_postinst() {
 		# All branches up to 1.11 are affected
 		local _need_to_fix_CVE2016_1247=1
 
-		if ! version_is_at_least "1.10" "${_replacing_version_branch}"; then
+		if ver_test ${_replacing_version_branch} -lt 1.10; then
 			# Updating from <1.10
 			_has_to_adjust_permissions=1
 			debug-print "Need to adjust permissions to fix CVE-2016-1247!"
@@ -868,7 +963,7 @@ pkg_postinst() {
 					_fixed_in_pvr=
 			esac
 
-			if [[ -z "${_fixed_in_pvr}" ]] || version_is_at_least "${_fixed_in_pvr}" "${_replacing_version}"; then
+			if [[ -z "${_fixed_in_pvr}" ]] || ver_test ${_replacing_version} -ge ${_fixed_in_pvr}; then
 				# We are updating an installation which should already be adjusted
 				# or which was never affected
 				_need_to_fix_CVE2016_1247=0
@@ -893,15 +988,15 @@ pkg_postinst() {
 			ewarn "following directories to mitigate a security bug"
 			ewarn "(CVE-2013-0337, bug #458726):"
 			ewarn ""
-			ewarn "  ${EPREFIX%/}/var/log/nginx"
-			ewarn "  ${EPREFIX%/}${NGINX_HOME_TMP}/{,client,proxy,fastcgi,scgi,uwsgi}"
+			ewarn "  ${EPREFIX}/var/log/nginx"
+			ewarn "  ${EPREFIX}${NGINX_HOME_TMP}/{,client,proxy,fastcgi,scgi,uwsgi}"
 			ewarn ""
 			ewarn "Check if this is correct for your setup before restarting nginx!"
 			ewarn "This is a one-time change and will not happen on subsequent updates."
-			ewarn "Furthermore nginx' temp directories got moved to '${EPREFIX%/}${NGINX_HOME_TMP}'"
+			ewarn "Furthermore nginx' temp directories got moved to '${EPREFIX}${NGINX_HOME_TMP}'"
 			chmod o-rwx \
-				"${EPREFIX%/}"/var/log/nginx \
-				"${EPREFIX%/}"${NGINX_HOME_TMP}/{,client,proxy,fastcgi,scgi,uwsgi} || \
+				"${EPREFIX}"/var/log/nginx \
+				"${EPREFIX}"${NGINX_HOME_TMP}/{,client,proxy,fastcgi,scgi,uwsgi} || \
 				_has_to_show_permission_warning=1
 		fi
 
@@ -910,15 +1005,15 @@ pkg_postinst() {
 			ewarn "The permissions on the following directory have been reset in"
 			ewarn "order to mitigate a security bug (CVE-2016-1247, bug #605008):"
 			ewarn ""
-			ewarn "  ${EPREFIX%/}/var/log/nginx"
+			ewarn "  ${EPREFIX}/var/log/nginx"
 			ewarn ""
 			ewarn "Check if this is correct for your setup before restarting nginx!"
 			ewarn "Also ensure that no other log directory used by any of your"
 			ewarn "vhost(s) is not writeable for nginx user. Any of your log files"
 			ewarn "used by nginx can be abused to escalate privileges!"
 			ewarn "This is a one-time change and will not happen on subsequent updates."
-			chown 0:nginx "${EPREFIX%/}"/var/log/nginx || _has_to_show_permission_warning=1
-			chmod 710 "${EPREFIX%/}"/var/log/nginx || _has_to_show_permission_warning=1
+			chown 0:nginx "${EPREFIX}"/var/log/nginx || _has_to_show_permission_warning=1
+			chmod 710 "${EPREFIX}"/var/log/nginx || _has_to_show_permission_warning=1
 		fi
 
 		if [[ ${_has_to_show_permission_warning} -eq 1 ]]; then
@@ -943,7 +1038,7 @@ pkg_postinst() {
 	# unmerged a affected installation on purpose in the past leaving
 	# /var/log/nginx on their system due to keepdir/non-empty folder
 	# and are now installing the package again.
-	local _sanity_check_testfile=$(mktemp --dry-run "${EPREFIX%/}"/var/log/nginx/.CVE-2016-1247.XXXXXXXXX)
+	local _sanity_check_testfile=$(mktemp --dry-run "${EPREFIX}"/var/log/nginx/.CVE-2016-1247.XXXXXXXXX)
 	su -s /bin/sh -c "touch ${_sanity_check_testfile}" nginx >&/dev/null
 	if [ $? -eq 0 ] ; then
 		# Cleanup -- no reason to die here!
@@ -956,7 +1051,7 @@ pkg_postinst() {
 		ewarn "Looks like your installation is vulnerable to CVE-2016-1247"
 		ewarn "(bug #605008) because nginx user is able to create files in"
 		ewarn ""
-		ewarn "  ${EPREFIX%/}/var/log/nginx"
+		ewarn "  ${EPREFIX}/var/log/nginx"
 		ewarn ""
 		ewarn "Also ensure that no other log directory used by any of your"
 		ewarn "vhost(s) is not writeable for nginx user. Any of your log files"
