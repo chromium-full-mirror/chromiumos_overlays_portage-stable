@@ -1,12 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-DISTUTILS_USE_SETUPTOOLS=rdepend
-PYTHON_COMPAT=( python3_{6..9} )
-
-inherit distutils-r1 multiprocessing prefix
+PYTHON_COMPAT=( python2_7 python3_{5,6,7} )
+inherit distutils-r1 multiprocessing
 
 DESCRIPTION="Protobuf code generator for gRPC"
 HOMEPAGE="https://grpc.io"
@@ -16,18 +14,14 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="*"
 
-RDEPEND="
-	dev-python/cython[${PYTHON_USEDEP}]
+RDEPEND="dev-python/cython[${PYTHON_USEDEP}]
 	~dev-python/grpcio-${PV}[${PYTHON_USEDEP}]
 	dev-python/protobuf-python[${PYTHON_USEDEP}]
+	!<net-libs/grpc-1.16.0[tools]
 "
-
-DEPEND="${RDEPEND}"
-
-python_prepare_all() {
-	distutils-r1_python_prepare_all
-	hprefixify setup.py
-}
+DEPEND="${RDEPEND}
+	dev-python/setuptools[${PYTHON_USEDEP}]
+"
 
 python_configure_all() {
 	export GRPC_PYTHON_BUILD_WITH_CYTHON=1
