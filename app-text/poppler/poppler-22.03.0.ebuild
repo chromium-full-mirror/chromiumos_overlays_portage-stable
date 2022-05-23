@@ -1,4 +1,4 @@
-# Copyright 2005-2021 Gentoo Authors
+# Copyright 2005-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -12,7 +12,7 @@ if [[ ${PV} == *9999* ]] ; then
 else
 	SRC_URI="https://poppler.freedesktop.org/${P}.tar.xz"
 	KEYWORDS="*"
-	SLOT="0/111"   # CHECK THIS WHEN BUMPING!!! SUBSLOT IS libpoppler.so SOVERSION
+	SLOT="0/119"   # CHECK THIS WHEN BUMPING!!! SUBSLOT IS libpoppler.so SOVERSION
 fi
 
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
@@ -24,10 +24,6 @@ IUSE="boost cairo cjk curl +cxx debug doc +introspection +jpeg +jpeg2k +lcms nss
 # No test data provided
 RESTRICT="test"
 
-BDEPEND="
-	dev-util/glib-utils
-	virtual/pkgconfig
-"
 DEPEND="
 	media-libs/fontconfig
 	media-libs/freetype
@@ -56,12 +52,16 @@ RDEPEND="${DEPEND}
 DEPEND+="
 	boost? ( dev-libs/boost )
 "
+BDEPEND="
+	dev-util/glib-utils
+	virtual/pkgconfig
+"
 
 DOCS=( AUTHORS NEWS README.md README-XPDF )
 
 PATCHES=(
 	"${FILESDIR}/${PN}-20.12.1-qt5-deps.patch"
-	"${FILESDIR}/${PN}-21.04.0-respect-cflags.patch"
+	"${FILESDIR}/${PN}-21.09.0-respect-cflags.patch"
 	"${FILESDIR}/${PN}-0.57.0-disable-internal-jpx.patch"
 )
 
@@ -70,7 +70,7 @@ src_prepare() {
 
 	# Clang doesn't grok this flag, the configure nicely tests that, but
 	# cmake just uses it, so remove it if we use clang
-	if [[ ${CC} == clang ]] ; then
+	if tc-is-clang ; then
 		sed -e 's/-fno-check-new//' -i cmake/modules/PopplerMacros.cmake || die
 	fi
 
