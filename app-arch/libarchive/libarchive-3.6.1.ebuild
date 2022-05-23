@@ -1,19 +1,24 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-inherit libtool multilib-minimal toolchain-funcs
+inherit multilib-minimal toolchain-funcs verify-sig
 
 DESCRIPTION="Multi-format archive and compression library"
 HOMEPAGE="https://www.libarchive.org/"
-SRC_URI="https://www.libarchive.org/downloads/${P}.tar.gz"
+SRC_URI="
+	https://www.libarchive.de/downloads/${P}.tar.gz
+	verify-sig? ( https://www.libarchive.de/downloads/${P}.tar.gz.asc )
+"
 
 LICENSE="BSD BSD-2 BSD-4 public-domain"
 SLOT="0/13"
 KEYWORDS="*"
-IUSE="acl blake2 +bzip2 +e2fsprogs expat +iconv kernel_linux lz4 +lzma lzo nettle static-libs +threads xattr +zlib zstd"
+IUSE="acl blake2 +bzip2 +e2fsprogs expat +iconv lz4 +lzma lzo nettle static-libs xattr zstd"
+VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/libarchive.org.asc
 
 RDEPEND="
+	sys-libs/zlib[${MULTILIB_USEDEP}]
 	acl? ( virtual/acl[${MULTILIB_USEDEP}] )
 	blake2? ( app-crypt/libb2[${MULTILIB_USEDEP}] )
 	bzip2? ( app-arch/bzip2[${MULTILIB_USEDEP}] )
@@ -25,25 +30,20 @@ RDEPEND="
 	)
 	dev-libs/openssl:0=[${MULTILIB_USEDEP}]
 	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
-	lzma? ( app-arch/xz-utils[threads=,${MULTILIB_USEDEP}] )
+	lzma? ( >=app-arch/xz-utils-5.2.5-r1[${MULTILIB_USEDEP}] )
 	lzo? ( >=dev-libs/lzo-2[${MULTILIB_USEDEP}] )
 	nettle? ( dev-libs/nettle:0=[${MULTILIB_USEDEP}] )
-	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )
-	zstd? ( app-arch/zstd[${MULTILIB_USEDEP}] )"
+	zstd? ( app-arch/zstd[${MULTILIB_USEDEP}] )
+"
 DEPEND="${RDEPEND}
 	kernel_linux? (
 		virtual/os-headers
-		e2fsprogs? ( sys-fs/e2fsprogs )
-	)"
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.5.0-darwin-strnlen.patch  # drop on next release
-)
-
-src_prepare() {
-	default
-	elibtoolize  # is required for Solaris sol2_ld linker fix
-}
+		e2fsprogs? ( sys-fs/e2fsprogs[${MULTILIB_USEDEP}] )
+	)
+"
+BDEPEND="
+	verify-sig? ( sec-keys/openpgp-keys-libarchive )
+"
 
 multilib_src_configure() {
 	export ac_cv_header_ext2fs_ext2_fs_h=$(usex e2fsprogs) #354923
@@ -61,7 +61,7 @@ multilib_src_configure() {
 		$(use_with lzma)
 		$(use_with lzo lzo2)
 		$(use_with nettle)
-		$(use_with zlib)
+		--with-zlib
 		$(use_with zstd)
 
 		# Windows-specific
@@ -69,9 +69,9 @@ multilib_src_configure() {
 	)
 	if multilib_is_native_abi ; then
 		myconf+=(
-			--enable-bsdcat=$(tc-is-static-only && echo static || echo shared)
-			--enable-bsdcpio=$(tc-is-static-only && echo static || echo shared)
-			--enable-bsdtar=$(tc-is-static-only && echo static || echo shared)
+			--enable-bsdcat="$(tc-is-static-only && echo static || echo shared)"
+			--enable-bsdcpio="$(tc-is-static-only && echo static || echo shared)"
+			--enable-bsdtar="$(tc-is-static-only && echo static || echo shared)"
 		)
 	else
 		myconf+=(
@@ -112,16 +112,6 @@ multilib_src_test() {
 multilib_src_install() {
 	if multilib_is_native_abi ; then
 		emake DESTDIR="${D}" install
-
-		# Create symlinks for FreeBSD
-		if ! use prefix && [[ ${CHOST} == *-freebsd* ]]; then
-			# Exclude cat for the time being #589876
-			for bin in cpio tar; do
-				dosym bsd${bin} /usr/bin/${bin}
-				echo '.so bsd${bin}.1' > "${T}"/${bin}.1
-				doman "${T}"/${bin}.1
-			done
-		fi
 	else
 		local install_targets=(
 			install-includeHEADERS
@@ -133,9 +123,4 @@ multilib_src_install() {
 
 	# Libs.private: should be used from libarchive.pc instead
 	find "${ED}" -type f -name "*.la" -delete || die
-}
-
-multilib_src_install_all() {
-	cd "${S}" || die
-	einstalldocs
 }
