@@ -32,10 +32,6 @@ BDEPEND="
 
 S=${WORKDIR}/${P/_}
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.13.03-bsd-cp-doc.patch
-)
-
 src_configure() {
 	strip-flags
 	default
