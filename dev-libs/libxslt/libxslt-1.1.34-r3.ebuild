@@ -1,1 +1,0 @@
-libxslt-1.1.34-r1.ebuild
