@@ -10,4 +10,4 @@ RESTRICT=!test? ( test )
 SLOT=0/1.9
 SRC_URI=https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git/snapshot/keyutils-1.6.3.tar.gz
 _eclasses_=linux-info	327865b9921771330775d971263dc234	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
-_md5_=87380afabfd6a6c7edb0f182da86f9d2
+_md5_=08522831c2fe5adad53df0b48c13ef1c
