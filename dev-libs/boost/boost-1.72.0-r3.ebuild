@@ -58,6 +58,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.72.0-boost-mpi-python.patch
 	# Bug 704128, missing include on Boost.Ranges
 	"${FILESDIR}"/${PN}-1.72.0-revert-cease-dependence-on-range.patch
+	"${FILESDIR}"/${PN}-1.72.0-revert-change-to-elide-a-warning-that-caused-solaris.patch
+	"${FILESDIR}"/${PN}-1.72.0-fix-wsign-compare-warning-with-glibc-2.34-on-linux-p.patch
 )
 
 python_bindings_needed() {
