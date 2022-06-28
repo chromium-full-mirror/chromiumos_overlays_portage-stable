@@ -12,7 +12,7 @@ EAPI=7
 # changes its ABI then this package will be rebuilt needlessly. Hence, such a
 # package is free _not_ to := depend on FFmpeg but I would strongly encourage
 # doing so since such a case is unlikely.
-FFMPEG_SUBSLOT=56.58.58
+FFMPEG_SUBSLOT=57.59.59
 
 SCM=""
 if [ "${PV#9999}" != "${PV}" ] ; then
@@ -28,9 +28,14 @@ HOMEPAGE="https://ffmpeg.org/"
 if [ "${PV#9999}" != "${PV}" ] ; then
 	SRC_URI=""
 elif [ "${PV%_p*}" != "${PV}" ] ; then # Snapshot
-	SRC_URI="mirror://gentoo/${P}.tar.bz2"
+	SRC_URI="mirror://gentoo/${P}.tar.xz"
 else # Release
-	SRC_URI="https://ffmpeg.org/releases/${P/_/-}.tar.bz2"
+	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/ffmpeg.asc
+	inherit verify-sig
+	SRC_URI="https://ffmpeg.org/releases/${P/_/-}.tar.xz"
+	SRC_URI+=" verify-sig? ( https://ffmpeg.org/releases/${P/_/-}.tar.xz.asc )"
+
+	BDEPEND=" verify-sig? ( sec-keys/openpgp-keys-ffmpeg )"
 fi
 FFMPEG_REVISION="${PV#*_p}"
 
@@ -95,8 +100,8 @@ FFMPEG_FLAG_MAP=(
 
 # Same as above but for encoders, i.e. they do something only with USE=encode.
 FFMPEG_ENCODER_FLAG_MAP=(
-	amf amrenc:libvo-amrwbenc kvazaar:libkvazaar libaom mp3:libmp3lame
-	openh264:libopenh264 rav1e:librav1e	snappy:libsnappy svt-av1:libsvtav1
+	amf amrenc:libvo-amrwbenc kvazaar:libkvazaar libaom	mp3:libmp3lame
+	openh264:libopenh264 rav1e:librav1e snappy:libsnappy svt-av1:libsvtav1
 	theora:libtheora twolame:libtwolame webp:libwebp x264:libx264
 	x265:libx265 xvid:libxvid
 )
@@ -221,7 +226,7 @@ RDEPEND="
 	jpeg2k? ( >=media-libs/openjpeg-2:2[${MULTILIB_USEDEP}] )
 	libaom? ( >=media-libs/libaom-1.0.0-r1:=[${MULTILIB_USEDEP}] )
 	libaribb24? ( >=media-libs/aribb24-1.0.3-r2[${MULTILIB_USEDEP}] )
-	libass? ( >=media-libs/libass-0.10.2:=[${MULTILIB_USEDEP}] )
+	libass? ( >=media-libs/libass-0.11.0:=[${MULTILIB_USEDEP}] )
 	libcaca? ( >=media-libs/libcaca-0.99_beta18-r1[${MULTILIB_USEDEP}] )
 	libdrm? ( x11-libs/libdrm[${MULTILIB_USEDEP}] )
 	libilbc? ( >=media-libs/libilbc-2[${MULTILIB_USEDEP}] )
@@ -262,7 +267,7 @@ RDEPEND="
 		>=media-libs/libogg-1.3.0[${MULTILIB_USEDEP}]
 	)
 	vpx? ( >=media-libs/libvpx-1.4.0:=[${MULTILIB_USEDEP}] )
-	vulkan? ( >=media-libs/vulkan-loader-1.1.97:=[${MULTILIB_USEDEP}] )
+	vulkan? ( >=media-libs/vulkan-loader-1.2.189:=[${MULTILIB_USEDEP}] )
 	X? (
 		>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]
 		>=x11-libs/libXext-1.3.2[${MULTILIB_USEDEP}]
@@ -282,13 +287,15 @@ RDEPEND="${RDEPEND}
 "
 
 DEPEND="${RDEPEND}
+	amf? ( media-libs/amf-headers )
 	ladspa? ( >=media-libs/ladspa-sdk-1.13-r2[${MULTILIB_USEDEP}] )
 	v4l? ( sys-kernel/linux-headers )
 "
-BDEPEND="
+
+# += for verify-sig above
+BDEPEND+="
 	>=sys-devel/make-3.81
 	virtual/pkgconfig
-	amf? ( media-libs/amf-headers )
 	cpu_flags_x86_mmx? ( || ( >=dev-lang/nasm-2.13 >=dev-lang/yasm-1.3 ) )
 	cuda? ( >=sys-devel/clang-7[llvm_targets_NVPTX] )
 	doc? ( sys-apps/texinfo )
@@ -403,6 +410,7 @@ multilib_src_configure() {
 
 	if use openssl ; then
 		myconf+=( --disable-gnutls )
+		has_version dev-libs/openssl:0/3 && myconf+=( --enable-version3 )
 	fi
 
 	# (temporarily) disable non-multilib deps
@@ -443,7 +451,6 @@ multilib_src_configure() {
 	# Mandatory configuration
 	myconf=(
 		--enable-avfilter
-		--enable-avresample
 		--disable-stripping
 		# This is only for hardcoded cflags; those are used in configure checks that may
 		# interfere with proper detections, bug #671746 and bug #645778
@@ -476,6 +483,7 @@ multilib_src_configure() {
 		$(multilib_native_enable manpages)
 	)
 
+	# Fixed in 5.0.1? Waiting for verification from someone who hit the issue.
 	local extra_libs
 	if use arm || use ppc || use mips || [[ ${CHOST} == *i486* ]] ; then
 		# bug #782811
@@ -544,7 +552,7 @@ multilib_src_compile() {
 }
 
 multilib_src_test() {
-	LD_LIBRARY_PATH="${BUILD_DIR}/libpostproc:${BUILD_DIR}/libswscale:${BUILD_DIR}/libswresample:${BUILD_DIR}/libavcodec:${BUILD_DIR}/libavdevice:${BUILD_DIR}/libavfilter:${BUILD_DIR}/libavformat:${BUILD_DIR}/libavutil:${BUILD_DIR}/libavresample" \
+	LD_LIBRARY_PATH="${BUILD_DIR}/libpostproc:${BUILD_DIR}/libswscale:${BUILD_DIR}/libswresample:${BUILD_DIR}/libavcodec:${BUILD_DIR}/libavdevice:${BUILD_DIR}/libavfilter:${BUILD_DIR}/libavformat:${BUILD_DIR}/libavutil" \
 		emake V=1 fate
 }
 
