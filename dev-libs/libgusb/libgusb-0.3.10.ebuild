@@ -22,7 +22,7 @@ REQUIRED_USE="vala? ( introspection )"
 
 RDEPEND="
 	>=dev-libs/glib-2.44.0:2[${MULTILIB_USEDEP}]
-	virtual/libusb:1[udev,${MULTILIB_USEDEP}]
+	virtual/libusb:1[${MULTILIB_USEDEP}]
 	introspection? ( >=dev-libs/gobject-introspection-1.54:= )
 	sys-apps/hwdata
 "
