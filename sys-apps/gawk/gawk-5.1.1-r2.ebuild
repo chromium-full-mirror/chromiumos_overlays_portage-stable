@@ -1,13 +1,16 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit toolchain-funcs
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/gawk.asc
+
+inherit verify-sig
 
 DESCRIPTION="GNU awk pattern-matching language"
 HOMEPAGE="https://www.gnu.org/software/gawk/gawk.html"
 SRC_URI="mirror://gnu/gawk/${P}.tar.xz"
+SRC_URI+=" verify-sig? ( mirror://gnu/gawk/${P}.tar.xz.sig )"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -15,15 +18,18 @@ KEYWORDS="*"
 IUSE="mpfr nls readline"
 
 RDEPEND="
-	dev-libs/gmp:0=
-	mpfr? ( dev-libs/mpfr:0= )
-	readline? ( sys-libs/readline:0= )
+	mpfr? (
+		dev-libs/gmp:=
+		dev-libs/mpfr:=
+	)
+	readline? ( sys-libs/readline:= )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
 	>=sys-apps/texinfo-6.7
 	>=sys-devel/bison-3.5.4
 	nls? ( sys-devel/gettext )
+	verify-sig? ( sec-keys/openpgp-keys-gawk )
 "
 
 src_prepare() {
@@ -38,6 +44,10 @@ src_prepare() {
 	# bug #413327
 	sed -i '/^pty1:$/s|$|\n_pty1:|' test/Makefile.in || die
 
+	# Fix typo in configure
+	# https://lists.gnu.org/archive/html/bug-gawk/2021-10/msg00022.html
+	sed -i -e 's/AR_FLAGS = /AR_FLAGS=/' configure || die
+
 	# Fix standards conflict on Solaris
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		sed -i \
@@ -48,9 +58,11 @@ src_prepare() {
 }
 
 src_configure() {
+	# Avoid automagic dependency on libsigsegv
 	export ac_cv_libsigsegv=no
 
 	local myeconfargs=(
+		--cache-file="${S}"/config.cache
 		--libexec='$(libdir)/misc'
 		$(use_with mpfr)
 		$(use_enable nls)
@@ -85,6 +97,9 @@ pkg_postinst() {
 		done
 
 		if ! [[ -e ${EROOT}/bin/awk ]] ; then
+			# /bin might not exist yet (stage1)
+			[[ -d "${EROOT}/bin" ]] || mkdir "${EROOT}/bin" || die
+
 			ln -s "../usr/bin/gawk" "${EROOT}/bin/awk" || die
 		fi
 	fi
