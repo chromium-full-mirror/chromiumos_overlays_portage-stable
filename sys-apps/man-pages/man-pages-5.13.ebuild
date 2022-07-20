@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -15,27 +15,37 @@ SRC_URI="https://www.kernel.org/pub/linux/docs/man-pages/Archive/${P}.tar.xz
 LICENSE="man-pages GPL-2+ BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE_L10N=" de fr it ja nl pl ru zh-CN"
-IUSE="nls ${IUSE_L10N// / l10n_}"
+IUSE_L10N=" de es fr it ja nl pl pt-BR ro ru zh-CN"
+IUSE="${IUSE_L10N// / l10n_}"
 RESTRICT="binchecks"
 
 # Block packages that used to install colliding man pages #341953 #548900 #612640 #617462
-RDEPEND="virtual/man
+RDEPEND="
+	virtual/man
 	!<sys-apps/keyutils-1.5.9-r4
-	!<sys-apps/attr-2.4.47-r2
-	!<dev-libs/libaio-0.3.109-r2
-	!<dev-libs/libbsd-0.8.3-r1"
-PDEPEND="nls? (
-	l10n_de? ( app-i18n/man-pages-de )
-	l10n_fr? ( app-i18n/man-pages-fr )
-	l10n_it? ( app-i18n/man-pages-it )
+	!<dev-libs/libbsd-0.8.3-r1
+"
+PDEPEND="
+	l10n_de? ( app-i18n/man-pages-l10n[l10n_de(-)] )
+	l10n_es? ( app-i18n/man-pages-l10n[l10n_es(-)] )
+	l10n_fr? ( app-i18n/man-pages-l10n[l10n_fr(-)] )
+	l10n_it? ( app-i18n/man-pages-l10n[l10n_it(-)] )
 	l10n_ja? ( app-i18n/man-pages-ja )
-	l10n_nl? ( app-i18n/man-pages-nl )
-	l10n_pl? ( app-i18n/man-pages-pl )
+	l10n_nl? ( app-i18n/man-pages-l10n[l10n_nl(-)] )
+	l10n_pl? ( app-i18n/man-pages-l10n[l10n_pl(-)] )
+	l10n_pt-BR? ( app-i18n/man-pages-l10n[l10n_pt-BR(-)] )
+	l10n_ro? ( app-i18n/man-pages-l10n[l10n_ro(-)] )
 	l10n_ru? ( app-i18n/man-pages-ru )
 	l10n_zh-CN? ( app-i18n/man-pages-zh_CN )
-	)
-	sys-apps/man-pages-posix"
+	sys-apps/man-pages-posix
+"
+
+src_prepare() {
+	default
+
+	# passwd.5 installed by sys-apps/shadow #776787
+	rm man5/passwd.5 || die
+}
 
 src_configure() { :; }
 
