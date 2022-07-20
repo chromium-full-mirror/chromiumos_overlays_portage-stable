@@ -14,7 +14,7 @@ if [[ ${PV} == 9999* ]] ; then
 	EGIT_CHECKOUT_DIR=${WORKDIR}/vim-${PV}
 else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> vim-${PV}.tar.gz
-		https://dev.gentoo.org/~mattst88/distfiles/vim-8.2.5066-gentoo-patches.tar.xz"
+		https://dev.gentoo.org/~zlogene/distfiles/app-editors/vim/vim-8.2.0360-gentoo-patches.tar.xz"
 	KEYWORDS="*"
 fi
 S="${WORKDIR}"/vim-${PV}
@@ -28,8 +28,10 @@ IUSE="nls acl minimal"
 
 BDEPEND="sys-devel/autoconf"
 # Avoid icon file collision, bug #673880
+# ncurses added as dep for Chrome OS: https://bugs.gentoo.org/834447
 RDEPEND="!!<app-editors/gvim-8.1.0648
-	!<app-editors/vim-8.2.4328-r1"
+	!<app-editors/vim-8.2.4328-r1
+	>=sys-libs/ncurses-5.2-r2:0="
 PDEPEND="!minimal? ( app-vim/gentoo-syntax )"
 
 pkg_setup() {
