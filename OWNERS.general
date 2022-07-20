@@ -1,4 +1,8 @@
-# Ebuild/eclass experts!
+# Ebuild/eclass experts!  These reviewers should be used with general packaging
+# questions.  Rarely should they be the main code reviewer as they usually do
+# not have domain expertise in random packages.  Basically think of this list as
+# good for advice, CR+1, and OWNERS coverage, but not for actual CR+2 review.
+
 # Prefer sending reviews to the alias, since it
 # allows the load to be spread around.
 ebuild-reviews@google.com
@@ -8,7 +12,6 @@ ebuild-reviews@google.com
 # http://g/ebuild-reviews
 allenwebb@google.com
 bmgordon@chromium.org
-chirantan@chromium.org
 jrosenth@chromium.org
 manojgupta@chromium.org
 
