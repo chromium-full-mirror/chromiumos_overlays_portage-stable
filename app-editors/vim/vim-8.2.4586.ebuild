@@ -9,7 +9,7 @@ VIM_VERSION="8.2"
 LUA_COMPAT=( lua5-1 luajit )
 PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE="threads(+)"
-USE_RUBY="ruby26 ruby27"
+USE_RUBY="ruby24 ruby25 ruby26 ruby27"
 
 inherit vim-doc flag-o-matic bash-completion-r1 lua-single python-single-r1 ruby-single desktop xdg-utils
 
@@ -18,7 +18,7 @@ if [[ ${PV} == 9999* ]] ; then
 	EGIT_REPO_URI="https://github.com/vim/vim.git"
 else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> ${P}.tar.gz
-		https://dev.gentoo.org/~mattst88/distfiles/vim-8.2.5066-gentoo-patches.tar.xz"
+		https://dev.gentoo.org/~zlogene/distfiles/app-editors/vim/vim-8.2.0360-gentoo-patches.tar.xz"
 	KEYWORDS="*"
 fi
 
@@ -273,10 +273,6 @@ src_test() {
 	# Don't let vim talk to X
 	unset DISPLAY
 
-	# Arch and opensuse seem to do this and at this point, I'm willing
-	# to try anything to avoid random test hangs!
-	export TERM=xterm
-
 	# See https://github.com/vim/vim/blob/f08b0eb8691ff09f98bc4beef986ece1c521655f/src/testdir/runtest.vim#L5
 	# for more information on test variables we can use.
 	# Note that certain variables need vim-compatible regex (not PCRE), see e.g.
@@ -291,11 +287,7 @@ src_test() {
 	# Fragile and depends on TERM(?)
 	# - Test_spelldump_bang
 	# Hangs.
-	# - Test_fuzzy_completion_env
-	# Too sensitive to leaked environment variables.
-	# - Test_term_mouse_multiple_clicks_to_select_mode
-	# Hangs.
-	export TEST_SKIP_PAT='\(Test_expand_star_star\|Test_exrc\|Test_job_tty_in_out\|Test_spelldump_bang\|Test_fuzzy_completion_env\|Test_term_mouse_multiple_clicks_to_select_mode\)'
+	export TEST_SKIP_PAT='\(Test_expand_star_star\|Test_exrc\|Test_job_tty_in_out\|Test_spelldump_bang\)'
 
 	emake -j1 -C src/testdir nongui
 }
