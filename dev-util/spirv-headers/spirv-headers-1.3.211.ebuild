@@ -15,3 +15,5 @@ SLOT="0"
 KEYWORDS="*"
 
 S="${WORKDIR}/SPIRV-Headers-${EGIT_COMMIT}"
+
+PATCHES=("${FILESDIR}/UPSTREAM-0bcc624-clspv-reflection.patch")
