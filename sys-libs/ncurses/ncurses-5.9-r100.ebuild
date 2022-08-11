@@ -14,8 +14,9 @@ HOMEPAGE="https://www.gnu.org/software/ncurses/ http://dickey.his.com/ncurses/"
 SRC_URI="mirror://gnu/ncurses/${MY_P}.tar.gz"
 
 LICENSE="MIT"
-# The subslot reflects the SONAME.
-SLOT="0/5"
+# ChromeOS temporary hack to install .so files from 5.9 until everything is
+# built against 6.3.
+SLOT="5"
 KEYWORDS="*"
 IUSE="ada +cxx debug doc gpm minimal profile static-libs tinfo trace unicode"
 
@@ -23,7 +24,8 @@ DEPEND="gpm? ( sys-libs/gpm )"
 #	berkdb? ( sys-libs/db )"
 # Block the older ncurses that installed all files w/SLOT=5. #557472
 RDEPEND="${DEPEND}
-	!<=sys-libs/ncurses-5.9-r4:5
+	!<=sys-libs/ncurses-5.9-r99
+	>=sys-libs/ncurses-6.3:0
 	!<x11-terms/rxvt-unicode-9.06-r3
 	abi_x86_32? (
 		!<=app-emulation/emul-linux-x86-baselibs-20130224-r12
@@ -177,59 +179,35 @@ multilib_src_install() {
 	# use the cross-compiled tic (if need be) #249363
 	export PATH="${HOSTTIC_DIR}-cross/progs:${PATH}"
 
-	# install unicode version second so that the binaries in /usr/bin
-	# support both wide and narrow
+	# ChromeOS: Hack to only install .so files until everything has moved over
+	# to 6.3.
 	cd "${BUILD_DIR}"-narrowc || die
-	emake DESTDIR="${D}" install
+	dolib.so lib/libform.so.5.9
+	dolib.so lib/libpanel.so.5.9
 	if use unicode ; then
 		cd "${BUILD_DIR}"-widec || die
-		emake DESTDIR="${D}" install
+		dolib.so lib/libpanelw.so.5.9
 	fi
 
-	# Move libncurses{,w} into /lib
-	multilib_is_native_abi && gen_usr_ldscript -a \
-		ncurses \
-		$(usex unicode 'ncursesw' '') \
-		$(use tinfo && usex unicode 'tinfow' '') \
-		$(usev tinfo)
-	if ! tc-is-static-only ; then
-		ln -sf libncurses$(get_libname) "${ED}"/usr/$(get_libdir)/libcurses$(get_libname) || die
-	fi
-	use static-libs || find "${ED}"/usr/ -name '*.a' -a '!' -name '*curses++*.a' -delete
+	into /
+	local libdir="$(get_libdir)"
+	cd "${BUILD_DIR}"-narrowc || die
+	dolib.so lib/libncurses.so.5.9
+	dosym "./libncurses.so.5.9" "${libdir}/libncurses.so.5"
+	dolib.so lib/libtinfo.so.5.9
+	dosym "./libtinfo.so.5.9" "${libdir}/libtinfo.so.5"
 
-	# Build fails to create this ...
-	dosym ../share/terminfo /usr/$(get_libdir)/terminfo
+	if use unicode ; then
+		cd "${BUILD_DIR}"-widec || die
+		dolib.so lib/libncursesw.so.5.9
+		dosym "./libncursesw.so.5.9" "${libdir}/libncursesw.so.5"
+		dolib.so lib/libtinfow.so.5.9
+		dosym "./libtinfow.so.5.9" "${libdir}/libtinfow.so.5"
+	fi
 }
 
 multilib_src_install_all() {
-#	if ! use berkdb ; then
-		# We need the basic terminfo files in /etc, bug #37026
-		einfo "Installing basic terminfo files in /etc..."
-		for x in ansi console dumb linux rxvt rxvt-unicode \
-				screen{,-256color,.xterm-256color} \
-				vt{52,100,102,200,220} \
-				xterm xterm-{,256}color
-		do
-			local termfile=$(find "${ED}"/usr/share/terminfo/ -name "${x}" 2>/dev/null)
-			local basedir=$(basename $(dirname "${termfile}"))
-
-			if [[ -n ${termfile} ]] ; then
-				dodir /etc/terminfo/${basedir}
-				mv ${termfile} "${ED}"/etc/terminfo/${basedir}/
-				dosym ../../../../etc/terminfo/${basedir}/${x} \
-					/usr/share/terminfo/${basedir}/${x}
-			fi
-		done
-#	fi
-
-	echo "CONFIG_PROTECT_MASK=\"/etc/terminfo\"" > "${T}"/50ncurses
-	doenvd "${T}"/50ncurses
-
-	use minimal && rm -r "${ED}"/usr/share/terminfo*
-	# Because ncurses5-config --terminfo returns the directory we keep it
-	keepdir /usr/share/terminfo #245374
-
-	cd "${S}"
-	dodoc ANNOUNCE MANIFEST NEWS README* TO-DO doc/*.doc
-	use doc && dohtml -r doc/html/
+	# ChromeOS: Hack to only install .so files until everything has moved over
+	# to 6.3.
+	:
 }
