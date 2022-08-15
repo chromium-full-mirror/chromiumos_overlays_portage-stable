@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Note: if your package uses the texi2dvi utility, it must depend on the
@@ -11,7 +11,7 @@ inherit flag-o-matic toolchain-funcs
 
 DESCRIPTION="The GNU info program and utilities"
 HOMEPAGE="https://www.gnu.org/software/texinfo/"
-SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
+SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -22,15 +22,14 @@ RDEPEND="
 	!=app-text/tetex-2*
 	>=sys-libs/ncurses-5.2-r2:0=
 	standalone? ( dev-lang/perl )
-	!standalone?  (
-		dev-lang/perl:=
-		dev-perl/libintl-perl
-		dev-perl/Unicode-EastAsianWidth
-		dev-perl/Text-Unidecode
-	)
+	!standalone?  ( dev-lang/perl:= )
 	nls? ( virtual/libintl )"
 DEPEND="${RDEPEND}"
 BDEPEND="nls? ( >=sys-devel/gettext-0.19.6 )"
+
+PATCHES=(
+	"${FILESDIR}/${P}-undo-gnulib-nonnul.patch"
+)
 
 src_prepare() {
 	default
@@ -46,23 +45,20 @@ src_configure() {
 	local -x PERL_EXT_CC="$(tc-getCC)" PERL_EXT_CPPFLAGS="${CPPFLAGS}" PERL_EXT_CFLAGS="${CFLAGS}" PERL_EXT_LDFLAGS="${LDFLAGS}"
 
 	use static && append-ldflags -static
-	local myeconfargs
+	local myeconfargs=(
+		--cache-file="${S}"/config.cache
+		$(use_enable nls)
+	)
+
 	if use standalone ; then
-		myeconfargs=(
-			--without-external-libintl-perl
-			--without-external-Unicode-EastAsianWidth
-			--without-external-Text-Unidecode
-			$(use_enable nls)
+		myeconfargs+=(
 			--disable-perl-xs
 		)
 	else
-		myeconfargs=(
-			--with-external-libintl-perl
-			--with-external-Unicode-EastAsianWidth
-			--with-external-Text-Unidecode
-			$(use_enable nls)
+		myeconfargs+=(
 			--enable-perl-xs
 		)
 	fi
+
 	econf "${myeconfargs[@]}"
 }
