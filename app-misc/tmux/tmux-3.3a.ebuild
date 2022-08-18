@@ -7,25 +7,28 @@ inherit autotools flag-o-matic
 
 DESCRIPTION="Terminal multiplexer"
 HOMEPAGE="https://tmux.github.io/"
-if [[ "${PV}" == 9999 ]] ; then
+if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 	SRC_URI="https://raw.githubusercontent.com/przepompownia/tmux-bash-completion/678a27616b70c649c6701cae9cd8c92b58cc051b/completions/tmux -> tmux-bash-completion-678a27616b70c649c6701cae9cd8c92b58cc051b"
 	EGIT_REPO_URI="https://github.com/tmux/tmux.git"
 else
 	SRC_URI="https://github.com/tmux/tmux/releases/download/${PV}/${P/_/-}.tar.gz"
-	[[ "${PV}" == *_rc* ]] || \
-	KEYWORDS="*"
+	if [[ ${PV} != *_rc* ]] ; then
+		KEYWORDS="*"
+	fi
 	S="${WORKDIR}/${P/_/-}"
 fi
 
 LICENSE="ISC"
 SLOT="0"
-IUSE="debug selinux utempter vim-syntax"
+IUSE="debug selinux systemd utempter vim-syntax"
 
 DEPEND="
-	dev-libs/libevent:0=
-	sys-libs/ncurses:0=
+	dev-libs/libevent:=
+	sys-libs/ncurses:=
+	systemd? ( sys-apps/systemd:= )
 	utempter? ( sys-libs/libutempter )
+	kernel_Darwin? ( dev-libs/libutf8proc:= )
 "
 
 BDEPEND="
@@ -36,15 +39,13 @@ BDEPEND="
 RDEPEND="
 	${DEPEND}
 	selinux? ( sec-policy/selinux-screen )
-	vim-syntax? ( app-vim/vim-tmux )"
+	vim-syntax? ( app-vim/vim-tmux )
+"
 
 DOCS=( CHANGES README )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-2.4-flags.patch"
-
-	# upstream fixes (can be removed with next version bump)
-	"${FILESDIR}"/${P}-Fix-crosscompiling-Marco-A-L-Barbosa.patch
+	"${FILESDIR}"/${PN}-2.4-flags.patch
 )
 
 src_prepare() {
@@ -60,8 +61,15 @@ src_configure() {
 	local myeconfargs=(
 		--sysconfdir="${EPREFIX}"/etc
 		$(use_enable debug)
+		$(use_enable systemd)
 		$(use_enable utempter)
+
+		# For now, we only expose this for macOS, because
+		# upstream strongly encourage it. I'm not sure it's
+		# needed on Linux right now.
+		$(use_enable kernel_Darwin utf8proc)
 	)
+
 	econf "${myeconfargs[@]}"
 }
 
