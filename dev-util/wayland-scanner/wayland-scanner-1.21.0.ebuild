@@ -22,7 +22,7 @@ SLOT="0"
 BDEPEND="virtual/pkgconfig"
 RDEPEND="
 	!<dev-libs/wayland-${PV}
-	>=dev-libs/expat-2.1.0-r3:=
+	>=dev-libs/expat-2.1.0-r3
 "
 DEPEND="${RDEPEND}"
 

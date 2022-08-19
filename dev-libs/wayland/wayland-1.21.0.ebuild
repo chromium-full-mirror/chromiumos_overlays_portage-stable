@@ -30,8 +30,6 @@ BDEPEND="
 	)
 "
 DEPEND="
-	>=dev-libs/expat-2.1.0-r3:=[${MULTILIB_USEDEP}]
-	dev-libs/libxml2:=
 	>=dev-libs/libffi-3.0.13-r1:=[${MULTILIB_USEDEP}]
 "
 RDEPEND="${DEPEND}"

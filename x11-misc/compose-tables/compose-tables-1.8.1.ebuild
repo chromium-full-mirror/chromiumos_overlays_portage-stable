@@ -1,9 +1,10 @@
-# Copyright 2020-2021 Gentoo Authors
+# Copyright 2020-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 XORG_MULTILIB=no
+XORG_TARBALL_SUFFIX=xz
 inherit xorg-3
 
 # Note: please bump this with x11-libs/libX11
