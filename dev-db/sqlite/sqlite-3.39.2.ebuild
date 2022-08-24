@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -13,11 +13,14 @@ fi
 
 DESCRIPTION="SQL database engine"
 HOMEPAGE="https://sqlite.org/"
+
+# On version updates, make sure to read the forum (https://sqlite.org/forum/forum)
+# for hints regarding test failures, backports, etc.
 if [[ "${PV}" == "9999" ]]; then
 	SRC_URI=""
 else
-	SRC_URI="https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip
-		doc? ( https://sqlite.org/2020/${PN}-doc-${DOC_PV}.zip )"
+	SRC_URI="https://sqlite.org/2022/${PN}-src-${SRC_PV}.zip
+		doc? ( https://sqlite.org/2022/${PN}-doc-${DOC_PV}.zip )"
 fi
 
 LICENSE="public-domain"
@@ -40,7 +43,7 @@ RDEPEND="sys-libs/zlib:0=[${MULTILIB_USEDEP}]
 	icu? ( dev-libs/icu:0=[${MULTILIB_USEDEP}] )
 	readline? ( sys-libs/readline:0=[${MULTILIB_USEDEP}] )
 	tcl? ( dev-lang/tcl:0=[${MULTILIB_USEDEP}] )
-	tools? ( dev-lang/tcl:0=[${MULTILIB_USEDEP}] )"
+	tools? ( dev-lang/tcl:0= )"
 DEPEND="${RDEPEND}
 	test? ( >=dev-lang/tcl-8.6:0[${MULTILIB_USEDEP}] )"
 
@@ -50,48 +53,85 @@ else
 	S="${WORKDIR}/${PN}-src-${SRC_PV}"
 fi
 
-src_unpack() {
-	if [[ "${PV}" == "9999" ]]; then
-		local distdir="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}"
-		addwrite "${distdir}"
-		mkdir -p "${distdir}/fossil-src/${PN}" || die
+_fossil_fetch() {
+	local distdir="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}"
+	local repo_id="${1}"
+	local repo_uri="${2}"
 
-		mkdir "${WORKDIR}/${PN}" || die
-		pushd "${WORKDIR}/${PN}" > /dev/null || die
-		if [[ ! -f "${distdir}/fossil-src/${PN}/sqlite.fossil" ]]; then
-			einfo fossil clone --verbose https://sqlite.org/src sqlite.fossil
-			fossil clone --verbose https://sqlite.org/src sqlite.fossil || die
+	local -x FOSSIL_HOME="${HOME}"
+
+	mkdir -p "${T}/fossil/${repo_id}" || die
+	pushd "${T}/fossil/${repo_id}" > /dev/null || die
+
+	if [[ -n "${EVCS_OFFLINE}" ]]; then
+		if [[ ! -f "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" ]]; then
+			die "Network activity disabled using EVCS_OFFLINE and clone of repository missing: \"${distdir}/fossil-src/${repo_id}/${repo_id}.fossil\""
+		fi
+	else
+		if [[ ! -f "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" ]]; then
+			einfo fossil clone --verbose "${repo_uri}" "${repo_id}.fossil"
+			fossil clone --verbose "${repo_uri}" "${repo_id}.fossil" || die
 			echo
 		else
-			cp -p "${distdir}/fossil-src/${PN}/sqlite.fossil" . || die
-			einfo fossil pull --repository sqlite.fossil --verbose https://sqlite.org/src
-			fossil pull --repository sqlite.fossil --verbose https://sqlite.org/src || die
+			cp -p "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" . || die
+			einfo fossil pull --repository "${repo_id}.fossil" --verbose "${repo_uri}"
+			fossil pull --repository "${repo_id}.fossil" --verbose "${repo_uri}" || die
 			echo
 		fi
-		cp -p sqlite.fossil "${distdir}/fossil-src/${PN}" || die
-		einfo fossil open --quiet sqlite.fossil
-		fossil open --quiet sqlite.fossil || die
-		echo
-		popd > /dev/null || die
 
+		(
+			addwrite "${distdir}"
+			mkdir -p "${distdir}/fossil-src/${repo_id}" || die
+			cp -p "${repo_id}.fossil" "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" || die
+		)
+	fi
+
+	popd > /dev/null || die
+}
+
+_fossil_checkout() {
+	local distdir="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}"
+	local repo_id="${1}"
+	local branch_or_commit="${2}"
+	local target_directory="${3}"
+
+	local -x FOSSIL_HOME="${HOME}"
+
+	if [[ ! -f "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" ]]; then
+		die "Clone of repository missing: \"${distdir}/fossil-src/${repo_id}/${repo_id}.fossil\""
+	fi
+
+	if [[ ! -f "${T}/fossil/${repo_id}/${repo_id}.fossil" ]]; then
+		mkdir -p "${T}/fossil/${repo_id}" || die
+		cp -p "${distdir}/fossil-src/${repo_id}/${repo_id}.fossil" "${T}/fossil/${repo_id}" || die
+	fi
+
+	mkdir "${target_directory}" || die
+	pushd "${target_directory}" > /dev/null || die
+
+	einfo fossil open --quiet "${T}/fossil/${repo_id}/${repo_id}.fossil" "${branch_or_commit}"
+	fossil open --quiet "${T}/fossil/${repo_id}/${repo_id}.fossil" "${branch_or_commit}" || die
+	echo
+
+	popd > /dev/null || die
+}
+
+fossil_fetch() {
+	local repo_id="${1}"
+	local repo_uri="${2}"
+	local target_directory="${3}"
+
+	local branch_or_commit="${EFOSSIL_COMMIT:-${EFOSSIL_BRANCH:-trunk}}"
+
+	_fossil_fetch "${repo_id}" "${repo_uri}"
+	_fossil_checkout "${repo_id}" "${branch_or_commit}" "${target_directory}"
+}
+
+src_unpack() {
+	if [[ "${PV}" == "9999" ]]; then
+		fossil_fetch sqlite https://sqlite.org/src "${WORKDIR}/${PN}"
 		if use doc; then
-			mkdir "${WORKDIR}/${PN}-doc" || die
-			pushd "${WORKDIR}/${PN}-doc" > /dev/null || die
-			if [[ ! -f "${distdir}/fossil-src/${PN}/sqlite-doc.fossil" ]]; then
-				einfo fossil clone --verbose https://sqlite.org/docsrc sqlite-doc.fossil
-				fossil clone --verbose https://sqlite.org/docsrc sqlite-doc.fossil || die
-				echo
-			else
-				cp -p "${distdir}/fossil-src/${PN}/sqlite-doc.fossil" . || die
-				einfo fossil pull --repository sqlite-doc.fossil --verbose https://sqlite.org/docsrc
-				fossil pull --repository sqlite-doc.fossil --verbose https://sqlite.org/docsrc || die
-				echo
-			fi
-			cp -p sqlite-doc.fossil "${distdir}/fossil-src/${PN}" || die
-			einfo fossil open --quiet sqlite-doc.fossil
-			fossil open --quiet sqlite-doc.fossil || die
-			echo
-			popd > /dev/null || die
+			fossil_fetch sqlite-doc https://sqlite.org/docsrc "${WORKDIR}/${PN}-doc"
 		fi
 	else
 		default
@@ -99,15 +139,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply "${FILESDIR}/${PN}-3.32.1-full_archive-build_1.patch"
-	eapply "${FILESDIR}/${PN}-3.32.1-full_archive-build_2.patch"
-	eapply "${FILESDIR}/${PN}-3.32.3-security_fixes.patch"
-
 	eapply_user
-
-	# Fix AC_CHECK_FUNCS.
-	# https://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2016-March/002762.html
-	sed -e "s/AC_CHECK_FUNCS(.*)/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" -i configure.ac || die "sed failed"
 
 	eautoreconf
 
@@ -128,22 +160,27 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_ENABLE_API_ARMOR
 
 	# Support bytecode and tables_used virtual tables.
+	# https://sqlite.org/compile.html#enable_bytecode_vtab
 	# https://sqlite.org/bytecodevtab.html
 	append-cppflags -DSQLITE_ENABLE_BYTECODE_VTAB
 
 	# Support column metadata functions.
+	# https://sqlite.org/compile.html#enable_column_metadata
 	# https://sqlite.org/c3ref/column_database_name.html
 	append-cppflags -DSQLITE_ENABLE_COLUMN_METADATA
 
 	# Support sqlite_dbpage virtual table.
+	# https://sqlite.org/compile.html#enable_dbpage_vtab
 	# https://sqlite.org/dbpage.html
 	append-cppflags -DSQLITE_ENABLE_DBPAGE_VTAB
 
 	# Support dbstat virtual table.
+	# https://sqlite.org/compile.html#enable_dbstat_vtab
 	# https://sqlite.org/dbstat.html
 	append-cppflags -DSQLITE_ENABLE_DBSTAT_VTAB
 
 	# Support sqlite3_serialize() and sqlite3_deserialize() functions.
+	# https://sqlite.org/compile.html#enable_deserialize
 	# https://sqlite.org/c3ref/serialize.html
 	# https://sqlite.org/c3ref/deserialize.html
 	append-cppflags -DSQLITE_ENABLE_DESERIALIZE
@@ -153,6 +190,10 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_ENABLE_EXPLAIN_COMMENTS
 
 	# Support Full-Text Search versions 3, 4 and 5.
+	# https://sqlite.org/compile.html#enable_fts3
+	# https://sqlite.org/compile.html#enable_fts3_parenthesis
+	# https://sqlite.org/compile.html#enable_fts4
+	# https://sqlite.org/compile.html#enable_fts5
 	# https://sqlite.org/fts3.html
 	# https://sqlite.org/fts5.html
 	append-cppflags -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4
@@ -161,11 +202,8 @@ multilib_src_configure() {
 	# Support hidden columns.
 	append-cppflags -DSQLITE_ENABLE_HIDDEN_COLUMNS
 
-	# Support JSON1 extension.
-	# https://sqlite.org/json1.html
-	append-cppflags -DSQLITE_ENABLE_JSON1
-
 	# Support memsys5 memory allocator.
+	# https://sqlite.org/compile.html#enable_memsys5
 	# https://sqlite.org/malloc.html#memsys5
 	append-cppflags -DSQLITE_ENABLE_MEMSYS5
 
@@ -174,53 +212,66 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_ENABLE_NORMALIZE
 
 	# Support sqlite_offset() function.
+	# https://sqlite.org/compile.html#enable_offset_sql_func
 	# https://sqlite.org/lang_corefunc.html#sqlite_offset
 	append-cppflags -DSQLITE_ENABLE_OFFSET_SQL_FUNC
 
 	# Support pre-update hook functions.
+	# https://sqlite.org/compile.html#enable_preupdate_hook
 	# https://sqlite.org/c3ref/preupdate_count.html
 	append-cppflags -DSQLITE_ENABLE_PREUPDATE_HOOK
 
 	# Support Resumable Bulk Update extension.
+	# https://sqlite.org/compile.html#enable_rbu
 	# https://sqlite.org/rbu.html
 	append-cppflags -DSQLITE_ENABLE_RBU
 
 	# Support R*Trees.
+	# https://sqlite.org/compile.html#enable_rtree
+	# https://sqlite.org/compile.html#enable_geopoly
 	# https://sqlite.org/rtree.html
 	# https://sqlite.org/geopoly.html
 	append-cppflags -DSQLITE_ENABLE_RTREE -DSQLITE_ENABLE_GEOPOLY
 
+	# Support Session extension.
+	# https://sqlite.org/compile.html#enable_session
+	# https://sqlite.org/sessionintro.html
+	append-cppflags -DSQLITE_ENABLE_SESSION
+
 	# Support scan status functions.
+	# https://sqlite.org/compile.html#enable_stmt_scanstatus
 	# https://sqlite.org/c3ref/stmt_scanstatus.html
 	# https://sqlite.org/c3ref/stmt_scanstatus_reset.html
 	append-cppflags -DSQLITE_ENABLE_STMT_SCANSTATUS
 
 	# Support sqlite_stmt virtual table.
+	# https://sqlite.org/compile.html#enable_stmtvtab
 	# https://sqlite.org/stmt.html
 	append-cppflags -DSQLITE_ENABLE_STMTVTAB
-
-	# Support Session extension.
-	# https://sqlite.org/sessionintro.html
-	options+=(--enable-session)
 
 	# Support unknown() function.
 	# https://sqlite.org/compile.html#enable_unknown_sql_function
 	append-cppflags -DSQLITE_ENABLE_UNKNOWN_SQL_FUNCTION
 
 	# Support unlock notification.
+	# https://sqlite.org/compile.html#enable_unlock_notify
+	# https://sqlite.org/c3ref/unlock_notify.html
 	# https://sqlite.org/unlock_notify.html
 	append-cppflags -DSQLITE_ENABLE_UNLOCK_NOTIFY
 
 	# Support LIMIT and ORDER BY clauses on DELETE and UPDATE statements.
+	# https://sqlite.org/compile.html#enable_update_delete_limit
 	# https://sqlite.org/lang_delete.html#optional_limit_and_order_by_clauses
 	# https://sqlite.org/lang_update.html#optional_limit_and_order_by_clauses
 	append-cppflags -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT
 
 	# Support soundex() function.
+	# https://sqlite.org/compile.html#soundex
 	# https://sqlite.org/lang_corefunc.html#soundex
 	append-cppflags -DSQLITE_SOUNDEX
 
 	# Support URI filenames.
+	# https://sqlite.org/compile.html#use_uri
 	# https://sqlite.org/uri.html
 	append-cppflags -DSQLITE_USE_URI
 
@@ -247,6 +298,7 @@ multilib_src_configure() {
 	# secure-delete USE flag.
 	if use secure-delete; then
 		# Enable secure_delete pragma by default.
+		# https://sqlite.org/compile.html#secure_delete
 		# https://sqlite.org/pragma.html#pragma_secure_delete
 		append-cppflags -DSQLITE_SECURE_DELETE
 	fi
@@ -255,10 +307,13 @@ multilib_src_configure() {
 	options+=($(use_enable static-libs static))
 
 	# tcl, test, tools USE flags.
-	options+=(--enable-tcl)
-
-	if [[ "${CHOST}" == *-mint* ]]; then
-		append-cppflags -DSQLITE_OMIT_WAL
+	if use tcl || use test || { use tools && multilib_is_native_abi; }; then
+		options+=(
+			--enable-tcl
+			--with-tcl="${ESYSROOT}/usr/$(get_libdir)"
+		)
+	else
+		options+=(--disable-tcl)
 	fi
 
 	if [[ "${ABI}" == "x86" ]]; then
@@ -266,6 +321,13 @@ multilib_src_configure() {
 			append-cflags -mfpmath=sse
 		else
 			append-cflags -ffloat-store
+		fi
+
+		# Skip known-broken test for now
+		# https://sqlite.org/forum/forumpost/d97caf168f
+		# https://sqlite.org/forum/forumpost/50f136d91d
+		if use test ; then
+			rm test/atof1.test || die
 		fi
 	fi
 
@@ -278,6 +340,21 @@ multilib_src_compile() {
 	if use tools && multilib_is_native_abi; then
 		emake changeset dbdump dbhash dbtotxt index_usage rbu scrub showdb showjournal showshm showstat4 showwal sqldiff sqlite3_analyzer sqlite3_checker sqlite3_expert sqltclsh
 	fi
+
+	if [[ "${PV}" == "9999" ]] && use doc && multilib_is_native_abi; then
+		emake tclsqlite3.c
+
+		local build_directory="$(pwd)"
+		build_directory="${build_directory##*/}"
+
+		mkdir "${WORKDIR}/${PN}-doc-build" || die
+		pushd "${WORKDIR}/${PN}-doc-build" > /dev/null || die
+
+		emake -f "../${PN}-doc/Makefile" -j1 SRC="../${PN}" BLD="../${build_directory}" DOC="../${PN}-doc" CC="$(tc-getBUILD_CC)" TCLINC="" TCLFLAGS="$($(tc-getBUILD_PKG_CONFIG) --libs tcl) -ldl -lm" base doc
+		rmdir doc/matrix{/*,} || die
+
+		popd > /dev/null || die
+	fi
 }
 
 multilib_src_test() {
@@ -287,6 +364,11 @@ multilib_src_test() {
 	fi
 
 	local -x SQLITE_HISTORY="${T}/sqlite_history_${ABI}"
+
+	# e_uri.test tries to open files in /.
+	# https://bugs.gentoo.org/839798
+	local SANDBOX_PREDICT=${SANDBOX_PREDICT}
+	addpredict "/test.db:/ÿ.db"
 
 	emake HAVE_TCL="$(usex tcl 1 "")" $(use debug && echo fulltest || echo test)
 }
@@ -326,15 +408,29 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	find "${D}" -name "*.la" -type f -delete || die
+	find "${ED}" -name "*.la" -delete || die
 
 	doman sqlite3.1
 
 	if use doc; then
-		rm "${WORKDIR}/${PN}-doc-${DOC_PV}/"*.{db,txt} || die
+		if [[ "${PV}" == "9999" ]]; then
+			pushd "${WORKDIR}/${PN}-doc-build/doc" > /dev/null || die
+		else
+			pushd "${WORKDIR}/${PN}-doc-${DOC_PV}" > /dev/null || die
+		fi
+
+		find "(" -name "*.db" -o -name "*.txt" ")" -delete || die
+		if [[ "${PV}" != "9999" ]]; then
+			rm search search.d/admin || die
+			rmdir search.d || die
+			find -name "*~" -delete || die
+		fi
+
 		(
 			docinto html
-			dodoc -r "${WORKDIR}/${PN}-doc-${DOC_PV}/"*
+			dodoc -r *
 		)
+
+		popd > /dev/null || die
 	fi
 }
