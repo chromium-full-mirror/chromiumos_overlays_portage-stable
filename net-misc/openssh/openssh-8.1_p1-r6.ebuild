@@ -118,6 +118,10 @@ pkg_pretend() {
 	fi
 }
 
+prepare_local_patches() {
+	[[ -d "${FILESDIR}/cherry" ]] && eapply "${FILESDIR}/cherry"
+}
+
 src_prepare() {
 	sed -i \
 		-e "/_PATH_XAUTH/s:/usr/X11R6/bin/xauth:${EPREFIX}/usr/bin/xauth:" \
@@ -268,6 +272,10 @@ src_prepare() {
 		-e 's/-D_XOPEN_SOURCE//'
 	)
 	sed -i "${sed_args[@]}" configure{.ac,} || die
+
+	# Used to apply upstream patches that we need, but can't
+	# upgrade to include. See: b/225008839#comment20
+	prepare_local_patches
 
 	eautoreconf
 }

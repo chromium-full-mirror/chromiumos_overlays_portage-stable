@@ -1,0 +1,30 @@
+From 8a0848cdd3b25c049332cd56034186b7853ae754 Mon Sep 17 00:00:00 2001
+From: Alex James <theracermaster@gmail.com>
+Date: Sun, 30 Jan 2022 16:13:36 -0600
+Subject: [PATCH] sandbox-seccomp-filter: allow gettid
+
+Some allocators (such as Scudo) use gettid while tracing allocations [1].
+Allow gettid in preauth to prevent sshd from crashing with Scudo.
+
+[1]: https://github.com/llvm/llvm-project/blob/llvmorg-13.0.0/compiler-rt/lib/gwp_asan/common.cpp#L46
+---
+ sandbox-seccomp-filter.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/sandbox-seccomp-filter.c b/sandbox-seccomp-filter.c
+index f5e46280..2e065ba3 100644
+--- a/sandbox-seccomp-filter.c
++++ b/sandbox-seccomp-filter.c
+@@ -228,6 +228,9 @@ static const struct sock_filter preauth_insns[] = {
+ #ifdef __NR_getrandom
+ 	SC_ALLOW(__NR_getrandom),
+ #endif
++#ifdef __NR_gettid
++	SC_ALLOW(__NR_gettid),
++#endif
+ #ifdef __NR_gettimeofday
+ 	SC_ALLOW(__NR_gettimeofday),
+ #endif
+-- 
+2.37.2.672.g94769d06f0-goog
+
