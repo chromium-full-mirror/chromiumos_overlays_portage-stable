@@ -1,9 +1,10 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
+DISTUTILS_USE_PEP517="setuptools"
+PYTHON_COMPAT=( python3_{6..7} )
 
 inherit distutils-r1
 
@@ -14,14 +15,17 @@ SRC_URI="https://github.com/sivel/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
 
 DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"
 RDEPEND="${DEPEND}"
 
-DOCS=( CONTRIBUTING.md README.rst )
-
 python_install_all() {
 	doman ${PN}.1
 	distutils-r1_python_install_all
+}
+
+pkg_postinst() {
+	ewarn "net-analyzer/speedtest-cli is often times inaccurate, especially on faster"
+	ewarn "links, due to its use of the older HTTP-based API. In order to have more"
+	ewarn "accurate measurements, please use net-analyzer/speedtest++ instead."
 }
