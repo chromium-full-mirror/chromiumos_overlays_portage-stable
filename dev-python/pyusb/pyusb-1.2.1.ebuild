@@ -15,8 +15,11 @@ SLOT="0"
 KEYWORDS="*"
 
 ### This version is compatible with both 0.X and 1.X versions of libusb
-DEPEND="virtual/libusb:="
-RDEPEND="${DEPEND}"
+RDEPEND="virtual/libusb:="
+DEPEND="
+	${RDEPEND}
+	dev-python/setuptools_scm[${PYTHON_USEDEP}]
+"
 
 DOCS=( README.rst docs/tutorial.rst )
 
