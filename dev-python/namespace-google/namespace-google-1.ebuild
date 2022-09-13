@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python{2_7,3_{4,5,6}} pypy )
+PYTHON_COMPAT=( python2_7 python3_{6..9} pypy )
 inherit python-r1
 
 DESCRIPTION="Namespace package declaration for google"
