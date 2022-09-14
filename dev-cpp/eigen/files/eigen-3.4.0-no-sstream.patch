@@ -1,0 +1,127 @@
+Remove sstream with EIGEN_NO_IO
+
+Including Eigen/Dense in embedded environments using libc++ built with
+-DLIBCXX_ENABLE_LOCALIZATION=OFF results in the following compiler
+error: error:
+
+  <locale.h> is not supported since libc++ has been configured without
+  support for localization
+
+Remove the dependency on sstream to allow using the Eigen/Dense header
+on embedded targets.
+
+The patch was originally developed by alexrichardson@google.com and
+is now submitted to the the main branch of the Eigen library repository:
+https://gitlab.com/libeigen/eigen/-/merge_requests/1019
+
+It will be included in future stable releases of Eigen.
+This is a backport of the patch on top of v3.4, which is the latest
+stable release.
+
+diff --git a/Eigen/Core b/Eigen/Core
+index 5921e15..ced421c 100644
+--- a/Eigen/Core
++++ b/Eigen/Core
+@@ -83,8 +83,8 @@
+ #include <cmath>
+ #include <cassert>
+ #include <functional>
+-#include <sstream>
+ #ifndef EIGEN_NO_IO
++  #include <sstream>
+   #include <iosfwd>
+ #endif
+ #include <cstring>
+diff --git a/Eigen/src/Core/arch/Default/Half.h b/Eigen/src/Core/arch/Default/Half.h
+index 9f8e8cc..3d53966 100644
+--- a/Eigen/src/Core/arch/Default/Half.h
++++ b/Eigen/src/Core/arch/Default/Half.h
+@@ -36,8 +36,6 @@
+ #ifndef EIGEN_HALF_H
+ #define EIGEN_HALF_H
+ 
+-#include <sstream>
+-
+ #if defined(EIGEN_HAS_GPU_FP16) || defined(EIGEN_HAS_ARM64_FP16_SCALAR_ARITHMETIC)
+ // When compiling with GPU support, the "__half_raw" base class as well as
+ // some other routines are defined in the GPU compiler header files
+diff --git a/Eigen/src/SparseCore/SparseMatrix.h b/Eigen/src/SparseCore/SparseMatrix.h
+index 616b4a0..9fc06b5 100644
+--- a/Eigen/src/SparseCore/SparseMatrix.h
++++ b/Eigen/src/SparseCore/SparseMatrix.h
+@@ -793,6 +793,7 @@
+     template<typename OtherDerived>
+     EIGEN_DONT_INLINE SparseMatrix& operator=(const SparseMatrixBase<OtherDerived>& other);
+ 
++#ifndef EIGEN_NO_IO
+     friend std::ostream & operator << (std::ostream & s, const SparseMatrix& m)
+     {
+       EIGEN_DBG_SPARSE(
+@@ -837,6 +838,7 @@
+       s << static_cast<const SparseMatrixBase<SparseMatrix>&>(m);
+       return s;
+     }
++#endif
+ 
+     /** Destructor */
+     inline ~SparseMatrix()
+diff --git a/Eigen/src/SparseCore/SparseMatrixBase.h b/Eigen/src/SparseCore/SparseMatrixBase.h
+index 229449f..62abe33 100644
+--- a/Eigen/src/SparseCore/SparseMatrixBase.h
++++ b/Eigen/src/SparseCore/SparseMatrixBase.h
+@@ -215,6 +215,7 @@
+ 
+   public:
+ 
++#ifndef EIGEN_NO_IO
+     friend std::ostream & operator << (std::ostream & s, const SparseMatrixBase& m)
+     {
+       typedef typename Derived::Nested Nested;
+@@ -263,6 +264,7 @@
+       }
+       return s;
+     }
++#endif
+ 
+     template<typename OtherDerived>
+     Derived& operator+=(const SparseMatrixBase<OtherDerived>& other);
+diff --git a/Eigen/src/SparseCore/SparseVector.h b/Eigen/src/SparseCore/SparseVector.h
+index 05779be..106925b 100644
+--- a/Eigen/src/SparseCore/SparseVector.h
++++ b/Eigen/src/SparseCore/SparseVector.h
+@@ -329,6 +329,7 @@
+     }
+     #endif
+ 
++#ifndef EIGEN_NO_IO
+     friend std::ostream & operator << (std::ostream & s, const SparseVector& m)
+     {
+       for (Index i=0; i<m.nonZeros(); ++i)
+@@ -336,6 +337,7 @@
+       s << std::endl;
+       return s;
+     }
++#endif
+ 
+     /** Destructor */
+     inline ~SparseVector() {}
+diff --git a/Eigen/src/SparseLU/SparseLU.h b/Eigen/src/SparseLU/SparseLU.h
+index 0c8d893..f9143bc 100644
+--- a/Eigen/src/SparseLU/SparseLU.h
++++ b/Eigen/src/SparseLU/SparseLU.h
+@@ -752,10 +752,13 @@
+       info = Base::pivotL(jj, m_diagpivotthresh, m_perm_r.indices(), iperm_c.indices(), pivrow, m_glu);
+       if ( info ) 
+       {
+-        m_lastError = "THE MATRIX IS STRUCTURALLY SINGULAR ... ZERO COLUMN AT ";
++        m_lastError = "THE MATRIX IS STRUCTURALLY SINGULAR";
++#ifndef EIGEN_NO_IO
+         std::ostringstream returnInfo;
+-        returnInfo << info; 
++        returnInfo << " ... ZERO COLUMN AT ";
++        returnInfo << info;
+         m_lastError += returnInfo.str();
++#endif
+         m_info = NumericalIssue; 
+         m_factorizationIsOk = false; 
+         return; 
