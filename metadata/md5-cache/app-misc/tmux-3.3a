@@ -1,0 +1,14 @@
+BDEPEND=virtual/pkgconfig virtual/yacc >=app-portage/elt-patches-20170815
+DEFINED_PHASES=configure install prepare
+DEPEND=dev-libs/libevent:= sys-libs/ncurses:= systemd? ( sys-apps/systemd:= ) utempter? ( sys-libs/libutempter ) kernel_Darwin? ( dev-libs/libutf8proc:= ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16.1:1.16 >=sys-devel/automake-1.15.1:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DESCRIPTION=Terminal multiplexer
+EAPI=7
+HOMEPAGE=https://tmux.github.io/
+IUSE=debug selinux systemd utempter vim-syntax
+KEYWORDS=*
+LICENSE=ISC
+RDEPEND=dev-libs/libevent:= sys-libs/ncurses:= systemd? ( sys-apps/systemd:= ) utempter? ( sys-libs/libutempter ) kernel_Darwin? ( dev-libs/libutf8proc:= ) selinux? ( sec-policy/selinux-screen ) vim-syntax? ( app-vim/vim-tmux )
+SLOT=0
+SRC_URI=https://github.com/tmux/tmux/releases/download/3.3a/tmux-3.3a.tar.gz
+_eclasses_=autotools	d0e5375d47f4c809f406eb892e531513	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	09a8beb8e6a8e02dc1e1bd83ac353741	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_md5_=bfa1c486575d6e52ddeb3a5e5178273b
