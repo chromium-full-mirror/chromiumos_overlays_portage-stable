@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -8,12 +8,12 @@ GENTOO_DEPEND_ON_PERL=no
 # bug #329479: git-remote-testgit is not multiple-version aware
 PYTHON_COMPAT=( python3_{6..9} )
 
-inherit toolchain-funcs elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd
+inherit toolchain-funcs perl-module bash-completion-r1 plocale python-single-r1 systemd
 
 PLOCALES="bg ca de es fr is it ko pt_PT ru sv vi zh_CN"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
+	EGIT_REPO_URI="https://git.kernel.org/pub/scm/git/git.git"
 	# Please ensure that all _four_ 9999 ebuilds get updated; they track the 4 upstream branches.
 	# See https://git-scm.com/docs/gitworkflows#_graduation
 	# In order of stability:
@@ -51,7 +51,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 subversion tk +threads +webdav xinetd cvs test"
+IUSE="+blksha1 +curl cgi doc gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 +safe-directory selinux subversion tk +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -59,10 +59,9 @@ DEPEND="
 		app-crypt/libsecret
 		dev-libs/glib:2
 	)
-	!libressl? ( dev-libs/openssl:0= )
-	libressl? ( dev-libs/libressl:= )
+	dev-libs/openssl:0=
 	sys-libs/zlib
-	pcre? ( dev-libs/libpcre2 )
+	pcre? ( dev-libs/libpcre2:= )
 	perl? ( dev-lang/perl:=[-build(-)] )
 	tk? ( dev-lang/tk:0= )
 	curl? (
@@ -78,7 +77,7 @@ RDEPEND="${DEPEND}
 		dev-perl/Error
 		dev-perl/MailTools
 		dev-perl/Authen-SASL
-		virtual/perl-libnet
+		>=virtual/perl-libnet-3.110.0-r4[ssl]
 		cgi? (
 			dev-perl/CGI
 			highlight? ( app-text/highlight )
@@ -100,6 +99,7 @@ RDEPEND="${DEPEND}
 		)
 	)
 	perforce? ( ${PYTHON_DEPS} )
+	selinux? ( sec-policy/selinux-git )
 "
 
 # This is how info docs are created with Git:
@@ -113,7 +113,6 @@ BDEPEND="
 		app-text/xmlto
 		sys-apps/texinfo
 	)
-	emacs? ( >=app-editors/emacs-23.1:* )
 	gnome-keyring? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
 	test? (	app-crypt/gnupg	)
@@ -142,7 +141,7 @@ RESTRICT="!test? ( test )"
 
 PATCHES=(
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	"${FILESDIR}"/git-2.31.0_rc0-optional-cvs.patch
+	"${FILESDIR}"/git-2.37.0_rc1-optional-cvs.patch
 
 	# Make submodule output quiet
 	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
@@ -174,7 +173,6 @@ exportmakeopts() {
 		$(usex perl 'INSTALLDIRS=vendor NO_PERL_CPAN_FALLBACKS=YesPlease' NO_PERL=YesPlease)
 		$(usex perforce '' NO_PYTHON=YesPlease)
 		$(usex subversion '' NO_SVN_TESTS=YesPlease)
-		$(usex threads '' NO_PTHREADS=YesPlease)
 		$(usex tk '' NO_TCLTK=YesPlease)
 	)
 
@@ -223,13 +221,6 @@ exportmakeopts() {
 		myopts+=( ASCIIDOC8=YesPlease )
 	fi
 
-	# Bug 290465:
-	# builtin-fetch-pack.c:816: error: 'struct stat' has no member named 'st_mtim'
-	if [[ "${CHOST}" == *-uclibc* ]] ; then
-		myopts+=( NO_NSEC=YesPlease )
-		use iconv && myopts+=( NEEDS_LIBICONV=YesPlease )
-	fi
-
 	export MY_MAKEOPTS="${myopts[@]}"
 	export EXTLIBS="${extlibs[@]}"
 }
@@ -261,12 +252,19 @@ src_prepare() {
 			"${FILESDIR}"/git-2.7.0-mediawiki-500pages.patch
 		)
 	fi
+	if ! use safe-directory ; then
+		# This patch neuters the "safe directory" detection.
+		# bugs #838271, #838223
+		PATCHES+=(
+			"${FILESDIR}"/git-2.37.2-unsafe-directory.patch
+		)
+	fi
 
 	default
 
 	if use prefix ; then
 		# bug #757309
-		eapply "${FILESDIR}"/git-2.31.0-darwin-prefix-gettext.patch
+		eapply "${FILESDIR}"/git-2.37.2-darwin-prefix-gettext.patch
 	fi
 
 	sed -i \
@@ -292,7 +290,6 @@ git_emake() {
 		htmldir="${EPREFIX}"/usr/share/doc/${PF}/html \
 		perllibdir="$(use perl && perl_get_raw_vendorlib)" \
 		sysconfdir="${EPREFIX}"/etc \
-		DESTDIR="${D}" \
 		GIT_TEST_OPTS="--no-color" \
 		OPTAR="$(tc-getAR)" \
 		OPTCC="$(tc-getCC)" \
@@ -312,15 +309,11 @@ src_configure() {
 src_compile() {
 	git_emake || die "emake failed"
 
-	if use emacs ; then
-		elisp-compile contrib/emacs/git{,-blame}.el
-	fi
-
 	if use perl && use cgi ; then
 		git_emake gitweb || die "emake gitweb (cgi) failed"
 	fi
 
-	if [[ ${CHOST} == *-darwin* && ! tc-is-gcc ]]; then
+	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
 		pushd contrib/credential/osxkeychain &>/dev/null || die
 		git_emake CC=$(tc-getCC) CFLAGS="${CFLAGS}" \
 			|| die "emake credential-osxkeychain"
@@ -365,9 +358,9 @@ src_compile() {
 }
 
 src_install() {
-	git_emake install || die "make install failed"
+	git_emake DESTDIR="${D}" install || die "make install failed"
 
-	if [[ ${CHOST} == *-darwin* && ! tc-is-gcc ]]; then
+	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
 		dobin contrib/credential/osxkeychain/git-credential-osxkeychain
 	fi
 
@@ -397,16 +390,6 @@ src_install() {
 	insinto /usr/share/${PN}
 	doins contrib/completion/git-prompt.sh
 
-	if use emacs ; then
-		elisp-install ${PN} contrib/emacs/git.{el,elc}
-		elisp-install ${PN} contrib/emacs/git-blame.{el,elc}
-		#elisp-install ${PN}/compat contrib/emacs/vc-git.{el,elc}
-		# don't add automatically to the load-path, so the sitefile
-		# can do a conditional loading
-		touch "${ED}${SITELISP}/${PN}/compat/.nosearch"
-		elisp-site-file-install "${FILESDIR}"/${SITEFILE}
-	fi
-
 	#dobin contrib/fast-import/git-p4 # Moved upstream
 	#dodoc contrib/fast-import/git-p4.txt # Moved upstream
 	newbin contrib/fast-import/import-tars.perl import-tars
@@ -415,10 +398,10 @@ src_install() {
 
 	# git-subtree
 	pushd contrib/subtree &>/dev/null || die
-	git_emake install || die "Failed to emake install for git-subtree"
+	git_emake DESTDIR="${D}" install || die "Failed to emake install for git-subtree"
 	if use doc ; then
 		# Do not move git subtree install-man outside USE=doc!
-		git_emake install-man install-html || die "Failed to emake install-html install-man for git-subtree"
+		git_emake DESTDIR="${D}" install-man install-html || die "Failed to emake install-html install-man for git-subtree"
 	fi
 	newdoc README README.git-subtree
 	dodoc git-subtree.txt
@@ -426,7 +409,7 @@ src_install() {
 
 	if use mediawiki ; then
 		pushd contrib/mw-to-git &>/dev/null || die
-		git_emake install
+		git_emake DESTDIR="${D}" install
 		popd &>/dev/null || die
 	fi
 
@@ -454,7 +437,7 @@ src_install() {
 	# The following are excluded:
 	# completion - installed above
 	# diff-highlight - done above
-	# emacs - installed above
+	# emacs - removed upstream
 	# examples - these are stuff that is not used in Git anymore actually
 	# git-jump - done above
 	# gitview - installed above
@@ -515,7 +498,7 @@ src_install() {
 	fi
 
 	if ! use prefix ; then
-		newinitd "${FILESDIR}"/git-daemon-r1.initd git-daemon
+		newinitd "${FILESDIR}"/git-daemon-r2.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
 		systemd_newunit "${FILESDIR}/git-daemon_at-r1.service" \
 			"git-daemon@.service"
@@ -532,7 +515,7 @@ src_install() {
 			rm -r "${ED}/usr/share/locale/${1}" || die
 		fi
 	}
-	l10n_for_each_disabled_locale_do rm_loc
+	plocale_for_each_disabled_locale rm_loc
 }
 
 src_test() {
@@ -650,7 +633,6 @@ showpkgdeps() {
 }
 
 pkg_postinst() {
-	use emacs && elisp-site-regen
 	elog "Please read /usr/share/bash-completion/completions/git for Git bash command"
 	elog "completion."
 	elog "Please read /usr/share/git/git-prompt.sh for Git bash prompt"
@@ -662,8 +644,4 @@ pkg_postinst() {
 		"|| ( www-servers/lighttpd www-servers/apache www-servers/nginx )"
 	echo
 	use mediawiki-experimental && ewarn "Using experimental git-mediawiki patches. The stability of cloned wiki filesystems is not guaranteed."
-}
-
-pkg_postrm() {
-	use emacs && elisp-site-regen
 }
