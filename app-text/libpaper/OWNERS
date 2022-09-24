@@ -1,2 +1,2 @@
-# Used by net-print/cups-filters.
+# Used by net-print/cups.
 include chromiumos/overlays/chromiumos-overlay:/net-print/OWNERS
