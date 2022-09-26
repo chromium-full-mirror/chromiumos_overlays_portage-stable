@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/virtual/modutils/modutils-0.ebuild,v 1.5 2012/05/10 01:43:26 vapier Exp $
 
-EAPI="2"
+EAPI="7"
 
 DESCRIPTION="Virtual for utilities to manage Linux kernel modules"
 HOMEPAGE=""
