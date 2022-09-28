@@ -1,35 +1,40 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit multilib multilib-minimal toolchain-funcs pam
+inherit multilib-minimal toolchain-funcs pam usr-ldscript
+
+if [[ ${PV} == *9999 ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://git.kernel.org/pub/scm/libs/libcap/libcap.git"
+else
+	SRC_URI="https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/${P}.tar.xz"
+
+	KEYWORDS="*"
+fi
 
 DESCRIPTION="POSIX 1003.1e capabilities"
 HOMEPAGE="https://sites.google.com/site/fullycapable/"
-SRC_URI="mirror://kernel/linux/libs/security/linux-privs/libcap2/${P}.tar.xz"
 
 # it's available under either of the licenses
 LICENSE="|| ( GPL-2 BSD )"
 SLOT="0"
-KEYWORDS="*"
-IUSE="pam static-libs"
+IUSE="pam static-libs tools"
 
 # While the build system optionally uses gperf, we don't DEPEND on it because
 # the build automatically falls back when it's unavailable.  #604802
-RDEPEND=">=sys-apps/attr-2.4.47-r1[${MULTILIB_USEDEP}]
-	pam? ( virtual/pam[${MULTILIB_USEDEP}] )"
-DEPEND="${RDEPEND}
+PDEPEND="pam? ( sys-libs/pam[${MULTILIB_USEDEP}] )"
+DEPEND="${PDEPEND}
 	sys-kernel/linux-headers"
+BDEPEND="
+	sys-apps/diffutils
+	tools? ( dev-lang/go )"
 
-# Requires test suite being run as root (via sudo)
-RESTRICT="test"
+QA_FLAGS_IGNORED="sbin/captree" # go binaries don't use LDFLAGS
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.25-build-system-fixes.patch
-	"${FILESDIR}"/${PN}-2.26-no-perl.patch
-	"${FILESDIR}"/${PN}-2.25-ignore-RAISE_SETFCAP-install-failures.patch
-	"${FILESDIR}"/${PN}-2.21-include.patch
+	"${FILESDIR}"/${PN}-2.62-ignore-RAISE_SETFCAP-install-failures.patch
 )
 
 src_prepare() {
@@ -39,22 +44,32 @@ src_prepare() {
 
 run_emake() {
 	local args=(
+		AR="$(tc-getAR)"
+		CC="$(tc-getCC)"
+		OBJCOPY="$(tc-getOBJCOPY)"
+		RANLIB="$(tc-getRANLIB)"
 		exec_prefix="${EPREFIX}"
 		lib_prefix="${EPREFIX}/usr"
 		lib="$(get_libdir)"
 		prefix="${EPREFIX}/usr"
 		PAM_CAP="$(usex pam yes no)"
 		DYNAMIC=yes
+		GOLANG="$(multilib_native_usex tools yes no)"
 	)
 	emake "${args[@]}" "$@"
 }
 
-multilib_src_compile() {
-	tc-export AR CC RANLIB
-	local BUILD_CC
+src_configure() {
 	tc-export_build_env BUILD_CC
+	multilib-minimal_src_configure
+}
 
+multilib_src_compile() {
 	run_emake
+}
+
+multilib_src_test() {
+	run_emake test
 }
 
 multilib_src_install() {
@@ -62,15 +77,15 @@ multilib_src_install() {
 	run_emake DESTDIR="${D}" install
 
 	gen_usr_ldscript -a cap
+	gen_usr_ldscript -a psx
 	if ! use static-libs ; then
-		rm "${ED%/}"/usr/$(get_libdir)/libcap.a || die
+		rm "${ED}"/usr/$(get_libdir)/lib{cap,psx}.a || die
 	fi
 
-	if [[ -d "${ED%/}"/usr/$(get_libdir)/security ]] ; then
-		rm -r "${ED%/}"/usr/$(get_libdir)/security || die
-	fi
+	# install pam plugins ourselves
+	rm -rf "${ED}"/usr/$(get_libdir)/security || die
 
-	if use pam; then
+	if use pam ; then
 		dopammod pam_cap/pam_cap.so
 		dopamsecurity '' pam_cap/capability.conf
 	fi
