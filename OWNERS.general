@@ -16,3 +16,8 @@ jrosenth@chromium.org
 manojgupta@chromium.org
 
 include chromiumos/owners:v1:/infra/OWNERS.build
+
+# b/240953811: This OWNERship is intended only for stamping changes related to
+# the dev-rust/third-party-crates-src migration (which extend outside of
+# chromiumos-overlay/dev-rust/). Remove after the migration is complete.
+gbiv@chromium.org
