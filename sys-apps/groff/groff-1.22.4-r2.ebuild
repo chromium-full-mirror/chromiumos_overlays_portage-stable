@@ -57,6 +57,8 @@ src_prepare() {
 	# make sure we don't get a crappy `g' nameprefix on UNIX systems with real
 	# troff (GROFF_G macro runs some test to see, its own troff doesn't satisfy)
 	sed -i -e 's/^[ \t]\+g=g$/g=/' configure || die
+	# Fix Wregister errors, fixed upstream but no release available yet.
+	sed -i -e "s/register //g" src/preproc/grn/{hdb,hgraph,hpoint,main}.cpp || die
 }
 
 src_configure() {
