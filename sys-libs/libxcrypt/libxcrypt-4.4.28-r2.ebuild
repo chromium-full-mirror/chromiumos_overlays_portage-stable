@@ -7,7 +7,7 @@ PYTHON_COMPAT=( python3_{6..8} )
 # NEED_BOOTSTRAP is for developers to quickly generate a tarball
 # for publishing to the tree.
 NEED_BOOTSTRAP="no"
-inherit multibuild multilib python-any-r1 toolchain-funcs multilib-minimal
+inherit eapi8-dosym multibuild multilib python-any-r1 flag-o-matic toolchain-funcs multilib-minimal
 
 DESCRIPTION="Extended crypt library for descrypt, md5crypt, bcrypt, and others"
 HOMEPAGE="https://github.com/besser82/libxcrypt"
@@ -21,7 +21,7 @@ fi
 LICENSE="LGPL-2.1+ public-domain BSD BSD-2"
 SLOT="0/1"
 KEYWORDS="*"
-IUSE="+compat split-usr static-libs system test"
+IUSE="+compat split-usr static-libs system test headers-only"
 REQUIRED_USE="split-usr? ( system )"
 RESTRICT="!test? ( test )"
 
@@ -42,7 +42,9 @@ DEPEND="system? (
 			${CATEGORY}/glibc[-crypt(+)]
 			!${CATEGORY}/glibc[crypt(+)]
 		)
-		!${CATEGORY}/musl
+		elibc_musl? (
+			!${CATEGORY}/musl[crypt(+)]
+		)
 	)
 "
 RDEPEND="${DEPEND}"
@@ -50,7 +52,7 @@ BDEPEND="dev-lang/perl
 	test? ( $(python_gen_any_dep 'dev-python/passlib[${PYTHON_USEDEP}]') )"
 
 python_check_deps() {
-	has_version -b "dev-python/passlib[${PYTHON_USEDEP}]"
+	python_has_version "dev-python/passlib[${PYTHON_USEDEP}]"
 }
 
 pkg_pretend() {
@@ -123,6 +125,10 @@ src_configure() {
 	# bug #821496
 	tc-ld-disable-gold
 
+	# Doesn't work with LTO: bug #852917.
+	# https://github.com/besser82/libxcrypt/issues/24
+	filter-lto
+
 	multibuild_foreach_variant multilib-minimal_src_configure
 }
 
@@ -161,12 +167,30 @@ get_xcpkgconfigdir() {
 
 multilib_src_configure() {
 	local -a myconf=(
+		--host=${CTARGET}
 		--disable-werror
 		--libdir=$(get_xclibdir)
 		--with-pkgconfigdir=$(get_xcpkgconfigdir)
 		--includedir=$(get_xcincludedir)
 		--mandir="$(get_xcmandir)"
 	)
+
+	tc-export PKG_CONFIG
+
+	if is_cross; then
+		if tc-is-clang; then
+			export CC="${CTARGET}-clang"
+		else
+			export CC="${CTARGET}-gcc"
+		fi
+	fi
+
+	if use elibc_musl; then
+		# musl declares getcontext and swapcontext in ucontext.h,
+		# but does not implement them in libc.
+		# https://bugs.gentoo.org/838172
+		myconf+=( ac_cv_header_ucontext_h=no )
+	fi
 
 	case "${MULTIBUILD_ID}" in
 		xcrypt_compat-*)
@@ -185,10 +209,18 @@ multilib_src_configure() {
 		*) die "Unexpected MULTIBUILD_ID: ${MULTIBUILD_ID}";;
 	esac
 
-	ECONF_SOURCE="${S}" econf "${myconf[@]}"
+	if use headers-only; then
+		# Nothing is compiled here which would affect the headers for the target.
+		# So forcing CC is ok.
+		headers_only_flags="CC=$(tc-getBUILD_CC)"
+	fi
+
+	ECONF_SOURCE="${S}" econf "${myconf[@]}" "${headers_only_flags}"
 }
 
 src_compile() {
+	use headers-only && return
+
 	multibuild_foreach_variant multilib-minimal_src_compile
 }
 
@@ -203,6 +235,7 @@ src_test() {
 src_install() {
 	multibuild_foreach_variant multilib-minimal_src_install
 
+	use headers-only || \
 	(
 		shopt -s failglob || die "failglob failed"
 
@@ -226,6 +259,11 @@ src_install() {
 }
 
 multilib_src_install() {
+	if use headers-only; then
+		emake DESTDIR="${D}" install-nodist_includeHEADERS
+		return
+	fi
+
 	emake DESTDIR="${D}" install
 
 	# Don't install the libcrypt.so symlink for the "compat" version
@@ -258,7 +296,13 @@ multilib_src_install() {
 						for lib_file in "${D}"$(get_xclibdir)/*$(get_libname); do
 							lib_file_basename="$(basename "${lib_file}")"
 							lib_file_target="$(basename "$(readlink -f "${lib_file}")")"
-							dosym "../../$(get_libdir)/${lib_file_target}" "/usr/$(get_xclibdir)/${lib_file_basename}"
+
+							# We already know we're in split-usr (checked above)
+							# See bug #843209 (also worth keeping in mind bug #802222 too)
+							local libdir_no_prefix=$(get_xclibdir)
+							libdir_no_prefix=${libdir_no_prefix#${EPREFIX}}
+							libdir_no_prefix=${libdir_no_prefix%/usr}
+							dosym8 -r "/$(get_libdir)/${lib_file_target}" "/usr/${libdir_no_prefix}/${lib_file_basename}"
 						done
 
 						rm "${D}"$(get_xclibdir)/*$(get_libname) || die "Removing symlinks in incorrect location failed"
@@ -268,4 +312,25 @@ multilib_src_install() {
 		;;
 		*) die "Unexpected MULTIBUILD_ID: ${MULTIBUILD_ID}";;
 	esac
+}
+
+pkg_preinst() {
+	# Verify we're not in a bad case like bug #843209 with broken symlinks.
+	# This can be dropped when, if ever, the split-usr && system && compat case
+	# is cleaned up in *_src_install.
+	local broken_symlinks=()
+	mapfile -d '' broken_symlinks < <(
+		find "${ED}" -type l ! -exec test -e {} \; -print0 2>/dev/null
+	)
+
+	[[ -z "${broken_symlinks[@]}" ]] && return
+
+	eerror "Broken symlinks found before merging!"
+	for symlink in "${broken_symlinks[@]}" ; do
+		bad_dest="$(readlink -f ${symlink})"
+		eerror "\t${symlink} is broken!"
+		eerror "\treadlink -f ${symlink}:"
+		eerror "\t\t${bad_dest}"
+		die "Broken symlinks found! Aborting to avoid damaging system. Please report a bug."
+	done
 }
