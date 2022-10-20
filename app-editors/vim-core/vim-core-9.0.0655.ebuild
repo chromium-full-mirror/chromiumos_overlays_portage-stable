@@ -1,48 +1,45 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-VIM_VERSION="8.2"
-inherit estack vim-doc flag-o-matic bash-completion-r1 prefix desktop xdg-utils
+
+# Please bump with app-editors/vim and app-editors/gvim
+
+VIM_VERSION="9.0"
+inherit bash-completion-r1 desktop flag-o-matic prefix toolchain-funcs vim-doc xdg-utils
 
 if [[ ${PV} == 9999* ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/vim/vim.git"
 	EGIT_CHECKOUT_DIR=${WORKDIR}/vim-${PV}
 else
-	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> vim-${PV}.tar.gz
-		https://dev.gentoo.org/~radhermit/vim/vim-8.2.0210-gentoo-patches.tar.bz2"
+	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> ${P}.tar.gz
+		https://gitweb.gentoo.org/proj/vim-patches.git/snapshot/vim-patches-vim-9.0.0049-patches.tar.gz"
 	KEYWORDS="*"
 fi
+S="${WORKDIR}/vim-${PV}"
 
 DESCRIPTION="vim and gvim shared files"
 HOMEPAGE="https://vim.sourceforge.io/ https://github.com/vim/vim"
 
-SLOT="0"
 LICENSE="vim"
+SLOT="0"
 IUSE="nls acl minimal"
 
-DEPEND="sys-devel/autoconf"
-# avoid icon file collision bug #673880
-RDEPEND="!!<app-editors/gvim-8.1.0648"
-PDEPEND="!minimal? ( app-vim/gentoo-syntax )"
-
-S=${WORKDIR}/vim-${PV}
+# ncurses is only needed by ./configure, so no subslot operator required
+DEPEND=">=sys-libs/ncurses-5.2-r2:0"
+BDEPEND="sys-devel/autoconf"
 
 pkg_setup() {
-	# people with broken alphabets run into trouble. bug 82186.
+	# people with broken alphabets run into trouble. bug #82186.
 	unset LANG LC_ALL
 	export LC_COLLATE="C"
-
-	# Gnome sandbox silliness. bug #114475.
-	mkdir -p "${T}"/home || die "mkdir -p failed"
-	export HOME="${T}"/home
 }
 
 src_prepare() {
 	if [[ ${PV} != 9999* ]] ; then
 		# Gentoo patches to fix runtime issues, cross-compile errors, etc
-		eapply "${WORKDIR}"/patches
+		eapply "${WORKDIR}"/vim-patches-vim-9.0.0049-patches
 	fi
 
 	# Fixup a script to use awk instead of nawk
@@ -50,16 +47,16 @@ src_prepare() {
 		-e '1s|.*|#!'"${EPREFIX}"'/usr/bin/awk -f|' \
 		"${S}"/runtime/tools/mve.awk || die "sed failed"
 
-	# See #77841. We remove this file after the tarball extraction.
+	# See bug #77841. We remove this file after the tarball extraction.
 	rm -v "${S}"/runtime/tools/vimspell.sh || die "rm failed"
 
 	# Read vimrc and gvimrc from /etc/vim
-	echo '#define SYS_VIMRC_FILE "'${EPREFIX}'/etc/vim/vimrc"' >> "${S}"/src/feature.h
-	echo '#define SYS_GVIMRC_FILE "'${EPREFIX}'/etc/vim/gvimrc"' >> "${S}"/src/feature.h
+	echo '#define SYS_VIMRC_FILE "'${EPREFIX}'/etc/vim/vimrc"' >> "${S}"/src/feature.h || die
+	echo '#define SYS_GVIMRC_FILE "'${EPREFIX}'/etc/vim/gvimrc"' >> "${S}"/src/feature.h || die
 
 	# Use exuberant ctags which installs as /usr/bin/exuberant-ctags.
 	# Hopefully this pattern won't break for a while at least.
-	# This fixes bug 29398 (27 Sep 2003 agriffis)
+	# This fixes bug #29398 (27 Sep 2003 agriffis)
 	sed -i 's/\<ctags\("\| [-*.]\)/exuberant-&/g' \
 		"${S}"/runtime/doc/syntax.txt \
 		"${S}"/runtime/doc/tagsrch.txt \
@@ -69,7 +66,7 @@ src_prepare() {
 
 	# Don't be fooled by /usr/include/libc.h.  When found, vim thinks
 	# this is NeXT, but it's actually just a file in dev-libs/9libs
-	# This fixes bug 43885 (20 Mar 2004 agriffis)
+	# This fixes bug #43885 (20 Mar 2004 agriffis)
 	sed -i 's/ libc\.h / /' "${S}"/src/configure.ac || die 'sed failed'
 
 	# gcc on sparc32 has this, uhm, interesting problem with detecting EOF
@@ -77,7 +74,7 @@ src_prepare() {
 	# which isn't even in the source file being invalid, we'll do some trickery
 	# to make the error never occur. bug 66162 (02 October 2004 ciaranm)
 	find "${S}" -name '*.c' | while read c; do
-	    echo >> "$c" || die "echo failed"
+		echo >> "$c" || die "echo failed"
 	done
 
 	# Try to avoid sandbox problems. Bug #114475.
@@ -94,22 +91,12 @@ src_prepare() {
 		"s:\\\$(PERLLIB)/ExtUtils/xsubpp:${EPREFIX}/usr/bin/xsubpp:" \
 		"${S}"/src/Makefile || die 'sed for ExtUtils-ParseXS failed'
 
-	eapply_user
-}
-
-src_configure() {
-	local myconf
-
-	# Fix bug 37354: Disallow -funroll-all-loops on amd64
-	# Bug 57859 suggests that we want to do this for all archs
-	filter-flags -funroll-all-loops
-
-	# Fix bug 76331: -O3 causes problems, use -O2 instead. We'll do this for
+	# Fix bug #76331: -O3 causes problems, use -O2 instead. We'll do this for
 	# everyone since previous flag filtering bugs have turned out to affect
 	# multiple archs...
 	replace-flags -O3 -O2
 
-	# Fix bug 18245: Prevent "make" from the following chain:
+	# Fix bug #18245: Prevent "make" from the following chain:
 	# (1) Notice configure.ac is newer than auto/configure
 	# (2) Rebuild auto/configure
 	# (3) Notice auto/configure is newer than auto/config.mk
@@ -119,35 +106,53 @@ src_configure() {
 	# Remove src/auto/configure file.
 	rm -v src/auto/configure || die "rm configure failed"
 
+	eapply_user
+}
+
+src_configure() {
+	# Fix bug #37354: Disallow -funroll-all-loops on amd64
+	# Bug 57859 suggests that we want to do this for all archs
+	filter-flags -funroll-all-loops
+
 	emake -j1 -C src autoconf
 
 	# This should fix a sandbox violation (see bug 24447). The hvc
 	# things are for ppc64, see bug 86433.
 	for file in /dev/pty/s* /dev/console /dev/hvc/* /dev/hvc*; do
 		if [[ -e "${file}" ]]; then
-			addwrite $file
+			addwrite ${file}
 		fi
 	done
 
 	# Let Portage do the stripping. Some people like that.
 	export ac_cv_prog_STRIP="$(type -P true ) faking strip"
 
-	# Keep Gentoo Prefix env contained within the EPREFIX
-	use prefix && myconf+=" --without-local-dir"
+	local myconf=(
+		--with-modified-by=Gentoo-${PVR}
+		--enable-gui=no
+		--without-x
+		--disable-darwin
+		--disable-perlinterp
+		--disable-pythoninterp
+		--disable-rubyinterp
+		--disable-gpm
+		--disable-selinux
+		$(use_enable nls)
+		$(use_enable acl)
+	)
 
-	econf \
-		--with-modified-by=Gentoo-${PVR} \
-		--enable-gui=no \
-		--without-x \
-		--disable-darwin \
-		--disable-perlinterp \
-		--disable-pythoninterp \
-		--disable-rubyinterp \
-		--disable-gpm \
-		--disable-selinux \
-		$(use_enable nls) \
-		$(use_enable acl) \
-		${myconf}
+	# Keep Gentoo Prefix env contained within the EPREFIX
+	use prefix && myconf+=( --without-local-dir )
+
+	if tc-is-cross-compiler ; then
+		export vim_cv_getcwd_broken=no \
+			vim_cv_memmove_handles_overlap=yes \
+			vim_cv_stat_ignores_slash=yes \
+			vim_cv_terminfo=yes \
+			vim_cv_toupper_broken=no
+	fi
+
+	econf "${myconf[@]}"
 }
 
 src_compile() {
@@ -179,27 +184,27 @@ src_install() {
 	# default vimrc is installed by vim-core since it applies to
 	# both vim and gvim
 	insinto /etc/vim/
-	newins "${FILESDIR}"/vimrc-r5 vimrc
+	newins "${FILESDIR}"/vimrc-r6 vimrc
 	eprefixify "${ED}"/etc/vim/vimrc
 
 	if use minimal; then
 		# To save space, install only a subset of the files.
 		# Helps minimalize the livecd, bug 65144.
-		eshopts_push -s extglob
+		rm -rv "${ED}${vimfiles}"/{compiler,doc,ftplugin,indent} || die
+		rm -rv "${ED}${vimfiles}"/{macros,print,tools,tutor} || die
+		rm -v "${ED}"/usr/bin/vimtutor || die
 
-		rm -rv "${ED}${vimfiles}"/{compiler,doc,ftplugin,indent} || die "rm failed"
-		rm -rv "${ED}${vimfiles}"/{macros,print,tools,tutor} || die "rm failed"
-		rm -v "${ED}"/usr/bin/vimtutor || die "rm failed"
+		for f in "${ED}${vimfiles}"/colors/*.vim; do
+			if [[ ${f} != */@(default).vim ]] ; then
+				printf '%s\0' "${f}"
+			fi
+		done | xargs -0 rm -f || die
 
-		local keep_colors="default"
-		ignore=$(rm -fr "${ED}${vimfiles}"/colors/!(${keep_colors}).vim )
-
-		local keep_syntax="conf|crontab|fstab|inittab|resolv|sshdconfig"
-		# tinkering with the next line might make bad things happen ...
-		keep_syntax="${keep_syntax}|syntax|nosyntax|synload"
-		ignore=$(rm -fr "${ED}${vimfiles}"/syntax/!(${keep_syntax}).vim )
-
-		eshopts_pop
+		for f in "${ED}${vimfiles}"/syntax/*.vim; do
+			if [[ ${f} != */@(conf|crontab|fstab|inittab|resolv|sshdconfig|syntax|nosyntax|synload).vim ]] ; then
+				printf '%s\0' "${f}"
+			fi
+		done | xargs -0 rm -f || die
 	fi
 
 	newbashcomp "${FILESDIR}"/xxd-completion xxd
