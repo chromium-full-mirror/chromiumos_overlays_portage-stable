@@ -1,10 +1,10 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: udev.eclass
 # @MAINTAINER:
-# udev-bugs@gentoo.org
-# @SUPPORTED_EAPIS: 0 1 2 3 4 5 6 7
+# systemd@gentoo.org
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: Default eclass for determining udev directories.
 # @DESCRIPTION:
 # Default eclass for determining udev directories.
@@ -26,20 +26,27 @@
 #	# udev_dorules contrib/99-foomatic
 #	# udev_newrules contrib/98-foomatic 99-foomatic
 # }
+#
+# pkg_postinst() {
+#	udev_reload
+# }
+#
+# pkg_postrm() {
+#	udev_reload
+# }
 # @CODE
+
+case ${EAPI} in
+	5|6|7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
 
 if [[ -z ${_UDEV_ECLASS} ]]; then
 _UDEV_ECLASS=1
 
 inherit toolchain-funcs
 
-case ${EAPI:-0} in
-	0|1|2|3|4|5|6|7) ;;
-	*) die "${ECLASS}.eclass API in EAPI ${EAPI} not yet established."
-esac
-
-if [[ ${EAPI:-0} == [0123456] ]]; then
-	RDEPEND=""
+if [[ ${EAPI} == [56] ]]; then
 	DEPEND="virtual/pkgconfig"
 else
 	BDEPEND="virtual/pkgconfig"
@@ -50,9 +57,11 @@ fi
 # @DESCRIPTION:
 # Get unprefixed udevdir.
 _udev_get_udevdir() {
+	# https://github.com/pkgconf/pkgconf/issues/205
+	local -x PKG_CONFIG_FDO_SYSROOT_RULES=1
 	if $($(tc-getPKG_CONFIG) --exists udev); then
 		local udevdir="$($(tc-getPKG_CONFIG) --variable=udevdir udev)"
-		echo "${udevdir#${EPREFIX%/}}"
+		echo "${udevdir#${EPREFIX}}"
 	else
 		echo /lib/udev
 	fi
@@ -82,8 +91,7 @@ get_udevdir() {
 # @FUNCTION: udev_dorules
 # @USAGE: <rule> [...]
 # @DESCRIPTION:
-# Install udev rule(s). Uses doins, thus it is fatal in EAPI 4
-# and non-fatal in earlier EAPIs.
+# Install udev rule(s). Uses doins, thus it is fatal.
 udev_dorules() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -97,8 +105,7 @@ udev_dorules() {
 # @FUNCTION: udev_newrules
 # @USAGE: <oldname> <newname>
 # @DESCRIPTION:
-# Install udev rule with a new name. Uses newins, thus it is fatal
-# in EAPI 4 and non-fatal in earlier EAPIs.
+# Install udev rule with a new name. Uses newins, thus it is fatal.
 udev_newrules() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -111,9 +118,11 @@ udev_newrules() {
 
 # @FUNCTION: udev_reload
 # @DESCRIPTION:
-# Run udevadm control --reload to refresh rules and databases
+# Run "udevadm control --reload" to refresh rules and databases.
+# Should be called from pkg_postinst and pkg_postrm in packages which install
+# udev rules or hwdb data.
 udev_reload() {
-	if [[ ${ROOT} != "" ]] && [[ ${ROOT} != "/" ]]; then
+	if [[ -n ${ROOT%/} ]]; then
 		return 0
 	fi
 
