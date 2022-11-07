@@ -47,8 +47,10 @@ multilib_src_configure() {
 		$(meson_feature cpu_flags_x86_ssse3 ssse3)
 		$(meson_feature cpu_flags_ppc_altivec vmx)
 		$(meson_feature cpu_flags_arm_neon neon)
+		$(meson_feature cpu_flags_arm_neon a64-neon)
 		$(meson_feature loongson2f loongson-mmi)
 		$(meson_feature test openmp) # only used in unit tests
+		$(meson_feature test tests)
 		-Ddefault_library=$(usex static-libs both shared)
 		-Dgtk=disabled
 		-Dlibpng=disabled
