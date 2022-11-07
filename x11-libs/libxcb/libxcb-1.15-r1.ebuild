@@ -1,10 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python{3_6,3_7,3_8} )
-PYTHON_REQ_USE=xml
+PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_REQ_USE="xml(+)"
 
 XORG_TARBALL_SUFFIX="xz"
 XORG_MULTILIB=yes
@@ -25,23 +25,19 @@ RDEPEND="
 	>=x11-libs/libXdmcp-1.1.1-r1[${MULTILIB_USEDEP}]
 "
 DEPEND="${RDEPEND}
-	>=x11-base/xcb-proto-1.14[${MULTILIB_USEDEP}]
+	>=x11-base/xcb-proto-1.15.2
 	elibc_Darwin? ( dev-libs/libpthread-stubs )
 	test? ( dev-libs/check[${MULTILIB_USEDEP}] )
 "
 # Note: ${PYTHON_USEDEP} needs to go verbatim
 BDEPEND="${PYTHON_DEPS}
-	$(python_gen_any_dep '>=x11-base/xcb-proto-1.14[${PYTHON_USEDEP}]')
+	$(python_gen_any_dep '>=x11-base/xcb-proto-1.15[${PYTHON_USEDEP}]')
 	doc? ( app-doc/doxygen[dot] )
 	test? ( dev-libs/libxslt )
 "
 
-PATCHES=(
-	"${FILESDIR}"/${P}-tests-don-t-use-deprecated-fail_unless-check-API.patch
-)
-
 python_check_deps() {
-	has_version -b ">=x11-base/xcb-proto-1.14[${PYTHON_USEDEP}]"
+	has_version -b ">=x11-base/xcb-proto-1.15[${PYTHON_USEDEP}]"
 }
 
 pkg_setup() {
