@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -21,7 +21,7 @@ if [[ ${PV} = 9999* ]]; then
 	SRC_URI=""
 else
 	KEYWORDS="*"
-	SRC_URI="https://xorg.freedesktop.org/archive/individual/proto/${MY_P}.tar.gz"
+	SRC_URI="https://xorg.freedesktop.org/archive/individual/proto/${MY_P}.tar.xz"
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -30,14 +30,13 @@ SLOT="0"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
-DEPEND="
+BDEPEND="
 	test? (
 		$(python_gen_any_dep '
 			dev-python/python-libevdev[${PYTHON_USEDEP}]
 		')
 	)
 "
-RDEPEND=""
 
 python_check_deps() {
 	has_version -b "dev-python/python-libevdev[${PYTHON_USEDEP}]"
