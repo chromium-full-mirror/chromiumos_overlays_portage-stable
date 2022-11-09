@@ -1,0 +1,12 @@
+BDEPEND=app-arch/unzip X? ( >=x11-apps/mkfontscale-1.2.0 media-fonts/encodings )
+DEFINED_PHASES=install postinst postrm setup
+DESCRIPTION=SIL Opentype Unicode fonts for Ethiopic languages
+EAPI=7
+HOMEPAGE=https://software.sil.org/abyssinica/
+IUSE=doc X
+KEYWORDS=*
+LICENSE=OFL-1.1
+SLOT=0
+SRC_URI=https://software.sil.org/downloads/r/abyssinica/AbyssinicaSIL-1.500.zip
+_eclasses_=font	9cdfddf092c05c7c4efd70cc30dea046
+_md5_=14cd34fe92f3e9c521a2af2bf3047365
