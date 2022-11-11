@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit multilib-minimal toolchain-funcs
+inherit multilib-minimal toolchain-funcs usr-ldscript
 
 DESCRIPTION="zstd fast compression library"
 HOMEPAGE="https://facebook.github.io/zstd/"
@@ -12,10 +12,13 @@ SRC_URI="https://github.com/facebook/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0/1"
 KEYWORDS="*"
-IUSE="lz4 static-libs +threads"
+IUSE="lz4 static-libs"
 
-RDEPEND="app-arch/xz-utils
-	lz4? ( app-arch/lz4 )"
+RDEPEND="
+	app-arch/xz-utils
+	sys-libs/zlib
+	lz4? ( app-arch/lz4 )
+"
 DEPEND="${RDEPEND}"
 
 src_prepare() {
@@ -35,7 +38,7 @@ mymake() {
 }
 
 multilib_src_compile() {
-	local libzstd_targets=( libzstd{,.a}$(usex threads '-mt' '') )
+	local libzstd_targets=( libzstd{,.a}-mt )
 
 	mymake -C lib ${libzstd_targets[@]} libzstd.pc
 
@@ -51,6 +54,7 @@ multilib_src_install() {
 
 	if multilib_is_native_abi ; then
 		mymake -C programs DESTDIR="${D}" install
+		gen_usr_ldscript -a zstd
 
 		mymake -C contrib/pzstd DESTDIR="${D}" install
 	fi
