@@ -4,12 +4,14 @@
 EAPI=7
 
 XORG_MULTILIB=yes
+XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3
 
 DESCRIPTION="X.Org Xrender library"
 
 KEYWORDS="*"
 
-RDEPEND="x11-base/xorg-proto
+RDEPEND="
 	>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	x11-base/xorg-proto"

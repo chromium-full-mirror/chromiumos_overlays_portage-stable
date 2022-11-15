@@ -11,26 +11,26 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/gdk-pixbuf"
 LICENSE="LGPL-2.1+"
 SLOT="2"
 KEYWORDS="*"
-IUSE="gtk-doc +introspection jpeg tiff"
+IUSE="gtk-doc +introspection jpeg test tiff"
+RESTRICT="!test? ( test )"
 
 # TODO: For windows/darwin support: shared-mime-info conditional, native_windows_loaders option review
 DEPEND="
 	>=dev-libs/glib-2.56.0:2[${MULTILIB_USEDEP}]
 	x11-misc/shared-mime-info
 	>=media-libs/libpng-1.4:0=[${MULTILIB_USEDEP}]
-	jpeg? ( virtual/jpeg:0=[${MULTILIB_USEDEP}] )
-	tiff? ( >=media-libs/tiff-3.9.2:0=[${MULTILIB_USEDEP}] )
-	gtk-doc? ( >=dev-util/gi-docgen-2021.1 )
+	jpeg? ( media-libs/libjpeg-turbo:0=[${MULTILIB_USEDEP}] )
+	tiff? ( >=media-libs/tiff-3.9.2:0[${MULTILIB_USEDEP}] )
 	introspection? ( >=dev-libs/gobject-introspection-1.54:= )
 "
-RDEPEND="${DEPEND}
-	!<x11-libs/gtk+-2.90.4:3
-"
+RDEPEND="${DEPEND}"
 BDEPEND="
+	gtk-doc? ( >=dev-util/gi-docgen-2021.1 )
 	app-text/docbook-xsl-stylesheets
 	app-text/docbook-xml-dtd:4.3
 	dev-libs/glib:2
 	dev-libs/libxslt
+	dev-python/docutils
 	dev-util/glib-utils
 	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig
@@ -40,21 +40,9 @@ MULTILIB_CHOST_TOOLS=(
 	/usr/bin/gdk-pixbuf-query-loaders$(get_exeext)
 )
 
-PATCHES=(
-	# Do not run lowmem test on uclibc
-	# See https://bugzilla.gnome.org/show_bug.cgi?id=756590
-	"${FILESDIR}"/${PN}-2.32.3-fix-lowmem-uclibc.patch
-)
-
 src_prepare() {
-	xdg_src_prepare
-	# This will avoid polluting the pkg-config file with versioned libpng,
-	# which is causing problems with libpng14 -> libpng15 upgrade
-	# See upstream bug #667068
-	# First check that the pattern is present, to catch upstream changes on bumps,
-	# because sed doesn't return failure code if it doesn't do any replacements
-	grep -q "foreach png: \[ 'libpng16', 'libpng15', 'libpng14', 'libpng12', 'libpng13', 'libpng10' \]" meson.build || die "libpng check order has changed upstream"
-	sed -e "s/foreach png: \[ 'libpng16', 'libpng15', 'libpng14', 'libpng12', 'libpng13', 'libpng10' \]/foreach png: \[ 'libpng', 'libpng16', 'libpng15', 'libpng14', 'libpng12', 'libpng13', 'libpng10' \]/" -i meson.build || die
+	default
+	xdg_environment_reset
 }
 
 multilib_src_configure() {
@@ -65,6 +53,7 @@ multilib_src_configure() {
 		-Dbuiltin_loaders=png,jpeg
 		-Drelocatable=false
 		#native_windows_loaders
+		$(meson_use test tests)
 		-Dinstalled_tests=false
 		-Dgio_sniffing=true
 		$(meson_native_use_bool gtk-doc gtk_doc)

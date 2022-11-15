@@ -4,6 +4,7 @@
 EAPI=7
 
 XORG_MULTILIB=yes
+XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3
 
 DESCRIPTION="Shared memory fences using futexes"

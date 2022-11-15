@@ -2,18 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-
+XORG_MULTILIB=yes
+XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3
 
-DESCRIPTION="X.Org fontenc library"
+DESCRIPTION="X.Org xkbfile library"
 
 KEYWORDS="*"
-IUSE=""
 
-RDEPEND="sys-libs/zlib"
+RDEPEND="x11-libs/libX11[${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}
 	x11-base/xorg-proto"
-
-XORG_CONFIGURE_OPTIONS=(
-	--with-encodingsdir="${EPREFIX}/usr/share/fonts/encodings"
-)

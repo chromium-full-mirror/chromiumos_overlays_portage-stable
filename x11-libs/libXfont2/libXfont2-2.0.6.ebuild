@@ -3,14 +3,15 @@
 
 EAPI=7
 
-XORG_PACKAGE_NAME=libxfont
 XORG_DOC=doc
+XORG_PACKAGE_NAME=libxfont
+XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3
 
 DESCRIPTION="X.Org Xfont library"
 
 KEYWORDS="*"
-IUSE="bzip2 ipv6 truetype"
+IUSE="bzip2 truetype"
 
 RDEPEND="sys-libs/zlib
 	dev-libs/libbsd
@@ -23,7 +24,7 @@ DEPEND="${RDEPEND}
 
 src_configure() {
 	local XORG_CONFIGURE_OPTIONS=(
-		$(use_enable ipv6)
+		--enable-ipv6
 		$(use_enable doc devel-docs)
 		$(use_with doc xmlto)
 		$(use_with bzip2)
