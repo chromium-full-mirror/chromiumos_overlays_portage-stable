@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,19 +13,19 @@ else
 	KEYWORDS="*"
 fi
 
-inherit autotools ${GIT_ECLASS} linux-info
+inherit autotools ${GIT_ECLASS} flag-o-matic linux-info
 
 DESCRIPTION="tool to diagnose issues with power consumption and power management"
 HOMEPAGE="https://01.org/powertop/ https://github.com/fenrus75/powertop/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="nls unicode X"
+IUSE="nls X"
 
 DEPEND="
 	dev-libs/libnl:3
 	sys-apps/pciutils
-	sys-libs/ncurses:=[unicode(+)?]
+	sys-libs/ncurses:=[unicode(+)]
 "
 
 BDEPEND="
@@ -41,9 +41,6 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.8-ncurses_tinfo.patch
-	"${FILESDIR}"/0001-configure.ac-Use-PKG_PROG_PKG_CONFIG-macro.patch
-	"${FILESDIR}"/0002-intel_cpus-Enable-Alder-Lake-desktop-platform-suppor.patch
-	"${FILESDIR}"/0003-intel_cpus-Enable-Alder-Lake-mobile-platform-support.patch
 )
 
 pkg_setup() {
@@ -107,16 +104,11 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	# Bug 599114
-	sed -i '1s|^|AX_REQUIRE_DEFINED([AX_CXX_COMPILE_STDCXX])|' configure.ac || die
-
-	echo "\"${PV}\"" > version-short
-	echo "${PV}" > version-long
-
 	eautoreconf
 }
 
 src_configure() {
-	export ac_cv_search_delwin=$(usex unicode -lncursesw -lncurses)
+	append-lfs-flags
+	export ac_cv_search_delwin=-lncursesw
 	econf $(use_enable nls)
 }
