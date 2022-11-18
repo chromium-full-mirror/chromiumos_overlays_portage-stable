@@ -19,7 +19,7 @@ IUSE="examples minimal nls static-libs unicode"
 
 RDEPEND="
 	>=sys-libs/ncurses-5.2-r5
-	unicode? ( sys-libs/ncurses[unicode] )
+	unicode? ( sys-libs/ncurses[unicode(+)] )
 "
 DEPEND="
 	${RDEPEND}

@@ -24,7 +24,7 @@ RDEPEND=">=dev-libs/glib-2.26.0:2
 	samba? ( net-fs/samba )
 	sftp? ( net-libs/libssh2 )
 	slang? ( >=sys-libs/slang-2 )
-	!slang? ( sys-libs/ncurses:0=[unicode?] )
+	!slang? ( sys-libs/ncurses:0=[unicode(+)?] )
 	spell? ( app-text/aspell )
 	X? ( x11-libs/libX11
 		x11-libs/libICE

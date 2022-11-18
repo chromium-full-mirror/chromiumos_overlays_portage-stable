@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="kernel_FreeBSD kernel_linux openvz unicode vserver"
 
-RDEPEND="sys-libs/ncurses[unicode?]"
+RDEPEND="sys-libs/ncurses[unicode(+)?]"
 DEPEND="${RDEPEND}"
 
 DOCS=( ChangeLog README )

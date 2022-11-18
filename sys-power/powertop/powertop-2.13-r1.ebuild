@@ -25,7 +25,7 @@ IUSE="nls unicode X"
 DEPEND="
 	dev-libs/libnl:3
 	sys-apps/pciutils
-	sys-libs/ncurses:=[unicode?]
+	sys-libs/ncurses:=[unicode(+)?]
 "
 
 BDEPEND="

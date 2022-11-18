@@ -17,7 +17,7 @@ IUSE="caps +numa selinux"
 
 CDEPEND="
 	dev-libs/glib:2
-	sys-libs/ncurses:0=[unicode]
+	sys-libs/ncurses:0=[unicode(+)]
 	caps? ( sys-libs/libcap-ng )
 	numa? ( sys-process/numactl )
 "
