@@ -27,3 +27,15 @@ BDEPEND="${PYTHON_DEPS}"
 
 # Bug 698850
 RESTRICT="test"
+
+multilib_src_configure() {
+	# CHROMIUM(b/259102548): Disable generation of pre-compiled headers
+	# because they break the build if Portage reinstalls linux-headers
+	# while building this package. The build fails because the mtime of
+	# errno.h is newer than cmake_pch.hxx.pch.
+	local mycmakeargs=(
+		"-DENABLE_PCH=OFF"
+	)
+
+	cmake_src_configure
+}
