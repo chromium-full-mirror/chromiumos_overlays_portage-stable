@@ -1,2 +1,1 @@
-dlunev@chromium.org
-gwendal@chromium.org
+include chromiumos/owners:v1:/platform/OWNERS.storage

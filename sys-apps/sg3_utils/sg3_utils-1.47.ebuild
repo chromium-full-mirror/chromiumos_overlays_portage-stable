@@ -1,27 +1,20 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-
-inherit eutils multilib
+EAPI=7
 
 DESCRIPTION="Apps for querying the sg SCSI interface"
-HOMEPAGE="http://sg.danny.cz/sg/"
-SRC_URI="http://sg.danny.cz/sg/p/${P}.tgz"
+HOMEPAGE="https://sg.danny.cz/sg/"
+#SRC_URI="https://github.com/hreinecke/sg3_utils/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://sg.danny.cz/sg/p/${P}.tar.xz"
 
 LICENSE="GPL-2"
-SLOT="0"
+SLOT="0/${PV}"
 KEYWORDS="*"
 IUSE="static-libs"
 
 DEPEND="sys-devel/libtool"
-RDEPEND=""
-PDEPEND=">=sys-apps/rescan-scsi-bus-1.24"
-
-src_prepare() {
-	epatch "${FILESDIR}"/${PN}-1.26-stdint.patch #580236
-	epatch "${FILESDIR}"/${PN}-1.42-sysmacros.patch #580236
-}
+RDEPEND="!sys-apps/rescan-scsi-bus"
 
 src_configure() {
 	econf $(use_enable static-libs static)
@@ -32,13 +25,13 @@ src_install() {
 	dodoc COVERAGE doc/README examples/*.txt
 	newdoc scripts/README README.scripts
 
+	find "${ED}" -type f -name "*.la" -delete || die
+
 	# Better fix for bug 231089; some packages look for sgutils2
 	local path lib
 	path="/usr/$(get_libdir)"
-	for lib in "${ED}"${path}/libsgutils2.*; do
+	for lib in "${ED}/"${path}/libsgutils2{,-${PV}}.*; do
 		lib=${lib##*/}
 		dosym "${lib}" "${path}/${lib/libsgutils2/libsgutils}"
 	done
-
-	prune_libtool_files
 }
