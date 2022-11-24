@@ -11,5 +11,5 @@ RDEPEND=sys-libs/zlib:= virtual/libcrypt:= gcrypt? ( dev-libs/libgcrypt:= ) ldap
 REQUIRED_USE=?? ( pam skey ) ?? ( gcrypt ssl )
 SLOT=0
 SRC_URI=https://www.sudo.ws/sudo/dist/sudo-1.9.8p2.tar.gz ftp://ftp.sudo.ws/pub/sudo/sudo-1.9.8p2.tar.gz
-_eclasses_=eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	pam	3f746974e1cc47cabe3bd488c08cdc8e	tmpfiles	6170dc7770585fb3f16efdee789a3218	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	pam	3f746974e1cc47cabe3bd488c08cdc8e	tmpfiles	216aa76c3a6fcb5d893c23a0de86048f	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=1dfe142d3c382e190ca13021083f46a9
