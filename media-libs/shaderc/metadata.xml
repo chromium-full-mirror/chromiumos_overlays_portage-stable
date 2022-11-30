@@ -4,7 +4,7 @@
   <maintainer type="person">
     <email>sarnex@gentoo.org</email>
     <name>Nick Sarnie</name>
-  </maintainer>  
+  </maintainer>
   <upstream>
     <remote-id type="github">google/shaderc</remote-id>
   </upstream>

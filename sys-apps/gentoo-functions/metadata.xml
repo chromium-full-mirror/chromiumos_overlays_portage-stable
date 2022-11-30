@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 <maintainer type="person">
 	<email>williamh@gentoo.org</email>
@@ -11,10 +11,6 @@
 	<email>base-system@gentoo.org</email>
 	<name>Gentoo Base System</name>
 </maintainer>
-<longdescription lang="en">
-	This package contains base shell functions which are required by
-	all Gentoo systems.
-</longdescription>
 <upstream>
 	<remote-id type="github">gentoo/gentoo-functions</remote-id>
 </upstream>

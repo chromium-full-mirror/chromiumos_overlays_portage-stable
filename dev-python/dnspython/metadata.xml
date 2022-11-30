@@ -1,5 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="project">
 		<email>python@gentoo.org</email>
@@ -21,6 +21,13 @@ DNSPythonはPython言語用のDNSツールキットです。ほとんどのレ�
 い、その戻り値を使います。低水準はゾーン、メッセージ、ネーム、レコードを直接操作
 します。
 	</longdescription>
+	<use>
+		<flag name="dnssec">
+			Use <pkg>dev-python/cryptography</pkg> to enable low-level
+			DNSSEC RSA, DSA, ECDSA and EdDSA signature validation.
+		</flag>
+	</use>
+	<stabilize-allarches/>
 	<upstream>
 		<remote-id type="pypi">dnspython</remote-id>
 	</upstream>

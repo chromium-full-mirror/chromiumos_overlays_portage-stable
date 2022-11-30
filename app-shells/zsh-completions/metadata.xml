@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer>
-		<email>radhermit@gentoo.org</email>
-		<name>Tim Harder</name>
-	</maintainer>
-	<maintainer>
-		<email>mrueg@gentoo.org</email>
-		<name>Manuel Rüger</name>
-		<description>CC on bugs</description>
-	</maintainer>
+  <!-- maintainer-needed -->
+  <stabilize-allarches/>
+  <upstream>
+    <remote-id type="github">zsh-users/zsh-completions</remote-id>
+  </upstream>
 </pkgmetadata>

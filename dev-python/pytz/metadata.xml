@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
   <maintainer type="project">
     <email>python@gentoo.org</email>
@@ -12,8 +12,10 @@
   daylight savings, which you can read more about in the Python
   Library Reference (datetime.tzinfo).
   Amost all (over 540) of the Olson timezones are supported.
-</longdescription>
+  </longdescription>
+  <stabilize-allarches/>
   <upstream>
     <remote-id type="pypi">pytz</remote-id>
+    <remote-id type="launchpad">pytz</remote-id>
   </upstream>
 </pkgmetadata>

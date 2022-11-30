@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
 		<email>ultrabug@gentoo.org</email>
 		<name>Ultrabug</name>
-	</maintainer>
-	<maintainer type="person">
-		<email>whissi@gentoo.org</email>
-		<name>Thomas Deutschmann</name>
 	</maintainer>
 	<use>
 		<flag name="rfc3195">
@@ -19,6 +15,7 @@
 		</flag>
 	</use>
 	<upstream>
+		<remote-id type="cpe">cpe:/a:adiscon:liblogging</remote-id>
 		<remote-id type="github">rsyslog/liblogging</remote-id>
 	</upstream>
 </pkgmetadata>

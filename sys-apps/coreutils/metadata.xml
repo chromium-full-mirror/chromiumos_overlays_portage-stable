@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 <maintainer type="project">
 	<email>base-system@gentoo.org</email>
@@ -12,6 +12,7 @@
 	<flag name="hostname">Build the hostname program</flag>
 	<flag name="kill">Build the kill program</flag>
 	<flag name="multicall">Build all tools into a single `coreutils` program akin to busybox to save space</flag>
+	<flag name="openssl">Use openssl libcrypto hash routines for hash functions</flag>
 	<flag name="split-usr">Enable this if /bin and /usr/bin are separate directories</flag>
 </use>
 <upstream>

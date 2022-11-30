@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<herd>media-tv</herd>
-	<maintainer>
-		<email>tetromino@gentoo.org</email>
-		<name>Alexandre Rostovtsev</name>
+	<maintainer type="person">
+		<email>chewi@gentoo.org</email>
+		<name>James Le Cuirot</name>
 	</maintainer>
 	<longdescription lang="en">
 	libv4l is a collection of libraries which adds a thin abstraction layer	on
@@ -25,4 +24,3 @@
 	application transparent libv4lconvert conversion where necessary.
 	</longdescription>
 </pkgmetadata>
-

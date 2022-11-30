@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
 		<email>prometheanfire@gentoo.org</email>
@@ -16,6 +16,7 @@
 	is provided that makes using fixtures that meet the Fixtures contract in
 	unittest compatible test cases easy and straight forward.
 	</longdescription>
+	<stabilize-allarches/>
 	<upstream>
 		<remote-id type="pypi">fixtures</remote-id>
 		<remote-id type="launchpad">python-fixtures</remote-id>

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<herd>netmon</herd>
-<maintainer>
-  <email>cedk@gentoo.org</email>
+<maintainer type="project">
+	<email>netmon@gentoo.org</email>
+	<name>Gentoo network monitoring and analysis project</name>
 </maintainer>
-<longdescription>the low-level library for netfilter related kernel/userspace communication</longdescription>
 <upstream>
-  <remote-id type="cpe">cpe:/a:netfilter:libnfnetlink</remote-id>
+	<remote-id type="cpe">cpe:/a:netfilter:libnfnetlink</remote-id>
 </upstream>
 </pkgmetadata>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
+	<maintainer type="person">
+		<email>arthurzam@gentoo.org</email>
+		<name>Arthur Zamarin</name>
+	</maintainer>
 	<maintainer type="project">
 		<email>python@gentoo.org</email>
 		<name>Python</name>
@@ -10,7 +14,6 @@
 		and service found in modern linux systems.
 	</longdescription>
 	<use>
-		<flag name="pygobject">Install PyGobject bindings</flag>
 		<flag name="qt5">Install PyQt5 bindings</flag>
 	</use>
 	<upstream>

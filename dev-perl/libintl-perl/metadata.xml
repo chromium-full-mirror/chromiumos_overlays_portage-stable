@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-  <herd>perl</herd>
+  <maintainer type="project">
+    <email>perl@gentoo.org</email>
+    <name>Gentoo Perl Project</name>
+  </maintainer>
   <upstream>
     <remote-id type="cpan">libintl-perl</remote-id>
     <remote-id type="cpan-module">Locale::Messages</remote-id>
@@ -149,10 +152,10 @@
     <remote-id type="cpan-module">Locale::RecodeData::_Encode</remote-id>
     <remote-id type="cpan-module">Locale::TextDomain</remote-id>
     <remote-id type="cpan-module">Locale::Util</remote-id>
+    <remote-id type="cpan-module">Locale::gettext_dumb</remote-id>
     <remote-id type="cpan-module">Locale::gettext_pp</remote-id>
     <remote-id type="cpan-module">Locale::gettext_xs</remote-id>
     <remote-id type="cpan-module">MyInstall</remote-id>
     <remote-id type="cpan-module">SimpleCal</remote-id>
-    <remote-id type="cpan-module">__TiedTextDomain</remote-id>
   </upstream>
 </pkgmetadata>

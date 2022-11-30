@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="project">
 		<email>haskell@gentoo.org</email>
@@ -11,7 +11,7 @@
 		machines to parse and generate.  It is based on a subset of the
 		JavaScript Programming Language, Standard ECMA-262 3rd Edition -
 		December 1999.
-		
+
 		This library provides a parser and pretty printer for converting
 		between Haskell values and JSON.
 	</longdescription>
