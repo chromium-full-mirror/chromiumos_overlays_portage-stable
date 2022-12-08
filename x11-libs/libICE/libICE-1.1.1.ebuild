@@ -4,24 +4,23 @@
 EAPI=7
 
 XORG_MULTILIB=yes
+XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3
 
 DESCRIPTION="X.Org Inter-Client Exchange library"
-
 KEYWORDS="*"
-IUSE="ipv6"
 
 DEPEND="x11-base/xorg-proto
 	x11-libs/xtrans"
 RDEPEND="${DEPEND}
-	elibc_glibc? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )"
-
-src_configure() {
-	local XORG_CONFIGURE_OPTIONS=(
-		$(use_enable ipv6)
-		--disable-docs
-		--disable-specs
-		--without-fop
+	elibc_glibc? (
+		|| ( >=sys-libs/glibc-2.36 dev-libs/libbsd[${MULTILIB_USEDEP}] )
 	)
-	xorg-3_src_configure
-}
+"
+
+XORG_CONFIGURE_OPTIONS=(
+	--enable-ipv6
+	--disable-docs
+	--disable-specs
+	--without-fop
+)
