@@ -13,21 +13,20 @@ SRC_URI="https://curl.haxx.se/download/${P}.tar.xz
 LICENSE="curl"
 SLOT="0"
 KEYWORDS="*"
-IUSE="adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl sslv3 static-libs test telnet +tftp threads zstd"
-IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl"
+IUSE="+adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_rustls"
 IUSE+=" nghttp3 quiche"
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/danielstenberg.asc
 
-# c-ares must be disabled for threads
-# only one default ssl provider can be enabled
+# Only one default ssl provider can be enabled
 REQUIRED_USE="
-	threads? ( !adns )
 	ssl? (
 		^^ (
 			curl_ssl_gnutls
 			curl_ssl_mbedtls
 			curl_ssl_nss
 			curl_ssl_openssl
+			curl_ssl_rustls
 		)
 	)"
 
@@ -51,7 +50,11 @@ RDEPEND="ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
 		)
 		nss? (
 			dev-libs/nss:0[${MULTILIB_USEDEP}]
+			dev-libs/nss-pem
 			app-misc/ca-certificates
+		)
+		rustls? (
+			net-libs/rustls-ffi:=[${MULTILIB_USEDEP}]
 		)
 	)
 	http2? ( net-libs/nghttp2:=[${MULTILIB_USEDEP}] )
@@ -96,6 +99,9 @@ MULTILIB_CHOST_TOOLS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-7.30.0-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
+	"${FILESDIR}"/${P}-proxy-noproxy-tailmatching.patch
+	"${FILESDIR}"/${P}-proxy-noproxy-match-comma.patch
+	"${FILESDIR}"/${P}-noproxy-tailmatch-like-in-7.85.0-and-earlier.patch
 )
 
 src_prepare() {
@@ -111,10 +117,11 @@ multilib_src_configure() {
 	# TODO: in the future, we may want to add wolfssl (https://www.wolfssl.com/)
 	local myconf=()
 
-	myconf+=( --without-gnutls --without-mbedtls --without-nss --without-ssl )
 	myconf+=( --without-ca-fallback --with-ca-bundle="${EPREFIX}"/etc/ssl/certs/ca-certificates.crt  )
 	#myconf+=( --without-default-ssl-backend )
 	if use ssl ; then
+		myconf+=( --without-gnutls --without-mbedtls --without-nss --without-rustls )
+
 		if use gnutls || use curl_ssl_gnutls; then
 			einfo "SSL provided by gnutls"
 			myconf+=( --with-gnutls --with-nettle )
@@ -131,6 +138,10 @@ multilib_src_configure() {
 			einfo "SSL provided by openssl"
 			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
 		fi
+		if use rustls || use curl_ssl_rustls; then
+			einfo "SSL provided by rustls"
+			myconf+=( --with-rustls )
+		fi
 
 		if use curl_ssl_gnutls; then
 			einfo "Default SSL provided by gnutls"
@@ -144,11 +155,15 @@ multilib_src_configure() {
 		elif use curl_ssl_openssl; then
 			einfo "Default SSL provided by openssl"
 			myconf+=( --with-default-ssl-backend=openssl )
+		elif use curl_ssl_rustls; then
+			einfo "Default SSL provided by rustls"
+			myconf+=( --with-default-ssl-backend=rustls )
 		else
 			eerror "We can't be here because of REQUIRED_USE."
 		fi
 
 	else
+		myconf+=( --without-ssl )
 		einfo "SSL disabled"
 	fi
 
@@ -202,8 +217,8 @@ multilib_src_configure() {
 		--enable-proxy
 		--disable-sspi
 		$(use_enable static-libs static)
-		$(use_enable threads threaded-resolver)
-		$(use_enable threads pthreads)
+		--enable-pthreads
+		--enable-threaded-resolver
 		--disable-versioned-symbols
 		--without-amissl
 		--without-bearssl
@@ -220,17 +235,16 @@ multilib_src_configure() {
 		$(use_with nghttp3 ngtcp2)
 		$(use_with quiche)
 		$(use_with rtmp librtmp)
-		--without-rustls
 		--without-schannel
 		--without-secure-transport
+		$(use_enable websockets)
 		--without-winidn
 		--without-wolfssl
 		--with-zlib
 		$(use_with zstd)
 	)
 
-	ECONF_SOURCE="${S}" \
-	econf "${myconf[@]}"
+	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 
 	if ! multilib_is_native_abi; then
 		# avoid building the client
@@ -265,7 +279,7 @@ multilib_src_configure() {
 	sed -i -r \
 		-e "/^Libs.private/s:(${libs#|})( |$)::g" \
 		libcurl.pc || die
-	echo "Requires.private: ${priv[*]}" >> libcurl.pc
+	echo "Requires.private: ${priv[*]}" >> libcurl.pc || die
 }
 
 multilib_src_test() {
