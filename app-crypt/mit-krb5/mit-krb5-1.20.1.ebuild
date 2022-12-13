@@ -4,7 +4,7 @@
 EAPI=7
 
 PYTHON_COMPAT=( python3_{6..9} )
-inherit autotools flag-o-matic multilib-minimal python-any-r1 systemd toolchain-funcs
+inherit autotools flag-o-matic python-any-r1 systemd toolchain-funcs multilib-minimal
 
 MY_P="${P/mit-}"
 P_DIR=$(ver_cut 1-2)
@@ -17,8 +17,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="cpu_flags_x86_aes doc +keyutils lmdb nls openldap +pkinit selinux +threads test xinetd"
 
-# some tests requires network access
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 DEPEND="
 	!!app-crypt/heimdal
@@ -42,12 +41,8 @@ BDEPEND="
 		x86? ( dev-lang/yasm )
 	)
 	doc? ( virtual/latex-base )
-	test? (
-		${PYTHON_DEPS}
-		dev-lang/tcl:0
-		dev-util/dejagnu
-		dev-util/cmocka
-	)"
+	test? ( dev-util/cmocka )
+	"
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-kerberos )"
 
@@ -58,6 +53,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-config_LDFLAGS-r1.patch"
 	"${FILESDIR}/${PN}_dont_create_rundir.patch"
 	"${FILESDIR}/${PN}-1.18.2-krb5-config.patch"
+	"${FILESDIR}/${PN}-1.20-missing-time-include.patch"
+	"${FILESDIR}/${PN}-1.20.1-autoconf-2.72.patch"
 )
 
 MULTILIB_CHOST_TOOLS=(
@@ -74,9 +71,8 @@ src_prepare() {
 }
 
 src_configure() {
-	# QA
-	append-flags -fno-strict-aliasing
-	append-flags -fno-strict-overflow
+	# ChromeOS; Upstream PR: https://github.com/krb5/krb5/pull/1282
+	append-lfs-flags
 
 	multilib-minimal_src_configure
 }
@@ -87,7 +83,6 @@ multilib_src_configure() {
 	WARN_CFLAGS="set" \
 	econf \
 		$(use_with openldap ldap) \
-		"$(multilib_native_use_with test tcl "${EPREFIX}/usr")" \
 		$(use_enable nls) \
 		$(use_enable pkinit) \
 		$(use_enable threads thread-support) \
