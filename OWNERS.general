@@ -10,14 +10,14 @@ ebuild-reviews@google.com
 # Individual reviewers if needed.
 # When adding/removing people here, remember to update the gwsq group:
 # http://g/ebuild-reviews
-allenwebb@google.com
-bmgordon@chromium.org
-jrosenth@chromium.org
-manojgupta@chromium.org
+allenwebb@google.com #{LAST_RESORT_SUGGESTION}
+bmgordon@chromium.org #{LAST_RESORT_SUGGESTION}
+jrosenth@chromium.org #{LAST_RESORT_SUGGESTION}
+manojgupta@chromium.org #{LAST_RESORT_SUGGESTION}
 
-include chromiumos/owners:v1:/infra/OWNERS.build
+include chromiumos/owners:v1:/infra/OWNERS.build #{LAST_RESORT_SUGGESTION}
 
 # b/240953811: This OWNERship is intended only for stamping changes related to
 # the dev-rust/third-party-crates-src migration (which extend outside of
 # chromiumos-overlay/dev-rust/). Remove after the migration is complete.
-gbiv@chromium.org
+gbiv@chromium.org #{LAST_RESORT_SUGGESTION}
