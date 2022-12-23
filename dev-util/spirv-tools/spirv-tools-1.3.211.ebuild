@@ -33,6 +33,10 @@ RDEPEND=""
 BDEPEND="${PYTHON_DEPS}
 	${COMMON_DEPEND}"
 
+PATCHES=(
+	"${FILESDIR}"/UPSTREAM-cb96abbf-Fix-CMake-for-librt.patch
+)
+
 multilib_src_configure() {
 	local mycmakeargs=(
 		"-DSPIRV-Headers_SOURCE_DIR=${ESYSROOT}/usr/"
