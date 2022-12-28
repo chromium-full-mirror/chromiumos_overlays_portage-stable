@@ -3,17 +3,6 @@
 
 EAPI=7
 
-# TODO(b/249074943): Delete this.  The %2F encodings don't work with GS for some reason.
-# $ gsutil stat gs://chromeos-mirror/gentoo/distfiles/github.com%2Fdavecgh%2Fgo-spew%2F@v%2Fv1.1.0.zip
-# gs://chromeos-mirror/gentoo/distfiles/github.com%2Fdavecgh%2Fgo-spew%2F@v%2Fv1.1.0.zip:
-#   Creation time:          Sat, 07 Mar 2020 02:00:53 GMT
-#   Update time:            Sat, 07 Mar 2020 02:00:53 GMT
-# $ wget -nv https://commondatastorage.googleapis.com/chromeos-mirror/gentoo/distfiles/github.com%2Fdavecgh%2Fgo-spew%2F@v%2Fv1.1.0.zip
-# https://commondatastorage.googleapis.com/chromeos-mirror/gentoo/distfiles/github.com%2Fdavecgh%2Fgo-spew%2F@v%2Fv1.1.0.zip:
-# 2022-12-24 10:43:24 ERROR 404: Not Found.
-
-RESTRICT="mirror"
-
 inherit go-module
 
 MY_PV="${PV/_rc/}"
