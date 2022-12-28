@@ -33,10 +33,6 @@ RDEPEND=""
 BDEPEND="${PYTHON_DEPS}
 	${COMMON_DEPEND}"
 
-PATCHES=(
-	"${FILESDIR}"/UPSTREAM-cb96abbf-Fix-CMake-for-librt.patch
-)
-
 multilib_src_configure() {
 	local mycmakeargs=(
 		"-DSPIRV-Headers_SOURCE_DIR=${ESYSROOT}/usr/"
@@ -44,6 +40,7 @@ multilib_src_configure() {
 		"-DSPIRV_TOOLS_BUILD_STATIC=OFF"
 		"-DBUILD_SHARED_LIBS=ON"
 	)
-
+	# CHROMIUM (b/201531268): Enable LFS.
+	append-lfs-flags
 	cmake_src_configure
 }

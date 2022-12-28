@@ -4,9 +4,7 @@
 EAPI=7
 
 PYTHON_COMPAT=( python3_{6..9} )
-
 CMAKE_ECLASS=cmake
-
 inherit cmake-multilib python-any-r1
 
 DESCRIPTION="Collection of tools, libraries and tests for shader compilation"
@@ -18,34 +16,24 @@ S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="doc test"
+IUSE="doc"
 
 RDEPEND="
-	>=dev-util/glslang-1.3.204[${MULTILIB_USEDEP}]
-	>=dev-util/spirv-tools-1.3.204[${MULTILIB_USEDEP}]
+	>=dev-util/glslang-1.3.231:=[${MULTILIB_USEDEP}]
+	>=dev-util/spirv-tools-1.3.231[${MULTILIB_USEDEP}]
 "
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
-	>=dev-util/spirv-headers-1.3.204
-	doc? ( dev-ruby/asciidoctor )
-	test? (
-		dev-cpp/gtest
-		$(python_gen_any_dep 'dev-python/nose[${PYTHON_USEDEP}]')
-	)
-"
+	>=dev-util/spirv-headers-1.3.231"
+
+BDEPEND="doc? ( dev-ruby/asciidoctor )"
 
 PATCHES=(
-		"${FILESDIR}"/${PN}-2020.4-fix-build.patch
+	"${FILESDIR}"/${PN}-2020.4-fix-build.patch
 )
 
 # https://github.com/google/shaderc/issues/470
 RESTRICT=test
-
-python_check_deps() {
-	if use test; then
-		has_version --host-root "dev-python/nose[${PYTHON_USEDEP}]"
-	fi
-}
 
 src_prepare() {
 	cmake_comment_add_subdirectory examples
@@ -71,9 +59,11 @@ src_prepare() {
 
 multilib_src_configure() {
 	local mycmakeargs=(
-		-DSHADERC_SKIP_TESTS="$(usex !test)"
+		-DSHADERC_SKIP_TESTS="true"
 		-DSHADERC_ENABLE_WERROR_COMPILE="false"
 	)
+	# CHROMIUM (b/201531268): Enable LFS.
+	append-lfs-flags
 	cmake_src_configure
 }
 

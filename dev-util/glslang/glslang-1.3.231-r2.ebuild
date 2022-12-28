@@ -20,8 +20,10 @@ fi
 DESCRIPTION="Khronos reference front-end for GLSL and ESSL, and sample SPIR-V generator"
 HOMEPAGE="https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/ https://github.com/KhronosGroup/glslang"
 
+PATCHES=( "${FILESDIR}/${P}-Install-static-libs.patch" )
+
 LICENSE="BSD"
-SLOT="0"
+SLOT="0/1"
 
 BDEPEND="${PYTHON_DEPS}"
 
@@ -29,13 +31,10 @@ BDEPEND="${PYTHON_DEPS}"
 RESTRICT="test"
 
 multilib_src_configure() {
-	# CHROMIUM(b/259102548): Disable generation of pre-compiled headers
-	# because they break the build if Portage reinstalls linux-headers
-	# while building this package. The build fails because the mtime of
-	# errno.h is newer than cmake_pch.hxx.pch.
 	local mycmakeargs=(
-		"-DENABLE_PCH=OFF"
+		-DENABLE_PCH=OFF
 	)
-
+	# CHROMIUM (b/201531268): Enable LFS.
+	append-lfs-flags
 	cmake_src_configure
 }

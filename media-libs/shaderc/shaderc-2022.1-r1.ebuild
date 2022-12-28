@@ -1,1 +1,0 @@
-shaderc-2022.1.ebuild
