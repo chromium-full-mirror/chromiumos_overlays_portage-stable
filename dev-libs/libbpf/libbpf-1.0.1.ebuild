@@ -18,14 +18,14 @@ DESCRIPTION="Stand-alone build of libbpf from the Linux kernel"
 HOMEPAGE="https://github.com/libbpf/libbpf"
 
 LICENSE="GPL-2 LGPL-2.1 BSD-2"
-SLOT="0/$(ver_cut 1-2 ${PV})"
+SLOT="0/$(ver_cut 1-2)"
 IUSE="static-libs"
 
 DEPEND="
 	sys-kernel/linux-headers
-	virtual/libelf
-"
+	virtual/libelf"
 RDEPEND="${DEPEND}"
+BDEPEND="virtual/pkgconfig"
 
 PATCHES=(
 	"${FILESDIR}"/libbpf-9999-paths.patch
@@ -33,13 +33,16 @@ PATCHES=(
 
 src_configure() {
 	append-cflags -fPIC
-	tc-export CC AR
-	export LIBSUBDIR="$(get_libdir)" V=1
+	tc-export CC AR PKG_CONFIG
+	export LIBSUBDIR="$(get_libdir)"
+	export PREFIX="${EPREFIX}/usr"
+	export V=1
 }
 
 src_install() {
 	emake \
 		DESTDIR="${D}" \
+		LIBSUBDIR="${LIBSUBDIR}" \
 		install install_uapi_headers
 
 	if ! use static-libs; then
