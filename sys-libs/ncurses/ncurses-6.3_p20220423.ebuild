@@ -80,10 +80,7 @@ IUSE="ada +cxx debug doc gpm minimal profile +stack-realign static-libs test tin
 RESTRICT="!test? ( test )"
 
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"
-# Block the older ncurses that installed all files w/SLOT=5, bug #557472
-# ChromeOS: Install ncurses-5.9 that only installs .so's w/SLOT=5
 RDEPEND="${DEPEND}
-	>=sys-libs/ncurses-5.9-r100:5
 	!<sys-libs/slang-2.3.2_pre23
 	!<x11-terms/rxvt-unicode-9.06-r3
 	!<x11-terms/st-0.6-r1"
