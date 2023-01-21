@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit user flag-o-matic multilib autotools pam systemd toolchain-funcs
+inherit user user-info flag-o-matic multilib autotools pam systemd toolchain-funcs
 
 # Make it more portable between straight releases
 # and _p? releases.
