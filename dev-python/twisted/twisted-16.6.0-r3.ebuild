@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-PYTHON_COMPAT=( python2_7 python3_6)
+PYTHON_COMPAT=( python3_6 )
 PYTHON_REQ_USE="threads(+)"
 
 inherit eutils flag-o-matic distutils-r1 versionator
@@ -40,7 +40,6 @@ RDEPEND="
 		>=dev-python/idna-0.6[${PYTHON_USEDEP}]
 	)
 	serial? ( dev-python/pyserial[${PYTHON_USEDEP}] )
-	soap? ( $(python_gen_cond_dep 'dev-python/soappy[${PYTHON_USEDEP}]' python2_7) )
 	http2? (
 		>=dev-python/hyper-h2-2.5.0[${PYTHON_USEDEP}]
 		<dev-python/hyper-h2-3.0.0[${PYTHON_USEDEP}]

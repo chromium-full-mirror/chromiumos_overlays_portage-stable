@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 python3_{6..9} pypy{,3} )
+PYTHON_COMPAT=( python3_{6..9} pypy3 )
 
 inherit distutils-r1
 
@@ -23,7 +23,6 @@ RDEPEND="
 	>=dev-python/pycodestyle-2.4.0[${PYTHON_USEDEP}]
 	<dev-python/pycodestyle-2.5.0[${PYTHON_USEDEP}]
 	virtual/python-enum34[${PYTHON_USEDEP}]
-	$(python_gen_cond_dep 'dev-python/configparser[${PYTHON_USEDEP}]' 'python2*' pypy )
 "
 PDEPEND="
 	>=dev-python/mccabe-0.6.0[${PYTHON_USEDEP}]

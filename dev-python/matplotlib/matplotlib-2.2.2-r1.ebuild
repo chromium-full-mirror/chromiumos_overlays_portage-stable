@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 python3_{6..9} )
+PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE='tk?,threads(+)'
 
 inherit distutils-r1 flag-o-matic virtualx toolchain-funcs prefix
@@ -21,22 +21,13 @@ LICENSE="BitstreamVera BSD matplotlib MIT OFL-1.1"
 KEYWORDS="*"
 IUSE="cairo doc excel examples gtk2 gtk3 latex qt5 test tk wxwidgets"
 
-PY2_FLAGS="|| ( $(python_gen_useflags python2_7) )"
 REQUIRED_USE="
-	doc? ( ${PY2_FLAGS} )
-	excel? ( ${PY2_FLAGS} )
-	gtk2? ( ${PY2_FLAGS} )
-	wxwidgets? ( ${PY2_FLAGS} )
 	test? (
 		cairo latex qt5 tk wxwidgets
 		|| ( gtk2 gtk3 )
 		)"
 
 # #456704 -- a lot of py2-only deps
-PY2_DEPEND="
-	$(python_gen_cond_dep 'dev-python/functools32[${PYTHON_USEDEP}]' python2_7)
-	$(python_gen_cond_dep 'dev-python/subprocess32[${PYTHON_USEDEP}]' python2_7)
-	$(python_gen_cond_dep 'dev-python/backports-functools-lru-cache[${PYTHON_USEDEP}]' python2_7)"
 COMMON_DEPEND="
 	dev-python/cycler[${PYTHON_USEDEP}]
 	>=dev-python/numpy-1.7.1[${PYTHON_USEDEP}]
@@ -53,14 +44,12 @@ COMMON_DEPEND="
 		dev-libs/glib:2=
 		x11-libs/gdk-pixbuf
 		x11-libs/gtk+:2
-		$(python_gen_cond_dep 'dev-python/pygtk[${PYTHON_USEDEP}]' python2_7) )
-	wxwidgets? ( $(python_gen_cond_dep '>=dev-python/wxpython-2.8:*[${PYTHON_USEDEP}]' python2_7) )"
+	)"
 
 # internal copy of pycxx highly patched
 #	dev-python/pycxx
 
 DEPEND="${COMMON_DEPEND}
-	${PY2_DEPEND}
 	dev-python/versioneer[${PYTHON_USEDEP}]
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	virtual/pkgconfig
@@ -69,7 +58,6 @@ DEPEND="${COMMON_DEPEND}
 		dev-python/colorspacious[${PYTHON_USEDEP}]
 		dev-python/pillow[${PYTHON_USEDEP}]
 		dev-python/ipython[${PYTHON_USEDEP}]
-		$(python_gen_cond_dep 'dev-python/mock[${PYTHON_USEDEP}]' python2_7)
 		dev-python/numpydoc[${PYTHON_USEDEP}]
 		sci-libs/scipy[${PYTHON_USEDEP}]
 		>=dev-python/sphinx-1.3.0[${PYTHON_USEDEP}]
@@ -86,7 +74,6 @@ DEPEND="${COMMON_DEPEND}
 		)"
 
 RDEPEND="${COMMON_DEPEND}
-	${PY2_DEPEND}
 	>=dev-python/pyparsing-1.5.6[${PYTHON_USEDEP}]
 	excel? ( dev-python/xlwt[${PYTHON_USEDEP}] )
 	gtk3? (

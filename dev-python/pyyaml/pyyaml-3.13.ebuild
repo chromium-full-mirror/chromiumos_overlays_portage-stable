@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 python3_{6..9} pypy pypy3 )
+PYTHON_COMPAT=( python3_{6..9} pypy3 )
 
 inherit distutils-r1
 
@@ -20,7 +20,7 @@ IUSE="examples libyaml"
 
 RDEPEND="libyaml? ( dev-libs/libyaml )"
 DEPEND="${RDEPEND}
-	libyaml? ( $(python_gen_cond_dep 'dev-python/cython[${PYTHON_USEDEP}]' python2_7 'python3*') )"
+	libyaml? ( $(python_gen_cond_dep 'dev-python/cython[${PYTHON_USEDEP}]' 'python3*') )"
 
 S="${WORKDIR}/${MY_P}"
 

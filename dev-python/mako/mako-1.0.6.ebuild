@@ -3,7 +3,7 @@
 
 EAPI=5
 
-PYTHON_COMPAT=( python2_7 python3_{6..9} pypy )
+PYTHON_COMPAT=( python3_{6..9} )
 
 inherit distutils-r1 eutils versionator
 
@@ -27,7 +27,6 @@ DEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	test? (
 		dev-python/nose[${PYTHON_USEDEP}]
-		$(python_gen_cond_dep 'dev-python/mock[${PYTHON_USEDEP}]' python2_7)
 	)"
 
 S="${WORKDIR}/${MY_P}"

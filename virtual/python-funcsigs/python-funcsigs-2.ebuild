@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 python3_{6..9} pypy pypy3 )
+PYTHON_COMPAT=( python3_{6..9} pypy3 )
 
 inherit python-r1
 
@@ -14,4 +14,4 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
 	${PYTHON_DEPS}
-	$(python_gen_cond_dep '>=dev-python/funcsigs-1[${PYTHON_USEDEP}]' python2_7 python3_{3,4,5} pypy{,3} )"
+	$(python_gen_cond_dep '>=dev-python/funcsigs-1[${PYTHON_USEDEP}]' python3_{3,4,5} pypy{,3} )"

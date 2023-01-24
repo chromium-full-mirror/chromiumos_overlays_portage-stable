@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 python3_{5,6,7} pypy pypy3 )
+PYTHON_COMPAT=( python3_{5,6,7} pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1
@@ -20,16 +20,12 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="doc examples test"
 
-REQUIRED_USE="
-	doc? ( || ( $(python_gen_useflags 'python2*') ) )"
-
 RDEPEND="
 	dev-python/coverage[${PYTHON_USEDEP}]
 	dev-python/setuptools[${PYTHON_USEDEP}]"
 DEPEND="${RDEPEND}
 	doc? ( >=dev-python/sphinx-0.6[${PYTHON_USEDEP}] )
-	test? ( || ( $(python_gen_cond_dep 'dev-python/twisted[${PYTHON_USEDEP}]' python2_7 python3_{5,6})
-			$(python_gen_cond_dep 'dev-python/twisted-core[${PYTHON_USEDEP}]' python2_7)
+	test? ( || ( $(python_gen_cond_dep 'dev-python/twisted[${PYTHON_USEDEP}]' python3_{5,6})
 		 ) )"
 
 PATCHES=(

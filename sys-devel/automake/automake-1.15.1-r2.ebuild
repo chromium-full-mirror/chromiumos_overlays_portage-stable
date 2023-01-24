@@ -2,9 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
-PYTHON_COMPAT=( python2_7 )
 
-inherit python-any-r1 versionator
+inherit versionator
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/r/${PN}.git"
@@ -39,14 +38,9 @@ RDEPEND="dev-lang/perl
 	>=sys-devel/autoconf-2.69:*
 	sys-devel/gnuconfig"
 DEPEND="${RDEPEND}
-	sys-apps/help2man
-	test? ( ${PYTHON_DEPS} )"
+	sys-apps/help2man"
 
 PATCHES=( "${FILESDIR}"/${PN}-1.15-install-sh-avoid-low-risk-race-in-tmp.patch )
-
-pkg_setup() {
-	use test && python-any-r1_pkg_setup
-}
 
 src_prepare() {
 	default
