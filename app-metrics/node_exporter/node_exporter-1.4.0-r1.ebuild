@@ -17,9 +17,10 @@ KEYWORDS="*"
 
 COMMON_DEPEND="acct-group/node_exporter
 	acct-user/node_exporter"
-DEPEND=">=dev-util/promu-0.3.0
-	${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
+
+BDEPEND=">=dev-util/promu-0.3.0"
 
 S="${WORKDIR}/${PN}-${PV/_rc/-rc.}"
 
@@ -40,6 +41,4 @@ src_install() {
 	systemd_newunit "${FILESDIR}"/node_exporter.service-1 node_exporter.service
 	newinitd "${FILESDIR}"/${PN}.initd-1 ${PN}
 	newconfd "${FILESDIR}"/${PN}.confd ${PN}
-	keepdir /var/lib/node_exporter /var/log/node_exporter
-	fowners ${PN}:${PN} /var/lib/node_exporter /var/log/node_exporter
 }
