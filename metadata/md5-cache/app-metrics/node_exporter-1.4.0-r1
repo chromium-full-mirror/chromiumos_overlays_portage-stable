@@ -1,6 +1,6 @@
-BDEPEND=>=dev-lang/go-1.18 app-arch/unzip virtual/pkgconfig
+BDEPEND=>=dev-util/promu-0.3.0 >=dev-lang/go-1.18 app-arch/unzip virtual/pkgconfig
 DEFINED_PHASES=compile install prepare unpack
-DEPEND=>=dev-util/promu-0.3.0 acct-group/node_exporter acct-user/node_exporter
+DEPEND=acct-group/node_exporter acct-user/node_exporter
 DESCRIPTION=Prometheus exporter for machine metrics
 EAPI=7
 HOMEPAGE=https://github.com/prometheus/node_exporter
@@ -11,4 +11,4 @@ RESTRICT=strip
 SLOT=0
 SRC_URI=https://github.com/prometheus/node_exporter/archive/v1.4.0.tar.gz -> node_exporter-1.4.0.tar.gz https://dev.gentoo.org/~williamh/dist/node_exporter-1.4.0-deps.tar.xz
 _eclasses_=go-module	4b6f23171fcaa5d0a55e077efafc3bfd	multilib	2477ebe553d3e4d2c606191fe6c33602	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=13ee453e5e38b28134bd613371e32c40
+_md5_=b2db82b2d1db028c4f58b454876e3711
