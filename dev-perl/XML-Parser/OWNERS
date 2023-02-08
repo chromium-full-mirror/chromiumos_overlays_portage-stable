@@ -1,1 +1,2 @@
-include /dev-perl/XML-SAX-Expat/OWNERS
+# Needed by many packages in the SDK.
+include chromiumos/owners:v1:/infra/OWNERS.build
