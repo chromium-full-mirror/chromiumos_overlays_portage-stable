@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -8,7 +8,6 @@ PYTHON_COMPAT=( python3_{6..9} )
 inherit flag-o-matic multiprocessing python-r1 toolchain-funcs multilib-minimal
 
 MY_PV="$(ver_rs 1- _)"
-MAJOR_V="$(ver_cut 1-2)"
 
 DESCRIPTION="Boost Libraries for C++"
 HOMEPAGE="https://www.boost.org/"
@@ -16,7 +15,7 @@ SRC_URI="https://boostorg.jfrog.io/artifactory/main/release/${PV}/source/boost_$
 S="${WORKDIR}/${PN}_${MY_PV}"
 
 LICENSE="Boost-1.0"
-SLOT="0/${PV}" # ${PV} instead ${MAJOR_V} due to bug 486122
+SLOT="0/${PV}" # ${PV} instead of the major version due to bug 486122
 KEYWORDS="*"
 IUSE="bzip2 context debug doc icu lzma +nls mpi numpy python tools zlib zstd"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -41,18 +40,18 @@ RDEPEND="
 	zlib? ( sys-libs/zlib:=[${MULTILIB_USEDEP}] )
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}"
-#BDEPEND=">=dev-util/boost-build-${MAJOR_V}"
-BDEPEND=">=dev-util/boost-build-1.78.0-r1"
+BDEPEND=">=dev-util/b2-4.9.2"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.71.0-disable_icu_rpath.patch
-	"${FILESDIR}"/${PN}-1.71.0-context-x32.patch
-	"${FILESDIR}"/${PN}-1.71.0-build-auto_index-tool.patch
+	"${FILESDIR}"/${PN}-1.81.0-disable_icu_rpath.patch
+	"${FILESDIR}"/${PN}-1.79.0-context-x32.patch
+	"${FILESDIR}"/${PN}-1.79.0-build-auto_index-tool.patch
 	# Boost.MPI's __init__.py doesn't work on Py3
-	"${FILESDIR}"/${PN}-1.73-boost-mpi-python-PEP-328.patch
-	"${FILESDIR}"/${PN}-1.74-CVE-2012-2677.patch
-	"${FILESDIR}"/${PN}-1.79.0-fix-mips1-transition.patch
-	"${FILESDIR}"/${PN}-1.79.0-no-function-base.patch
+	"${FILESDIR}"/${PN}-1.79.0-boost-mpi-python-PEP-328.patch
+	"${FILESDIR}"/${PN}-1.80.0-fix-mips1-transition.patch
+	"${FILESDIR}"/${PN}-1.81.0-phoenix-multiple-definitions.patch
+
+	# (upstreamed)
 )
 
 python_bindings_needed() {
@@ -156,18 +155,24 @@ src_configure() {
 	# Workaround for too many parallel processes requested, bug #506064
 	[[ "$(makeopts_jobs)" -gt 64 ]] && MAKEOPTS="${MAKEOPTS} -j64"
 
+	# We don't want to end up with -L/usr/lib on our linker lines
+	# which then gives us lots of
+	#   skipping incompatible /usr/lib/libc.a when searching for -lc
+	# warnings
+	[[ -n ${ESYSROOT} ]] && local icuarg="-sICU_PATH=${ESYSROOT}/usr"
+
 	OPTIONS=(
 		$(usex debug gentoodebug gentoorelease)
 		"-j$(makeopts_jobs)"
 		-q
 		-d+2
 		pch=off
-		$(usex icu "-sICU_PATH=${ESYSROOT}/usr" '--disable-icu boost.locale.icu=off')
-		$(usex mpi '' --without-mpi)
-		$(usex nls '' --without-locale)
+		$(usex icu "${icuarg}" '--disable-icu boost.locale.icu=off')
+		$(usex mpi '' '--without-mpi')
+		$(usex nls '' '--without-locale')
 		$(usex context '' '--without-context --without-coroutine --without-fiber')
 		--without-stacktrace
-		--boost-build="${BROOT}"/usr/share/boost-build/src
+		--boost-build="${BROOT}"/usr/share/b2/src
 		--layout=system
 		# building with threading=single is currently not possible
 		# https://svn.boost.org/trac/boost/ticket/7105
@@ -187,8 +192,12 @@ src_configure() {
 		append-ldflags -Wl,-headerpad_max_install_names
 	fi
 
-	# Use C++14 globally as of 1.62
-	append-cxxflags -std=c++14
+	# Use C++17 globally as of 1.80
+	append-cxxflags -std=c++17
+
+	# Append LFS flags for both C++ and C code.
+	append-cxxflags -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+	append-cflags -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
 }
 
 multilib_src_compile() {

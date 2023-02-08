@@ -1,16 +1,13 @@
-From f0af4a9184457939b89110795ae2d293582c5f66 Mon Sep 17 00:00:00 2001
+https://bugs.gentoo.org/869401
+https://github.com/boostorg/config/commit/f0af4a9184457939b89110795ae2d293582c5f66
+https://github.com/boostorg/container_hash/issues/24
+
 From: jzmaddock <john@johnmaddock.co.uk>
 Date: Mon, 11 Jul 2022 18:26:07 +0100
 Subject: [PATCH] The std lib unary/binary_function base classes are
  deprecated/removed from libcpp15. Fixes
  https://github.com/boostorg/container_hash/issues/24.
 
----
- boost/config/stdlib/libcpp.hpp | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/boost/config/stdlib/libcpp.hpp b/boost/config/stdlib/libcpp.hpp
-index bc8536ead..0e9f2445e 100644
 --- a/boost/config/stdlib/libcpp.hpp
 +++ b/boost/config/stdlib/libcpp.hpp
 @@ -168,4 +168,13 @@
@@ -27,3 +24,4 @@ index bc8536ead..0e9f2445e 100644
 +#endif
 +
  //  --- end ---
+
