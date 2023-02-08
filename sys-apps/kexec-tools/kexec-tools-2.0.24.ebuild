@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -35,8 +35,6 @@ CONFIG_CHECK="~KEXEC"
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.0.4-disable-kexec-test.patch
 	"${FILESDIR}"/${PN}-2.0.4-out-of-source.patch
-	"${FILESDIR}"/${P}-remove-duplicated-variable-declarations.patch
-	"${FILESDIR}"/${P}-build-multiboot2-for-i386.patch
 )
 
 pkg_setup() {
@@ -116,7 +114,7 @@ pkg_postinst() {
 		fi
 	fi
 
-	if [[ ${n_root_args} > 1 && "${has_rootpart_set}" == "no"  ]]; then
+	if [[ ${n_root_args} -gt 1 && "${has_rootpart_set}" == "no"  ]]; then
 		ewarn "WARNING: Multiple root arguments (root=) on kernel command-line detected!"
 		ewarn "This was probably caused by a previous version of ${PN}."
 		ewarn "Please reboot system once *without* kexec to avoid boot problems"
