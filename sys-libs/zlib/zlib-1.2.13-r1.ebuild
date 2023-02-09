@@ -88,11 +88,6 @@ src_prepare() {
 echoit() { echo "$@"; "$@"; }
 
 multilib_src_configure() {
-	# ChromeOS: Enable LFS support upstream (https://bugs.gentoo.org/893656)
-	append-lfs-flags
-	# zlib is using only CFLAGS so append CPPFLAGS (configured by lfs) to it
-	append-cflags "${CPPFLAGS}"
-
 	# We pass manually instead of relying on the configure script/makefile
 	# because it would pass it even for older binutils.
 	use sparc && append-flags $(test-flags-CCLD -Wl,--no-warn-rwx-segments)
