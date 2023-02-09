@@ -1,7 +1,7 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 DIST_AUTHOR=WBRASWELL
 DIST_VERSION=1.21
@@ -12,17 +12,13 @@ DESCRIPTION="Compiles yacc-like LALR grammars to generate Perl OO parser modules
 
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
 
-RDEPEND="!<net-fs/samba-4.10.6"
-DEPEND="${RDEPEND}
+RDEPEND="
+	!<net-fs/samba-4.10.6
+"
+
+BDEPEND="${RDEPEND}
 	virtual/perl-ExtUtils-MakeMaker
 "
-mydoc="docs/*"
 
-src_configure() {
-	PERLVER=$(/usr/bin/perl -e "\$_ = \$^V; s/v//; print")
-	PERL5LIBDIR="/usr/$(get_libdir)/perl5/vendor_perl/${PERLVER}"
-	myconf="LIB=${PERL5LIBDIR}"
-	perl-module_src_configure
-}
+mydoc="docs/*"
