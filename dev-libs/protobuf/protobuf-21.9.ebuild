@@ -1,28 +1,27 @@
-# Copyright 2008-2022 Gentoo Authors
+# Copyright 2008-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=7
 
 inherit autotools elisp-common flag-o-matic multilib-minimal toolchain-funcs
 
-if [[ "${PV}" == "9999" ]]; then
+if [[ "${PV}" == *9999 ]]; then
 	inherit git-r3
 
-	EGIT_REPO_URI="https://github.com/protocolbuffers/protobuf"
+	EGIT_REPO_URI="https://github.com/protocolbuffers/protobuf.git"
 	EGIT_SUBMODULES=()
+else
+	SRC_URI="https://github.com/protocolbuffers/protobuf/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="*"
 fi
 
 DESCRIPTION="Google's Protocol Buffers - Extensible mechanism for serializing structured data"
-HOMEPAGE="https://developers.google.com/protocol-buffers/ https://github.com/protocolbuffers/protobuf"
-if [[ "${PV}" == "9999" ]]; then
-	SRC_URI=""
-else
-	SRC_URI="https://github.com/protocolbuffers/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-fi
+HOMEPAGE="
+	https://developers.google.com/protocol-buffers/
+"
 
 LICENSE="BSD"
-SLOT="0/30"
-KEYWORDS="*"
+SLOT="0/32"
 IUSE="emacs examples static-libs test zlib"
 RESTRICT="!test? ( test )"
 
@@ -35,7 +34,8 @@ RDEPEND="emacs? ( app-editors/emacs:* )
 PATCHES=(
 	"${FILESDIR}/${PN}-3.19.0-disable_no-warning-test.patch"
 	"${FILESDIR}/${PN}-3.19.0-system_libraries.patch"
-	"${FILESDIR}/${PN}-3.16.0-protoc_input_output_files.patch"
+	"${FILESDIR}/${PN}-3.20.2-protoc_input_output_files.patch"
+	"${FILESDIR}/${PN}-21.9-disable-32-bit-tests.patch"
 )
 
 DOCS=(CHANGES.txt CONTRIBUTORS.txt README.md)
@@ -58,11 +58,8 @@ src_prepare() {
 	# https://github.com/protocolbuffers/protobuf/issues/8460
 	sed -e "/^TEST(AnyTest, TestPackFromSerializationExceedsSizeLimit) {$/a\\  if (sizeof(void*) == 4) {\n    GTEST_SKIP();\n  }" -i src/google/protobuf/any_test.cc || die
 
-	# https://github.com/protocolbuffers/protobuf/issues/9392
-	sed -e "s/^AC_PROG_OBJC$/AS_CASE([\$target_os], [darwin*], [AC_PROG_OBJC], [AM_CONDITIONAL([am__fastdepOBJC], [false])])/" -i configure.ac || die
-
 	# https://github.com/protocolbuffers/protobuf/issues/9433
-	sed -e "/^[[:space:]]*static_assert(alignof(T) <= 8, \"\");$/d" -i src/google/protobuf/descriptor.cc || die
+	sed -e "/^[[:space:]]*static_assert(alignof(U) <= 8, \"\");$/d" -i src/google/protobuf/descriptor.cc || die
 
 	eautoreconf
 }
@@ -79,6 +76,10 @@ src_configure() {
 }
 
 multilib_src_configure() {
+	# ChromeOS: enable large file support.
+	# Upstream bug: https://bugs.gentoo.org/896086
+	append-lfs-flags
+
 	local options=(
 		$(use_enable static-libs static)
 		$(use_with zlib)
@@ -118,6 +119,12 @@ multilib_src_test() {
 
 multilib_src_install_all() {
 	find "${ED}" -name "*.la" -delete || die
+
+	if [[ ! -f "${ED}/usr/$(get_libdir)/libprotobuf.so.${SLOT#*/}" ]]; then
+		eerror "No matching library found with SLOT variable, currently set: ${SLOT}\n" \
+			"Expected value: ${ED}/usr/$(get_libdir)/libprotobuf.so.${SLOT#*/}"
+		die "Please update SLOT variable"
+	fi
 
 	insinto /usr/share/vim/vimfiles/syntax
 	doins editors/proto.vim
