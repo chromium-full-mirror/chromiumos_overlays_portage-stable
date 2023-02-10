@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -13,13 +13,9 @@ SRC_URI="https://s3.amazonaws.com/json-c_releases/releases/${P}.tar.gz"
 LICENSE="MIT"
 SLOT="0/5"
 KEYWORDS="*"
-IUSE="doc static-libs threads"
+IUSE="cpu_flags_x86_rdrand doc static-libs threads"
 
-PATCHES=(
-	"${FILESDIR}/${PN}-0.14-cmake-static-libs.patch"
-	"${FILESDIR}/${P}-security-fix.patch"
-	"${FILESDIR}/${PN}-0.14-object-limitation.patch"
-)
+BDEPEND="doc? ( >=app-doc/doxygen-1.8.13 )"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/json-c/config.h
@@ -31,11 +27,13 @@ src_prepare() {
 
 multilib_src_configure() {
 	local mycmakeargs=(
-		-DBUILD_DOCUMENTATION=$(multilib_native_usex doc)
 		-DBUILD_STATIC_LIBS=$(usex static-libs)
+		-DDISABLE_EXTRA_LIBS=ON
 		-DDISABLE_WERROR=ON
+		-DENABLE_RDRAND=$(usex cpu_flags_x86_rdrand)
 		-DENABLE_THREADING=$(usex threads)
 	)
+	append-lfs-flags
 
 	cmake_src_configure
 }
