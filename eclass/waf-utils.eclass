@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: waf-utils.eclass
@@ -8,7 +8,7 @@
 # Original Author: Gilles Dartiguelongue <eva@gentoo.org>
 # Various improvements based on cmake-utils.eclass: Tomáš Chvátal <scarabeus@gentoo.org>
 # Proper prefix support: Jonathan Callen <jcallen@gentoo.org>
-# @SUPPORTED_EAPIS: 6 7
+# @SUPPORTED_EAPIS: 6 7 8
 # @BLURB: common ebuild functions for waf-based packages
 # @DESCRIPTION:
 # The waf-utils eclass contains functions that make creating ebuild for
@@ -18,16 +18,21 @@
 inherit multilib toolchain-funcs multiprocessing
 
 case ${EAPI:-0} in
-	6|7) EXPORT_FUNCTIONS src_configure src_compile src_install ;;
+	6|7|8) EXPORT_FUNCTIONS src_configure src_compile src_install ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
-# @ECLASS-VARIABLE: WAF_VERBOSE
+# @ECLASS_VARIABLE: WAF_VERBOSE
 # @USER_VARIABLE
 # @DESCRIPTION:
 # Set to OFF to disable verbose messages during compilation
 # this is _not_ meant to be set in ebuilds
 : ${WAF_VERBOSE:=ON}
+
+# @ECLASS_VARIABLE: WAF_BINARY
+# @DESCRIPTION:
+# Eclass can use different waf executable.  Usually it is located
+# in "${S}/waf".
 
 # @FUNCTION: waf-utils_src_configure
 # @DESCRIPTION:
@@ -69,9 +74,6 @@ waf-utils_src_configure() {
 
 	[[ ${fail} ]] && die "Invalid use of waf-utils.eclass"
 
-	# @ECLASS-VARIABLE: WAF_BINARY
-	# @DESCRIPTION:
-	# Eclass can use different waf executable. Usually it is located in "${S}/waf".
 	: ${WAF_BINARY:="${S}/waf"}
 
 	local conf_args=()
@@ -86,17 +88,23 @@ waf-utils_src_configure() {
 	if [[ ${waf_help} == *--libdir* ]]; then
 		conf_args+=( --libdir="${EPREFIX}/usr/$(get_libdir)" )
 	fi
+	if [[ ${waf_help} == *--mandir* ]]; then
+		conf_args+=( --mandir="${EPREFIX}"/usr/share/man )
+	fi
 
 	tc-export AR CC CPP CXX RANLIB
 
 	local CMD=(
+		PYTHONHASHSEED=1
 		CCFLAGS="${CFLAGS}"
 		LINKFLAGS="${CFLAGS} ${LDFLAGS}"
 		PKGCONFIG="$(tc-getPKG_CONFIG)"
 		"${WAF_BINARY}"
+		"--jobs=1"
 		"--prefix=${EPREFIX}/usr"
 		"${conf_args[@]}"
 		"${@}"
+		${EXTRA_ECONF}
 		configure
 	)
 
@@ -112,6 +120,8 @@ waf-utils_src_compile() {
 	local _mywafconfig
 	[[ ${WAF_VERBOSE} == ON ]] && _mywafconfig="--verbose"
 
+	export PYTHONHASHSEED=1
+
 	local jobs="--jobs=$(makeopts_jobs)"
 	echo "\"${WAF_BINARY}\" build ${_mywafconfig} ${jobs} ${*}"
 	"${WAF_BINARY}" ${_mywafconfig} ${jobs} "${@}" || die "build failed"
@@ -123,8 +133,10 @@ waf-utils_src_compile() {
 waf-utils_src_install() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	echo "\"${WAF_BINARY}\" --destdir=\"${D}\" ${*} install"
-	"${WAF_BINARY}" --destdir="${D}" "${@}" install  || die "Make install failed"
+	export PYTHONHASHSEED=1
+
+	echo "\"${WAF_BINARY}\" --jobs=1 --destdir=\"${D}\" ${*} install"
+	"${WAF_BINARY}" --jobs=1 --destdir="${D}" "${@}" install || die "Make install failed"
 
 	# Manual document installation
 	einstalldocs

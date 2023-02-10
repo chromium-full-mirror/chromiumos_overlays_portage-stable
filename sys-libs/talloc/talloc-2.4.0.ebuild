@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -20,18 +20,16 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
 RDEPEND="
-	!elibc_FreeBSD? (
-		!elibc_SunOS? (
-			!elibc_Darwin? (
-				dev-libs/libbsd[${MULTILIB_USEDEP}]
-			)
+	!elibc_SunOS? (
+		!elibc_Darwin? (
+			dev-libs/libbsd[${MULTILIB_USEDEP}]
 		)
 	)
 	python? ( ${PYTHON_DEPS} )
-	!!<sys-libs/talloc-2.0.5
 "
 DEPEND="${RDEPEND}"
-BDEPEND="${PYTHON_DEPS}
+BDEPEND="
+	${PYTHON_DEPS}
 	dev-libs/libxslt
 	sys-devel/gettext
 "
@@ -67,10 +65,15 @@ src_prepare() {
 
 multilib_src_configure() {
 	local extra_opts=(
-		$(usex compat --enable-talloc-compat1 '')
+		--libdir="${EPREFIX}/usr/$(get_libdir)"
+		--disable-dependency-tracking
+		--disable-warnings-as-errors
+
+		$(usev compat --enable-talloc-compat1)
 		$(multilib_native_usex python '' --disable-python)
 		$([[ ${CHOST} == *-solaris* ]] && echo '--disable-symbol-versions')
 	)
+
 	waf-utils_src_configure "${extra_opts[@]}"
 }
 
