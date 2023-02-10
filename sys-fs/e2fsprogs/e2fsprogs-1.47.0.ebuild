@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic systemd toolchain-funcs udev usr-ldscript multilib-minimal
+inherit flag-o-matic multilib-minimal systemd toolchain-funcs udev usr-ldscript
 
 DESCRIPTION="Standard EXT2/EXT3/EXT4 filesystem utilities"
 HOMEPAGE="http://e2fsprogs.sourceforge.net/"
@@ -12,34 +12,37 @@ SRC_URI="https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${PV}/$
 LICENSE="GPL-2 BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="cron fuse lto nls static-libs +threads +tools"
+IUSE="cron fuse nls static-libs test +tools"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!sys-libs/${PN}-libs
-	cron? ( sys-fs/lvm2[-device-mapper-only(-)] )
+	cron? ( sys-fs/lvm2[lvm] )
 	fuse? ( sys-fs/fuse:0 )
 	nls? ( virtual/libintl )
-	tools? ( >=sys-apps/util-linux-2.16 )"
-DEPEND="${RDEPEND}"
-BDEPEND="virtual/pkgconfig
+	tools? ( sys-apps/util-linux )
+"
+# For testing lib/ext2fs, lib/support/libsupport.a is required, which
+# unconditionally includes '<blkid/blkid.h>' from sys-apps/util-linux.
+DEPEND="
+	${RDEPEND}
+	test? ( sys-apps/util-linux[${MULTILIB_USEDEP}] )
+"
+BDEPEND="
 	sys-apps/texinfo
-	nls? ( sys-devel/gettext )"
+	virtual/pkgconfig
+	nls? ( sys-devel/gettext )
+"
+
+MULTILIB_WRAPPED_HEADERS=(
+	/usr/include/ext2fs/ext2_types.h
+)
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.40-fbsd.patch
-	"${FILESDIR}"/${PN}-1.42.13-fix-build-cflags.patch #516854
-	"${FILESDIR}"/${PN}-1.46-add-extended-option-for-prezeroed-storage.patch
+	"${FILESDIR}"/${PN}-1.42.13-fix-build-cflags.patch # bug #516854
 
 	# Upstream patches (can usually removed with next version bump)
 )
-
-pkg_setup() {
-	if use tools ; then
-		MULTILIB_WRAPPED_HEADERS=(
-			/usr/include/ext2fs/ext2_types.h
-		)
-	fi
-}
 
 src_prepare() {
 	default
@@ -50,17 +53,17 @@ src_prepare() {
 	# violation due to mktexfmt invocation
 	rm -r doc || die "Failed to remove doc dir"
 
-	# prevent included intl cruft from building #81096
+	# Prevent included intl cruft from building, bug #81096
 	sed -i -r \
 		-e 's:@LIBINTL@:@LTLIBINTL@:' \
 		MCONFIG.in || die 'intl cruft'
 }
 
 multilib_src_configure() {
-	# Keep the package from doing silly things #261411
+	# Keep the package from doing silly things, bug #261411
 	export VARTEXFONTS="${T}/fonts"
 
-	# needs open64() prototypes and friends
+	# Needs open64() prototypes and friends
 	append-cppflags -D_GNU_SOURCE
 
 	local myeconfargs=(
@@ -76,11 +79,12 @@ multilib_src_configure() {
 		$(multilib_native_use_enable tools e2initrd-helper)
 		--disable-fsck
 		--disable-uuidd
-		$(use_enable lto)
-		$(use_with threads pthread)
+		--disable-lto
+		--disable-largefile # need to check effect on ABI
+		--with-pthread
 	)
 
-	# we use blkid/uuid from util-linux now
+	# We use blkid/uuid from util-linux now
 	if use kernel_linux ; then
 		export ac_cv_lib_{uuid_uuid_generate,blkid_blkid_get_cache}=yes
 		myeconfargs+=( --disable-lib{blkid,uuid} )
@@ -96,58 +100,52 @@ multilib_src_configure() {
 	if grep -qs 'USE_INCLUDED_LIBINTL.*yes' config.{log,status} ; then
 		eerror "INTL sanity check failed, aborting build."
 		eerror "Please post your ${S}/config.log file as an"
-		eerror "attachment to https://bugs.gentoo.org/show_bug.cgi?id=81096"
+		eerror "attachment to https://bugs.gentoo.org/81096"
 		die "Preventing included intl cruft from building"
 	fi
 }
 
 multilib_src_compile() {
-	if ! multilib_is_native_abi || ! use tools ; then
+	if multilib_is_native_abi && use tools ; then
+		emake V=1
+	else
 		emake -C lib/et V=1
 		emake -C lib/ss V=1
-		if use tools ; then
-			emake -C lib/ext2fs V=1
-			emake -C lib/e2p V=1
-		fi
-		return 0
+		emake -C lib/ext2fs V=1
+		emake -C lib/e2p V=1
 	fi
-
-	emake V=1
 }
 
 multilib_src_test() {
-	if multilib_is_native_abi ; then
+	if multilib_is_native_abi && use tools ; then
 		emake V=1 check
 	else
+		# Required by lib/ext2fs's check target
+		emake -C lib/support V=1
+
 		# For non-native, there's no binaries to test. Just libraries.
 		emake -C lib/et V=1 check
 		emake -C lib/ss V=1 check
+		emake -C lib/ext2fs V=1 check
+		emake -C lib/e2p V=1 check
 	fi
 }
 
 multilib_src_install() {
-	if ! multilib_is_native_abi || ! use tools ; then
+	if multilib_is_native_abi && use tools ; then
+		emake STRIP=':' V=1 DESTDIR="${D}" install
+	else
 		emake -C lib/et V=1 DESTDIR="${D}" install
 		emake -C lib/ss V=1 DESTDIR="${D}" install
-
-		if use tools ; then
-			emake -C lib/ext2fs V=1 DESTDIR="${D}" install
-			emake -C lib/e2p V=1 DESTDIR="${D}" install
-		fi
-	else
-		emake \
-			STRIP=: \
-			DESTDIR="${D}" \
-			install
-
-		# Move shared libraries to /lib/, install static libraries to
-		# /usr/lib/, and install linker scripts to /usr/lib/.
-		gen_usr_ldscript -a e2p ext2fs
+		emake -C lib/ext2fs V=1 DESTDIR="${D}" install
+		emake -C lib/e2p V=1 DESTDIR="${D}" install
 	fi
 
-	gen_usr_ldscript -a com_err ss $(usex kernel_linux '' 'uuid blkid')
+	# Move shared libraries to /lib/, install static libraries to
+	# /usr/lib/, and install linker scripts to /usr/lib/.
+	gen_usr_ldscript -a com_err ss ext2fs e2p
 
-	# configure doesn't have an option to disable static libs :/
+	# configure doesn't have an option to disable static libs
 	if ! use static-libs ; then
 		find "${ED}" -name '*.a' -delete || die
 	fi
@@ -160,4 +158,12 @@ multilib_src_install_all() {
 		insinto /etc
 		doins "${FILESDIR}"/e2fsck.conf
 	fi
+}
+
+pkg_postinst() {
+	udev_reload
+}
+
+pkg_postrm() {
+	udev_reload
 }
