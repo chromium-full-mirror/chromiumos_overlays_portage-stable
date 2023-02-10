@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,6 +6,8 @@ EAPI=7
 # Please bump with app-editors/vim-core and app-editors/gvim
 
 VIM_VERSION="9.0"
+VIM_PATCHES_VERSION="9.0.1000"
+
 LUA_COMPAT=( lua5-{1..4} luajit )
 PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE="threads(+)"
@@ -18,7 +20,7 @@ if [[ ${PV} == 9999* ]] ; then
 	EGIT_REPO_URI="https://github.com/vim/vim.git"
 else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> ${P}.tar.gz
-		https://gitweb.gentoo.org/proj/vim-patches.git/snapshot/vim-patches-vim-9.0.0049-patches.tar.gz"
+		https://gitweb.gentoo.org/proj/vim-patches.git/snapshot/vim-patches-vim-${VIM_PATCHES_VERSION}-patches.tar.bz2"
 	KEYWORDS="*"
 fi
 
@@ -76,10 +78,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-
 	if [[ ${PV} != 9999* ]] ; then
 		# Gentoo patches to fix runtime issues, cross-compile errors, etc
-		eapply "${WORKDIR}"/vim-patches-vim-9.0.0049-patches
+		eapply "${WORKDIR}"/vim-patches-vim-${VIM_PATCHES_VERSION}-patches
 	fi
 
 	# Fixup a script to use awk instead of nawk
