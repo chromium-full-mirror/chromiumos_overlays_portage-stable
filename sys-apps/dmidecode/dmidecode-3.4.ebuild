@@ -1,14 +1,15 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit flag-o-matic toolchain-funcs
+# Upstream often give "recommended patches" at https://www.nongnu.org/dmidecode/
+# Check regularly after releases!
+inherit toolchain-funcs
 
 DESCRIPTION="DMI (Desktop Management Interface) table related utilities"
 HOMEPAGE="https://www.nongnu.org/dmidecode/"
 SRC_URI="https://savannah.nongnu.org/download/${PN}/${P}.tar.xz"
-PATCHES=("${FILESDIR}"/${P}-e12ec26e.patch)
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -16,10 +17,10 @@ KEYWORDS="*"
 IUSE="selinux"
 
 RDEPEND="selinux? ( sec-policy/selinux-dmidecode )"
-DEPEND=""
 
 src_prepare() {
 	default
+
 	sed -i \
 		-e "/^prefix/s:/usr/local:${EPREFIX}/usr:" \
 		-e "/^docdir/s:dmidecode:${PF}:" \
@@ -29,7 +30,7 @@ src_prepare() {
 
 src_compile() {
 	emake \
-		CFLAGS="${CFLAGS} ${CPPFLAGS}" \
+		CFLAGS="-D_FILE_OFFSET_BITS=64 ${CFLAGS} ${CPPFLAGS}" \
 		LDFLAGS="${LDFLAGS}" \
 		CC="$(tc-getCC)"
 }
