@@ -1,13 +1,13 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI=7
 
-inherit autotools flag-o-matic systemd
-if [[ ${PV} == "9999" ]] ; then
+inherit flag-o-matic systemd
+if [[ ${PV} == 9999 ]] ; then
 	ESVN_REPO_URI="https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools"
 	ESVN_PROJECT="smartmontools"
-	inherit subversion
+	inherit autotools subversion
 else
 	SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 	KEYWORDS="*"
@@ -18,24 +18,23 @@ HOMEPAGE="https://www.smartmontools.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="caps +daemon selinux static systemd update_drivedb"
+IUSE="caps +daemon selinux static systemd +update-drivedb"
 
 DEPEND="
 	caps? (
-		static? ( sys-libs/libcap-ng[static-libs] )
-		!static? ( sys-libs/libcap-ng )
-	)
-	kernel_FreeBSD? (
-		sys-freebsd/freebsd-lib[usb]
+		static? ( sys-libs/libcap-ng:=[static-libs] )
+		!static? ( sys-libs/libcap-ng:= )
 	)
 	selinux? (
-		sys-libs/libselinux
-	)"
-RDEPEND="${DEPEND}
+		sys-libs/libselinux:=
+	)
+"
+RDEPEND="
+	${DEPEND}
 	daemon? ( virtual/mailx )
 	selinux? ( sec-policy/selinux-smartmon )
 	systemd? ( sys-apps/systemd )
-	update_drivedb? (
+	update-drivedb? (
 		app-crypt/gnupg
 		|| (
 			net-misc/curl
@@ -46,11 +45,17 @@ RDEPEND="${DEPEND}
 	)
 "
 
-REQUIRED_USE="( caps? ( daemon ) )"
+REQUIRED_USE="(
+	caps? ( daemon )
+	static? ( !systemd )
+)"
 
 src_prepare() {
 	default
-	eautoreconf
+
+	if [[ ${PV} == 9999 ]] ; then
+		eautoreconf
+	fi
 }
 
 src_configure() {
@@ -64,8 +69,8 @@ src_configure() {
 		$(use_with caps libcap-ng)
 		$(use_with selinux)
 		$(use_with systemd libsystemd)
-		$(use_with update_drivedb gnupg)
-		$(use_with update_drivedb update-smart-drivedb)
+		$(use_with update-drivedb gnupg)
+		$(use_with update-drivedb update-smart-drivedb)
 		$(usex systemd "--with-systemdsystemunitdir=$(systemd_get_systemunitdir)" '')
 	)
 	econf "${myeconfargs[@]}"
@@ -73,6 +78,7 @@ src_configure() {
 
 src_install() {
 	local db_path="/var/db/${PN}"
+	insopts -m0644 -p # preserve timestamps
 
 	if use daemon; then
 		default
@@ -87,7 +93,7 @@ src_install() {
 		einstalldocs
 	fi
 
-	if use update_drivedb ; then
+	if use update-drivedb ; then
 		if ! use daemon; then
 			dosbin "${S}"/update-smart-drivedb
 		fi
@@ -96,7 +102,7 @@ src_install() {
 		doexe "${FILESDIR}/${PN}-update-drivedb"
 	fi
 
-	if use daemon || use update_drivedb; then
+	if use daemon || use update-drivedb; then
 		keepdir "${db_path}"
 
 		# Install a copy of the initial drivedb.h to /usr/share/${PN}
@@ -109,16 +115,16 @@ src_install() {
 	# Make sure we never install drivedb.h into the db location
 	# of the acutal image so we don't record hashes because user
 	# can modify that file
-	rm -f "${ED%/}${db_path}/drivedb.h" || die
+	rm -f "${ED}${db_path}/drivedb.h" || die
 
 	# Bug #622072
-	find "${ED%/}"/usr/share/doc -type f -exec chmod a-x '{}' \; || die
+	find "${ED}"/usr/share/doc -type f -exec chmod a-x '{}' \; || die
 }
 
 pkg_postinst() {
-	if use daemon || use update_drivedb; then
-		local initial_db_file="${EPREFIX}/usr/share/${PN}/drivedb.h"
-		local db_path="${EPREFIX}/var/db/${PN}"
+	if use daemon || use update-drivedb; then
+		local initial_db_file="${EROOT}/usr/share/${PN}/drivedb.h"
+		local db_path="${EROOT}/var/db/${PN}"
 
 		if [[ ! -f "${db_path}/drivedb.h" ]] ; then
 			# No initial database found
@@ -140,10 +146,10 @@ pkg_postinst() {
 			ewarn ""
 			ewarn "     /usr/sbin/update-smart-drivedb"
 
-			if ! use update_drivedb ; then
+			if ! use update-drivedb ; then
 				ewarn ""
 				ewarn "However, 'update-smart-drivedb' requires that you re-emerge ${PN}"
-				ewarn "with USE='update_drivedb'."
+				ewarn "with USE='update-drivedb'."
 			fi
 		fi
 	fi
