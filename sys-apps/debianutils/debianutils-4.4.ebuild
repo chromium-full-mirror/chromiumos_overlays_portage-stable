@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/sys-apps/debianutils/debianutils-4.4.ebuild,v 1.1 2013/09/05 08:16:56 radhermit Exp $
 
-EAPI=4
+EAPI="7"
 
 inherit eutils flag-o-matic
 
@@ -17,9 +17,9 @@ IUSE="kernel_linux static"
 
 PDEPEND="|| ( >=sys-apps/coreutils-6.10-r1 sys-freebsd/freebsd-ubin )"
 
-src_prepare() {
-	epatch "${FILESDIR}"/${PN}-3.4.2-no-bs-namespace.patch
-}
+PATCHES=(
+	"${FILESDIR}"/${PN}-3.4.2-no-bs-namespace.patch
+)
 
 src_configure() {
 	use static && append-ldflags -static
