@@ -1,1 +1,0 @@
-libgusb-0.3.10.ebuild
