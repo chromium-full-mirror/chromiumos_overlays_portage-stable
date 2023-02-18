@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=dev-lang/perl >=sys-devel/automake-wrapper-10 >=sys-devel/autoconf-2.69:* sys-devel/gnuconfig
 SLOT=1.15
 SRC_URI=mirror://gnu/automake/automake-1.15.1.tar.xz https://alpha.gnu.org/pub/gnu/automake/automake-1.15.1.tar.xz
-_eclasses_=estack	686eaab303305a908fd57b2fd7617800	versionator	26ca8a8bd95d6a74122c08ba98a4ee72
-_md5_=52528b680f06a5cebdd18530f70e5819
+_eclasses_=epatch	ed88001f77c6dd0d5f09e45c1a5b480e	estack	686eaab303305a908fd57b2fd7617800	versionator	26ca8a8bd95d6a74122c08ba98a4ee72
+_md5_=9ad954c1de8bb269aa7e00d5a1986cfb
