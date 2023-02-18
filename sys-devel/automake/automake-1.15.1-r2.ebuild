@@ -3,7 +3,7 @@
 
 EAPI="5"
 
-inherit versionator
+inherit epatch versionator
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/r/${PN}.git"
