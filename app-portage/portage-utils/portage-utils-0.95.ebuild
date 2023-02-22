@@ -11,6 +11,7 @@ HOMEPAGE="https://wiki.gentoo.org/wiki/Portage-utils"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3 autotools
 	EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/portage-utils.git"
+	KEYWORDS="~*"
 else
 	SRC_URI="https://dev.gentoo.org/~grobian/distfiles/${P}.tar.xz"
 	KEYWORDS="*"
