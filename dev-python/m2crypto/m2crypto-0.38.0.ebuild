@@ -1,9 +1,9 @@
-# Copyright 2018-2020 Gentoo Authors
+# Copyright 2018-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1 toolchain-funcs
@@ -12,30 +12,24 @@ MY_PN="M2Crypto"
 DESCRIPTION="A Python crypto and SSL toolkit"
 HOMEPAGE="https://gitlab.com/m2crypto/m2crypto https://pypi.org/project/M2Crypto/"
 SRC_URI="mirror://pypi/${MY_PN:0:1}/${MY_PN}/${MY_PN}-${PV}.tar.gz"
+S="${WORKDIR}/${MY_PN}-${PV}"
 
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
-IUSE="libressl"
+IUSE="test abi_mips_n32 abi_mips_n64 abi_mips_o32"
+RESTRICT="!test? ( test )"
 
-RDEPEND="
-	!libressl? ( dev-libs/openssl:0= )
-	libressl? ( dev-libs/libressl:0= )
-	$(python_gen_cond_dep '
-		dev-python/typing[${PYTHON_USEDEP}]
-	' -2)
-"
-DEPEND="${RDEPEND}"
 BDEPEND="
 	>=dev-lang/swig-2.0.9
-	dev-python/setuptools[${PYTHON_USEDEP}]
+	test? ( dev-python/parameterized[${PYTHON_USEDEP}] )
 "
+RDEPEND="
+	dev-libs/openssl:0=
+"
+DEPEND="${RDEPEND}"
 
-S="${WORKDIR}/${MY_PN}-${PV}"
-
-PATCHES=(
-	"${FILESDIR}/${PN}-libressl-0.31.0.patch"
-)
+distutils_enable_tests setup.py
 
 swig_define() {
 	local x
@@ -44,6 +38,14 @@ swig_define() {
 			SWIG_FEATURES+=" -D${x}"
 		fi
 	done
+}
+
+src_prepare() {
+	# relies on very exact clock behavior which apparently fails
+	# with inconvenient CONFIG_HZ*
+	sed -e 's:test_server_simple_timeouts:_&:' \
+		-i tests/test_ssl.py || die
+	distutils-r1_src_prepare
 }
 
 python_compile() {
@@ -57,9 +59,14 @@ python_compile() {
 	# https://bugs.gentoo.org/674112
 	swig_define __ARM_PCS_VFP
 
-	distutils-r1_python_compile --openssl="${ESYSROOT}"/usr
-}
+	# Avoid similar errors to bug #688668 for MIPS
+	if use abi_mips_n32; then
+	    swig_define _MIPS_SIM = _ABIN32
+	elif use abi_mips_n64; then
+	    swig_define _MIPS_SIM = _ABI64
+	elif use abi_mips_o32; then
+	    swig_define _MIPS_SIM = _ABIO32
+	fi
 
-python_test() {
-	esetup.py test
+	distutils-r1_python_compile --openssl="${ESYSROOT}"/usr
 }
