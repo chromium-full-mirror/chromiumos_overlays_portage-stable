@@ -171,6 +171,8 @@ exportmakeopts() {
 
 	myopts=(
 		ASCIIDOC_NO_ROFF=YesPlease
+
+		# ChromeOS: switch to usex until we have EAPI 8 support
 		$(usex cvs '' NO_CVS=YesPlease)
 		$(usex elibc_musl NO_REGEX=YesPlease '')
 		$(usex iconv '' NO_ICONV=YesPlease)
