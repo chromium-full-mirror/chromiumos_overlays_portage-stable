@@ -1,10 +1,10 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+
 WANT_AUTOMAKE=none
 WANT_LIBTOOL=none
-
 inherit autotools flag-o-matic
 
 DESCRIPTION="Excellent text file viewer"
@@ -24,7 +24,9 @@ RDEPEND="${DEPEND}"
 src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}/less-608-procfs.patch"
+		"${FILESDIR}/less-608-CVE-2022-46663.patch"
 	)
+
 	default
 	# Upstream uses unpatched autoconf-2.69, which breaks with clang-16.
 	# https://bugs.gentoo.org/870412
@@ -32,7 +34,10 @@ src_prepare() {
 }
 
 src_configure() {
+	# ChromeOS: enable large file support.
+	# Upstream bug: https://bugs.gentoo.org/896316
 	append-lfs-flags
+
 	export ac_cv_lib_ncursesw_initscr=$(usex unicode)
 	export ac_cv_lib_ncurses_initscr=$(usex !unicode)
 	local myeconfargs=(
