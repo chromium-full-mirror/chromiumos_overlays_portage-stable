@@ -7,7 +7,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://gitlab.freedesktop.org/wayland/wayland.git"
 	inherit git-r3
 else
-	SRC_URI="https://wayland.freedesktop.org/releases/wayland-${PV}.tar.xz"
+	SRC_URI="https://gitlab.freedesktop.org/wayland/wayland/-/releases/${PV}/downloads/wayland-${PV}.tar.xz"
 	KEYWORDS="*"
 	S="${WORKDIR}/wayland-${PV}"
 fi

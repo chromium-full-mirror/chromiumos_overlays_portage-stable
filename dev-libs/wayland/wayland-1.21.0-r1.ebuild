@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -7,7 +7,7 @@ if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://gitlab.freedesktop.org/wayland/wayland.git"
 	inherit git-r3
 else
-	SRC_URI="https://wayland.freedesktop.org/releases/${P}.tar.xz"
+	SRC_URI="https://gitlab.freedesktop.org/wayland/${PN}/-/releases/${PV}/downloads/${P}.tar.xz"
 	KEYWORDS="*"
 fi
 inherit meson-multilib
@@ -54,4 +54,13 @@ src_test() {
 	chmod 0700 "${XDG_RUNTIME_DIR}" || die
 
 	multilib-minimal_src_test
+}
+
+src_install() {
+	meson-multilib_src_install
+
+	if use doc; then
+		mv "${ED}"/usr/share/doc/"${PN}"/* "${ED}"/usr/share/doc/"${PF}"/ || die
+		rmdir "${ED}"/usr/share/doc/"${PN}" || die
+	fi
 }
