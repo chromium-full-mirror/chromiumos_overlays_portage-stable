@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -12,7 +12,14 @@ DESCRIPTION="X.Org X Display Manager Control Protocol library"
 
 KEYWORDS="*"
 
-RDEPEND="elibc_glibc? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )"
+RDEPEND="
+	elibc_glibc? (
+		|| ( >=sys-libs/glibc-2.36 dev-libs/libbsd[${MULTILIB_USEDEP}] )
+	)
+	!elibc_glibc? (
+		dev-libs/libbsd[${MULTILIB_USEDEP}]
+	)
+"
 DEPEND="${RDEPEND}
 	x11-base/xorg-proto"
 

@@ -1,27 +1,28 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 XORG_DOC=doc
 XORG_MULTILIB=yes
+XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3
 
 DESCRIPTION="X.Org Session Management library"
-
 KEYWORDS="*"
-IUSE="ipv6 +uuid"
+IUSE="+uuid"
 
-RDEPEND="x11-base/xorg-proto
-	>=x11-libs/libICE-1.0.8-r1[${MULTILIB_USEDEP}]
-	x11-libs/xtrans
+RDEPEND="
+	>=x11-libs/libICE-1.1.0[${MULTILIB_USEDEP}]
 	uuid? (
 		elibc_Darwin? ( sys-libs/native-uuid )
 		!elibc_SunOS? ( !elibc_Darwin? (
 			>=sys-apps/util-linux-2.24.1-r3[${MULTILIB_USEDEP}]
 		) )
 	)"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	x11-base/xorg-proto
+	x11-libs/xtrans"
 
 src_configure() {
 	local withuuid=$(use_with uuid libuuid)
@@ -51,7 +52,7 @@ src_configure() {
 	fi
 
 	local XORG_CONFIGURE_OPTIONS=(
-		$(use_enable ipv6)
+		--enable-ipv6
 		$(use_enable doc docs)
 		$(use_with doc xmlto)
 		${withuuid}
