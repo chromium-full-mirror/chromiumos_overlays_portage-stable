@@ -1,1 +1,0 @@
-rsync-3.2.3-r3.ebuild
