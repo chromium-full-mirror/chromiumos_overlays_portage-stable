@@ -5,11 +5,4 @@
 		<email>base-system@gentoo.org</email>
 		<name>Gentoo Base System</name>
 	</maintainer>
-	<upstream>
-		<remote-id type="cpe">cpe:/a:gnupg:libgcrypt</remote-id>
-	</upstream>
-	<use>
-		<flag name="asm">Enable assembly for optimization</flag>
-		<flag name="getentropy">Use getentropy function to obtain randomness from the kernel</flag>
-	</use>
 </pkgmetadata>
