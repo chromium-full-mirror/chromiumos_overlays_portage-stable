@@ -11,5 +11,5 @@ RDEPEND=virtual/libusb:1= virtual/libudev:= python? ( python_single_target_pytho
 REQUIRED_USE=python? ( ^^ ( python_single_target_python3_8 python_single_target_python3_9 ) )
 SLOT=0
 SRC_URI=https://www.kernel.org/pub/linux/utils/usb/usbutils/usbutils-014.tar.xz
-_eclasses_=autotools	d0e5375d47f4c809f406eb892e531513	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	python-single-r1	674c48c926cbb44e91b656e0399d8f54	python-utils-r1	40d8aa7fe6ebbfad6019c8a46695058b	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	d0e5375d47f4c809f406eb892e531513	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	python-single-r1	674c48c926cbb44e91b656e0399d8f54	python-utils-r1	f52456f22195477581cb3015a41f1556	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=35040fded01adf3d85841cbbca1d79ab

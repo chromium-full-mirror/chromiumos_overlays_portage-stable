@@ -6,5 +6,5 @@ KEYWORDS=*
 RDEPEND=python_targets_pypy3? ( >=dev-python/pypy3-7.3.0:0= ) python_targets_python3_7? ( dev-lang/python:3.7 ) python_targets_python3_6? ( dev-lang/python:3.6 ) >=dev-lang/python-exec-2:=[python_targets_pypy3(-)?,python_targets_python3_7(-)?,python_targets_python3_6(-)?,-python_single_target_pypy3(-),-python_single_target_python3_7(-),-python_single_target_python3_6(-)] python_targets_pypy3? ( dev-python/pathlib[python_targets_pypy3(-)?,-python_single_target_pypy3(-)] )
 REQUIRED_USE=|| ( python_targets_pypy3 python_targets_python3_7 python_targets_python3_6 )
 SLOT=0
-_eclasses_=multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	python-r1	79e26ce8f853c9daebe9a4956e37cc1b	python-utils-r1	40d8aa7fe6ebbfad6019c8a46695058b	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	python-r1	79e26ce8f853c9daebe9a4956e37cc1b	python-utils-r1	f52456f22195477581cb3015a41f1556	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=d5220f4636dd9d87344d7ed902f1ccf4

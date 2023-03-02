@@ -9,5 +9,5 @@ RDEPEND=python_targets_python3_7? ( dev-lang/python:3.7 ) python_targets_python3
 REQUIRED_USE=|| ( python_targets_python3_7 python_targets_python3_8 python_targets_python3_9 python_targets_python3_6 )
 SLOT=0
 SRC_URI=https://github.com/GerritCodeReview/git-repo/archive/refs/tags/v2.29.tar.gz -> repo-2.29.tar.gz
-_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	python-r1	79e26ce8f853c9daebe9a4956e37cc1b	python-utils-r1	40d8aa7fe6ebbfad6019c8a46695058b	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	python-r1	79e26ce8f853c9daebe9a4956e37cc1b	python-utils-r1	f52456f22195477581cb3015a41f1556	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=3e39f594f4d42de3eb1196437ce203ce

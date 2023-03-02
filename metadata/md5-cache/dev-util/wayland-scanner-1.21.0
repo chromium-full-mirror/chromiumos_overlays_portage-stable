@@ -9,5 +9,5 @@ LICENSE=MIT
 RDEPEND=!<dev-libs/wayland-1.21.0 >=dev-libs/expat-2.1.0-r3
 SLOT=0
 SRC_URI=https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.21.0/downloads/wayland-1.21.0.tar.xz
-_eclasses_=meson	1cac59cd2074f59abbe00de88e93af9f	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	132cbb376048d079b5a012f5467c4e7f	python-utils-r1	40d8aa7fe6ebbfad6019c8a46695058b	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=meson	1cac59cd2074f59abbe00de88e93af9f	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	132cbb376048d079b5a012f5467c4e7f	python-utils-r1	f52456f22195477581cb3015a41f1556	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=747d601a43195ee20bc5d889c54c3883
