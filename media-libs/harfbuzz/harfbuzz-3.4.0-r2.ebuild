@@ -47,6 +47,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}/${P}-multiple_icu_defs.patch" #833891
+	"${FILESDIR}/no-cast-function-type-strict-60c6b77.patch" #269820347
 )
 
 pkg_setup() {
