@@ -1,9 +1,9 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-inherit eutils prefix
+inherit prefix
 
 DESCRIPTION="User land tool for cleaning up old perl installs"
 HOMEPAGE="https://www.gentoo.org/proj/en/perl/"
@@ -18,26 +18,25 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE=""
+# TODO: Detect at runtime what's available and fallback if needed, possibly
+# integrate with eselect-package-manager, bug #779007.
+IUSE="pkgcore"
 
-[[ "${PV}" == "9999" ]] && DEPEND="sys-apps/help2man"
+[[ "${PV}" == "9999" ]] && BDEPEND="sys-apps/help2man"
 
-RDEPEND="app-shells/bash
+RDEPEND="
+	app-shells/bash
 	dev-lang/perl
-	|| (
-		( sys-apps/portage app-portage/portage-utils )
-		sys-apps/pkgcore
-		sys-apps/paludis
+	pkgcore? ( sys-apps/pkgcore )
+	!pkgcore? (
+		app-portage/portage-utils
+		sys-apps/portage
 	)
 "
 
 src_prepare() {
-	if use prefix ; then
-		# I don't dare to throw non Prefix users for the bus, but this
-		# patch should be safe for them
-		epatch "${FILESDIR}"/${P}-prefix.patch
-		eprefixify ${PN}
-	fi
+	default
+	eprefixify ${PN}
 }
 
 src_install() {
