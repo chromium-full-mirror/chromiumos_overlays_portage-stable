@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for ExtUtils-MakeMaker
+EAPI=7
+KEYWORDS=*
+RDEPEND=|| ( =dev-lang/perl-5.36* ~perl-core/ExtUtils-MakeMaker-7.640.0 ) dev-lang/perl:= !<perl-core/ExtUtils-MakeMaker-7.640.0 !>perl-core/ExtUtils-MakeMaker-7.640.0-r999
+SLOT=0
+_md5_=5858ce1567ac67ab473afba3fe292408

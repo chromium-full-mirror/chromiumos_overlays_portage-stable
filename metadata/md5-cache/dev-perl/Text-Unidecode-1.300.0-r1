@@ -1,13 +1,13 @@
-BDEPEND=virtual/perl-ExtUtils-MakeMaker dev-lang/perl
+BDEPEND=dev-lang/perl
 DEFINED_PHASES=compile configure install prepare test
 DEPEND=dev-lang/perl
-DESCRIPTION=Canary to check perl compatibility for schmorp's modules
+DESCRIPTION=Plain ASCII transliterations of Unicode text
 EAPI=7
-HOMEPAGE=https://metacpan.org/release/Canary-Stability
+HOMEPAGE=https://metacpan.org/release/Text-Unidecode
 KEYWORDS=*
 LICENSE=|| ( Artistic GPL-1+ )
 RDEPEND=dev-lang/perl:=
 SLOT=0
-SRC_URI=mirror://cpan/authors/id/M/ML/MLEHMANN/Canary-Stability-2013.tar.gz
+SRC_URI=mirror://cpan/authors/id/S/SB/SBURKE/Text-Unidecode-1.30.tar.gz
 _eclasses_=multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	perl-functions	6ec4c4d8fc8324200f1c14e8d158c59b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
-_md5_=685d377dac96ec56cef7bee0f9751f25
+_md5_=40d8d134fe65a9af34115589a69ccf94
