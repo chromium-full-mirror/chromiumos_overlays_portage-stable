@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Gentoo Authors
+# Copyright 2020-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -20,7 +20,7 @@ DEPEND="
 	x11-base/xorg-proto
 	>=x11-libs/libxcb-1.11.1
 	x11-libs/xtrans"
-RDEPEND="!<x11-libs/libX11-1.7.0"
+RDEPEND=""
 
 XORG_CONFIGURE_OPTIONS=(
 	--without-xmlto
