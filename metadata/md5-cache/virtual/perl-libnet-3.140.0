@@ -1,0 +1,9 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for libnet
+EAPI=7
+IUSE=+ssl
+KEYWORDS=*
+PDEPEND=ssl? ( >=dev-perl/IO-Socket-SSL-2.7.0 )
+RDEPEND=|| ( =dev-lang/perl-5.36* ~perl-core/libnet-3.140.0 ) dev-lang/perl:= !<perl-core/libnet-3.140.0 !>perl-core/libnet-3.140.0-r999
+SLOT=0
+_md5_=8bf43d436433f5fbe0e196853cfeaf12

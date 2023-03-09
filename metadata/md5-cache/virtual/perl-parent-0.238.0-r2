@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for parent
+EAPI=7
+KEYWORDS=*
+RDEPEND=|| ( =dev-lang/perl-5.36* =dev-lang/perl-5.34* ~perl-core/parent-0.238.0 ) dev-lang/perl:= !<perl-core/parent-0.238.0 !>perl-core/parent-0.238.0-r999
+SLOT=0
+_md5_=dc8e3aca29b93530845d7dd34adc917d
