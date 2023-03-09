@@ -1,0 +1,5 @@
+# The factory shim uses django.
+include chromiumos/platform/factory:/OWNERS
+
+# The autotest AFE & TKO code uses django.
+include chromiumos/third_party/autotest:/ENGPROD_OWNERS
