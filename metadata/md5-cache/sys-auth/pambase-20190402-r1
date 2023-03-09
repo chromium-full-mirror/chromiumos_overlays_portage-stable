@@ -1,5 +1,5 @@
 DEFINED_PHASES=compile install test
-DEPEND=app-arch/xz-utils app-portage/portage-utils
+DEPEND=virtual/pam app-arch/xz-utils app-portage/portage-utils
 DESCRIPTION=PAM base configuration files
 EAPI=7
 HOMEPAGE=https://github.com/gentoo/pambase
@@ -11,4 +11,4 @@ REQUIRED_USE=?? ( consolekit elogind systemd )
 RESTRICT=binchecks
 SLOT=0
 SRC_URI=https://github.com/gentoo/pambase/archive/pambase-20190402.tar.gz
-_md5_=86b498f21a0ccd9c9275f84c930b32b9
+_md5_=dcc22a840c36e6a2a4615f4990067e62
