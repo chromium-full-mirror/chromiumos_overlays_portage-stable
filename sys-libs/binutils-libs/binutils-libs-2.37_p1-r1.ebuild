@@ -43,6 +43,10 @@ src_prepare() {
 		eapply "${WORKDIR}/patch"/*.patch
 	fi
 
+	einfo "Applying local CrOS patches"
+	eapply "${FILESDIR}"
+	einfo "Done."
+
 	# Fix cross-compile relinking issue, bug #626402
 	elibtoolize
 
