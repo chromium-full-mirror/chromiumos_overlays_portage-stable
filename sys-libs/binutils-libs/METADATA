@@ -1,0 +1,18 @@
+# Copyright 2023 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Metadata information for which CVEs have been patched in.
+#
+# For more information, see:
+#     http://go/third-party-package-remediation-playbook#special-case-back-ported-patches
+third_party {
+  version: "2.37_p1"
+  security {
+    tag: "cpe:/a:gnu:binutils:2.37_p1"
+    mitigated_security_patch: "CVE-2021-3826"  # 0003-sync-libiberty-sources-with-gcc-mainline.patch
+    mitigated_security_patch: "CVE-2021-46195" # 0003-sync-libiberty-sources-with-gcc-mainline.patch
+    mitigated_security_patch: "CVE-2022-4285"  # 0002-Fix-an-illegal-memory-access-when-parsing-an-ELF-fil.patch
+    mitigated_security_patch: "CVE-2022-38533" # 0001-PR29482-strip-heap-buffer-overflow.patch
+  }
+}
