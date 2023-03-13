@@ -1,7 +1,7 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=4
+EAPI=7
 
 inherit prefix
 
@@ -9,36 +9,38 @@ DESCRIPTION="Perl script that converts Texinfo to HTML"
 HOMEPAGE="http://www.nongnu.org/texi2html/"
 SRC_URI="mirror://nongnu/${PN}/${P}.tar.bz2"
 
-LICENSE="CC-SA-1.0 FDL-1.3 GPL-2"
+LICENSE="GPL-2+ || ( GPL-2 CC-BY-SA-1.0 ) Texinfo-manual LGPL-2+ MIT"
 SLOT="0"
 KEYWORDS="*"
 IUSE="unicode"
+RESTRICT="test" #411523
 
-RDEPEND=">=dev-lang/perl-5.10.1
-	>=dev-perl/libintl-perl-1.200
+RDEPEND="
+	dev-lang/perl
+	dev-perl/libintl-perl
 	unicode? (
 		dev-perl/Text-Unidecode
 		dev-perl/Unicode-EastAsianWidth
-		)"
+	)"
 DEPEND="${RDEPEND}"
 
-DOCS="AUTHORS ChangeLog NEWS README TODO"
-
-RESTRICT="test" #411523
-
 src_prepare() {
+	default
+
 	# On FreeBSD this script is used instead of GNU install but it comes without
 	# executable pemissions... Fix it!
 	chmod +x install-sh || die
 
 	if use prefix; then
-		hprefixify $(find . -name '*.pl' | xargs)
+		local f
+		while IFS="" read -d $'\0' -r f ; do
+			hprefixify "${f}"
+		done < <(find . -name '*.pl' -print0)
 	fi
 }
 
 src_configure() {
-	local myconf
-	use unicode && myconf='--with-external-Unicode-EastAsianWidth'
+	use unicode && local myconf='--with-external-Unicode-EastAsianWidth'
 
 	econf \
 		--with-external-libintl-perl \
@@ -48,9 +50,9 @@ src_configure() {
 
 src_install() {
 	default
-	rm -f "${ED}"/usr/share/${PN}/images/{COPYING*,GPL,README}
+	rm "${ED}"/usr/share/${PN}/images/{COPYING*,GPL,README} || die
 }
 
 pkg_preinst() {
-	rm -f "${EROOT}"/usr/bin/${PN}
+	rm -f "${EROOT}"/usr/bin/${PN} || die
 }
