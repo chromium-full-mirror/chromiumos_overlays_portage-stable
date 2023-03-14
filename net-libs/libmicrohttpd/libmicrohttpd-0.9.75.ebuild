@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -10,25 +10,23 @@ MY_P="${P/_/}"
 DESCRIPTION="Small C library to run an HTTP server as part of another application"
 HOMEPAGE="https://www.gnu.org/software/libmicrohttpd/"
 SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz"
+S="${WORKDIR}"/${MY_P}
 
-LICENSE="LGPL-2.1"
+LICENSE="LGPL-2.1+"
 SLOT="0/12"
 KEYWORDS="*"
-IUSE="+epoll ssl static-libs test thread-names"
+IUSE="+epoll ssl static-libs test +thread-names"
 RESTRICT="!test? ( test )"
 
-RDEPEND="ssl? ( >net-libs/gnutls-2.12.20:= )"
-
+RDEPEND="ssl? ( >net-libs/gnutls-2.12.20:=[${MULTILIB_USEDEP}] )"
+# libcurl and the curl binary are used during tests on CHOST
 DEPEND="${RDEPEND}
-	test?	( net-misc/curl[ssl?] )
-	virtual/pkgconfig
-	"
+	test? ( net-misc/curl[ssl?] )"
+BDEPEND="ssl? ( virtual/pkgconfig )"
 
-PATCHES=( "${FILESDIR}"/${PN}-0.9.73-test-ssl3.patch )
+DOCS=( AUTHORS NEWS COPYING README ChangeLog )
 
-S=${WORKDIR}/${MY_P}
-
-DOCS="AUTHORS NEWS README ChangeLog"
+PATCHES=( "${FILESDIR}"/${P}-fix-testsuite-with-lto.patch )
 
 multilib_src_configure() {
 	ECONF_SOURCE="${S}" \
@@ -43,6 +41,7 @@ multilib_src_configure() {
 		--enable-postprocessor \
 		--enable-httpupgrade \
 		--disable-experimental \
+		--disable-heavy-tests \
 		$(use_enable thread-names) \
 		$(use_enable epoll) \
 		$(use_enable test curl) \
@@ -53,5 +52,7 @@ multilib_src_configure() {
 multilib_src_install_all() {
 	default
 
-	use static-libs || find "${ED}" -name '*.la' -delete
+	if ! use static-libs; then
+		find "${ED}" -name '*.la' -delete || die
+	fi
 }
