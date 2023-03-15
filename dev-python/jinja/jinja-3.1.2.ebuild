@@ -1,17 +1,24 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8,9} pypy3 )
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=( python3_{6..11} pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1
 
 DESCRIPTION="A full-featured template engine for Python"
-HOMEPAGE="https://jinja.palletsprojects.com/ https://pypi.org/project/Jinja2/"
-# pypi tarball is missing tests
-SRC_URI="https://github.com/pallets/jinja/archive/${PV}.tar.gz -> ${P}.tar.gz"
+HOMEPAGE="
+	https://palletsprojects.com/p/jinja/
+	https://github.com/pallets/jinja/
+	https://pypi.org/project/Jinja2/
+"
+SRC_URI="
+	https://github.com/pallets/jinja/archive/${PV}.tar.gz
+		-> ${P}.gh.tar.gz
+"
 
 LICENSE="BSD"
 SLOT="0"
@@ -19,8 +26,8 @@ KEYWORDS="*"
 IUSE="examples"
 
 RDEPEND="
-	dev-python/markupsafe[${PYTHON_USEDEP}]
-	!dev-python/jinja:compat"
+	>=dev-python/markupsafe-2.0.0[${PYTHON_USEDEP}]
+"
 
 distutils_enable_sphinx docs \
 	dev-python/sphinx-issues \
@@ -36,18 +43,6 @@ src_prepare() {
 	distutils-r1_src_prepare
 }
 
-python_compile() {
-	distutils-r1_python_compile
-
-	if ! python_is_python3; then
-		rm "${BUILD_DIR}"/lib/jinja2/async*.py || die
-	fi
-}
-
-python_install() {
-	distutils-r1_python_install --skip-build
-}
-
 python_install_all() {
 	if use examples ; then
 		docinto examples
@@ -55,9 +50,6 @@ python_install_all() {
 	fi
 
 	distutils-r1_python_install_all
-
-	insinto /usr/share/vim/vimfiles/syntax
-	doins ext/Vim/*
 }
 
 pkg_postinst() {
