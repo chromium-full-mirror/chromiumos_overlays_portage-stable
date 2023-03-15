@@ -26,6 +26,8 @@ RDEPEND="${DEPEND}
 BDEPEND="${RDEPEND}
 	virtual/pkgconfig
 	test? ( dev-python/pytest[${PYTHON_USEDEP}] )"
+# Needed to build C extension
+DEPEND+=" ${PYTHON_DEPS}"
 
 distutils_enable_sphinx doc/source
 
