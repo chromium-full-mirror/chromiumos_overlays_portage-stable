@@ -1,3 +1,1 @@
-# Used by CrOS Flex.
-tbrandston@google.com
-nicholasbishop@google.com
+include chromiumos/owners:v1:/device/OWNERS.reven_boot
