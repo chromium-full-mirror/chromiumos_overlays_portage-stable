@@ -14,9 +14,9 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="bzip2 crypt natspec unicode"
 
-DEPEND="${RDEPEND}"
 RDEPEND="bzip2? ( app-arch/bzip2 )
 	natspec? ( dev-libs/libnatspec )"
+DEPEND="${RDEPEND}"
 BDEPEND="app-arch/unzip"
 
 S="${WORKDIR}/${MY_P}"
