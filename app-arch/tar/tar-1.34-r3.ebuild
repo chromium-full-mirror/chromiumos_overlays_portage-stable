@@ -37,6 +37,10 @@ PDEPEND="
 	app-alternatives/tar
 "
 
+PATCHES=(
+	"${FILESDIR}/${P}-fix-cve-2022-48303.patch"
+)
+
 src_configure() {
 	local myeconfargs=(
 		--bindir="${EPREFIX}"/bin
