@@ -1,15 +1,16 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-PYTHON_COMPAT=( python3_6 )
+EAPI=7
+
+PYTHON_COMPAT=( python3_{6..11} )
 PYTHON_REQ_USE="threads(+)"
 
-inherit eutils flag-o-matic distutils-r1 versionator
+inherit distutils-r1 virtualx
 
 TWISTED_PN="Twisted"
 TWISTED_P="${TWISTED_PN}-${PV}"
-TWISTED_RELEASE=$(get_version_component_range 1-2 "${PV}")
+TWISTED_RELEASE=$(ver_cut 1-2)
 
 DESCRIPTION="An asynchronous networking framework written in Python"
 HOMEPAGE="https://www.twistedmatrix.com/trac/"
@@ -17,21 +18,24 @@ SRC_URI="https://twistedmatrix.com/Releases/${TWISTED_PN}"
 SRC_URI="${SRC_URI}/${TWISTED_RELEASE}/${TWISTED_P}.tar.bz2
 	https://dev.gentoo.org/~mgorny/dist/twisted-regen-cache.gz"
 
-# Dropped keywords due to new deps not keyworded
-#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~ppc ~ppc64 ~s390 ~sh ~x86 ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 KEYWORDS="*"
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="conch crypt http2 serial +soap test"
+IUSE="conch crypt http2 serial test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
+	>=dev-python/attrs-19.2.0[${PYTHON_USEDEP}]
+	>=dev-python/automat-0.3.0[${PYTHON_USEDEP}]
+	>=dev-python/constantly-15.1.0[${PYTHON_USEDEP}]
+	>=dev-python/hyperlink-17.1.1[${PYTHON_USEDEP}]
 	>=dev-python/incremental-16.10.1[${PYTHON_USEDEP}]
-	>=dev-python/zope-interface-4.0.2[${PYTHON_USEDEP}]
+	>=dev-python/pyhamcrest-1.9.0[${PYTHON_USEDEP}]
+	>=dev-python/zope-interface-4.4.2[${PYTHON_USEDEP}]
 	conch? (
 		dev-python/pyasn1[${PYTHON_USEDEP}]
-		>=dev-python/cryptography-0.9.1[${PYTHON_USEDEP}]
+		>=dev-python/cryptography-1.5.0[${PYTHON_USEDEP}]
 		>=dev-python/appdirs-1.4.0[${PYTHON_USEDEP}]
 	)
 	crypt? (
@@ -39,14 +43,13 @@ RDEPEND="
 		dev-python/service_identity[${PYTHON_USEDEP}]
 		>=dev-python/idna-0.6[${PYTHON_USEDEP}]
 	)
-	serial? ( dev-python/pyserial[${PYTHON_USEDEP}] )
+	serial? ( >=dev-python/pyserial-3.0[${PYTHON_USEDEP}] )
 	http2? (
-		>=dev-python/hyper-h2-2.5.0[${PYTHON_USEDEP}]
-		<dev-python/hyper-h2-3.0.0[${PYTHON_USEDEP}]
+		>=dev-python/hyper-h2-3.0.0[${PYTHON_USEDEP}]
+		<dev-python/hyper-h2-4.0.0[${PYTHON_USEDEP}]
 		>=dev-python/priority-1.1.0[${PYTHON_USEDEP}]
 		<dev-python/priority-2.0[${PYTHON_USEDEP}]
 	)
-	>=dev-python/constantly-15.1.0[${PYTHON_USEDEP}]
 	!dev-python/twisted-core
 	!dev-python/twisted-conch
 	!dev-python/twisted-lore
@@ -59,6 +62,7 @@ RDEPEND="
 	!dev-python/twisted-web
 "
 DEPEND="
+	dev-python/bcrypt
 	>=dev-python/incremental-16.10.1[${PYTHON_USEDEP}]
 	test? (
 		dev-python/gmpy[${PYTHON_USEDEP}]
@@ -70,73 +74,77 @@ DEPEND="
 		dev-python/idna[${PYTHON_USEDEP}]
 		dev-python/pyserial[${PYTHON_USEDEP}]
 		>=dev-python/constantly-15.1.0[${PYTHON_USEDEP}]
+		net-misc/openssh
 	)
 "
-
-PATCHES=(
-	# Respect TWISTED_DISABLE_WRITING_OF_PLUGIN_CACHE variable.
-	"${FILESDIR}/${PN}-16.5.0-respect_TWISTED_DISABLE_WRITING_OF_PLUGIN_CACHE.patch"
-	"${FILESDIR}/test_main.patch"
-	"${FILESDIR}/utf8_overrides.patch"
-	"${FILESDIR}/${PN}-16.6.0-test-fixes.patch"
-)
 
 S=${WORKDIR}/${TWISTED_P}
 
 python_prepare_all() {
-	# disable tests that don't work in our sandbox
-	# and other test failures due to our conditions
-	if use test ; then
-		# Remove since this is an upstream distribution test for making releases
-		rm src/twisted/python/test/test_release.py || die "rm src/twisted/python/test/test_release.py FAILED"
-	fi
+	local PATCHES=(
+		"${FILESDIR}"/twisted-20.3.0-py38-cgi.patch
+		"${FILESDIR}"/twisted-20.3.0-py38-hmac.patch
+		"${FILESDIR}"/twisted-20.3.0-py39-b64.patch
+		"${FILESDIR}"/twisted-20.3.0-py39-combined.patch
+	)
+
+	# upstream test for making releases; not very useful and requires
+	# sphinx (including on py2)
+	rm src/twisted/python/test/test_release.py || die
+
+	# Conch doesn't work with latest >=OpenSSH 7.6
+	#   - https://twistedmatrix.com/trac/ticket/9311
+	#   - https://twistedmatrix.com/trac/ticket/9515
+	rm src/twisted/conch/test/test_ckeygen.py || die
+	rm src/twisted/conch/test/test_conch.py || die
+	rm src/twisted/conch/test/test_cftp.py || die
+
+	# puts system in EMFILE state, then the exception handler may fail
+	# trying to open more files due to some gi magic
+	sed -e '/SKIP_EMFILE/s:None:"Fails on non-pristine systems":' \
+		-i src/twisted/internet/test/test_tcp.py || die
+
+	# multicast tests fail within network-sandbox
+	sed -e 's:test_joinLeave:_&:' \
+		-e 's:test_loopback:_&:' \
+		-e 's:test_multiListen:_&:' \
+		-e 's:test_multicast:_&:' \
+		-i src/twisted/test/test_udp.py || die
+
+	# accesses /dev/net/tun
+	sed -e '/class RealDeviceTestsMixin/a\
+    skip = "Requires extra permissions"' \
+		-i src/twisted/pair/test/test_tuntap.py || die
+
+	# TODO: figure it out, probably doesn't accept DST date here
+	sed -e 's:test_getTimezoneOffsetWithoutDaylightSavingTime:_&:' \
+		-i src/twisted/test/test_log.py || die
+
+	# TODO: failures specific to Python 2
+	sed -e 's:testLookupProcNetTcp:_&:' \
+		-i src/twisted/test/test_ident.py || die
+	sed -e 's:test_loggingFactoryOpensLogfileAutomatically:_&:' \
+		-i src/twisted/test/test_policies.py || die
+
 	distutils-r1_python_prepare_all
 }
 
-python_compile() {
-	if ! python_is_python3; then
-		# Needed to make the sendmsg extension work
-		# (see https://twistedmatrix.com/trac/ticket/5701 )
-		local -x CFLAGS="${CFLAGS} -fno-strict-aliasing"
-		local -x CXXFLAGS="${CXXFLAGS} -fno-strict-aliasing"
-	fi
-
-	distutils-r1_python_compile
+src_test() {
+	virtx distutils-r1_src_test
 }
 
 python_test() {
+	# TODO: upstream seems to override our build paths
 	distutils_install_for_testing
 
-	export EMERGE_TEST_OVERRIDE=1
-	export UTF8_OVERRIDES=1
-	# workaround for the eclass not installing the entry points
-	# in the test environment.  copy the old 16.3.2 start script
-	# to run the tests with
-	cp "${FILESDIR}"/trial "${TEST_DIR}" || die
-	chmod +x "${TEST_DIR}"/trial || die
-
-	pushd "${TEST_DIR}" > /dev/null || die
-
-	if ! "${TEST_DIR}"/trial twisted; then
+	"${EPYTHON}" -m twisted.trial twisted ||
 		die "Tests failed with ${EPYTHON}"
-	fi
-	# due to an anomoly in the tests, python doesn't return the correct form
-	# of the escape sequence. So run those test separately with a clean python interpreter
-	export UTF8_OVERRIDES=0
-	if ! "${TEST_DIR}"/trial twisted.test.test_twistd.DaemonizeTests; then
-		die "DaemonizeTests failed with ${EPYTHON}"
-	fi
-	if ! "${TEST_DIR}"/trial twisted.test.test_reflect.SafeStrTests; then
-		die "SafeStrTests failed with ${EPYTHON}"
-	fi
-
-	popd > /dev/null || die
 }
 
 python_install() {
 	distutils-r1_python_install
 
-	cd "${D%/}$(python_get_sitedir)" || die
+	cd "${D}$(python_get_sitedir)" || die
 
 	# own the dropin.cache so we don't leave orphans
 	touch twisted/plugins/dropin.cache || die
@@ -167,13 +175,11 @@ pkg_postinst() {
 		einfo "For a complete test suite run on the code."
 		einfo "Run the tests as a normal user for each python it is installed to."
 		einfo "  ie:  $ python3.6 /usr/bin/trial twisted"
-		einfo "There are a few known python-2.7 errors due to some unicode issues"
-		einfo "which are different in Gentoo installed python-2.7"
 	fi
 }
 
 python_postrm() {
-	rm -f "${ROOT%/}$(python_get_sitedir)/twisted/plugins/dropin.cache" || die
+	rm -f "${ROOT}$(python_get_sitedir)/twisted/plugins/dropin.cache" || die
 }
 
 pkg_postrm() {
