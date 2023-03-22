@@ -1,0 +1,352 @@
+commit ba70a9523ae303fb69e74877471807328f571a6d
+Author: Chen, Brox <brox.chen@intel.com>
+Date:   Wed Nov 30 08:08:23 2022 -0800
+
+    added SPRIV_INTEL_argument_interfaces
+
+diff --git a/include/spirv/unified1/spirv.bf b/include/spirv/unified1/spirv.bf
+index f83434a..5bcfc8b 100644
+--- a/include/spirv/unified1/spirv.bf
++++ b/include/spirv/unified1/spirv.bf
+@@ -567,6 +567,16 @@ namespace Spv
+             SingleElementVectorINTEL = 6085,
+             VectorComputeCallableFunctionINTEL = 6087,
+             MediaBlockIOINTEL = 6140,
++            ConduitKernelArgumentINTEL = 6175,
++            RegisterMapKernelArgumentINTEL = 6176,
++            MMHostInterfaceAddressWidthINTEL = 6177,
++            MMHostInterfaceDataWidthINTEL = 6178,
++            MMHostInterfaceLatencyINTEL = 6179,
++            MMHostInterfaceReadWriteModeINTEL = 6180,
++            MMHostInterfaceMaxBurstINTEL = 6181,
++            MMHostInterfaceAlignmentINTEL = 6182,
++            MMHostInterfaceWaitRequestINTEL = 6183,
++            StableKernelArgumentINTEL = 6184,
+         }
+ 
+         [AllowDuplicates, CRepr] public enum BuiltIn
+@@ -1121,6 +1131,7 @@ namespace Spv
+             AtomicFloat16AddEXT = 6095,
+             DebugInfoModuleINTEL = 6114,
+             SplitBarrierINTEL = 6141,
++            FPGAArgumentInterfacesINTEL = 6174,
+             GroupUniformArithmeticKHR = 6400,
+         }
+ 
+diff --git a/include/spirv/unified1/spirv.core.grammar.json b/include/spirv/unified1/spirv.core.grammar.json
+index 5cedfb0..797a017 100644
+--- a/include/spirv/unified1/spirv.core.grammar.json
++++ b/include/spirv/unified1/spirv.core.grammar.json
+@@ -11986,6 +11986,66 @@
+           "value" : 6140,
+           "capabilities" : [ "VectorComputeINTEL" ],
+           "version" : "None"
++        },
++        {
++          "enumerant" : "ConduitKernelArgumentINTEL",
++          "value" : 6175,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "RegisterMapKernelArgumentINTEL",
++          "value" : 6176,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "MMHostInterfaceAddressWidthINTEL",
++          "value" : 6177,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "MMHostInterfaceDataWidthINTEL",
++          "value" : 6178,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "MMHostInterfaceLatencyINTEL",
++          "value" : 6179,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "MMHostInterfaceReadWriteModeINTEL",
++          "value" : 6180,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "MMHostInterfaceMaxBurstINTEL",
++          "value" : 6181,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "MMHostInterfaceAlignmentINTEL",
++          "value" : 6182,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "MMHostInterfaceWaitRequestINTEL",
++          "value" : 6183,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
++        },
++        {
++          "enumerant" : "StableKernelArgumentINTEL",
++          "value" : 6184,
++          "capabilities" : [ "FPGAArgumentInterfacesINTEL" ],
++          "version" : "None"
+         }
+       ]
+     },
+@@ -14260,6 +14320,11 @@
+           "extensions" : [ "SPV_INTEL_split_barrier" ],
+           "version" : "None"
+         },
++        {
++          "enumerant" : "FPGAArgumentInterfacesINTEL",
++          "value" : 6174,
++          "version" : "None"
++        },
+         {
+           "enumerant" : "GroupUniformArithmeticKHR",
+           "value" : 6400,
+diff --git a/include/spirv/unified1/spirv.cs b/include/spirv/unified1/spirv.cs
+index 9a0b14f..900b073 100644
+--- a/include/spirv/unified1/spirv.cs
++++ b/include/spirv/unified1/spirv.cs
+@@ -566,6 +566,16 @@ namespace Spv
+             SingleElementVectorINTEL = 6085,
+             VectorComputeCallableFunctionINTEL = 6087,
+             MediaBlockIOINTEL = 6140,
++            ConduitKernelArgumentINTEL = 6175,
++            RegisterMapKernelArgumentINTEL = 6176,
++            MMHostInterfaceAddressWidthINTEL = 6177,
++            MMHostInterfaceDataWidthINTEL = 6178,
++            MMHostInterfaceLatencyINTEL = 6179,
++            MMHostInterfaceReadWriteModeINTEL = 6180,
++            MMHostInterfaceMaxBurstINTEL = 6181,
++            MMHostInterfaceAlignmentINTEL = 6182,
++            MMHostInterfaceWaitRequestINTEL = 6183,
++            StableKernelArgumentINTEL = 6184,
+         }
+ 
+         public enum BuiltIn
+@@ -1120,6 +1130,7 @@ namespace Spv
+             AtomicFloat16AddEXT = 6095,
+             DebugInfoModuleINTEL = 6114,
+             SplitBarrierINTEL = 6141,
++            FPGAArgumentInterfacesINTEL = 6174,
+             GroupUniformArithmeticKHR = 6400,
+         }
+ 
+diff --git a/include/spirv/unified1/spirv.h b/include/spirv/unified1/spirv.h
+index c3b1b3b..e4b88fc 100644
+--- a/include/spirv/unified1/spirv.h
++++ b/include/spirv/unified1/spirv.h
+@@ -572,6 +572,16 @@ typedef enum SpvDecoration_ {
+     SpvDecorationSingleElementVectorINTEL = 6085,
+     SpvDecorationVectorComputeCallableFunctionINTEL = 6087,
+     SpvDecorationMediaBlockIOINTEL = 6140,
++    SpvDecorationConduitKernelArgumentINTEL = 6175,
++    SpvDecorationRegisterMapKernelArgumentINTEL = 6176,
++    SpvDecorationMMHostInterfaceAddressWidthINTEL = 6177,
++    SpvDecorationMMHostInterfaceDataWidthINTEL = 6178,
++    SpvDecorationMMHostInterfaceLatencyINTEL = 6179,
++    SpvDecorationMMHostInterfaceReadWriteModeINTEL = 6180,
++    SpvDecorationMMHostInterfaceMaxBurstINTEL = 6181,
++    SpvDecorationMMHostInterfaceAlignmentINTEL = 6182,
++    SpvDecorationMMHostInterfaceWaitRequestINTEL = 6183,
++    SpvDecorationStableKernelArgumentINTEL = 6184,
+     SpvDecorationMax = 0x7fffffff,
+ } SpvDecoration;
+ 
+@@ -1120,6 +1130,7 @@ typedef enum SpvCapability_ {
+     SpvCapabilityAtomicFloat16AddEXT = 6095,
+     SpvCapabilityDebugInfoModuleINTEL = 6114,
+     SpvCapabilitySplitBarrierINTEL = 6141,
++    SpvCapabilityFPGAArgumentInterfacesINTEL = 6174,
+     SpvCapabilityGroupUniformArithmeticKHR = 6400,
+     SpvCapabilityMax = 0x7fffffff,
+ } SpvCapability;
+diff --git a/include/spirv/unified1/spirv.hpp b/include/spirv/unified1/spirv.hpp
+index 38813cc..5254595 100644
+--- a/include/spirv/unified1/spirv.hpp
++++ b/include/spirv/unified1/spirv.hpp
+@@ -568,6 +568,16 @@ enum Decoration {
+     DecorationSingleElementVectorINTEL = 6085,
+     DecorationVectorComputeCallableFunctionINTEL = 6087,
+     DecorationMediaBlockIOINTEL = 6140,
++    DecorationConduitKernelArgumentINTEL = 6175,
++    DecorationRegisterMapKernelArgumentINTEL = 6176,
++    DecorationMMHostInterfaceAddressWidthINTEL = 6177,
++    DecorationMMHostInterfaceDataWidthINTEL = 6178,
++    DecorationMMHostInterfaceLatencyINTEL = 6179,
++    DecorationMMHostInterfaceReadWriteModeINTEL = 6180,
++    DecorationMMHostInterfaceMaxBurstINTEL = 6181,
++    DecorationMMHostInterfaceAlignmentINTEL = 6182,
++    DecorationMMHostInterfaceWaitRequestINTEL = 6183,
++    DecorationStableKernelArgumentINTEL = 6184,
+     DecorationMax = 0x7fffffff,
+ };
+ 
+@@ -1116,6 +1126,7 @@ enum Capability {
+     CapabilityAtomicFloat16AddEXT = 6095,
+     CapabilityDebugInfoModuleINTEL = 6114,
+     CapabilitySplitBarrierINTEL = 6141,
++    CapabilityFPGAArgumentInterfacesINTEL = 6174,
+     CapabilityGroupUniformArithmeticKHR = 6400,
+     CapabilityMax = 0x7fffffff,
+ };
+diff --git a/include/spirv/unified1/spirv.hpp11 b/include/spirv/unified1/spirv.hpp11
+index 10309fe..338d848 100644
+--- a/include/spirv/unified1/spirv.hpp11
++++ b/include/spirv/unified1/spirv.hpp11
+@@ -568,6 +568,16 @@ enum class Decoration : unsigned {
+     SingleElementVectorINTEL = 6085,
+     VectorComputeCallableFunctionINTEL = 6087,
+     MediaBlockIOINTEL = 6140,
++    ConduitKernelArgumentINTEL = 6175,
++    RegisterMapKernelArgumentINTEL = 6176,
++    MMHostInterfaceAddressWidthINTEL = 6177,
++    MMHostInterfaceDataWidthINTEL = 6178,
++    MMHostInterfaceLatencyINTEL = 6179,
++    MMHostInterfaceReadWriteModeINTEL = 6180,
++    MMHostInterfaceMaxBurstINTEL = 6181,
++    MMHostInterfaceAlignmentINTEL = 6182,
++    MMHostInterfaceWaitRequestINTEL = 6183,
++    StableKernelArgumentINTEL = 6184,
+     Max = 0x7fffffff,
+ };
+ 
+@@ -1116,6 +1126,7 @@ enum class Capability : unsigned {
+     AtomicFloat16AddEXT = 6095,
+     DebugInfoModuleINTEL = 6114,
+     SplitBarrierINTEL = 6141,
++    FPGAArgumentInterfacesINTEL = 6174,
+     GroupUniformArithmeticKHR = 6400,
+     Max = 0x7fffffff,
+ };
+diff --git a/include/spirv/unified1/spirv.json b/include/spirv/unified1/spirv.json
+index ebd09ee..af59ccb 100644
+--- a/include/spirv/unified1/spirv.json
++++ b/include/spirv/unified1/spirv.json
+@@ -593,7 +593,17 @@
+                     "FunctionFloatingPointModeINTEL": 6080,
+                     "SingleElementVectorINTEL": 6085,
+                     "VectorComputeCallableFunctionINTEL": 6087,
+-                    "MediaBlockIOINTEL": 6140
++                    "MediaBlockIOINTEL": 6140,
++                    "ConduitKernelArgumentINTEL": 6175,
++                    "RegisterMapKernelArgumentINTEL": 6176,
++                    "MMHostInterfaceAddressWidthINTEL": 6177,
++                    "MMHostInterfaceDataWidthINTEL": 6178,
++                    "MMHostInterfaceLatencyINTEL": 6179,
++                    "MMHostInterfaceReadWriteModeINTEL": 6180,
++                    "MMHostInterfaceMaxBurstINTEL": 6181,
++                    "MMHostInterfaceAlignmentINTEL": 6182,
++                    "MMHostInterfaceWaitRequestINTEL": 6183,
++                    "StableKernelArgumentINTEL": 6184
+                 }
+             },
+             {
+@@ -1098,6 +1108,7 @@
+                     "AtomicFloat16AddEXT": 6095,
+                     "DebugInfoModuleINTEL": 6114,
+                     "SplitBarrierINTEL": 6141,
++                    "FPGAArgumentInterfacesINTEL": 6174,
+                     "GroupUniformArithmeticKHR": 6400
+                 }
+             },
+diff --git a/include/spirv/unified1/spirv.lua b/include/spirv/unified1/spirv.lua
+index 1d784f7..434f3ac 100644
+--- a/include/spirv/unified1/spirv.lua
++++ b/include/spirv/unified1/spirv.lua
+@@ -541,6 +541,16 @@ spv = {
+         SingleElementVectorINTEL = 6085,
+         VectorComputeCallableFunctionINTEL = 6087,
+         MediaBlockIOINTEL = 6140,
++        ConduitKernelArgumentINTEL = 6175,
++        RegisterMapKernelArgumentINTEL = 6176,
++        MMHostInterfaceAddressWidthINTEL = 6177,
++        MMHostInterfaceDataWidthINTEL = 6178,
++        MMHostInterfaceLatencyINTEL = 6179,
++        MMHostInterfaceReadWriteModeINTEL = 6180,
++        MMHostInterfaceMaxBurstINTEL = 6181,
++        MMHostInterfaceAlignmentINTEL = 6182,
++        MMHostInterfaceWaitRequestINTEL = 6183,
++        StableKernelArgumentINTEL = 6184,
+     },
+ 
+     BuiltIn = {
+@@ -1078,6 +1088,7 @@ spv = {
+         AtomicFloat16AddEXT = 6095,
+         DebugInfoModuleINTEL = 6114,
+         SplitBarrierINTEL = 6141,
++        FPGAArgumentInterfacesINTEL = 6174,
+         GroupUniformArithmeticKHR = 6400,
+     },
+ 
+diff --git a/include/spirv/unified1/spirv.py b/include/spirv/unified1/spirv.py
+index 970649f..d423783 100644
+--- a/include/spirv/unified1/spirv.py
++++ b/include/spirv/unified1/spirv.py
+@@ -541,6 +541,16 @@ spv = {
+         'SingleElementVectorINTEL' : 6085,
+         'VectorComputeCallableFunctionINTEL' : 6087,
+         'MediaBlockIOINTEL' : 6140,
++        'ConduitKernelArgumentINTEL' : 6175,
++        'RegisterMapKernelArgumentINTEL' : 6176,
++        'MMHostInterfaceAddressWidthINTEL' : 6177,
++        'MMHostInterfaceDataWidthINTEL' : 6178,
++        'MMHostInterfaceLatencyINTEL' : 6179,
++        'MMHostInterfaceReadWriteModeINTEL' : 6180,
++        'MMHostInterfaceMaxBurstINTEL' : 6181,
++        'MMHostInterfaceAlignmentINTEL' : 6182,
++        'MMHostInterfaceWaitRequestINTEL' : 6183,
++        'StableKernelArgumentINTEL' : 6184,
+     },
+ 
+     'BuiltIn' : {
+@@ -1078,6 +1088,7 @@ spv = {
+         'AtomicFloat16AddEXT' : 6095,
+         'DebugInfoModuleINTEL' : 6114,
+         'SplitBarrierINTEL' : 6141,
++        'FPGAArgumentInterfacesINTEL' : 6174,
+         'GroupUniformArithmeticKHR' : 6400,
+     },
+ 
+diff --git a/include/spirv/unified1/spv.d b/include/spirv/unified1/spv.d
+index a8c03ff..a3e1715 100644
+--- a/include/spirv/unified1/spv.d
++++ b/include/spirv/unified1/spv.d
+@@ -569,6 +569,16 @@ enum Decoration : uint
+     SingleElementVectorINTEL = 6085,
+     VectorComputeCallableFunctionINTEL = 6087,
+     MediaBlockIOINTEL = 6140,
++    ConduitKernelArgumentINTEL = 6175,
++    RegisterMapKernelArgumentINTEL = 6176,
++    MMHostInterfaceAddressWidthINTEL = 6177,
++    MMHostInterfaceDataWidthINTEL = 6178,
++    MMHostInterfaceLatencyINTEL = 6179,
++    MMHostInterfaceReadWriteModeINTEL = 6180,
++    MMHostInterfaceMaxBurstINTEL = 6181,
++    MMHostInterfaceAlignmentINTEL = 6182,
++    MMHostInterfaceWaitRequestINTEL = 6183,
++    StableKernelArgumentINTEL = 6184,
+ }
+ 
+ enum BuiltIn : uint
+@@ -1123,6 +1133,7 @@ enum Capability : uint
+     AtomicFloat16AddEXT = 6095,
+     DebugInfoModuleINTEL = 6114,
+     SplitBarrierINTEL = 6141,
++    FPGAArgumentInterfacesINTEL = 6174,
+     GroupUniformArithmeticKHR = 6400,
+ }
+ 
