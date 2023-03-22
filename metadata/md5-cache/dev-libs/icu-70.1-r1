@@ -1,4 +1,4 @@
-BDEPEND=|| ( dev-lang/python:3.6 dev-lang/python:3.8 dev-lang/python:3.7 ) sys-devel/autoconf-archive virtual/pkgconfig doc? ( app-doc/doxygen[dot] ) >=app-portage/elt-patches-20170815
+BDEPEND=|| ( dev-lang/python:3.6 dev-lang/python:3.7 dev-lang/python:3.8 ) sys-devel/autoconf-archive virtual/pkgconfig doc? ( app-doc/doxygen[dot] ) >=app-portage/elt-patches-20170815
 DEFINED_PHASES=compile configure install prepare setup test
 DEPEND=!<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16.1:1.16 >=sys-devel/automake-1.15.1:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DESCRIPTION=International Components for Unicode
@@ -9,5 +9,5 @@ KEYWORDS=*
 LICENSE=BSD
 SLOT=0/70.1
 SRC_URI=https://github.com/unicode-org/icu/releases/download/release-70-1/icu4c-70_1-src.tgz
-_eclasses_=autotools	d0e5375d47f4c809f406eb892e531513	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	f52456f22195477581cb3015a41f1556	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	d0e5375d47f4c809f406eb892e531513	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	5bd4686cbe063e46fff90664cfc1a5a1	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=0cafdac012e0eb2125d8457b36ee7625
