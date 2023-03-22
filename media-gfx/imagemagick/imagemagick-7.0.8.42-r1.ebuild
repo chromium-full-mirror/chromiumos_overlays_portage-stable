@@ -1,0 +1,1 @@
+imagemagick-7.0.8.42.ebuild
