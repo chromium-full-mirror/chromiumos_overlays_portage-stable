@@ -78,11 +78,7 @@ src_test() {
 }
 
 src_install() {
-	dobin output/bazel
-	newbashcomp bazel-complete.bash ${PN}
-	bashcomp_alias ${PN} ibazel
-	insinto /usr/share/zsh/site-functions
-	doins scripts/zsh_completion/_bazel
+	newbin output/bazel bazel-4
 
 	if use examples; then
 		docinto examples
