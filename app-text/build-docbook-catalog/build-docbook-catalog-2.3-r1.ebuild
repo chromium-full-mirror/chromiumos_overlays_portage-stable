@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -16,9 +16,16 @@ RDEPEND="
 	|| ( sys-apps/util-linux app-misc/getopt )
 "
 
+# CHROMIUM: See https://bugs.gentoo.org/903801 and b/276481134
+PATCHES=(
+	"${FILESDIR}/0001-Fix-incorrect-cp-when-using-ROOT.patch"
+	"${FILESDIR}/0002-Fix-noisy-find-command.patch"
+)
+
 src_prepare() {
 	default
 
+	sed -i -e "1s@#!@#!${EPREFIX}@" build-docbook-catalog || die
 	sed -i -e "/^EPREFIX=/s:=.*:='${EPREFIX}':" build-docbook-catalog || die
 	has_version sys-apps/util-linux || sed -i -e '/^GETOPT=/s/getopt/&-long/' build-docbook-catalog || die
 }
@@ -32,5 +39,6 @@ src_configure() {
 
 pkg_postinst() {
 	# New version -> regen files
-	build-docbook-catalog
+	# See bug #816303 for rationale behind die
+	build-docbook-catalog || die "Failed to regenerate docbook catalog."
 }
