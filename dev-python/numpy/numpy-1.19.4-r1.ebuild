@@ -27,6 +27,9 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="doc lapack"
 
+# Needed to build the C extension
+DEPEND="${PYTHON_DEPS}"
+
 RDEPEND="
 	lapack? (
 		>=virtual/cblas-3.8
