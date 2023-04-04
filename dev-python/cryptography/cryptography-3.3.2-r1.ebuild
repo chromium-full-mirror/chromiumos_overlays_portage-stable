@@ -44,6 +44,9 @@ DEPEND="
 	"
 RDEPEND+=${DEPEND}
 
+# Needed to build the C extension
+DEPEND+="${PYTHON_DEPS}"
+
 DOCS=( AUTHORS.rst CONTRIBUTING.rst README.rst )
 
 src_prepare() {
