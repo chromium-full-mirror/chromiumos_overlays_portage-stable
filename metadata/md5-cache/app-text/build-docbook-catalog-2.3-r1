@@ -6,5 +6,5 @@ KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=dev-libs/libxml2 || ( sys-apps/util-linux app-misc/getopt )
 SLOT=0
-SRC_URI=https://gitweb.gentoo.org/proj/build-docbook-catalog.git/snapshot/build-docbook-catalog-2.0.tar.bz2
-_md5_=f5cb93ace8b824da845afe7113ce6a97
+SRC_URI=https://gitweb.gentoo.org/proj/build-docbook-catalog.git/snapshot/build-docbook-catalog-2.3.tar.bz2
+_md5_=61350efa204e57c4d51c4ebb8f119151
