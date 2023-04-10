@@ -33,8 +33,8 @@
 # functions, you should consider calling the defaults (and especially
 # distutils-r1_python_prepare_all).
 #
-# Please note that distutils-r1 sets RDEPEND and DEPEND unconditionally
-# for you.
+# Please note that distutils-r1 sets BDEPEND, DEPEND, and RDEPEND
+# unconditionally for you.
 #
 # Also, please note that distutils-r1 will always inherit python-r1
 # as well. Thus, all the variables defined and documented there are
@@ -134,6 +134,11 @@ _distutils_set_globals() {
 
 	RDEPEND=${rdep}
 	if [[ ${EAPI} != [56] ]]; then
+		# This dependency is only required for packages that build
+		# C extensions. It was deemed cleaner to unconditionally
+		# add the dependency than add it to the individual
+		# ebuilds that need it.
+		DEPEND="${PYTHON_DEPS}"
 		BDEPEND=${bdep}
 	else
 		DEPEND=${bdep}
