@@ -1,22 +1,25 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=7
 
-inherit autotools prefix multilib-minimal verify-sig
+VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/danielstenberg.asc
+inherit autotools multilib-minimal prefix verify-sig
 
 DESCRIPTION="A Client that groks URLs"
 HOMEPAGE="https://curl.se/"
-SRC_URI="https://curl.se/download/${P}.tar.xz
-	verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )"
+SRC_URI="
+	https://curl.se/download/${P}.tar.xz
+	verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
+"
 
 LICENSE="curl"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+IUSE="+adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_rustls"
-IUSE+=" nghttp3 quiche"
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/danielstenberg.asc
+IUSE+=" nghttp3"
+RESTRICT="!test? ( test )"
 
 # Only one default ssl provider can be enabled
 REQUIRED_USE="
@@ -28,63 +31,58 @@ REQUIRED_USE="
 			curl_ssl_openssl
 			curl_ssl_rustls
 		)
-	)"
+	)
+"
 
-# lead to lots of false negatives, bug #285669
-RESTRICT="!test? ( test )"
-
-RDEPEND="ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
+RDEPEND="
+	sys-libs/zlib[${MULTILIB_USEDEP}]
+	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
+	http2? ( net-libs/nghttp2:=[${MULTILIB_USEDEP}] )
+	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
+	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
+	ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
+	nghttp3? (
+		net-libs/nghttp3[${MULTILIB_USEDEP}]
+		net-libs/ngtcp2[ssl,${MULTILIB_USEDEP}]
+	)
+	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
+	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
 	ssl? (
 		gnutls? (
+			app-misc/ca-certificates
 			net-libs/gnutls:=[static-libs?,${MULTILIB_USEDEP}]
 			dev-libs/nettle:=[${MULTILIB_USEDEP}]
-			app-misc/ca-certificates
 		)
 		mbedtls? (
-			net-libs/mbedtls:=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
+			net-libs/mbedtls:=[${MULTILIB_USEDEP}]
+		)
+		nss? (
+			app-misc/ca-certificates
+			dev-libs/nss[${MULTILIB_USEDEP}]
+			dev-libs/nss-pem
 		)
 		openssl? (
 			dev-libs/openssl:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
-		)
-		nss? (
-			dev-libs/nss:0[${MULTILIB_USEDEP}]
-			dev-libs/nss-pem
-			app-misc/ca-certificates
 		)
 		rustls? (
 			net-libs/rustls-ffi:=[${MULTILIB_USEDEP}]
 		)
 	)
-	http2? ( net-libs/nghttp2:=[${MULTILIB_USEDEP}] )
-	nghttp3? (
-		net-libs/nghttp3[${MULTILIB_USEDEP}]
-		net-libs/ngtcp2[ssl,${MULTILIB_USEDEP}]
-	)
-	quiche? ( >=net-libs/quiche-0.3.0[${MULTILIB_USEDEP}] )
-	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
-	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
-	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
-	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
-	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
-	sys-libs/zlib[${MULTILIB_USEDEP}]
-	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )"
-
-# Do we need to enforce the same ssl backend for curl and rtmpdump? Bug #423303
-#	rtmp? (
-#		media-video/rtmpdump
-#		curl_ssl_gnutls? ( media-video/rtmpdump[gnutls] )
-#		curl_ssl_openssl? ( media-video/rtmpdump[-gnutls,ssl] )
-#	)
-
+	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
+"
 DEPEND="${RDEPEND}"
-BDEPEND="dev-lang/perl
+BDEPEND="
+	dev-lang/perl
 	virtual/pkgconfig
 	test? (
 		sys-apps/diffutils
+		http2? ( net-libs/nghttp2:=[utils,${MULTILIB_USEDEP}] )
+		nghttp3? ( net-libs/nghttp2:=[utils,${MULTILIB_USEDEP}] )
 	)
-	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )"
+	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
+"
 
 DOCS=( CHANGES README docs/{FEATURES.md,INTERNALS.md,FAQ,BUGS.md,CONTRIBUTE.md} )
 
@@ -96,12 +94,23 @@ MULTILIB_CHOST_TOOLS=(
 	/usr/bin/curl-config
 )
 
+QA_CONFIG_IMPL_DECL_SKIP=(
+	__builtin_available
+	closesocket
+	CloseSocket
+	getpass_r
+	ioctlsocket
+	IoctlSocket
+	mach_absolute_time
+	setmode
+)
+
 PATCHES=(
 	"${FILESDIR}"/${PN}-7.30.0-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
 
-	"${FILESDIR}"/${P}-gnutls-openssl-build.patch
-	"${FILESDIR}"/${P}-typecheck-deprecated.patch
+	# Backports
+	"${FILESDIR}"/${PN}-8.0.1-onion-resolution.patch
 )
 
 src_prepare() {
@@ -142,7 +151,6 @@ multilib_src_configure() {
 			einfo "SSL provided by rustls"
 			myconf+=( --with-rustls )
 		fi
-
 		if use curl_ssl_gnutls; then
 			einfo "Default SSL provided by gnutls"
 			myconf+=( --with-default-ssl-backend=gnutls )
@@ -208,13 +216,14 @@ multilib_src_configure() {
 		--enable-doh
 		--enable-symbol-hiding
 		--enable-http-auth
-		$(use_enable ipv6)
+		--enable-ipv6
 		--enable-largefile
 		--enable-manual
 		--enable-mime
 		--enable-netrc
 		$(use_enable progress-meter)
 		--enable-proxy
+		--enable-socketpair
 		--disable-sspi
 		$(use_enable static-libs static)
 		--enable-pthreads
@@ -233,10 +242,13 @@ multilib_src_configure() {
 		--without-msh3
 		$(use_with nghttp3)
 		$(use_with nghttp3 ngtcp2)
-		$(use_with quiche)
+		--without-quiche
 		$(use_with rtmp librtmp)
 		--without-schannel
 		--without-secure-transport
+		--without-test-caddy
+		--without-test-httpd
+		--without-test-nghttpx
 		$(use_enable websockets)
 		--without-winidn
 		--without-wolfssl
@@ -244,10 +256,16 @@ multilib_src_configure() {
 		$(use_with zstd)
 	)
 
+	if use test && multilib_is_native_abi && ( use http2 || use nghttp3 ); then
+		myconf+=(
+			--with-test-nghttpx="${BROOT}/usr/bin/nghttpx"
+		)
+	fi
+
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 
 	if ! multilib_is_native_abi; then
-		# avoid building the client
+		# Avoid building the client (we just want libcurl for multilib)
 		sed -i -e '/SUBDIRS/s:src::' Makefile || die
 		sed -i -e '/SUBDIRS/s:scripts::' Makefile || die
 	fi
@@ -261,10 +279,6 @@ multilib_src_configure() {
 	if use http2; then
 		libs+=( "-lnghttp2" )
 		priv+=( "libnghttp2" )
-	fi
-	if use quiche; then
-		libs+=( "-lquiche" )
-		priv+=( "quiche" )
 	fi
 	if use nghttp3; then
 		libs+=( "-lnghttp3" "-lngtcp2" )
@@ -290,7 +304,7 @@ multilib_src_test() {
 	# -k: keep test files after completion
 	# -am: automake style TAP output
 	# -p: print logs if test fails
-	# Note: if needed, we can disable tests. See e.g. Fedora's packaging
+	# Note: if needed, we can skip specific tests. See e.g. Fedora's packaging
 	# or just read https://github.com/curl/curl/tree/master/tests#run.
 	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p"
 }
