@@ -9,5 +9,5 @@ LICENSE=OFL-1.1
 RESTRICT=binchecks strip test
 SLOT=0
 SRC_URI=https://raw.githubusercontent.com/stipub/stixfonts/v2.11/zipfiles/static_otf.zip -> stix-fonts-2.11-otf.zip https://raw.githubusercontent.com/stipub/stixfonts/v2.11/docs/FONTLOG.txt -> stix-fonts-2.11-FONTLOG.txt https://raw.githubusercontent.com/stipub/stixfonts/v2.11/docs/STIXTwoMath-Regular.pdf -> stix-fonts-2.11-STIXTwoMath-Regular.pdf https://raw.githubusercontent.com/stipub/stixfonts/v2.11/docs/STIXTwoText-Regular.pdf -> stix-fonts-2.11-STIXTwoText-Regular.pdf
-_eclasses_=font	9cdfddf092c05c7c4efd70cc30dea046
+_eclasses_=font	9c33e6198000f5ed39b38bdbc30d50fc
 _md5_=e01354b30622387670673708421ff1ed
