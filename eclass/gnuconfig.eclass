@@ -21,7 +21,10 @@
 # gnuconfig_update should generally be called from src_unpack()
 
 
-DEPEND="sys-devel/gnuconfig"
+case ${EAPI} in
+	4|5|6) DEPEND="sys-devel/gnuconfig" ;;
+	*) BDEPEND="sys-devel/gnuconfig" ;;
+esac
 
 DESCRIPTION="Based on the ${ECLASS} eclass"
 
