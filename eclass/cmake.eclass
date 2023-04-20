@@ -435,6 +435,11 @@ cmake_src_configure() {
 				SET (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 			_EOF_
 		fi
+	elif [[ ${SYSROOT:-/} != / ]] ; then
+		einfo "Native build for ROOT=${SYSROOT}"
+		cat >> "${toolchain_file}" <<- _EOF_ || die
+			SET (CMAKE_SYSROOT "${SYSROOT}")
+		_EOF_
 	fi
 
 	if use prefix-guest; then
