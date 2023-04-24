@@ -2,13 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-GIT_REVISION=9ba4b250366a5ddde94bb7c9d1def331423aa323
 inherit go-module systemd
+GIT_REVISION=2806fc1057397dbaeefbea0e4e17bddfbd388f38
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
 SRC_URI="https://github.com/containerd/containerd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-SRC_URI+=" https://dev.gentoo.org/~williamh/dist/${P}-deps.tar.xz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -23,7 +22,7 @@ DEPEND="
 # recommended version of runc is found in script/setup/runc-version
 RDEPEND="
 	${DEPEND}
-	~app-containers/runc-1.1.4
+	~app-containers/runc-1.1.5[apparmor?,seccomp?]
 "
 
 BDEPEND="
@@ -38,6 +37,7 @@ src_prepare() {
 	default
 	sed -i \
 		-e "s/-s -w//" \
+		-e "s/-mod=readonly//" \
 		Makefile || die
 	sed -i \
 		-e "s:/usr/local:/usr:" \
@@ -71,6 +71,7 @@ src_compile() {
 src_install() {
 	dobin bin/*
 	doman man/*
+	newconfd "${FILESDIR}"/${PN}.confd "${PN}"
 	newinitd "${FILESDIR}"/${PN}.initd "${PN}"
 	systemd_dounit containerd.service
 	keepdir /var/lib/containerd
