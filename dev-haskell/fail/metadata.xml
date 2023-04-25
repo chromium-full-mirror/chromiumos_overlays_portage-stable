@@ -11,7 +11,7 @@
 		class that became available in
 		&lt;https://hackage.haskell.org/package/base-4.9.0.0 base-4.9.0.0&gt;
 		for older @base@ package versions.
-
+		
 		This package turns into an empty package when used with GHC versions
 		which already provide the "Control.Monad.Fail" module to make way for
 		GHC's own "Control.Monad.Fail" module.

@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: haskell-cabal.eclass
@@ -7,6 +7,7 @@
 # @AUTHOR:
 # Original author: Andres Loeh <kosmikus@gentoo.org>
 # Original author: Duncan Coutts <dcoutts@gentoo.org>
+# @SUPPORTED_EAPIS: 6 7 8
 # @BLURB: for packages that make use of the Haskell Common Architecture for Building Applications and Libraries (cabal)
 # @DESCRIPTION:
 # Basic instructions:
@@ -25,68 +26,182 @@
 #   nocabaldep --  don't add dependency on cabal.
 #                  only used for packages that _must_ not pull the dependency
 #                  on cabal, but still use this eclass (e.g. haskell-updater).
-#   ghcdeps    --  constraint dependency on package to ghc onces
+#   ghcdeps    --  constraint dependency on package to ghc once
 #                  only used for packages that use libghc internally and _must_
 #                  not pull upper versions
 #   test-suite --  add support for cabal test-suites (introduced in Cabal-1.8)
+#   rebuild-after-doc-workaround -- enable doctest test failure workaround.
+#                  Symptom: when `./setup haddock` is run in a `build-type: Custom`
+#                  package it might cause cause the test-suite to fail with
+#                  errors like:
+#                  > <command line>: cannot satisfy -package-id singletons-2.7-3Z7pnljD8tU1NrslJodXmr
+#                  Workaround re-reginsters the package to avoid the failure
+#                  (and rebuilds changes).
+#                  FEATURE can be removed once https://github.com/haskell/cabal/issues/7213
+#                  is fixed.
 
-inherit eutils ghc-package multilib toolchain-funcs
+case ${EAPI} in
+	6|7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
 
-# @ECLASS-VARIABLE: CABAL_EXTRA_CONFIGURE_FLAGS
+if [[ -z ${_HASKELL_CABAL_ECLASS} ]]; then
+_HASKELL_CABAL_ECLASS=1
+
+[[ ${EAPI} == 6 ]] && inherit eqawarn
+
+inherit ghc-package multilib toolchain-funcs
+
+# @ECLASS_VARIABLE: CABAL_EXTRA_CONFIGURE_FLAGS
+# @USER_VARIABLE
 # @DESCRIPTION:
 # User-specified additional parameters passed to 'setup configure'.
 # example: /etc/portage/make.conf:
 #    CABAL_EXTRA_CONFIGURE_FLAGS="--enable-shared --enable-executable-dynamic"
-: ${CABAL_EXTRA_CONFIGURE_FLAGS:=}
+: "${CABAL_EXTRA_CONFIGURE_FLAGS:=}"
 
-# @ECLASS-VARIABLE: CABAL_EXTRA_BUILD_FLAGS
+# @ECLASS_VARIABLE: CABAL_EXTRA_BUILD_FLAGS
+# @USER_VARIABLE
 # @DESCRIPTION:
 # User-specified additional parameters passed to 'setup build'.
 # example: /etc/portage/make.conf: CABAL_EXTRA_BUILD_FLAGS=-v
-: ${CABAL_EXTRA_BUILD_FLAGS:=}
+: "${CABAL_EXTRA_BUILD_FLAGS:=}"
 
-# @ECLASS-VARIABLE: GHC_BOOTSTRAP_FLAGS
+# @ECLASS_VARIABLE: GHC_BOOTSTRAP_FLAGS
+# @USER_VARIABLE
 # @DESCRIPTION:
 # User-specified additional parameters for ghc when building
 # _only_ 'setup' binary bootstrap.
 # example: /etc/portage/make.conf: GHC_BOOTSTRAP_FLAGS=-dynamic to make
 # linking 'setup' faster.
-: ${GHC_BOOTSTRAP_FLAGS:=}
+: "${GHC_BOOTSTRAP_FLAGS:=}"
 
-# @ECLASS-VARIABLE: CABAL_EXTRA_TEST_FLAGS
+# @ECLASS_VARIABLE: CABAL_EXTRA_HADDOCK_FLAGS
+# @USER_VARIABLE
+# @DESCRIPTION:
+# User-specified additional parameters passed to 'setup haddock'.
+# example: /etc/portage/make.conf:
+#    CABAL_EXTRA_HADDOCK_FLAGS="--haddock-options=--latex --haddock-options=--pretty-html"
+: "${CABAL_EXTRA_HADDOCK_FLAGS:=}"
+
+# @ECLASS_VARIABLE: CABAL_EXTRA_HOOGLE_FLAGS
+# @USER_VARIABLE
+# @DESCRIPTION:
+# User-specified additional parameters passed to 'setup haddock --hoogle'.
+# example: /etc/portage/make.conf:
+#    CABAL_EXTRA_HOOGLE_FLAGS="--haddock-options=--show-all"
+: "${CABAL_EXTRA_HOOGLE_FLAGS:=}"
+
+# @ECLASS_VARIABLE: CABAL_EXTRA_HSCOLOUR_FLAGS
+# @USER_VARIABLE
+# @DESCRIPTION:
+# User-specified additional parameters passed to 'setup hscolour'.
+# example: /etc/portage/make.conf:
+#    CABAL_EXTRA_HSCOLOUR_FLAGS="--executables --tests"
+: "${CABAL_EXTRA_HSCOLOUR_FLAGS:=}"
+
+
+# @ECLASS_VARIABLE: CABAL_EXTRA_TEST_FLAGS
+# @USER_VARIABLE
 # @DESCRIPTION:
 # User-specified additional parameters passed to 'setup test'.
 # example: /etc/portage/make.conf:
 #    CABAL_EXTRA_TEST_FLAGS="-v3 --show-details=streaming"
-: ${CABAL_EXTRA_TEST_FLAGS:=}
+: "${CABAL_EXTRA_TEST_FLAGS:=}"
 
-# @ECLASS-VARIABLE: CABAL_DEBUG_LOOSENING
+# @ECLASS_VARIABLE: CABAL_DEBUG_LOOSENING
 # @DESCRIPTION:
 # Show debug output for 'cabal_chdeps' function if set.
 # Needs working 'diff'.
-: ${CABAL_DEBUG_LOOSENING:=}
+: "${CABAL_DEBUG_LOOSENING:=}"
 
-# @ECLASS-VARIABLE: CABAL_REPORT_OTHER_BROKEN_PACKAGES
+# @ECLASS_VARIABLE: CABAL_REPORT_OTHER_BROKEN_PACKAGES
 # @DESCRIPTION:
 # Show other broken packages if 'cabal configure' fails.
 # It should be normally enabled unless you know you are about
 # to try to compile a lot of broken packages. Default value: 'yes'
 # Set to anything else to disable.
-: ${CABAL_REPORT_OTHER_BROKEN_PACKAGES:=yes}
+: "${CABAL_REPORT_OTHER_BROKEN_PACKAGES:=yes}"
 
-HASKELL_CABAL_EXPF="pkg_setup src_compile src_test src_install pkg_postinst pkg_postrm"
+# @ECLASS_VARIABLE: CABAL_HACKAGE_REVISION
+# @PRE_INHERIT
+# @DESCRIPTION:
+# Set the upstream revision number from Hackage. This will automatically
+# add the upstream cabal revision to SRC_URI and apply it in src_prepare.
+: "${CABAL_HACKAGE_REVISION:=0}"
+
+# @ECLASS_VARIABLE: CABAL_PN
+# @PRE_INHERIT
+# @DESCRIPTION:
+# Set the name of the package as it is recorded in the Hackage database. This
+# is mostly used when packages use CamelCase names upstream, but we want them
+# to be lowercase in portage.
+: "${CABAL_PN:=${PN}}"
+
+# @ECLASS_VARIABLE: CABAL_PV
+# @PRE_INHERIT
+# @DESCRIPTION:
+# Set the version of the package as it is recorded in the Hackage database.
+# This can be useful if we use a different versioning scheme in Portage than
+# the one from upstream
+: "${CABAL_PV:=${PV}}"
+
+# @ECLASS_VARIABLE: CABAL_P
+# @OUTPUT_VARIABLE
+# @DESCRIPTION:
+# The combined $CABAL_PN and $CABAL_PV variables, analogous to $P
+CABAL_P="${CABAL_PN}-${CABAL_PV}"
+
+S="${WORKDIR}/${CABAL_P}"
+
+# @ECLASS_VARIABLE: CABAL_FILE
+# @DESCRIPTION:
+# The location of the .cabal file for the Haskell package. This defaults to
+# "${S}/${CABAL_PN}.cabal".
+: "${CABAL_FILE:="${S}/${CABAL_PN}.cabal"}"
+
+# @ECLASS_VARIABLE: CABAL_DISTFILE
+# @OUTPUT_VARIABLE
+# @DESCRIPTION:
+# The name of the .cabal file downloaded from Hackage. This filename does not
+# include $DISTDIR
+if [[ ${CABAL_HACKAGE_REVISION} -ge 1 ]]; then
+	CABAL_DISTFILE="${P}-rev${CABAL_HACKAGE_REVISION}.cabal"
+fi
+
+# @ECLASS_VARIABLE: CABAL_CHDEPS
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Specifies changes to be made to the .cabal file. Uses the cabal_chdeps
+# function internally and shares the same syntax.
+# @EXAMPLE:
+# CABAL_CHDEPS=(
+#    'base >= 4.2 && < 4.6' 'base >= 4.2 && < 4.7'
+#    'containers ==0.4.*' 'containers >= 0.4 && < 0.6'
+# )
+: "${CABAL_CHDEPS:=}"
+
+# @ECLASS_VARIABLE: CABAL_LIVE_VERSION
+# @PRE_INHERIT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Set this to any value to prevent SRC_URI from being set automatically.
+: "${CABAL_LIVE_VERSION:=}"
+
+# @ECLASS_VARIABLE: GHC_BOOTSTRAP_PACKAGES
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Extra packages that need to be exposed when compiling Setup.hs
+# @EXAMPLE:
+# GHC_BOOTSTRAP_PACKAGES=(
+#	cabal-doctest
+# )
+: "${GHC_BOOTSTRAP_PACKAGES:=}"
 
 # 'dev-haskell/cabal' passes those options with ./configure-based
 # configuration, but most packages don't need/don't accept it:
 # #515362, #515362
 QA_CONFIGURE_OPTIONS+=" --with-compiler --with-hc --with-hc-pkg --with-gcc"
-
-case "${EAPI:-0}" in
-	2|3|4|5|6|7) HASKELL_CABAL_EXPF+=" src_configure" ;;
-	*) ;;
-esac
-
-EXPORT_FUNCTIONS ${HASKELL_CABAL_EXPF}
 
 for feature in ${CABAL_FEATURES}; do
 	case ${feature} in
@@ -99,9 +214,7 @@ for feature in ${CABAL_FEATURES}; do
 		nocabaldep) CABAL_FROM_GHC=yes;;
 		ghcdeps)    CABAL_GHC_CONSTRAINT=yes;;
 		test-suite) CABAL_TEST_SUITE=yes;;
-
-		# does nothing, removed 2016-09-04
-		bin)        ;;
+		rebuild-after-doc-workaround) CABAL_REBUILD_AFTER_DOC_WORKAROUND=yes;;
 
 		*) CABAL_UNKNOWN="${CABAL_UNKNOWN} ${feature}";;
 	esac
@@ -109,15 +222,6 @@ done
 
 if [[ -n "${CABAL_USE_HADDOCK}" ]]; then
 	IUSE="${IUSE} doc"
-	# don't require depend on itself to build docs.
-	# ebuild bootstraps docs from just built binary
-	#
-	# starting from ghc-7.10.2 we install haddock bundled with
-	# ghc to keep links to base and ghc library, otherwise
-	# newer haddock versions change index format and can't
-	# read index files for packages coming with ghc.
-	[[ ${CATEGORY}/${PN} = "dev-haskell/haddock" ]] || \
-		DEPEND="${DEPEND} doc? ( || ( dev-haskell/haddock >=dev-lang/ghc-7.10.2 ) )"
 fi
 
 if [[ -n "${CABAL_USE_HSCOLOUR}" ]]; then
@@ -127,7 +231,7 @@ fi
 
 if [[ -n "${CABAL_USE_HOOGLE}" ]]; then
 	# enabled only in ::haskell
-	#IUSE="${IUSE} hoogle"
+	# IUSE="${IUSE} hoogle"
 	CABAL_USE_HOOGLE=
 fi
 
@@ -140,9 +244,29 @@ if [[ -n "${CABAL_TEST_SUITE}" ]]; then
 	RESTRICT+=" !test? ( test )"
 fi
 
+# If SRC_URI is defined in the ebuild without appending, it will overwrite
+# the value set here. This will not be set on packages whose versions end in "9999"
+# or if CABAL_LIVE_VERSION is set.
+case $PV in
+	*9999) ;;
+	*)
+		if [[ -z "${CABAL_LIVE_VERSION}" ]]; then
+			if [[ "${CABAL_P}" == "${P}" ]]; then
+				SRC_URI="https://hackage.haskell.org/package/${P}/${P}.tar.gz"
+			else
+				SRC_URI="https://hackage.haskell.org/package/${CABAL_P}/${CABAL_P}.tar.gz -> ${P}.tar.gz"
+			fi
+			if [[ -n ${CABAL_DISTFILE} ]]; then
+				SRC_URI+=" https://hackage.haskell.org/package/${CABAL_P}/revision/${CABAL_HACKAGE_REVISION}.cabal -> ${CABAL_DISTFILE}"
+			fi
+		fi ;;
+esac
+
+BDEPEND="${BDEPEND} app-text/dos2unix"
+
 # returns the version of cabal currently in use.
 # Rarely it's handy to pin cabal version from outside.
-: ${_CABAL_VERSION_CACHE:=""}
+: "${_CABAL_VERSION_CACHE:=""}"
 cabal-version() {
 	if [[ -z "${_CABAL_VERSION_CACHE}" ]]; then
 		if [[ "${CABAL_BOOTSTRAP}" ]]; then
@@ -154,7 +278,11 @@ cabal-version() {
 		else
 			# We ask portage, not ghc, so that we only pick up
 			# portage-installed cabal versions.
-			_CABAL_VERSION_CACHE="$(ghc-extractportageversion dev-haskell/cabal)"
+			_CABAL_VERSION_CACHE="$(ghc-extract-pm-version dev-haskell/cabal)"
+			# exception for live (9999) version
+			if [[ "${_CABAL_VERSION_CACHE}" == 9999 ]]; then
+				_CABAL_VERSION_CACHE="$(ghc-cabal-version)"
+			fi
 		fi
 	fi
 	echo "${_CABAL_VERSION_CACHE}"
@@ -187,8 +315,43 @@ cabal-bootstrap() {
 		setup_bootstrap_args+=(-threaded)
 	fi
 
+	# The packages available when compiling Setup.hs need to be controlled,
+	# otherwise module name collisions are possible.
+	local -a bootstrap_pkg_args=(-hide-all-packages)
+
+	# Expose common packages bundled with GHC
+	# See: <https://gitlab.haskell.org/ghc/ghc/-/wikis/commentary/libraries/version-history>
+	local default_exposed_pkgs="
+		Cabal
+		base
+		binary
+		bytestring
+		containers
+		deepseq
+		directory
+		exceptions
+		filepath
+		haskeline
+		mtl
+		parsec
+		pretty
+		process
+		stm
+		template-haskell
+		terminfo
+		text
+		time
+		transformers
+		unix
+		xhtml
+	"
+
+	for pkg in $default_exposed_pkgs ${GHC_BOOTSTRAP_PACKAGES[*]}; do
+		bootstrap_pkg_args+=(-package "$pkg")
+	done
+
 	make_setup() {
-		set -- -package "${cabalpackage}" --make "${setupmodule}" \
+		set -- "${bootstrap_pkg_args[@]}" --make "${setupmodule}" \
 			$(ghc-make-args) \
 			"${setup_bootstrap_args[@]}" \
 			${HCFLAGS} \
@@ -199,20 +362,6 @@ cabal-bootstrap() {
 		$(ghc-getghc) "$@"
 	}
 	if $(ghc-supports-shared-libraries); then
-		# # some custom build systems might use external libraries,
-		# # for which we don't have shared libs, so keep static fallback
-		# bug #411789, http://hackage.haskell.org/trac/ghc/ticket/5743#comment:3
-		# http://hackage.haskell.org/trac/ghc/ticket/7062
-		# http://hackage.haskell.org/trac/ghc/ticket/3072
-		# ghc does not set RPATH for extralibs, thus we do it ourselves by hands
-		einfo "Prepending $(ghc-libdir) to LD_LIBRARY_PATH"
-		if [[ ${CHOST} != *-darwin* ]]; then
-			LD_LIBRARY_PATH="$(ghc-libdir)${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH}"
-			export LD_LIBRARY_PATH
-		else
-			DYLD_LIBRARY_PATH="$(ghc-libdir)${DYLD_LIBRARY_PATH:+:}${DYLD_LIBRARY_PATH}"
-			export DYLD_LIBRARY_PATH
-		fi
 		{ make_setup -dynamic "$@" && ./setup --help >/dev/null; } ||
 		make_setup "$@" || die "compiling ${setupmodule} failed"
 	else
@@ -231,43 +380,17 @@ cabal-mksetup() {
 		> "${setup_src}" || die "failed to create default Setup.hs"
 }
 
+haskell-cabal-run_verbose() {
+	echo "$@"
+	"$@" || die "failed: $@"
+}
+
 cabal-hscolour() {
-	set -- hscolour "$@"
-	echo ./setup "$@"
-	./setup "$@" || die "setup hscolour failed"
+	haskell-cabal-run_verbose ./setup hscolour "$@"
 }
 
 cabal-haddock() {
-	set -- haddock "$@"
-	echo ./setup "$@"
-	./setup "$@" || die "setup haddock failed"
-}
-
-cabal-hoogle() {
-	ewarn "hoogle USE flag requires doc USE flag, building without hoogle"
-}
-
-cabal-hscolour-haddock() {
-	# --hyperlink-source implies calling 'setup hscolour'
-	set -- haddock --hyperlink-source
-	echo ./setup "$@"
-	./setup "$@" --hyperlink-source || die "setup haddock --hyperlink-source failed"
-}
-
-cabal-hoogle-haddock() {
-	set -- haddock --hoogle
-	echo ./setup "$@"
-	./setup "$@" || die "setup haddock --hoogle failed"
-}
-
-cabal-hoogle-hscolour-haddock() {
-	cabal-hscolour-haddock
-	cabal-hoogle-haddock
-}
-
-cabal-hoogle-hscolour() {
-	ewarn "hoogle USE flag requires doc USE flag, building without hoogle"
-	cabal-hscolour
+	haskell-cabal-run_verbose ./setup haddock "$@"
 }
 
 cabal-die-if-nonempty() {
@@ -285,8 +408,8 @@ cabal-show-brokens() {
 	elog "ghc-pkg check: 'checking for other broken packages:'"
 	# pretty-printer
 	$(ghc-getghcpkg) check 2>&1 \
-		| egrep -v '^Warning: haddock-(html|interfaces): ' \
-		| egrep -v '^Warning: include-dirs: ' \
+		| grep -E -v '^Warning: haddock-(html|interfaces): ' \
+		| grep -E -v '^Warning: include-dirs: ' \
 		| head -n 20
 
 	cabal-die-if-nonempty 'broken' \
@@ -309,7 +432,6 @@ cabal-show-brokens-and-die() {
 
 cabal-configure() {
 	local cabalconf=()
-	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
 
 	if [[ -n "${CABAL_USE_HADDOCK}" ]] && use doc; then
 		# We use the bundled with GHC version if exists
@@ -317,9 +439,9 @@ cabal-configure() {
 		# it generates for ghc's base and other packages.
 		local p=${EPREFIX}/usr/bin/haddock-ghc-$(ghc-version)
 		if [[ -f $p ]]; then
-			cabalconf+=(--with-haddock="${p}")
+			cabalconf+=( --with-haddock="${p}" )
 		else
-			cabalconf+=(--with-haddock=${EPREFIX}/usr/bin/haddock)
+			cabalconf+=( --with-haddock="${EPREFIX}"/usr/bin/haddock )
 		fi
 	fi
 	if [[ -n "${CABAL_USE_PROFILE}" ]] && use profile; then
@@ -351,10 +473,34 @@ cabal-configure() {
 	fi
 
 	# currently cabal does not respect CFLAGS and LDFLAGS on it's own (bug #333217)
-	# so translate LDFLAGS to ghc parameters (without filtering)
+	# so translate LDFLAGS to ghc parameters (with mild filtering).
 	local flag
-	for flag in   $CFLAGS; do cabalconf+=(--ghc-option="-optc$flag"); done
-	for flag in  $LDFLAGS; do cabalconf+=(--ghc-option="-optl$flag"); done
+	for flag in   $CFLAGS; do
+		case "${flag}" in
+			-flto|-flto=*)
+				# binutils does not support partial linking yet:
+				# https://github.com/gentoo-haskell/gentoo-haskell/issues/1110
+				# https://sourceware.org/PR12291
+				einfo "Filter '${flag}' out of CFLAGS (avoid lto partial linking)"
+				continue
+				;;
+		esac
+
+		cabalconf+=(--ghc-option="-optc$flag")
+	done
+	for flag in  $LDFLAGS; do
+		case "${flag}" in
+			-flto|-flto=*)
+				# binutils does not support partial linking yet:
+				# https://github.com/gentoo-haskell/gentoo-haskell/issues/1110
+				# https://sourceware.org/PR12291
+				einfo "Filter '${flag}' out of LDFLAGS (avoid lto partial linking)"
+				continue
+				;;
+		esac
+
+		cabalconf+=(--ghc-option="-optl$flag")
+	done
 
 	# disable executable stripping for the executables, as portage will
 	# strip by itself, and pre-stripping gives a QA warning.
@@ -370,7 +516,7 @@ cabal-configure() {
 	cabalconf+=(--verbose)
 
 	# We build shared version of our Cabal where ghc ships it's shared
-	# version of it. We will link ./setup as dynamic binary againt Cabal later.
+	# version of it. We will link ./setup as dynamic binary against Cabal later.
 	[[ ${CATEGORY}/${PN} == "dev-haskell/cabal" ]] && \
 		$(ghc-supports-shared-libraries) && \
 			cabalconf+=(--enable-shared)
@@ -422,9 +568,7 @@ cabal-build() {
 }
 
 cabal-copy() {
-	has "${EAPI:-0}" 0 1 2 && ! use prefix && ED=${D}
-
-	set -- copy --destdir="${D}" "$@"
+	set -- copy "$@" --destdir="${D}"
 	echo ./setup "$@"
 	./setup "$@" || die "setup copy failed"
 
@@ -486,6 +630,29 @@ haskell-cabal_pkg_setup() {
 	fi
 }
 
+haskell-cabal_src_prepare() {
+	# Needed for packages that are still using MY_PN
+	if [[ -n ${MY_PN} ]]; then
+		local cabal_file="${S}/${MY_PN}.cabal"
+	else
+		local cabal_file="${CABAL_FILE}"
+	fi
+
+	if [[ -n ${CABAL_DISTFILE} ]]; then
+		# pull revised cabal from upstream
+		einfo "Using revised .cabal file from Hackage: revision ${CABAL_HACKAGE_REVISION}"
+		cp "${DISTDIR}/${CABAL_DISTFILE}" "${cabal_file}" || die
+	fi
+
+	# Convert to unix line endings
+	dos2unix "${cabal_file}" || die
+
+	# Apply patches *after* pulling the revised cabal
+	default
+
+	[[ -n "${CABAL_CHDEPS}" ]] && cabal_chdeps "${CABAL_CHDEPS[@]}"
+}
+
 haskell-cabal_src_configure() {
 	cabal-is-dummy-lib && return
 
@@ -505,54 +672,34 @@ cabal_src_configure() {
 
 # exported function: cabal-style bootstrap configure and compile
 cabal_src_compile() {
-	# it's a common mistake when one bumps ebuild to EAPI="2" (and upper)
-	# and forgets to separate src_compile() to src_configure()/src_compile().
-	# Such error leads to default src_configure and we lose all passed flags.
-	if ! has "${EAPI:-0}" 0 1; then
-		local passed_flag
-		for passed_flag in "$@"; do
-			[[ ${passed_flag} == --flags=* ]] && \
-				eqawarn "QA Notice: Cabal option '${passed_flag}' has effect only in src_configure()"
-		done
-	fi
-
 	cabal-is-dummy-lib && return
 
-	has src_configure ${HASKELL_CABAL_EXPF} || haskell-cabal_src_configure "$@"
 	cabal-build
 
-	if [[ -n "${CABAL_USE_HADDOCK}" ]] && use doc; then
-		if [[ -n "${CABAL_USE_HSCOLOUR}" ]] && use hscolour; then
-			if [[ -n "${CABAL_USE_HOOGLE}" ]] && use hoogle; then
-				# hoogle, hscolour and haddock
-				cabal-hoogle-hscolour-haddock
-			else
-				# haddock and hscolour
-				cabal-hscolour-haddock
-			fi
-		else
-			if [[ -n "${CABAL_USE_HOOGLE}" ]] && use hoogle; then
-				# hoogle and haddock
-				cabal-hoogle-haddock
-			else
-				# just haddock
-				cabal-haddock
-			fi
+	if [[ -n "$CABAL_USE_HADDOCK" ]] && use doc; then
+		if [[ -n "$CABAL_USE_HSCOLOUR" ]] && use hscolour; then
+			# --hyperlink-source implies calling 'setup hscolour'
+			haddock_args+=(--hyperlink-source)
+		fi
+
+		cabal-haddock "${haddock_args[@]}" $CABAL_EXTRA_HADDOCK_FLAGS
+
+		if [[ -n "$CABAL_USE_HOOGLE" ]] && use hoogle; then
+			cabal-haddock --hoogle $CABAL_EXTRA_HOOGLE_FLAGS
+		fi
+		if [[ -n "${CABAL_REBUILD_AFTER_DOC_WORKAROUND}" ]]; then
+			ewarn "rebuild-after-doc-workaround is enabled. This is a"
+			ewarn "temporary worakround to deal with https://github.com/haskell/cabal/issues/7213"
+			ewarn "until the upstream issue can be resolved."
+			cabal-build
 		fi
 	else
-		if [[ -n "${CABAL_USE_HSCOLOUR}" ]] && use hscolour; then
-			if [[ -n "${CABAL_USE_HOOGLE}" ]] && use hoogle; then
-				# hoogle and hscolour
-				cabal-hoogle-hscolour
-			else
-				# just hscolour
-				cabal-hscolour
-			fi
-		else
-			if [[ -n "${CABAL_USE_HOOGLE}" ]] && use hoogle; then
-				# just hoogle
-				cabal-hoogle
-			fi
+		if [[ -n "$CABAL_USE_HSCOLOUR" ]] && use hscolour; then
+			cabal-hscolour $CABAL_EXTRA_HSCOLOUR_FLAGS
+		fi
+
+		if [[ -n "$CABAL_USE_HOOGLE" ]] && use hoogle; then
+			ewarn "hoogle USE flag requires doc USE flag, building without hoogle"
 		fi
 	fi
 }
@@ -594,10 +741,9 @@ haskell-cabal_src_test() {
 
 # exported function: cabal-style copy and register
 cabal_src_install() {
-	has "${EAPI:-0}" 0 1 2 && ! use prefix && EPREFIX=
-
 	if ! cabal-is-dummy-lib; then
-		cabal-copy
+		# Pass arguments to cabal-copy
+		cabal-copy "$@"
 		cabal-pkg
 	fi
 
@@ -605,17 +751,21 @@ cabal_src_install() {
 	# if it does not exist (dummy libraries and binaries w/o libraries)
 	local ghc_confdir_with_prefix="$(ghc-confdir)"
 	# remove EPREFIX
-	dodir ${ghc_confdir_with_prefix#${EPREFIX}}
+	dodir "${ghc_confdir_with_prefix#${EPREFIX}}"
 	local hint_db="${D}/$(ghc-confdir)"
 	local hint_file="${hint_db}/gentoo-empty-${CATEGORY}-${PF}.conf"
 	mkdir -p "${hint_db}" || die
 	touch "${hint_file}" || die
 }
 
+# Arguments passed to this function will make their way to `cabal-copy`
+# and eventually `./setup copy`. This allows you to specify which
+# components will be installed.
+# e.g. `haskell-cabal_src_install "lib:${PN}"` will only install the library
 haskell-cabal_src_install() {
 	pushd "${S}" > /dev/null || die
 
-	cabal_src_install
+	cabal_src_install "$@"
 
 	popd > /dev/null || die
 }
@@ -676,23 +826,28 @@ cabal_flag() {
 #}
 # or
 # src_prepare() {
-#    CABAL_FILE=${S}/${MY_PN}.cabal cabal_chdeps \
+#    CABAL_FILE=${S}/${CABAL_PN}.cabal cabal_chdeps \
 #        'base >= 4.2 && < 4.6' 'base >= 4.2 && < 4.7'
-#    CABAL_FILE=${S}/${MY_PN}-tools.cabal cabal_chdeps \
+#    CABAL_FILE=${S}/${CABAL_PN}-tools.cabal cabal_chdeps \
 #        'base == 3.*' 'base >= 4.2 && < 4.7'
 #}
 #
 cabal_chdeps() {
-	local cabal_fn=${MY_PN:-${PN}}.cabal
-	local cf=${CABAL_FILE:-${S}/${cabal_fn}}
+	# Needed for compatibility with ebuilds still using MY_PN
+	if [[ -n ${MY_PN} ]]; then
+		local cabal_file="${S}/${MY_PN}.cabal"
+	else
+		local cabal_file="${CABAL_FILE}"
+	fi
+
 	local from_ss # ss - substring
 	local to_ss
 	local orig_c # c - contents
 	local new_c
 
-	[[ -f $cf ]] || die "cabal file '$cf' does not exist"
+	[[ -f "${cabal_file}" ]] || die "cabal file '${cabal_file}' does not exist"
 
-	orig_c=$(< "$cf")
+	orig_c=$(< "${cabal_file}")
 
 	while :; do
 		from_pat=$1
@@ -710,9 +865,9 @@ cabal_chdeps() {
 		new_c=${orig_c//${from_pat}/${to_str}}
 
 		if [[ -n $CABAL_DEBUG_LOOSENING ]]; then
-			echo "${orig_c}" >"${T}/${cf}".pre
-			echo "${new_c}" >"${T}/${cf}".post
-			diff -u "${T}/${cf}".{pre,post}
+			echo "${orig_c}" >"${T}/${cabal_file}".pre
+			echo "${new_c}" >"${T}/${cabal_file}".post
+			diff -u "${T}/${cabal_file}".{pre,post}
 		fi
 
 		[[ "${orig_c}" == "${new_c}" ]] && die "no trigger for '${from_pat}'"
@@ -721,14 +876,14 @@ cabal_chdeps() {
 		shift
 	done
 
-	echo "${new_c}" > "$cf" ||
+	echo "${new_c}" > "$cabal_file" ||
 		die "failed to update"
 }
 
 # @FUNCTION: cabal-constraint
 # @DESCRIPTION:
-# Allowes to set contraint to the libraries that are
-# used by specified package
+# Allows to set constraints to the libraries that are used by the
+# specified package.
 cabal-constraint() {
 	while read p v ; do
 		echo "--constraint \"$p == $v\""
@@ -756,3 +911,7 @@ replace-hcflags() {
 
 	return 0
 }
+
+fi
+
+EXPORT_FUNCTIONS pkg_setup src_prepare src_configure src_compile src_test src_install pkg_postinst pkg_postrm
