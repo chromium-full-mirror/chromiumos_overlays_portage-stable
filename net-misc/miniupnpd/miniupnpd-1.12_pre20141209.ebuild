@@ -31,7 +31,6 @@ src_prepare() {
 	if use igdv2; then
 		epatch "${FILESDIR}"/${PN}-1.10-UPSTREAM-advertise-correct-service-and-device-versions-when-I.patch
 	fi
-	epatch "${FILESDIR}"/${PN}-1.10-UPSTREAM-upnp_event_prepare-check-the-return-value-of-snprint.patch
 	mv Makefile.linux Makefile || die
 }
 

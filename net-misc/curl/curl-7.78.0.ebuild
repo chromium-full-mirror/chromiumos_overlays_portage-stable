@@ -99,9 +99,6 @@ MULTILIB_CHOST_TOOLS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-7.30.0-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${PN}-7.30.0-add-speedtest-mode-flag-and-socket-options.patch
-	"${FILESDIR}"/${PN}-7.30.0-Add-separate-speedtest-mode-flags.patch
-	"${FILESDIR}"/${PN}-7.30.0-Use-zerocopy-for-uplink-WAN-speedtest.patch
 )
 
 src_prepare() {
