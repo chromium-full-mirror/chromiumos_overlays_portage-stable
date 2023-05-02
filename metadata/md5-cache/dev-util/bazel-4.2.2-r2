@@ -12,5 +12,5 @@ REQUIRED_USE=prefix? ( static-libs )
 RESTRICT=strip test
 SLOT=0
 SRC_URI=https://github.com/bazelbuild/bazel/releases/download/4.2.2/bazel-4.2.2-dist.zip
-_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	bazel	754d004c54b3ac8a286975d232cbab17	java-pkg-2	c4e6af2574fd1dc79b43a6e27af4b5fb	java-utils-2	82402a1c36ab4bf38f3313a543f9e827	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	bazel	4f9c4b018257f195cac2a851c26c31f9	java-pkg-2	c4e6af2574fd1dc79b43a6e27af4b5fb	java-utils-2	82402a1c36ab4bf38f3313a543f9e827	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=2c8de7b7643138e4082312cde4927894
