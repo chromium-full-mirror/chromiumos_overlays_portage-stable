@@ -1,0 +1,17 @@
+Fix building with latest libc++ which has removed an implicit
+include of <cstddef> when including <iosfwd>, b/280694694.
+The patch can't be sent upstream as the upstream has moved
+to a rust based implementation.
+
+diff --git a/persistent-data/hex_dump.h b/persistent-data/hex_dump.h
+index 7633a50..0595e5c 100644
+--- a/persistent-data/hex_dump.h
++++ b/persistent-data/hex_dump.h
+@@ -20,6 +20,7 @@
+ #define HEX_DUMP_H
+ 
+ #include <iosfwd>
++#include <cstddef>
+ 
+ //----------------------------------------------------------------
+ 
