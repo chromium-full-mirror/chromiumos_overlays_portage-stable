@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -53,7 +53,7 @@ LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SUBSLOT}"
 
 if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
-KEYWORDS="*"
+	KEYWORDS="*"
 fi
 
 IUSE="berkdb debug doc gdbm ithreads minimal quadmath"
@@ -396,6 +396,9 @@ src_prepare() {
 	# add_patch "${FILESDIR}/${PN}-5.26.2-hppa.patch" "100-5.26.2-hppa.patch"\
 	#		"Fix broken miniperl on hppa"\
 	#		"https://bugs.debian.org/869122" "https://bugs.gentoo.org/634162"
+	add_patch "${FILESDIR}/${PN}-5.36.0-clang16.patch" "100-5.36.0-clang16.patch" \
+			"Fix Clang 16 / modern C issues in configure" \
+			"https://bugs.gentoo.org/879857" "https://github.com/Perl/perl5/issues/20715"
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# do NOT mess with nsl, on Solaris this is always necessary,
