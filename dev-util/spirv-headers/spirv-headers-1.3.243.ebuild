@@ -15,5 +15,3 @@ SLOT="0"
 KEYWORDS="*"
 
 S="${WORKDIR}/SPIRV-Headers-${EGIT_COMMIT}"
-
-PATCHES=("${FILESDIR}/UPSTREAM-ba70a95-added-spirv-intel-argument-interfaces.patch")
