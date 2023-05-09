@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -18,7 +18,7 @@ else
 	S="${WORKDIR}"/${P}/src
 fi
 
-LICENSE="GPL-2"
+LICENSE="GPL-3+"
 SLOT="0"
 IUSE="debug nethack pam selinux multiuser"
 
@@ -26,6 +26,7 @@ DEPEND=">=sys-libs/ncurses-5.2:=
 	virtual/libcrypt:=
 	pam? ( sys-libs/pam )"
 RDEPEND="${DEPEND}
+	acct-group/utmp
 	selinux? ( sec-policy/selinux-screen )"
 BDEPEND="sys-apps/texinfo"
 
@@ -33,6 +34,8 @@ PATCHES=(
 	# Don't use utempter even if it is found on the system.
 	"${FILESDIR}"/${PN}-4.3.0-no-utempter.patch
 	"${FILESDIR}"/${PN}-4.6.2-utmp-exit.patch
+	"${FILESDIR}"/${PN}-4.9.0-configure-implicit-function-decls.patch
+	"${FILESDIR}"/${P}-CVE-2023-24626.patch
 )
 
 src_prepare() {
