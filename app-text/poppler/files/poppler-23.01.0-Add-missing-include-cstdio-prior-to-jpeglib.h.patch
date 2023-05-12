@@ -1,0 +1,42 @@
+From 9f13c56d4c17568b9effef7f9b7c6cdb7b7608dc Mon Sep 17 00:00:00 2001
+From: Jordan R Abrahams-Whitehead <ajordanr@google.com>
+Date: Fri, 12 May 2023 22:25:19 +0000
+Subject: [PATCH] Add missing #include <cstdio> prior to jpeglib.h
+
+This include is required prior to include jpeglib.h.
+See https://github.com/libjpeg-turbo/libjpeg-turbo/issues/17
+
+Without this change, poppler fails to build on newer LLVMs.
+---
+ goo/JpegWriter.cc              | 2 +-
+ poppler/ImageEmbeddingUtils.cc | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/goo/JpegWriter.cc b/goo/JpegWriter.cc
+index ca69fd05..566ee38f 100644
+--- a/goo/JpegWriter.cc
++++ b/goo/JpegWriter.cc
+@@ -23,7 +23,7 @@
+ #ifdef ENABLE_LIBJPEG
+ 
+ #    include "poppler/Error.h"
+-
++#    include <cstdio>
+ extern "C" {
+ #    include <jpeglib.h>
+ }
+diff --git a/poppler/ImageEmbeddingUtils.cc b/poppler/ImageEmbeddingUtils.cc
+index 0c13fe96..07b9dfb6 100644
+--- a/poppler/ImageEmbeddingUtils.cc
++++ b/poppler/ImageEmbeddingUtils.cc
+@@ -14,6 +14,7 @@
+ 
+ #include <memory>
+ #ifdef ENABLE_LIBJPEG
++#    include <cstdio>
+ extern "C" {
+ #    include <jpeglib.h>
+ }
+-- 
+2.40.1.606.ga4b1b128d6-goog
+
