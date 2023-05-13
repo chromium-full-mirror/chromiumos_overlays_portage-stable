@@ -1,0 +1,13 @@
+BDEPEND=test? ( || ( dev-lang/python:3.9 dev-lang/python:3.10 dev-lang/python:3.11 ) )
+DEFINED_PHASES=configure install setup
+DESCRIPTION=Tool for generating C-based recognizers from regular expressions
+EAPI=7
+HOMEPAGE=https://re2c.org/
+IUSE=debug test
+KEYWORDS=*
+LICENSE=public-domain
+RESTRICT=!test? ( test )
+SLOT=0
+SRC_URI=https://github.com/skvadrik/re2c/releases/download/2.2/re2c-2.2.tar.xz
+_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	5bd4686cbe063e46fff90664cfc1a5a1	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_md5_=dfa739558e83fc941ccae143511f5824
