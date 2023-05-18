@@ -399,6 +399,10 @@ src_prepare() {
 	add_patch "${FILESDIR}/${PN}-5.36.0-clang16.patch" "100-5.36.0-clang16.patch" \
 			"Fix Clang 16 / modern C issues in configure" \
 			"https://bugs.gentoo.org/879857" "https://github.com/Perl/perl5/issues/20715"
+	add_patch "${FILESDIR}/${PN}-5.36.0-fix-configure-for-clang.patch" \
+			"100-5.36.0-fix-configure-for-clang.patch" \
+			"Fix clang check in configure" \
+			"https://github.com/Perl/perl5/issues/21099"
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# do NOT mess with nsl, on Solaris this is always necessary,
