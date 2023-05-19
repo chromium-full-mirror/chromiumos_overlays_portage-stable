@@ -12,6 +12,8 @@ else
 	KEYWORDS="*"
 fi
 
+DISTUTILS_USE_SETUPTOOLS=rdepend
+
 inherit distutils-r1 toolchain-funcs
 
 DESCRIPTION="Open source build system"
