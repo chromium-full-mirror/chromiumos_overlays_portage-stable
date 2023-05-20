@@ -41,6 +41,9 @@ distutils_enable_tests pytest
 DEPEND="
 	!libressl? ( >=dev-libs/openssl-1.0.2o-r6:0= )
 	libressl? ( >=dev-libs/libressl-2.9.1:0= )
+	$(python_gen_cond_dep '
+		>=dev-python/cffi-1.8:=[${PYTHON_USEDEP}]
+	' 'python*')
 	"
 RDEPEND+=${DEPEND}
 
