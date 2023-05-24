@@ -1,2 +1,1 @@
-# Used by net-print/cups.
-include chromiumos/overlays/chromiumos-overlay:/net-print/OWNERS
+include chromiumos/owners:v1:/printscan/OWNERS.printscan

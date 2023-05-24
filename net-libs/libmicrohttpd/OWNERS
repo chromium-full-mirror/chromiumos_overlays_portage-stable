@@ -1,1 +1,1 @@
-include chromiumos/platform2:/print_tools/OWNERS
+include chromiumos/owners:v1:/printscan/OWNERS.printscan
