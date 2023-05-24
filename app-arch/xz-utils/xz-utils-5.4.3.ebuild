@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Remember: we cannot leverage autotools in this ebuild in order
@@ -9,22 +9,35 @@ EAPI=7
 inherit libtool multilib multilib-minimal preserve-libs usr-ldscript
 
 if [[ ${PV} == 9999 ]] ; then
-	EGIT_REPO_URI="https://git.tukaani.org/xz.git"
+	# Per tukaani.org, git.tukaani.org is a mirror of github and
+	# may be behind.
+	EGIT_REPO_URI="
+		https://github.com/tukaani-project/xz
+		https://git.tukaani.org/xz.git
+	"
 	inherit git-r3 autotools
 
 	# bug #272880 and bug #286068
 	BDEPEND="sys-devel/gettext >=sys-devel/libtool-2"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/lassecollin.asc
+	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/jiatan.asc
 	inherit verify-sig
 
 	MY_P="${PN/-utils}-${PV/_}"
-	SRC_URI="https://tukaani.org/xz/${MY_P}.tar.gz"
-	SRC_URI+=" verify-sig? ( https://tukaani.org/xz/${MY_P}.tar.gz.sig )"
+	SRC_URI="
+		https://github.com/tukaani-project/xz/releases/download/v${PV}/${MY_P}.tar.gz
+		mirror://sourceforge/lzmautils/${MY_P}.tar.gz
+		https://tukaani.org/xz/${MY_P}.tar.gz
+		verify-sig? (
+			https://github.com/tukaani-project/xz/releases/download/v${PV}/${MY_P}.tar.gz.sig
+			https://tukaani.org/xz/${MY_P}.tar.gz.sig
+		)
+	"
 
-	if [[ ${PV} != *_alpha* ]] && [[ ${PV} != *_beta* ]] ; then
+	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
 		KEYWORDS="*"
 	fi
+
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -34,20 +47,11 @@ HOMEPAGE="https://tukaani.org/xz/"
 # See top-level COPYING file as it outlines the various pieces and their licenses.
 LICENSE="public-domain LGPL-2.1+ GPL-2+"
 SLOT="0"
-IUSE="+extra-filters nls static-libs"
+IUSE="doc +extra-filters nls static-libs"
 
-RDEPEND="!<app-arch/lzma-4.63
-	!<app-arch/p7zip-4.57
-	!<app-i18n/man-pages-de-2.16"
-DEPEND="${RDEPEND}"
-BDEPEND="verify-sig? ( sec-keys/openpgp-keys-lassecollin )"
-
-# Tests currently do not account for smaller feature set
-RESTRICT="!extra-filters? ( test )"
-
-PATCHES=(
-	"${FILESDIR}"/${P}-xzgrep-ZDI-CAN-16587.patch
-)
+if [[ ${PV} != 9999 ]] ; then
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-jiatan )"
+fi
 
 src_prepare() {
 	default
@@ -64,6 +68,7 @@ src_prepare() {
 multilib_src_configure() {
 	local myconf=(
 		--enable-threads
+		$(multilib_native_use_enable doc)
 		$(use_enable nls)
 		$(use_enable static-libs static)
 	)
@@ -106,7 +111,10 @@ multilib_src_install() {
 
 multilib_src_install_all() {
 	find "${ED}" -type f -name '*.la' -delete || die
-	rm "${ED}"/usr/share/doc/${PF}/COPYING* || die
+
+	if use doc ; then
+		rm "${ED}"/usr/share/doc/${PF}/COPYING* || die
+	fi
 }
 
 pkg_preinst() {
