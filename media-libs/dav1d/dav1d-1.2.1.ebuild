@@ -1,31 +1,35 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-SCM=""
-if [[ "${PV}" == "9999" ]]; then
-	SCM="git-r3"
+if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://code.videolan.org/videolan/dav1d"
+	inherit git-r3
 else
-	SRC_URI="https://code.videolan.org/videolan/dav1d/-/archive/${PV}/${P}.tar.bz2"
+	SRC_URI="https://downloads.videolan.org/pub/videolan/dav1d/${PV}/${P}.tar.xz"
 	KEYWORDS="*"
 fi
 
-inherit ${SCM} meson-multilib
+inherit meson-multilib
 
 DESCRIPTION="dav1d is an AV1 Decoder :)"
 HOMEPAGE="https://code.videolan.org/videolan/dav1d"
 
 LICENSE="BSD-2"
-SLOT="0/5"
-IUSE="+8bit +10bit +asm"
+# Check SONAME on version bumps!
+SLOT="0/6"
+IUSE="+8bit +10bit +asm test xxhash"
+RESTRICT="!test? ( test )"
 
-ASM_DEPEND=">=dev-lang/nasm-2.14.02"
-BDEPEND="asm? (
+ASM_DEPEND=">=dev-lang/nasm-2.15.05"
+DEPEND="xxhash? ( dev-libs/xxhash )"
+BDEPEND="
+	asm? (
 		abi_x86_32? ( ${ASM_DEPEND} )
 		abi_x86_64? ( ${ASM_DEPEND} )
-	)"
+	)
+"
 
 DOCS=( README.md doc/PATENTS THANKS.md )
 
@@ -42,8 +46,10 @@ multilib_src_configure() {
 	fi
 
 	local emesonargs=(
-		-D bitdepths=$(IFS=,; echo "${bits[*]}")
-		-D enable_asm=${enable_asm}
+		-Dbitdepths=$(IFS=,; echo "${bits[*]}")
+		-Denable_asm=${enable_asm}
+		$(meson_use test enable_tests)
+		$(meson_feature xxhash xxhash_muxer)
 	)
 	meson_src_configure
 }
