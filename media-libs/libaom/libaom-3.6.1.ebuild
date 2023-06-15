@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -7,10 +7,30 @@ PYTHON_COMPAT=( python3_{6..9} )
 CMAKE_ECLASS=cmake
 inherit cmake-multilib python-any-r1
 
+if [[ ${PV} == *9999* ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://aomedia.googlesource.com/aom"
+else
+	# To update test data tarball, follow these steps:
+	# 1.  Clone the upstream repo and check out the relevant tag,
+	#	  or download the release tarball
+	# 2.  Regular cmake configure (options don't matter here):
+	#     cd build && cmake ..
+	# 3.  Set LIBAOM_TEST_DATA_PATH to the directory you want and
+	#     run the "make testdata" target:
+	#     LIBAOM_TEST_DATA_PATH=../libaom-1.2.3-testdata make testdata
+	#     This will download the test data from the internet.
+	# 4.  Create a tarball out of that directory.
+	#     cd .. && tar cvaf libaom-1.2.3-testdata.tar.xz libaom-1.2.3-testdata
+	SRC_URI="
+		https://storage.googleapis.com/aom-releases/${P}.tar.gz
+		test? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-testdata.tar.xz )
+	"
+	KEYWORDS="*"
+fi
+
 DESCRIPTION="Alliance for Open Media AV1 Codec SDK"
 HOMEPAGE="https://aomedia.org https://aomedia.googlesource.com/aom/"
-SRC_URI="https://storage.googleapis.com/aom-releases/${P}.tar.gz"
-KEYWORDS="*"
 
 LICENSE="BSD-2"
 SLOT="0/3"
@@ -18,8 +38,7 @@ IUSE="doc +examples test"
 IUSE="${IUSE} cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 cpu_flags_x86_sse3 cpu_flags_x86_ssse3"
 IUSE="${IUSE} cpu_flags_x86_sse4_1 cpu_flags_x86_sse4_2 cpu_flags_x86_avx cpu_flags_x86_avx2"
 IUSE="${IUSE} cpu_flags_arm_neon"
-# Tests need more wiring up
-RESTRICT="!test? ( test ) test"
+RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
 	cpu_flags_x86_sse2? ( cpu_flags_x86_mmx )
@@ -27,14 +46,19 @@ REQUIRED_USE="
 "
 
 BDEPEND="${PYTHON_DEPS}
+	dev-lang/perl
 	abi_x86_32? ( dev-lang/yasm )
 	abi_x86_64? ( dev-lang/yasm )
 	abi_x86_x32? ( dev-lang/yasm )
 	doc? ( app-doc/doxygen )
 "
 
-# the PATENTS file is required to be distributed with this package, bug #682214
+# The PATENTS file is required to be distributed with this package, bug #682214
 DOCS=( PATENTS )
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-3.4.0-posix-c-source-ftello.patch
+)
 
 multilib_src_configure() {
 	local mycmakeargs=(
@@ -87,7 +111,7 @@ multilib_src_configure() {
 }
 
 multilib_src_test() {
-	"${BUILD_DIR}"/test_libaom || die
+	LIBAOM_TEST_DATA_PATH="${WORKDIR}/${P}-testdata" "${BUILD_DIR}"/test_libaom || die
 }
 
 multilib_src_install() {
