@@ -1,0 +1,2 @@
+# Only one package pulls this in.
+include /dev-java/ant-core/OWNERS
