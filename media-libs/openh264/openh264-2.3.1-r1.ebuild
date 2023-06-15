@@ -1,32 +1,45 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit toolchain-funcs multilib-minimal
+inherit toolchain-funcs multilib-minimal flag-o-matic
 
 MOZVER=39
-DESCRIPTION="Cisco OpenH264 library and Gecko Media Plugin for Mozilla packages"
-HOMEPAGE="https://www.openh264.org/"
-SRC_URI="https://github.com/cisco/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
-	https://github.com/mozilla/gmp-api/archive/Firefox${MOZVER}.tar.gz -> gmp-api-Firefox${MOZVER}.tar.gz"
-LICENSE="BSD"
-SLOT="0/6" # subslot = openh264 soname version
-KEYWORDS="*"
-IUSE="cpu_flags_arm_neon cpu_flags_x86_avx2 +plugin utils"
+MY_GMP_COMMIT="3a01c086d1b0394238ff1b5ad22e76022830625a"
 
-RESTRICT="bindist test"
+DESCRIPTION="Cisco OpenH264 library and Gecko Media Plugin for Mozilla packages"
+HOMEPAGE="https://www.openh264.org/ https://github.com/cisco/openh264"
+SRC_URI="https://github.com/cisco/openh264/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+	https://github.com/mozilla/gmp-api/archive/${MY_GMP_COMMIT}.tar.gz -> gmp-api-Firefox${MOZVER}-${MY_GMP_COMMIT}.tar.gz"
+LICENSE="BSD"
+
+# openh264 soname version.
+# (2.2.0 needed a minor bump due to undocumented but breaking ABI changes, just to be sure.
+#  https://github.com/cisco/openh264/issues/3459 )
+SLOT="0/7"
+KEYWORDS="*"
+IUSE="cpu_flags_arm_neon cpu_flags_x86_avx2 +plugin test utils"
+
+RESTRICT="bindist !test? ( test )"
 
 BDEPEND="
 	abi_x86_32? ( dev-lang/nasm )
-	abi_x86_64? ( dev-lang/nasm )"
+	abi_x86_64? ( dev-lang/nasm )
+	test? ( dev-cpp/gtest[${MULTILIB_USEDEP}] )"
 
 DOCS=( LICENSE CONTRIBUTORS README.md )
 
-PATCHES=( "${FILESDIR}/${PN}-2.1.0-pkgconfig-pathfix.patch" )
+PATCHES=(
+	"${FILESDIR}"/openh264-2.3.0-pkgconfig-pathfix.patch
+	"${FILESDIR}"/${PN}-2.3.1-pr3630.patch
+)
 
 src_prepare() {
 	default
+
+	ln -svf "/dev/null" "build/gtest-targets.mk" || die
+	sed -i -e 's/$(LIBPREFIX)gtest.$(LIBSUFFIX)//g' Makefile || die
 
 	sed -i -e 's/ | generate-version//g' Makefile || die
 	sed -e 's|$FULL_VERSION|""|g' codec/common/inc/version_gen.h.template > \
@@ -36,17 +49,19 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	ln -s "${WORKDIR}"/gmp-api-Firefox${MOZVER} gmp-api || die
+	ln -s "${WORKDIR}"/gmp-api-${MY_GMP_COMMIT} gmp-api || die
 }
 
 emakecmd() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" AR="$(tc-getAR)" \
+	CFLAGS="-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE" \
 	emake V=Yes CFLAGS_M32="" CFLAGS_M64="" CFLAGS_OPT="" \
 		PREFIX="${EPREFIX}/usr" \
 		LIBDIR_NAME="$(get_libdir)" \
 		SHAREDLIB_DIR="${EPREFIX}/usr/$(get_libdir)" \
 		INCLUDES_DIR="${EPREFIX}/usr/include/${PN}" \
 		HAVE_AVX2=$(usex cpu_flags_x86_avx2 Yes No) \
+		HAVE_GTEST=$(usex test Yes No) \
 		ARCH="$(tc-arch)" \
 		$@
 }
@@ -63,6 +78,10 @@ multilib_src_compile() {
 
 	emakecmd ${myopts}
 	use plugin && emakecmd ${myopts} plugin
+}
+
+multilib_src_test() {
+	emakecmd test
 }
 
 multilib_src_install() {
@@ -86,10 +105,10 @@ pref("media.gmp-gmp${PN}.version", "system-installed");
 PREFEOF
 
 		insinto /usr/$(get_libdir)/firefox/defaults/pref
-		doins "${T}"/${P}.js
+		newins "${T}"/${P}.js ${PN}-${PV/_p*/}.js
 
 		insinto /usr/$(get_libdir)/seamonkey/defaults/pref
-		doins "${T}"/${P}.js
+		newins "${T}"/${P}.js ${PN}-${PV/_p*/}.js
 	fi
 }
 

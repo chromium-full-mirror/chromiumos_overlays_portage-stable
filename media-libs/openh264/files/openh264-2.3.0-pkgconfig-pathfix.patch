@@ -1,8 +1,7 @@
-diff --git a/Makefile b/Makefile
-index bf398d7..c72b024 100644
---- a/Makefile
-+++ b/Makefile
-@@ -27,6 +27,7 @@ OBJ=o
+diff -Naur a/Makefile b/Makefile
+--- a/Makefile	2022-06-10 04:51:46.000000000 +0300
++++ b/Makefile	2022-08-01 10:28:52.698923925 +0300
+@@ -27,6 +27,7 @@
  DESTDIR=
  LIBDIR_NAME=lib
  SHAREDLIB_DIR=$(PREFIX)/lib
@@ -10,7 +9,7 @@ index bf398d7..c72b024 100644
  PROJECT_NAME=openh264
  MODULE_NAME=gmpopenh264
  GMP_API_BRANCH=Firefox39
-@@ -285,14 +286,14 @@ endif
+@@ -286,14 +287,14 @@
  endif
  
  $(PROJECT_NAME).pc: $(PROJECT_NAME).pc.in
@@ -23,16 +22,15 @@ index bf398d7..c72b024 100644
  
  install-headers:
 -	mkdir -p $(DESTDIR)$(PREFIX)/include/wels
--	install -m 644 $(SRC_PATH)/codec/api/svc/codec*.h $(DESTDIR)$(PREFIX)/include/wels
+-	install -m 644 $(SRC_PATH)/codec/api/wels/codec*.h $(DESTDIR)$(PREFIX)/include/wels
 +	mkdir -p $(DESTDIR)$(INCLUDES_DIR)/wels
-+	install -m 644 $(SRC_PATH)/codec/api/svc/codec*.h $(DESTDIR)$(INCLUDES_DIR)/wels
++	install -m 644 $(SRC_PATH)/codec/api/wels/codec*.h $(DESTDIR)$(INCLUDES_DIR)/wels
  
  install-static-lib: $(LIBPREFIX)$(PROJECT_NAME).$(LIBSUFFIX) install-headers
  	mkdir -p $(DESTDIR)$(PREFIX)/$(LIBDIR_NAME)
-diff --git a/openh264.pc.in b/openh264.pc.in
-index f86225c..bee78bc 100644
---- a/openh264.pc.in
-+++ b/openh264.pc.in
+diff -Naur a/openh264.pc.in b/openh264.pc.in
+--- a/openh264.pc.in	2022-06-10 04:51:46.000000000 +0300
++++ b/openh264.pc.in	2022-08-01 10:38:28.231850059 +0300
 @@ -1,6 +1,6 @@
  prefix=@prefix@
  libdir=@libdir@
