@@ -35,7 +35,7 @@ RDEPEND="
 	systemd? ( sys-apps/systemd[pam] )
 "
 DEPEND="
-	virtual/pam
+	sys-libs/pam
 	app-arch/xz-utils
 	app-portage/portage-utils
 "
