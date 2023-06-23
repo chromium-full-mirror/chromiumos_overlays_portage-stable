@@ -36,7 +36,8 @@ RDEPEND="
 "
 DEPEND="
 	sys-libs/pam
-	app-arch/xz-utils
+"
+BDEPEND="
 	app-portage/portage-utils
 "
 
