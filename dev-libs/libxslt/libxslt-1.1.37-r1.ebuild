@@ -1,11 +1,11 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 # Note: Please bump this in sync with dev-libs/libxml2.
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..11} )
 inherit flag-o-matic python-r1 multilib-minimal
 
 DESCRIPTION="XSLT libraries and tools"
@@ -53,6 +53,8 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	# Remove this after upstream merge request to add AC_SYS_LARGEFILE lands:
+	# https://gitlab.gnome.org/GNOME/libxslt/-/merge_requests/55
 	append-lfs-flags
 
 	libxslt_configure() {
