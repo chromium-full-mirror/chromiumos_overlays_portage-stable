@@ -1,39 +1,35 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 # jython depends on java-config, so don't add it or things will break
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..11} )
+DISTUTILS_USE_SETUPTOOLS=no
 
-inherit distutils-r1
+inherit distutils-r1 prefix
 
 DESCRIPTION="Java environment configuration query tool"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Java"
-SRC_URI="https://dev.gentoo.org/~gyakovlev/distfiles/${P}.tar.bz2"
+SRC_URI="https://gitweb.gentoo.org/proj/${PN}.git/snapshot/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="2"
 KEYWORDS="*"
 IUSE="test"
+RESTRICT="!test? ( test )"
 
-DEPEND="test? (
-		|| (
-			sys-apps/portage[${PYTHON_USEDEP}]
-			sys-apps/portage-mgorny[${PYTHON_USEDEP}]
-		)
-	)"
+DEPEND="test? ( sys-apps/portage[${PYTHON_USEDEP}] )"
 
 # baselayout-java is added as a dep till it can be added to eclass.
 RDEPEND="
-	!dev-java/java-config-wrapper
 	sys-apps/baselayout-java
-	|| (
-		sys-apps/portage[${PYTHON_USEDEP}]
-		sys-apps/portage-mgorny[${PYTHON_USEDEP}]
-	)"
+	sys-apps/portage[${PYTHON_USEDEP}]"
 
-PATCHES=( "${FILESDIR}"/${PN}-2.2.0-prefix.patch )
+python_configure_all() {
+	# setup.py fails to update this file
+	eprefixify src/launcher.bash
+}
 
 python_install_all() {
 	distutils-r1_python_install_all
