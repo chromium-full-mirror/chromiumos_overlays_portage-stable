@@ -27,7 +27,22 @@ case ${EAPI:-0} in
 	*) die "EAPI=${EAPI} is not yet supported" ;;
 esac
 
-# @ECLASS-VARIABLE: NINJAOPTS
+# @ECLASS_VARIABLE: NINJA
+# @PRE_INHERIT
+# @DESCRIPTION:
+# Specify a compatible ninja implementation to be used by eninja().
+# At this point only "ninja" and "samu" are explicitly supported,
+# but other values can be set where NINJA_DEPEND will then be set
+# to a blank variable.
+# The default is set to "ninja".
+: "${NINJA:=ninja}"
+
+# @ECLASS_VARIABLE: NINJA_DEPEND
+# @OUTPUT_VARIABLE
+# @DESCRIPTION:
+# Contains a set of build-time dependencies based on the NINJA setting.
+
+# @ECLASS_VARIABLE: NINJAOPTS
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # The default set of options to pass to Ninja. Similar to MAKEOPTS,
@@ -36,6 +51,18 @@ esac
 
 inherit multiprocessing
 
+case "${NINJA}" in
+	ninja)
+		NINJA_DEPEND=">=dev-util/ninja-1.8.2"
+	;;
+	samu)
+		NINJA_DEPEND="dev-util/samurai"
+	;;
+	*)
+		NINJA_DEPEND=""
+	;;
+esac
+
 # @FUNCTION: eninja
 # @USAGE: [<args>...]
 # @DESCRIPTION:
@@ -43,6 +70,8 @@ inherit multiprocessing
 # by the supplied arguments. This function dies if ninja fails. Starting
 # with EAPI 6, it also supports being called via 'nonfatal'.
 eninja() {
+	[[ -n "${NINJA_DEPEND}" ]] || ewarn "Unknown value '${NINJA}' for \${NINJA}"
+
 	local nonfatal_args=()
 	[[ ${EAPI:-0} != [245] ]] && nonfatal_args+=( -n )
 
