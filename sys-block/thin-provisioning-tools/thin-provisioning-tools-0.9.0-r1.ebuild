@@ -1,7 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit autotools flag-o-matic
 
@@ -19,6 +19,7 @@ fi
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="static test"
+RESTRICT="!test? ( test )"
 
 LIB_DEPEND="dev-libs/expat[static-libs(+)]
 	dev-libs/libaio[static-libs(+)]"
@@ -26,21 +27,13 @@ RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
 DEPEND="${RDEPEND}
 	static? ( ${LIB_DEPEND} )
 	test? (
-		|| (
-			dev-lang/ruby:2.6
-			dev-lang/ruby:2.5
-			dev-lang/ruby:2.4
-		)
 		>=dev-cpp/gtest-1.8.0
-		dev-util/cucumber
-		dev-util/aruba
 	)
 	dev-libs/boost"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.7.0-build-fixes.patch
-	"${FILESDIR}"/${PN}-0.8.5-libaio-0.3.112.patch
-	"${FILESDIR}"/${PN}-0.8.5-stddef-include.patch
+	"${FILESDIR}"/0.9.0-remove-boost_iostreams.patch
 )
 
 src_prepare() {
@@ -60,15 +53,14 @@ src_configure() {
 }
 
 src_compile() {
-	MAKEOPTS+=" V="
-	default
+	emake V=
 }
 
 src_test() {
-	emake unit-test
+	emake V= unit-test
 }
 
 src_install() {
-	emake DESTDIR="${D}" DATADIR="${D}/usr/share" install
+	emake V= DESTDIR="${D}" DATADIR="${ED}/usr/share" install
 	dodoc README.md TODO.org
 }
