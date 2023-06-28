@@ -1,4 +1,4 @@
-BDEPEND=test? ( dev-cpp/gtest ) >=dev-util/cmake-3.20.5
+BDEPEND=test? ( dev-cpp/gtest ) >=dev-util/ninja-1.8.2 >=dev-util/cmake-3.20.5
 DEFINED_PHASES=compile configure install prepare test
 DEPEND=dev-libs/crc32c snappy? ( app-arch/snappy:= ) tcmalloc? ( dev-util/google-perftools:= )
 DESCRIPTION=A fast key-value storage library written at Google
@@ -11,5 +11,5 @@ RDEPEND=dev-libs/crc32c snappy? ( app-arch/snappy:= ) tcmalloc? ( dev-util/googl
 RESTRICT=!test? ( test )
 SLOT=0/1
 SRC_URI=https://github.com/google/leveldb/archive/refs/tags/1.23.tar.gz -> leveldb-1.23.tar.gz
-_eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	132cbb376048d079b5a012f5467c4e7f	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
 _md5_=5b25d0000fd14d7ee812c3352b6eaca4
