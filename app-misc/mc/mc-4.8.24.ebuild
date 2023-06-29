@@ -14,7 +14,7 @@ SRC_URI="http://ftp.midnight-commander.org/${MY_P}.tar.xz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+edit gpm nls samba sftp +slang spell test unicode X +xdg"
+IUSE="+edit gpm nls samba sftp -slang spell test unicode X +xdg"
 
 REQUIRED_USE="spell? ( edit )"
 
