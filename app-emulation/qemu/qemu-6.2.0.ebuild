@@ -239,6 +239,7 @@ PPC_FIRMWARE_DEPEND="
 BDEPEND="
 	$(python_gen_impl_dep)
 	dev-lang/perl
+	dev-util/ninja
 	sys-apps/texinfo
 	virtual/pkgconfig
 	doc? (
