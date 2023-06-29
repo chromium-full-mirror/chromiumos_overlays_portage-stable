@@ -19,9 +19,10 @@ BDEPEND="app-text/docbook-xml-dtd:4.1.2
 	app-text/docbook-xml-dtd:4.4
 	app-text/docbook-xml-dtd:4.5
 	dev-libs/libxslt
+	app-alternatives/yacc
 	sys-devel/flex
 	virtual/pkgconfig[${MULTILIB_USEDEP}]
-	nls? ( sys-devel/gettext )"
+	sys-devel/gettext"
 
 DEPEND="
 	virtual/libcrypt:=[${MULTILIB_USEDEP}]
