@@ -189,13 +189,10 @@ src_test() {
 
 src_install() {
 	local INSTALL_TARGETS=(
-		# full LVM2
-		$(usex lvm "install install_tmpfiles_configuration" "")
+		# full LVM2 or just device mapper.
+		$(usex lvm "install install_tmpfiles_configuration" "install_device-mapper")
 		# install systemd related files only when requested, bug #522430
 		$(usex $(usex lvm systemd lvm) "SYSTEMD_GENERATOR_DIR=$(systemd_get_systemgeneratordir) install_systemd_units install_systemd_generators" "")
-
-		# install dm unconditionally
-		install_device-mapper
 	)
 	emake V=1 DESTDIR="${D}" "${INSTALL_TARGETS[@]}"
 
