@@ -1,31 +1,18 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8,9} )
+# ChromeOS: We need this until we upgrade cmake-multilib past where
+# support for cmake-utils.eclass was dropped (1e9d5c4c). Note, this
+# is after support for EAPI=6 was dropped.
+CMAKE_ECLASS=cmake
+
 DISTUTILS_OPTIONAL="1"
-DISTUTILS_IN_SOURCE_BUILD="1"
+PYTHON_COMPAT=( python3_{6..9} pypy3 )
+inherit cmake-multilib distutils-r1 flag-o-matic
 
-inherit cmake-multilib distutils-r1
-
-DESCRIPTION="Generic-purpose lossless compression algorithm"
-HOMEPAGE="https://github.com/google/brotli"
-
-SLOT="0/$(ver_cut 1)"
-
-RDEPEND="python? ( ${PYTHON_DEPS} )"
-DEPEND="${RDEPEND}"
-
-IUSE="python static-libs test"
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
-
-LICENSE="MIT python? ( Apache-2.0 )"
-
-DOCS=( README.md CONTRIBUTING.md )
-
-if [[ ${PV} == "9999" ]] ; then
-	SRC_URI=""
+if [[ ${PV} == *9999* ]] ; then
 	EGIT_REPO_URI="https://github.com/google/${PN}.git"
 	inherit git-r3
 else
@@ -33,23 +20,37 @@ else
 	SRC_URI="https://github.com/google/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 fi
 
+DESCRIPTION="Generic-purpose lossless compression algorithm"
+HOMEPAGE="https://github.com/google/brotli"
+
+LICENSE="MIT python? ( Apache-2.0 )"
+SLOT="0/$(ver_cut 1)"
+IUSE="python static-libs test"
+
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+
 # tests are currently broken, see https://github.com/google/brotli/issues/850
 RESTRICT="test"
 
-PATCHES=(
-	"${FILESDIR}/${PV}-linker.patch"
-)
+DOCS=( README.md CONTRIBUTING.md )
+
+PATCHES=( "${FILESDIR}/${PV}-linker.patch" )
+
+RDEPEND="python? ( ${PYTHON_DEPS} )"
+DEPEND="${RDEPEND}"
 
 src_prepare() {
+	cmake_src_prepare
 	use python && distutils-r1_src_prepare
-	cmake-utils_src_prepare
 }
 
 multilib_src_configure() {
+	append-lfs-flags
+
 	local mycmakeargs=(
 		-DBUILD_TESTING="$(usex test)"
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 src_configure() {
 	cmake-multilib_src_configure
@@ -57,7 +58,7 @@ src_configure() {
 }
 
 multilib_src_compile() {
-	cmake-utils_src_compile
+	cmake_src_compile
 }
 src_compile() {
 	cmake-multilib_src_compile
@@ -69,7 +70,7 @@ python_test() {
 }
 
 multilib_src_test() {
-	cmake-utils_src_test
+	cmake_src_test
 }
 src_test() {
 	cmake-multilib_src_test
@@ -77,7 +78,7 @@ src_test() {
 }
 
 multilib_src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 	use static-libs || rm "${ED}"/usr/$(get_libdir)/*.a || die
 }
 multilib_src_install_all() {
