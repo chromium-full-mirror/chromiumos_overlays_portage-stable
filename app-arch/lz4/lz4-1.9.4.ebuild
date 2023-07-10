@@ -3,11 +3,6 @@
 
 EAPI=7
 
-# ChromeOS: We need this until we upgrade cmake-multilib past where
-# support for cmake-utils.eclass was dropped (1e9d5c4c). Note, this
-# is after support for EAPI=6 was dropped.
-CMAKE_ECLASS=cmake
-
 inherit cmake-multilib
 
 DESCRIPTION="Extremely Fast Compression algorithm"
