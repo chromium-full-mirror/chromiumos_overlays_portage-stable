@@ -20,10 +20,16 @@ RDEPEND="dev-libs/openssl:="
 DEPEND="${RDEPEND}"
 BDEPEND="
 	dev-lang/swig
+	sys-apps/which
 	sys-devel/bison
 	sys-devel/flex
 	virtual/pkgconfig
 "
+
+PATCHES=(
+	"${FILESDIR}/disable-unused-mkeficapsule.patch"
+	"${FILESDIR}/disable-unused-pylibfdt.patch"
+)
 
 src_prepare() {
 	default
