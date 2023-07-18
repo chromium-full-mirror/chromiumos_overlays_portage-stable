@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_9 )
+PYTHON_COMPAT=( python3_{6..11} )
 PYTHON_REQ_USE="xml(+)"
 
 inherit meson-multilib python-any-r1 vala
