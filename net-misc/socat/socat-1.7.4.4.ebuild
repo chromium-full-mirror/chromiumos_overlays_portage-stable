@@ -1,13 +1,13 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 inherit autotools flag-o-matic toolchain-funcs
 
 MY_P=${P/_beta/-b}
 DESCRIPTION="Multipurpose relay (SOcket CAT)"
-HOMEPAGE="http://www.dest-unreach.org/socat/"
+HOMEPAGE="http://www.dest-unreach.org/socat/ https://repo.or.cz/socat.git"
 SRC_URI="http://www.dest-unreach.org/socat/download/${MY_P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
 
@@ -18,8 +18,7 @@ IUSE="bindist ipv6 readline ssl tcpd"
 
 DEPEND="ssl? ( dev-libs/openssl:0= )
 	readline? ( sys-libs/readline:= )
-	tcpd? ( sys-apps/tcp-wrappers )
-"
+	tcpd? ( sys-apps/tcp-wrappers )"
 RDEPEND="${DEPEND}"
 
 # Tests are a large bash script
@@ -35,15 +34,15 @@ PATCHES=(
 
 pkg_setup() {
 	# bug #587740
-	if use readline && use ssl; then
-		elog "You are enabling both readline and openssl USE flags, the licenses"
+	if use readline && use ssl ; then
+		elog "You are enabling both readline and ssl (openssl) USE flags, the licenses"
 		elog "for these packages conflict. You may not be able to legally"
 		elog "redistribute the resulting binary."
 	fi
 }
 
 src_prepare() {
-	epatch "${PATCHES[@]}"
+	default
 
 	eautoreconf
 }

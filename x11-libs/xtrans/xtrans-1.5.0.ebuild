@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,6 +6,7 @@ EAPI=7
 XORG_PACKAGE_NAME="lib${PN}"
 # this package just installs some .c and .h files, no libraries
 XORG_DOC=doc
+XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3
 
 DESCRIPTION="X.Org xtrans library"

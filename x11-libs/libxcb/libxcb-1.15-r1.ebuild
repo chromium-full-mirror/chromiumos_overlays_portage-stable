@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{6..12} )
 PYTHON_REQ_USE="xml(+)"
 
 XORG_TARBALL_SUFFIX="xz"
@@ -25,6 +25,7 @@ RDEPEND="
 	>=x11-libs/libXdmcp-1.1.1-r1[${MULTILIB_USEDEP}]
 "
 DEPEND="${RDEPEND}
+	x11-base/xorg-proto
 	>=x11-base/xcb-proto-1.15.2
 	elibc_Darwin? ( dev-libs/libpthread-stubs )
 	test? ( dev-libs/check[${MULTILIB_USEDEP}] )
@@ -37,7 +38,7 @@ BDEPEND="${PYTHON_DEPS}
 "
 
 python_check_deps() {
-	has_version -b ">=x11-base/xcb-proto-1.15[${PYTHON_USEDEP}]"
+	python_has_version ">=x11-base/xcb-proto-1.15[${PYTHON_USEDEP}]"
 }
 
 pkg_setup() {
