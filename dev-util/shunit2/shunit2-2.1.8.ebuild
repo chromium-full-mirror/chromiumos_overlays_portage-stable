@@ -19,7 +19,7 @@ src_install() {
 	dobin shunit2
 
 	# For backwards compat to <=2.1.5
-	dosym -r /usr/bin/shunit2 /usr/share/shunit2/shunit2
+	dosym /usr/bin/shunit2 /usr/share/shunit2/shunit2
 
 	dodoc -r examples
 	dodoc doc/*.txt
