@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI="7"
 
 inherit eutils flag-o-matic toolchain-funcs multilib-minimal
 
@@ -40,14 +40,16 @@ S=${WORKDIR}/${MY_P}
 HOSTTIC_DIR=${WORKDIR}/${P}-host
 
 src_prepare() {
-	[[ -n ${PV_SNAP} ]] && epatch "${WORKDIR}"/${MY_P}-${PV_SNAP}-patch.sh
-	epatch "${FILESDIR}"/${PN}-5.8-gfbsd.patch
-	epatch "${FILESDIR}"/${PN}-5.7-nongnu.patch
-	epatch "${FILESDIR}"/${PN}-5.9-rxvt-unicode-9.15.patch #192083 #383871
-	epatch "${FILESDIR}"/${PN}-5.9-fix-clang-build.patch #417763
-	epatch "${FILESDIR}"/${PN}-5.9-pkg-config.patch
-	epatch "${FILESDIR}"/${P}-no-I-usr-include.patch #522586
-	epatch "${FILESDIR}"/${P}-gcc-5.patch #545114
+	[[ -n ${PV_SNAP} ]] && eapply "${WORKDIR}"/${MY_P}-${PV_SNAP}-patch.sh
+	eapply "${FILESDIR}"/${PN}-5.8-gfbsd.patch
+	eapply "${FILESDIR}"/${PN}-5.7-nongnu.patch
+	eapply -p0 "${FILESDIR}"/${PN}-5.9-rxvt-unicode-9.15.patch #192083 #383871
+	eapply -p2 "${FILESDIR}"/${PN}-5.9-fix-clang-build.patch #417763
+	eapply "${FILESDIR}"/${PN}-5.9-pkg-config.patch
+	eapply "${FILESDIR}"/${P}-no-I-usr-include.patch #522586
+	eapply "${FILESDIR}"/${P}-gcc-5.patch #545114
+
+	default
 }
 
 src_configure() {
