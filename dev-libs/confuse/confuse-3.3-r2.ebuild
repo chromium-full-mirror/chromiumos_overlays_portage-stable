@@ -1,12 +1,12 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 inherit multilib-minimal flag-o-matic
 
 DESCRIPTION="a configuration file parser library"
-HOMEPAGE="https://github.com/martinh/libconfuse"
-SRC_URI="https://github.com/martinh/libconfuse/releases/download/v${PV}/${P}.tar.xz"
+HOMEPAGE="https://github.com/libconfuse/libconfuse"
+SRC_URI="https://github.com/libconfuse/libconfuse/releases/download/v${PV}/${P}.tar.xz"
 
 LICENSE="ISC"
 SLOT="0/2.1.0"
@@ -23,6 +23,12 @@ BDEPEND="
 RDEPEND="
 	nls? ( virtual/libintl[${MULTILIB_USEDEP}] )
 "
+
+PATCHES=(
+	# Upstream commit to fix CVE-2022-40320:
+	# https://github.com/libconfuse/libconfuse/commit/d73777c2c3566fb2647727bb56d9a2295b81669b
+	"${FILESDIR}"/confuse-3.3-fix-CVE-2022-40320.patch
+)
 
 DOCS=( AUTHORS )
 
