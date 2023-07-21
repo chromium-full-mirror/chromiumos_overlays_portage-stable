@@ -8,7 +8,15 @@ inherit cmake-multilib
 
 DESCRIPTION="A high-speed compression/decompression library by Google"
 HOMEPAGE="https://github.com/google/snappy"
-SRC_URI="https://github.com/google/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+
+BUNDLED_BENCHMARK_SHA=d572f4777349d43653b21d6c2fc63020ab326db2
+BUNDLED_GOOGLETEST_SHA=b796f7d44681514f58a683a3a71ff17c94edb0c1
+
+SRC_URI="
+	https://github.com/google/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
+	https://github.com/google/benchmark/archive/${BUNDLED_BENCHMARK_SHA}.tar.gz -> benchmark-${BUNDLED_BENCHMARK_SHA}.tar.gz
+	https://github.com/google/googletest/archive/${BUNDLED_GOOGLETEST_SHA}.tar.gz -> googletest-${BUNDLED_GOOGLETEST_SHA}.tar.gz
+"
 
 LICENSE="BSD"
 SLOT="0/${PV%%.*}"
@@ -28,8 +36,14 @@ DOCS=( format_description.txt framing_format.txt NEWS README.md )
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}"/snappy-1.1.7-0001-cmake-Add-missing-linking-to-GTEST_LIBRARIES.patch
+		"${FILESDIR}"/snappy-1.1.10-0001-cmake-sign-compare.patch
+		"${FILESDIR}"/snappy-1.1.10-0002-cmake-remove-no-rtti.patch
 	)
+
+	# Snappy has benchmark and googletest as bundled submodules, but the tarball
+	# only has empty folders for them. Prepare maually.
+	cp -rl "${WORKDIR}/benchmark-${BUNDLED_BENCHMARK_SHA}"/* "third_party/benchmark"
+	cp -rl "${WORKDIR}/googletest-${BUNDLED_GOOGLETEST_SHA}"/* "third_party/googletest"
 
 	# command-line option parsing does not work at all, so just force
 	# it off
@@ -43,11 +57,12 @@ multilib_src_configure() {
 	# but it is not a priority right now
 	local mycmakeargs=(
 		-DBUILD_SHARED_LIBS=ON
+		# Disable benchmarks and test
+		-DSNAPPY_BUILD_BENCHMARKS=OFF
+		-DSNAPPY_BUILD_TESTS=OFF
 
-		# use gtest for tests only
-		-DCMAKE_DISABLE_FIND_PACKAGE_GTest=$(usex '!test')
-		# gflags does not work anyway
-		-DCMAKE_DISABLE_FIND_PACKAGE_Gflags=ON
+		# Disalbe arm neon because arm32 boards do not support.
+		-DSNAPPY_HAVE_NEON=0
 
 		# we do not want to run benchmarks, and those are only used
 		# for benchmarks
