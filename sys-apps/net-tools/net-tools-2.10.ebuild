@@ -1,16 +1,15 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="7"
 
 inherit flag-o-matic toolchain-funcs
 
 if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="git://git.code.sf.net/p/net-tools/code"
-	EGIT_PROJECT="${PN}"
-	inherit git-2
+	EGIT_REPO_URI="https://git.code.sf.net/p/net-tools/code"
+	inherit git-r3
 else
-	SRC_URI="mirror://gentoo/${P}.tar.xz"
+	SRC_URI="mirror://sourceforge/${PN}/${P}.tar.xz"
 	KEYWORDS="*"
 fi
 
@@ -22,34 +21,17 @@ SLOT="0"
 IUSE="+arp +hostname ipv6 nis nls plipconfig selinux slattach static"
 REQUIRED_USE="nis? ( hostname )"
 
-RDEPEND="selinux? ( sys-libs/libselinux )"
-DEPEND="${RDEPEND}
-	selinux? ( virtual/pkgconfig )
-	app-arch/xz-utils"
-if [[ ${PV} == "9999" ]]; then
-	DEPEND+=" nls? ( sys-devel/gettext )"
-fi
-RDEPEND+="
+DEPEND="selinux? ( sys-libs/libselinux )"
+RDEPEND="${DEPEND}
 	hostname? ( !sys-apps/coreutils[hostname] )
-	!<sys-apps/openrc-0.9.9.3"
-
-maint_pkg_create() {
-	cd /usr/local/src/net-tools
-	#git-update
-	local stamp=$(date --date="$(git log -n1 --pretty=format:%ci master)" -u +%Y%m%d%H%M%S)
-	local pv="${PV/_p*}_p${stamp}"; pv=${pv/9999/1.60}
-	local p="${PN}-${pv}"
-	git archive --prefix="${p}/" master | tar xf - -C "${T}"
-	pushd "${T}" >/dev/null
-	emake -C "${p}/po" dist
-	sed -i "/^RELEASE/s:=.*:=${pv}:" */Makefile || die
-	tar cf - ${p}/ | xz > ${p}.tar.xz
-	popd >/dev/null
-
-	du -b "${T}"/*.tar.xz
-}
-
-pkg_setup() { [[ -n ${VAPIER_LOVES_YOU} ]] && maint_pkg_create ; }
+	nis? ( !net-nds/yp-tools )"
+BDEPEND="
+	selinux? ( virtual/pkgconfig )
+	app-arch/xz-utils
+"
+if [[ ${PV} == "9999" ]]; then
+	BDEPEND+=" nls? ( sys-devel/gettext )"
+fi
 
 set_opt() {
 	local opt=$1 ans
@@ -59,10 +41,6 @@ set_opt() {
 	sed -i \
 		-e "/^bool.* ${opt} /s:[yn]$:${ans}:" \
 		config.in || die
-}
-
-src_prepare() {
-	epatch "${FILESDIR}/${P}-fix-building-w-older-linux-headers.patch"
 }
 
 src_configure() {
