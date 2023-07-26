@@ -1,7 +1,7 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="7"
 
 inherit eutils flag-o-matic toolchain-funcs
 
@@ -40,6 +40,8 @@ DEPEND="${COMMON_DEPEND}
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
+	default
+
 	# bug#469388
 	sed -i -e 's/--batch --dearmor/--homedir . --batch --dearmor/' checks/Makefile.in
 
