@@ -1,0 +1,15 @@
+BDEPEND=virtual/pkgconfig doc? ( dev-python/sphinx ) test? ( dev-util/cmocka dev-util/kyua ) >=app-portage/elt-patches-20170815 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16.1:1.16 >=sys-devel/automake-1.15.1:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=>=dev-libs/libuv-1.42.0:= dev-libs/openssl:= caps? ( sys-libs/libcap ) xml? ( dev-libs/libxml2 ) idn? ( net-dns/libidn2:= ) gssapi? ( virtual/krb5 ) libedit? ( dev-libs/libedit ) !libedit? ( readline? ( sys-libs/readline:= ) )
+DESCRIPTION=bind tools: dig, nslookup, host, nsupdate, dnssec-keygen
+EAPI=7
+HOMEPAGE=https://www.isc.org/software/bind https://gitlab.isc.org/isc-projects/bind9
+IUSE=+caps doc gssapi idn libedit readline test xml
+KEYWORDS=*
+LICENSE=Apache-2.0 BSD BSD-2 GPL-2 HPND ISC MPL-2.0
+RDEPEND=>=dev-libs/libuv-1.42.0:= dev-libs/openssl:= caps? ( sys-libs/libcap ) xml? ( dev-libs/libxml2 ) idn? ( net-dns/libidn2:= ) gssapi? ( virtual/krb5 ) libedit? ( dev-libs/libedit ) !libedit? ( readline? ( sys-libs/readline:= ) )
+RESTRICT=!test? ( test )
+SLOT=0
+SRC_URI=https://downloads.isc.org/isc/bind9/9.16.41/bind-9.16.41.tar.xz
+_eclasses_=autotools	e5394a2d2b5614041b32c6dfde52e44e	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_md5_=ce20cc87ef95cdf3df9e68b5c7dec766
