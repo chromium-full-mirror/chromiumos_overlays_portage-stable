@@ -1,21 +1,13 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-inherit flag-o-matic toolchain-funcs versionator
-
-#MY_PV="$(get_version_component_range 1-3)"
-DEB_PATCH="" #$(get_version_component_range 4)
-#MY_P="${PN}-${MY_PV}"
+inherit flag-o-matic toolchain-funcs
 
 DESCRIPTION="Debian Almquist Shell"
 HOMEPAGE="http://gondor.apana.org.au/~herbert/dash/"
 SRC_URI="http://gondor.apana.org.au/~herbert/dash/files/${P}.tar.gz"
-if [[ -n "${DEB_PATCH}" ]] ; then
-	DEB_PF="${PN}_${MY_PV}-${DEB_PATCH}"
-	SRC_URI+=" mirror://debian/pool/main/d/dash/${DEB_PF}.diff.gz"
-fi
 
 LICENSE="BSD"
 SLOT="0"
@@ -30,15 +22,10 @@ DEPEND="${RDEPEND}
 PATCHES=( "${FILESDIR}"/${PN}-0.5.9.1-format-security.patch )
 
 src_prepare() {
-	if [[ -n "${DEB_PATCH}" ]] ; then
-		eapply "${WORKDIR}"/${DEB_PF}.diff
-		eapply */debian/diff/*
-	fi
-
 	#337329 #527848
-	use vanilla ||  epatch "${FILESDIR}"/${PN}-0.5.9.1-dumb-echo.patch
+	use vanilla ||  eapply "${FILESDIR}"/${PN}-0.5.9.1-dumb-echo.patch
 
-	epatch "${PATCHES[@]}"
+	default
 
 	# Fix the invalid sort
 	sed -i -e 's/LC_COLLATE=C/LC_ALL=C/g' src/mkbuiltins
