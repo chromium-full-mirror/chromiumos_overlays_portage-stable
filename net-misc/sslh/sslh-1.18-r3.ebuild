@@ -1,7 +1,7 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 MY_P="${PN}-v${PV}"
 inherit eutils flag-o-matic systemd toolchain-funcs
@@ -31,10 +31,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-1.18-systemd-generator.patch"
 	"${FILESDIR}/${PN}-1.18-adb.patch"
 )
-
-src_prepare() {
-	epatch "${PATCHES[@]}"
-}
 
 src_compile() {
 	# On older versions of GCC, the default gnu89 variant
