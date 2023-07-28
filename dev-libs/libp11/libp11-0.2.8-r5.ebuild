@@ -22,7 +22,7 @@ IUSE="doc"
 
 RDEPEND="dev-libs/openssl:0="
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	doc? ( app-doc/doxygen )"
 
 if [[ "${PV}" = "9999" ]]; then
