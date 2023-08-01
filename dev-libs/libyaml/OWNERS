@@ -1,2 +1,2 @@
-# TODO: Add per-package OWNERS and delete this when done.
-*
+# This is only used by libcamera.
+include chromiumos/platform2:/camera/OWNERS
