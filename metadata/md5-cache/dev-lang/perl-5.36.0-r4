@@ -12,4 +12,4 @@ RDEPEND=berkdb? ( sys-libs/db:= ) gdbm? ( >=sys-libs/gdbm-1.8.3:= ) app-arch/bzi
 SLOT=0/5.36
 SRC_URI=mirror://cpan/src/5.0/perl-5.36.0.tar.xz mirror://cpan/authors/id/R/RJ/RJBS/perl-5.36.0.tar.xz https://github.com/gentoo-perl/perl-patchset/releases/download/perl-5.36.0-patches-1/perl-5.36.0-patches-1.tar.xz https://dev.gentoo.org/~dilfridge/distfiles/perl-5.36.0-patches-1.tar.xz https://github.com/arsv/perl-cross/releases/download/1.4/perl-cross-1.4.tar.gz
 _eclasses_=alternatives	eb864f6e50a20036e4cd47c8fd8f64d1	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=3e63b1519a123688e0dac26ce459a22b
+_md5_=c64c315d238657343a30fd9b77b071b1
