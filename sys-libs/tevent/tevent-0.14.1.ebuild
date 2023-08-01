@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{6..12} )
 PYTHON_REQ_USE="threads(+)"
 inherit waf-utils multilib-minimal python-single-r1
 
@@ -15,7 +15,6 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
 IUSE="python test"
-
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test !test? ( test )"
 
