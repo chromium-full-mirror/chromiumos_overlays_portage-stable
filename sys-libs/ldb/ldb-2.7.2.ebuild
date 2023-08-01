@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{6..12} )
 PYTHON_REQ_USE="threads(+)"
 inherit python-single-r1 waf-utils multilib-minimal
 
@@ -17,17 +17,20 @@ KEYWORDS="*"
 IUSE="doc ldap +lmdb python test"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
-	test? ( lmdb python )"
+	test? ( lmdb )"
 
 RESTRICT="!test? ( test )"
+
+TALLOC_VERSION="2.4.0"
+TDB_VERSION="1.4.8"
+TEVENT_VERSION="0.14.1"
 
 RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
 	dev-libs/popt[${MULTILIB_USEDEP}]
-	>=dev-util/cmocka-1.1.3[${MULTILIB_USEDEP}]
-	>=sys-libs/talloc-2.3.3[${MULTILIB_USEDEP}]
-	>=sys-libs/tdb-1.4.6[${MULTILIB_USEDEP}]
-	>=sys-libs/tevent-0.11.0[${MULTILIB_USEDEP}]
+	>=sys-libs/talloc-${TALLOC_VERSION}[${MULTILIB_USEDEP}]
+	>=sys-libs/tdb-${TDB_VERSION}[${MULTILIB_USEDEP}]
+	>=sys-libs/tevent-${TEVENT_VERSION}[${MULTILIB_USEDEP}]
 	ldap? ( net-nds/openldap:= )
 	lmdb? ( >=dev-db/lmdb-0.9.16:=[${MULTILIB_USEDEP}] )
 	python? (
@@ -37,8 +40,10 @@ RDEPEND="
 		sys-libs/tevent[python,${PYTHON_SINGLE_USEDEP}]
 	)
 "
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
 	virtual/libcrypt
+	test? ( >=dev-util/cmocka-1.1.3[${MULTILIB_USEDEP}] )
 "
 BDEPEND="${PYTHON_DEPS}
 	dev-libs/libxslt
@@ -60,30 +65,75 @@ PATCHES=(
 pkg_setup() {
 	# Package fails to build with distcc
 	export DISTCC_DISABLE=1
+	export PYTHONHASHSEED=1
 
 	# waf requires a python interpreter
 	python-single-r1_pkg_setup
 }
 
+check_samba_dep_versions() {
+	actual_talloc_version=$(sed -En '/^VERSION =/{s/[^0-9.]//gp}' lib/talloc/wscript || die)
+	if [[ ${actual_talloc_version} != ${TALLOC_VERSION} ]] ; then
+		eerror "Source talloc version: ${TALLOC_VERSION}"
+		eerror "Ebuild talloc version: ${actual_talloc_version}"
+		die "Ebuild needs to fix TALLOC_VERSION!"
+	fi
+
+	actual_tdb_version=$(sed -En '/^VERSION =/{s/[^0-9.]//gp}' lib/tdb/wscript || die)
+	if [[ ${actual_tdb_version} != ${TDB_VERSION} ]] ; then
+		eerror "Source tdb version: ${TDB_VERSION}"
+		eerror "Ebuild tdb version: ${actual_tdb_version}"
+		die "Ebuild needs to fix TDB_VERSION!"
+	fi
+
+	actual_tevent_version=$(sed -En '/^VERSION =/{s/[^0-9.]//gp}' lib/tevent/wscript || die)
+	if [[ ${actual_tevent_version} != ${TEVENT_VERSION} ]] ; then
+		eerror "Source tevent version: ${TEVENT_VERSION}"
+		eerror "Ebuild tevent version: ${actual_tevent_version}"
+		die "Ebuild needs to fix TEVENT_VERSION!"
+	fi
+}
+
 src_prepare() {
 	default
+
+	check_samba_dep_versions
+
+	if use test && ! use python ; then
+		# We want to be able to run tests w/o Python as it makes
+		# automated testing much easier (as USE=python isn't default-enabled).
+		truncate -s0 tests/python/{repack,index,api,crash}.py || die
+	fi
+
 	multilib_copy_sources
 }
 
 multilib_src_configure() {
+	# When specifying libs for samba build you must append NONE to the end to
+	# stop it automatically including things
+	local bundled_libs="NONE"
+
+	# We "use" bundled cmocka when we're not running tests as we're
+	# not using it anyway. Means we avoid making users install it for
+	# no reason. bug #802531
+	if ! use test; then
+		bundled_libs="cmocka,${bundled_libs}"
+	fi
+
 	local myconf=(
 		$(usex ldap '' --disable-ldap)
 		$(usex lmdb '' --without-ldb-lmdb)
 		--disable-rpath
-		--disable-rpath-install --bundled-libraries=NONE
+		--disable-rpath-install
 		--with-modulesdir="${EPREFIX}"/usr/$(get_libdir)/samba
+		--bundled-libraries="${bundled_libs}"
 		--builtin-libraries=NONE
 	)
-	if ! multilib_is_native_abi; then
+
+	if ! use python || ! multilib_is_native_abi; then
 		myconf+=( --disable-python )
-	else
-		use python || myconf+=( --disable-python )
 	fi
+
 	waf-utils_src_configure "${myconf[@]}"
 }
 
@@ -95,8 +145,8 @@ multilib_src_compile() {
 multilib_src_test() {
 	if multilib_is_native_abi; then
 		WAF_MAKE=1 \
-		PATH=buildtools/bin:../../../buildtools/bin:$PATH:"${BUILD_DIR}"/bin/shared/private/ \
-		LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"${BUILD_DIR}"/bin/shared/private/:"${BUILD_DIR}"/bin/shared \
+		PATH=buildtools/bin:../../../buildtools/bin:${PATH}:"${BUILD_DIR}"/bin/shared/private/ \
+		LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:"${BUILD_DIR}"/bin/shared/private/:"${BUILD_DIR}"/bin/shared \
 		waf test || die
 	fi
 }
@@ -110,7 +160,8 @@ multilib_src_install() {
 		dodoc -r apidocs/html/.
 	fi
 
-	use python && python_optimize #726454
+	# bug #726454
+	use python && python_optimize
 }
 
 pkg_postinst() {
