@@ -1,0 +1,16 @@
+BDEPEND=drop-root? ( virtual/pkgconfig ) verify-sig? ( sec-keys/openpgp-keys-tcpdump ) >=app-portage/elt-patches-20170815 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16.1:1.16 >=sys-devel/automake-1.15.1:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 verify-sig? ( app-crypt/gnupg >=app-portage/gemato-16 )
+DEFINED_PHASES=configure install postinst prepare test unpack
+DEPEND=>=net-libs/libpcap-1.10.1 drop-root? ( acct-group/pcap acct-user/pcap sys-libs/libcap-ng ) smi? ( net-libs/libsmi ) ssl? ( >=dev-libs/openssl-0.9.6m:= ) suid? ( acct-group/pcap acct-user/pcap ) test? ( dev-lang/perl )
+DESCRIPTION=A tool for network monitoring and data acquisition
+EAPI=7
+HOMEPAGE=https://www.tcpdump.org/ https://github.com/the-tcpdump-group/tcpdump
+IUSE=+drop-root +smi +ssl +samba suid test verify-sig
+KEYWORDS=*
+LICENSE=BSD
+RDEPEND=>=net-libs/libpcap-1.10.1 drop-root? ( acct-group/pcap acct-user/pcap sys-libs/libcap-ng ) smi? ( net-libs/libsmi ) ssl? ( >=dev-libs/openssl-0.9.6m:= ) suid? ( acct-group/pcap acct-user/pcap )
+REQUIRED_USE=test? ( samba )
+RESTRICT=!test? ( test )
+SLOT=0
+SRC_URI=https://www.tcpdump.org/release/tcpdump-4.99.4.tar.gz verify-sig? ( https://www.tcpdump.org/release/tcpdump-4.99.4.tar.gz.sig )
+_eclasses_=autotools	e5394a2d2b5614041b32c6dfde52e44e	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
+_md5_=2472b079d83655f3241e81d406948d1b
