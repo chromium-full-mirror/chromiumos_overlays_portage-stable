@@ -3,7 +3,6 @@
 
 EAPI=7
 
-CMAKE_ECLASS=cmake
 inherit cmake-multilib java-pkg-opt-2 flag-o-matic
 
 DESCRIPTION="MMX, SSE, and SSE2 SIMD accelerated JPEG library"
@@ -15,6 +14,7 @@ SRC_URI="
 
 LICENSE="BSD IJG ZLIB"
 SLOT="0/0.2"
+# Unkeyworded for test failures: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/705
 if [[ $(ver_cut 3) -lt 90 ]] ; then
 	KEYWORDS="*"
 fi
@@ -43,18 +43,20 @@ BDEPEND="
 
 MULTILIB_WRAPPED_HEADERS=( /usr/include/jconfig.h )
 
-src_prepare() {
-	default
+PATCHES=(
+	"${FILESDIR}"/${P}-tests.patch
+)
 
+src_prepare() {
 	local FILE
 	ln -snf ../debian/extra/*.c . || die
 
 	for FILE in ../debian/extra/*.c; do
 		FILE=${FILE##*/}
-		cat >> CMakeLists.txt <<EOF || die
-add_executable(${FILE%.c} ${FILE})
-install(TARGETS ${FILE%.c})
-EOF
+		cat >> CMakeLists.txt <<-EOF || die
+		add_executable(${FILE%.c} ${FILE})
+		install(TARGETS ${FILE%.c})
+		EOF
 	done
 
 	cmake_src_prepare
@@ -73,7 +75,6 @@ multilib_src_configure() {
 		-DCMAKE_INSTALL_DEFAULT_DOCDIR="${EPREFIX}/usr/share/doc/${PF}"
 		-DENABLE_STATIC="$(usex static-libs)"
 		-DWITH_JAVA="$(multilib_native_usex java)"
-		-DWITH_MEM_SRCDST=ON
 	)
 
 	# Avoid ARM ABI issues by disabling SIMD for CPUs without NEON, bug #792810
@@ -93,7 +94,7 @@ multilib_src_configure() {
 		)
 	fi
 
-	# mostly for Prefix, ensure that we use our yasm if installed and
+	# Mostly for Prefix, ensure that we use our yasm if installed and
 	# not pick up host-provided nasm
 	if has_version -b dev-lang/yasm && ! has_version -b dev-lang/nasm; then
 		mycmakeargs+=(
