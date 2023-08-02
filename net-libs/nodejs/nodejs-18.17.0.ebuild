@@ -1,12 +1,13 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+CONFIG_CHECK="~ADVISE_SYSCALLS"
+PYTHON_COMPAT=( python3_{6..9} )
 PYTHON_REQ_USE="threads(+)"
 
-inherit bash-completion-r1 flag-o-matic pax-utils python-any-r1 toolchain-funcs xdg-utils
+inherit bash-completion-r1 check-reqs flag-o-matic linux-info pax-utils python-any-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="A JavaScript runtime built on Chrome's V8 JavaScript engine"
 HOMEPAGE="https://nodejs.org/"
@@ -23,8 +24,9 @@ else
 	S="${WORKDIR}/node-v${PV}"
 fi
 
-IUSE="cpu_flags_x86_sse2 debug doc +icu inspector lto +npm pax-kernel +snapshot +ssl +system-icu +system-ssl systemtap test"
-REQUIRED_USE="inspector? ( icu ssl )
+IUSE="corepack cpu_flags_x86_sse2 debug doc +icu inspector lto +npm pax-kernel +snapshot +ssl +system-icu +system-ssl systemtap test"
+REQUIRED_USE="corepack? ( !npm )
+	inspector? ( icu ssl )
 	npm? ( ssl )
 	system-icu? ( icu )
 	system-ssl? ( ssl )"
@@ -32,15 +34,14 @@ REQUIRED_USE="inspector? ( icu ssl )
 RESTRICT="!test? ( test )"
 
 RDEPEND=">=app-arch/brotli-1.0.9:=
-	>=dev-libs/libuv-1.40.0:=
-	>=net-dns/c-ares-1.17.2:=
+	>=dev-libs/libuv-1.44.0:=
+	>=net-dns/c-ares-1.18.1:=
 	>=net-libs/nghttp2-1.41.0:=
 	sys-libs/zlib
+	corepack? ( !sys-apps/yarn )
 	system-icu? ( >=dev-libs/icu-67:= )
-	system-ssl? (
-		>=dev-libs/openssl-1.1.1:0=
-		<dev-libs/openssl-3.0.0_beta1:0=
-	)"
+	system-ssl? ( >=dev-libs/openssl-1.1.1:0= )
+	sys-devel/gcc:*"
 BDEPEND="${PYTHON_DEPS}
 	sys-apps/coreutils
 	virtual/pkgconfig
@@ -49,31 +50,31 @@ BDEPEND="${PYTHON_DEPS}
 	pax-kernel? ( sys-apps/elfix )"
 DEPEND="${RDEPEND}"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-10.3.0-global-npm-config.patch
-	"${FILESDIR}"/${PN}-12.22.1-jinja_collections_abc.patch
-	"${FILESDIR}"/${PN}-12.22.1-uvwasi_shared_libuv.patch
-	"${FILESDIR}"/${PN}-12.22.5-shared_c-ares_nameser_h.patch
-	"${FILESDIR}"/${PN}-14.15.0-fix_ppc64_crashes.patch
-)
+# These are measured on a loong machine with -ggdb on, and only checked
+# if debugging flags are present in CFLAGS.
+#
+# The final link consumed a little more than 7GiB alone, so 8GiB is the lower
+# limit for memory usage. Disk usage was 19.1GiB for the build directory and
+# 1.2GiB for the installed image, so we leave some room for architectures with
+# fatter binaries and set the disk requirement to 22GiB.
+CHECKREQS_MEMORY="8G"
+CHECKREQS_DISK_BUILD="22G"
 
 pkg_pretend() {
 	(use x86 && ! use cpu_flags_x86_sse2) && \
 		die "Your CPU doesn't support the required SSE2 instruction."
 
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
-		if use lto; then
-			if tc-is-gcc; then
-				if [[ $(gcc-major-version) -ge 11 ]]; then
-					# Bug #787158
-					die "LTO builds of ${PN} using gcc-11+ currently fail tests and produce runtime errors. Either switch to gcc-10 or unset USE=lto for this ebuild"
-				fi
-			else
-				# configure.py will abort on this later if we do not
-				die "${PN} only supports LTO for gcc"
-			fi
+		if is-flagq "-g*" && ! is-flagq "-g*0" ; then
+			einfo "Checking for sufficient disk space and memory to build ${PN} with debugging CFLAGS"
+			check-reqs_pkg_pretend
 		fi
 	fi
+}
+
+pkg_setup() {
+	python-any-r1_pkg_setup
+	linux-info_pkg_setup
 }
 
 src_prepare() {
@@ -108,14 +109,7 @@ src_prepare() {
 	fi
 
 	# We need to disable mprotect on two files when it builds Bug 694100.
-	use pax-kernel && PATCHES+=( "${FILESDIR}"/${PN}-13.8.0-paxmarking.patch )
-
-	# All this test does is check if the npm CLI produces warnings of any sort,
-	# failing if it does. Overkill, much? Especially given one possible warning
-	# is that there is a newer version of npm available upstream (yes, it does
-	# use the network if available), thus making it a real possibility for this
-	# test to begin failing one day even though it was fine before.
-	rm -f test/parallel/test-release-npm.js
+	use pax-kernel && PATCHES+=( "${FILESDIR}"/${P}-paxmarking.patch )
 
 	default
 }
@@ -124,7 +118,7 @@ src_configure() {
 	xdg_environment_reset
 
 	# LTO compiler flags are handled by configure.py itself
-	filter-flags '-flto*'
+	filter-lto
 
 	local myconf=(
 		--shared-brotli
@@ -142,6 +136,7 @@ src_configure() {
 	else
 		myconf+=( --with-intl=none )
 	fi
+	use corepack || myconf+=( --without-corepack )
 	use inspector || myconf+=( --without-inspector )
 	use npm || myconf+=( --without-npm )
 	use snapshot || myconf+=( --without-node-snapshot )
@@ -152,13 +147,15 @@ src_configure() {
 	fi
 
 	local myarch=""
-	case ${ABI} in
-		amd64) myarch="x64";;
-		arm) myarch="arm";;
-		arm64) myarch="arm64";;
-		ppc64) myarch="ppc64";;
-		x32) myarch="x32";;
-		x86) myarch="ia32";;
+	case "${ARCH}:${ABI}" in
+		*:amd64) myarch="x64";;
+		*:arm) myarch="arm";;
+		*:arm64) myarch="arm64";;
+		loong:lp64*) myarch="loong64";;
+		riscv:lp64*) myarch="riscv64";;
+		*:ppc64) myarch="ppc64";;
+		*:x32) myarch="x32";;
+		*:x86) myarch="ia32";;
 		*) myarch="${ABI}";;
 	esac
 
@@ -195,17 +192,14 @@ src_install() {
 	fi
 
 	if use npm; then
-		dodir /etc/npm
+		keepdir /etc/npm
+		echo "NPM_CONFIG_GLOBALCONFIG=${EPREFIX}/etc/npm/npmrc" > "${T}"/50npm
+		doenvd "${T}"/50npm
 
 		# Install bash completion for `npm`
-		# We need to temporarily replace default config path since
-		# npm otherwise tries to write outside of the sandbox
-		local npm_config="usr/$(get_libdir)/node_modules/npm/lib/config/core.js"
-		sed -i -e "s|'/etc'|'${ED}/etc'|g" "${ED}/${npm_config}" || die
 		local tmp_npm_completion_file="$(TMPDIR="${T}" mktemp -t npm.XXXXXXXXXX)"
 		"${ED}/usr/bin/npm" completion > "${tmp_npm_completion_file}"
 		newbashcomp "${tmp_npm_completion_file}" npm
-		sed -i -e "s|'${ED}/etc'|'/etc'|g" "${ED}/${npm_config}" || die
 
 		# Move man pages
 		doman "${LIBDIR}"/node_modules/npm/man/man{1,5,7}/*
@@ -231,16 +225,31 @@ src_install() {
 			\) \) -exec rm -rf "{}" \;
 	fi
 
+	use corepack &&
+		"${D}"/usr/bin/corepack enable --install-directory "${D}"/usr/bin
+
 	mv "${ED}"/usr/share/doc/node "${ED}"/usr/share/doc/${PF} || die
 }
 
 src_test() {
-	if has usersandbox ${FEATURES}; then
-		rm -f "${S}"/test/parallel/test-fs-mkdir.js
-		ewarn "You are emerging ${PN} with 'usersandbox' enabled. Excluding tests known to fail in this mode." \
-			"For full test coverage, emerge =${CATEGORY}/${PF} with 'FEATURES=-usersandbox'."
-	fi
+	local drop_tests=(
+		test/parallel/test-dns-setserver-when-querying.js
+		test/parallel/test-fs-mkdir.js
+		test/parallel/test-fs-utimes-y2K38.js
+		test/parallel/test-release-npm.js
+		test/parallel/test-socket-write-after-fin-error.js
+		test/parallel/test-strace-openat-openssl.js
+		test/sequential/test-util-debug.js
+	)
+	rm "${drop_tests[@]}" || die "disabling tests failed"
 
 	out/${BUILDTYPE}/cctest || die
 	"${EPYTHON}" tools/test.py --mode=${BUILDTYPE,,} --flaky-tests=dontcare -J message parallel sequential || die
+}
+
+pkg_postinst() {
+	if use npm; then
+		ewarn "remember to run: source /etc/profile if you plan to use nodejs"
+		ewarn "	in your current shell"
+	fi
 }
