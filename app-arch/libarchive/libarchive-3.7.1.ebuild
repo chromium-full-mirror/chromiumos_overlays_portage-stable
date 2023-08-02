@@ -46,6 +46,7 @@ DEPEND="${RDEPEND}
 "
 BDEPEND="
 	verify-sig? ( >=sec-keys/openpgp-keys-libarchive-20221209 )
+	elibc_musl? ( sys-libs/queue-standalone )
 "
 
 # false positives (checks for libc-defined hash functions)
@@ -82,12 +83,14 @@ multilib_src_configure() {
 			--enable-bsdcat="$(tc-is-static-only && echo static || echo shared)"
 			--enable-bsdcpio="$(tc-is-static-only && echo static || echo shared)"
 			--enable-bsdtar="$(tc-is-static-only && echo static || echo shared)"
+			--enable-bsdunzip="$(tc-is-static-only && echo static || echo shared)"
 		)
 	else
 		myconf+=(
 			--disable-bsdcat
 			--disable-bsdcpio
 			--disable-bsdtar
+			--disable-bsdunzip
 		)
 	fi
 
