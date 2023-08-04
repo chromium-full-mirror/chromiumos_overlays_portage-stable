@@ -1,8 +1,0 @@
-DEFINED_PHASES=-
-DESCRIPTION=Virtual for the pkg-config implementation
-EAPI=7
-KEYWORDS=*
-LICENSE=metapackage
-RDEPEND=>=dev-util/pkgconf-1.3.7[pkg-config(+)]
-SLOT=0
-_md5_=8585c88004c75c9baf38ccb2b51cbdad
