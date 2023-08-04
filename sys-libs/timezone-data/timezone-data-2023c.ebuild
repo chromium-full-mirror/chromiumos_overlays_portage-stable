@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -22,10 +22,6 @@ RDEPEND="
 	${DEPEND}
 	!sys-libs/glibc[vanilla(+)]
 "
-
-PATCHES=(
-	"${FILESDIR}"/${P}-c23.patch
-)
 
 src_unpack() {
 	mkdir "${S}" && cd "${S}" || die
