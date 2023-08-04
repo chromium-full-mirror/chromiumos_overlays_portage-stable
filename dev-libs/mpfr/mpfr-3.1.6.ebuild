@@ -1,20 +1,20 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="4"
+EAPI="7"
 
 # NOTE: we cannot depend on autotools here starting with gcc-4.3.x
-inherit eutils libtool multilib multilib-minimal
+inherit eutils libtool multilib-minimal
 
 MY_PV=${PV/_p*}
 MY_P=${PN}-${MY_PV}
 PLEVEL=${PV/*p}
 DESCRIPTION="library for multiple-precision floating-point computations with exact rounding"
-HOMEPAGE="http://www.mpfr.org/"
-SRC_URI="http://www.mpfr.org/mpfr-${MY_PV}/${MY_P}.tar.xz"
+HOMEPAGE="https://www.mpfr.org/"
+SRC_URI="https://www.mpfr.org/mpfr-${MY_PV}/${MY_P}.tar.xz"
 
 LICENSE="LGPL-2.1"
-SLOT="0"
+SLOT="0/4" # libmpfr.so version
 KEYWORDS="*"
 IUSE="static-libs"
 
@@ -27,9 +27,10 @@ src_prepare() {
 	if [[ ${PLEVEL} != ${PV} ]] ; then
 		local i
 		for (( i = 1; i <= PLEVEL; ++i )) ; do
-			epatch "${FILESDIR}"/${MY_PV}/patch$(printf '%02d' ${i})
+			eapply "${FILESDIR}"/${MY_PV}/patch$(printf '%02d' ${i})
 		done
 	fi
+	default
 	find . -type f -exec touch -r configure {} +
 	elibtoolize
 }
@@ -47,15 +48,7 @@ multilib_src_install_all() {
 	use static-libs || find "${ED}"/usr -name '*.la' -delete
 
 	# clean up html/license install
-	pushd "${ED}"/usr/share/doc/${PF} >/dev/null
-	dohtml *.html && rm COPYING* *.html || die
-	popd >/dev/null
-}
-
-pkg_preinst() {
-	preserve_old_lib /usr/$(get_libdir)/libmpfr$(get_libname 1)
-}
-
-pkg_postinst() {
-	preserve_old_lib_notify /usr/$(get_libdir)/libmpfr$(get_libname 1)
+	pushd "${ED}"/usr/share/doc/${PF} >/dev/null || die
+	rm COPYING* *.html
+	popd >/dev/null || die
 }
