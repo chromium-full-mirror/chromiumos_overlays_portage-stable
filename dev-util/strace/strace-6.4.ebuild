@@ -1,20 +1,20 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools flag-o-matic toolchain-funcs
+inherit autotools edo flag-o-matic toolchain-funcs
 
-if [[ ${PV} == "9999" ]] ; then
+DESCRIPTION="Useful diagnostic, instructional, and debugging tool"
+HOMEPAGE="https://strace.io/"
+
+if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/strace/strace.git"
 	inherit git-r3
 else
 	SRC_URI="https://github.com/${PN}/${PN}/releases/download/v${PV}/${P}.tar.xz"
 	KEYWORDS="*"
 fi
-
-DESCRIPTION="A useful diagnostic, instructional, and debugging tool"
-HOMEPAGE="https://strace.io/"
 
 LICENSE="BSD"
 SLOT="0"
@@ -45,15 +45,14 @@ PATCHES=(
 src_prepare() {
 	default
 
-	eautoreconf
-
 	if [[ ! -e configure ]] ; then
 		# git generation
 		sed /autoreconf/d -i bootstrap || die
-		./bootstrap || die
-		eautoreconf
+		edo ./bootstrap
 		[[ ! -e CREDITS ]] && cp CREDITS{.in,}
 	fi
+
+	eautoreconf
 
 	# Stub out the -k test since it's known to be flaky. bug #545812
 	sed -i '1iexit 77' tests*/strace-k.test || die
@@ -104,5 +103,6 @@ src_install() {
 		exeinto /usr/bin
 		doexe src/strace-graph
 	fi
+
 	dodoc CREDITS
 }
