@@ -1,7 +1,7 @@
 BDEPEND=virtual/pkgconfig >=app-portage/elt-patches-20170815 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16.1:1.16 >=sys-devel/automake-1.15.1:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DEFINED_PHASES=configure install prepare test
 DEPEND=static? ( unwind? ( sys-libs/libunwind[static-libs(+)] ) elfutils? ( dev-libs/elfutils[static-libs(+)] ) selinux? ( sys-libs/libselinux[static-libs(+)] ) ) aio? ( >=dev-libs/libaio-0.3.106 ) sys-kernel/linux-headers
-DESCRIPTION=A useful diagnostic, instructional, and debugging tool
+DESCRIPTION=Useful diagnostic, instructional, and debugging tool
 EAPI=7
 HOMEPAGE=https://strace.io/
 IUSE=aio perl selinux static unwind elfutils
@@ -10,6 +10,6 @@ LICENSE=BSD
 RDEPEND=!static? ( unwind? ( sys-libs/libunwind ) elfutils? ( dev-libs/elfutils ) selinux? ( sys-libs/libselinux ) ) perl? ( dev-lang/perl )
 REQUIRED_USE=?? ( unwind elfutils )
 SLOT=0
-SRC_URI=https://github.com/strace/strace/releases/download/v5.17/strace-5.17.tar.xz
-_eclasses_=autotools	e5394a2d2b5614041b32c6dfde52e44e	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=ce741c6468988990517a604b94779e87
+SRC_URI=https://github.com/strace/strace/releases/download/v6.4/strace-6.4.tar.xz
+_eclasses_=autotools	e5394a2d2b5614041b32c6dfde52e44e	edo	c0eb9cbe6b0bd01fcb4918f12598a4d3	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_md5_=de2bc93e487f12899cc8be6a2d408ee9
