@@ -56,6 +56,7 @@ src_configure() {
 	unset TERMINFO #115036
 	tc-export_build_env BUILD_{CC,CPP}
 	BUILD_CPPFLAGS+=" -D_GNU_SOURCE" #214642
+	append-cxxflags '-std=gnu++14'
 
 	# when cross-compiling, we need to build up our own tic
 	# because people often don't keep matching host/target
