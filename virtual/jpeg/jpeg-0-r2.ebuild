@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/virtual/jpeg/jpeg-0-r2.ebuild,v 1.13 2014/02/20 14:16:44 ago Exp $
 
-EAPI=5
+EAPI="7"
 
 inherit multilib-build
 
