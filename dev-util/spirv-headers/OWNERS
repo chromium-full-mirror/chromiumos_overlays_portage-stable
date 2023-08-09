@@ -1,3 +1,2 @@
-chadversary@chromium.org
-msturner@google.com
-olv@google.com
+# The primary reverse-dependency for this ebuild is media-libs/vulkan-layers.
+include chromiumos/platform/graphics:/OWNERS.vulkan_layers
