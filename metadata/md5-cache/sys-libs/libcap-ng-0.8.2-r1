@@ -1,4 +1,4 @@
-BDEPEND=python? ( >=dev-lang/swig-2 ) >=app-portage/elt-patches-20170815 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.16.1:1.16 >=sys-devel/automake-1.15.1:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+BDEPEND=python? ( >=dev-lang/swig-2 ) >=app-portage/elt-patches-20170815 || ( >=sys-devel/automake-1.16.2-r1:1.16 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DEFINED_PHASES=compile configure install prepare test
 DEPEND=python? ( python_targets_python3_9? ( dev-lang/python:3.9 ) python_targets_python3_8? ( dev-lang/python:3.8 ) python_targets_python3_7? ( dev-lang/python:3.7 ) python_targets_python3_6? ( dev-lang/python:3.6 ) >=dev-lang/python-exec-2:=[python_targets_python3_9(-)?,python_targets_python3_8(-)?,python_targets_python3_7(-)?,python_targets_python3_6(-)?,-python_single_target_python3_9(-),-python_single_target_python3_8(-),-python_single_target_python3_7(-),-python_single_target_python3_6(-)] ) sys-kernel/linux-headers
 DESCRIPTION=POSIX 1003.1e capabilities
@@ -11,5 +11,5 @@ RDEPEND=python? ( python_targets_python3_9? ( dev-lang/python:3.9 ) python_targe
 REQUIRED_USE=python? ( || ( python_targets_python3_9 python_targets_python3_8 python_targets_python3_7 python_targets_python3_6 ) )
 SLOT=0
 SRC_URI=https://people.redhat.com/sgrubb/libcap-ng/libcap-ng-0.8.2.tar.gz https://src.fedoraproject.org/rpms/libcap-ng/raw/a5b0f536df1132d8e7afa4c0ce07b630e7970cad/f/libcap-ng-0.8.2-apply-disable.patch
-_eclasses_=autotools	e5394a2d2b5614041b32c6dfde52e44e	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	python-r1	79e26ce8f853c9daebe9a4956e37cc1b	python-utils-r1	5bd4686cbe063e46fff90664cfc1a5a1	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	be8436084a6888a2c9d6dcc027f19914	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	libtool	f143db5a74ccd9ca28c1234deffede96	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	python-r1	79e26ce8f853c9daebe9a4956e37cc1b	python-utils-r1	5bd4686cbe063e46fff90664cfc1a5a1	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=b933df6ff323c6c9f40c414ebac42646
