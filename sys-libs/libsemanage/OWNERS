@@ -1,1 +1,1 @@
-include chromiumos/overlays/chromiumos-overlay:/OWNERS.security
+include chromiumos/platform2:/sepolicy/OWNERS
