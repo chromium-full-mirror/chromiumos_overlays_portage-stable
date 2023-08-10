@@ -1,0 +1,13 @@
+BDEPEND=sys-devel/gettext virtual/perl-ExtUtils-MakeMaker dev-lang/perl
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=dev-lang/perl
+DESCRIPTION=A Perl module for accessing the GNU locale utilities
+EAPI=7
+HOMEPAGE=https://metacpan.org/release/gettext
+KEYWORDS=*
+LICENSE=|| ( Artistic GPL-1+ )
+RDEPEND=sys-devel/gettext dev-lang/perl:=
+SLOT=0
+SRC_URI=mirror://cpan/authors/id/P/PV/PVANDRY/gettext-1.07.tar.gz
+_eclasses_=multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	perl-functions	6ec4c4d8fc8324200f1c14e8d158c59b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
+_md5_=a17d3d7efba1fd17fedd831b5784b058
