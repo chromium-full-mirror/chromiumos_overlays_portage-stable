@@ -8,5 +8,5 @@ KEYWORDS=*
 LICENSE=MIT
 SLOT=0
 SRC_URI=https://github.com/krallin/tini/archive/v0.19.0.tar.gz -> tini-0.19.0.tar.gz
-_eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
 _md5_=80b2f395a530f81c94f9b6028233f412

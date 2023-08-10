@@ -11,5 +11,5 @@ RDEPEND=sys-apps/hwdata gtk? ( x11-libs/gtk+:3 ) sqlite? ( dev-db/sqlite:3 )
 REQUIRED_USE=static? ( !gtk !sqlite )
 SLOT=0
 SRC_URI=https://ezix.org/src/pkg/lshw/archive/fdab06ac0b190ea0aa02cd468f904ed69ce0d9f1.tar.gz -> lshw-02.19.2b_p20210121-B.02.19.2_p20210121.tar.gz
-_eclasses_=desktop	b1d22ac8bdd4679ab79c71aca235009d	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	multilib	2477ebe553d3e4d2c606191fe6c33602	plocale	89c6aac5da68423465e6fd79fb4ad5fb	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg	c7ba313ea1eaf266f95cc6235f7d6a07	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_eclasses_=desktop	b1d22ac8bdd4679ab79c71aca235009d	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	plocale	89c6aac5da68423465e6fd79fb4ad5fb	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg	c7ba313ea1eaf266f95cc6235f7d6a07	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
 _md5_=640942ce7ecf6084a67bc7fd78f6fa24

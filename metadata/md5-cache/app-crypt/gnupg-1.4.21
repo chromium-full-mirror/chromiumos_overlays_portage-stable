@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=!static? ( ldap? ( net-nds/openldap ) bzip2? ( app-arch/bzip2 ) zlib? ( sys-libs/zlib ) curl? ( net-misc/curl ) mta? ( virtual/mta ) readline? ( sys-libs/readline:0= ) smartcard? ( =virtual/libusb-0* ) usb? ( =virtual/libusb-0* ) ) selinux? ( sec-policy/selinux-gpg ) nls? ( virtual/libintl )
 SLOT=0
 SRC_URI=mirror://gnupg/gnupg/gnupg-1.4.21.tar.bz2
-_eclasses_=eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=05cded0cbdd1fc51ca31fb88383ac995

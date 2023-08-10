@@ -11,5 +11,5 @@ RDEPEND=!sys-libs/e2fsprogs-libs cron? ( sys-fs/lvm2[lvm] ) fuse? ( sys-fs/fuse:
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.47.0/e2fsprogs-1.47.0.tar.xz
-_eclasses_=eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	b3ead43a6957a00bec2e415bd5c52d27	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	udev	eec0bbab06977f1cfc5597269c1fa152	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
+_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	udev	eec0bbab06977f1cfc5597269c1fa152	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=c531ddb9f53509e562e85b6fc0ba0432
