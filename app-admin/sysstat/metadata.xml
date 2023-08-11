@@ -10,6 +10,7 @@
 		<name>Marek Szuba</name>
 	</maintainer>
 	<upstream>
+		<remote-id type="cpe">cpe:/a:sysstat_project:sysstat</remote-id>
 		<remote-id type="github">sysstat/sysstat</remote-id>
 	</upstream>
 	<use>
