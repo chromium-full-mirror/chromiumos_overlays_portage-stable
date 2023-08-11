@@ -1,27 +1,35 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
-DESCRIPTION="Wrapper to coreutil's install to preserve Filesystem Extended Attributes"
+EAPI=7
+
+DESCRIPTION="Wrapper to coreutils install to preserve Filesystem Extended Attributes"
 HOMEPAGE="https://dev.gentoo.org/~blueness/install-xattr/"
 
-inherit toolchain-funcs
+inherit flag-o-matic toolchain-funcs
 
 if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="git://anongit.gentoo.org/proj/elfix.git"
-	inherit git-2
+	EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/elfix.git"
+	inherit git-r3
 else
 	SRC_URI="https://dev.gentoo.org/~blueness/install-xattr/${P}.tar.bz2"
 	KEYWORDS="*"
-	S=${WORKDIR}/${PN}
+	S="${WORKDIR}"/${PN}
 fi
 
 LICENSE="GPL-3"
 SLOT="0"
 
+PATCHES=(
+	# Backports from master, drop on next release
+	"${FILESDIR}"/${PV}
+)
+
 src_prepare() {
+	default
+
 	tc-export CC
+	append-lfs-flags
 }
 
 src_compile() {
@@ -35,10 +43,6 @@ src_install() {
 	if [[ ${PV} == "9999" ]] ; then
 		cd "${WORKDIR}/${P}/misc/${PN}" || die
 	fi
-	default
-}
 
-# We need to fix how tests are done
-src_test() {
-	true
+	emake DESTDIR="${ED}" install
 }
