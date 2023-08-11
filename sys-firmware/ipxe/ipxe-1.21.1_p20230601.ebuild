@@ -1,57 +1,58 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI=7
 
-inherit toolchain-funcs eutils savedconfig
+inherit savedconfig toolchain-funcs
 
-GIT_REV="a4f8c6e31f6c62522cfc633bbbffa81b22f9d6f3"
-GIT_SHORT=${GIT_REV:0:7}
+# for 1.21.1_p20230601
+COMMIT_SHA1="4fa4052c7ebb59e4d4aa396f1563c89118623ec7"
 
 DESCRIPTION="Open source network boot (PXE) firmware"
-HOMEPAGE="http://ipxe.org/"
+HOMEPAGE="https://ipxe.org/"
 SRC_URI="
-	!binary? ( https://git.ipxe.org/ipxe.git/snapshot/${GIT_REV}.tar.bz2 -> ${P}-${GIT_SHORT}.tar.bz2 )
-	binary? ( https://dev.gentoo.org/~tamiko/distfiles/${P}-${GIT_SHORT}-bin.tar.xz )"
+	!binary? ( https://github.com/${PN}/${PN}/archive/${COMMIT_SHA1}.tar.gz -> ${P}.gh.tar.gz )
+	binary? ( https://dev.gentoo.org/~tamiko/distfiles/${P}-bin.tar.xz )"
+S="${WORKDIR}/${PN}-${COMMIT_SHA1}/src"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86"
-IUSE="+binary efi ipv6 iso lkrn +qemu undi usb vmware"
-
+KEYWORDS="*"
+IUSE="+binary efi efi64 ipv6 iso lkrn +qemu undi usb vmware"
 REQUIRED_USE="!amd64? ( !x86? ( binary ) )"
 
-SOURCE_DEPEND="app-arch/xz-utils
+SOURCE_DEPEND="
+	app-arch/xz-utils
 	dev-lang/perl
-	sys-libs/zlib
 	iso? (
+		app-cdr/cdrtools
 		sys-boot/syslinux
-		virtual/cdrtools
 	)"
-DEPEND="
+BDEPEND="
 	!binary? (
 		amd64? ( ${SOURCE_DEPEND} )
 		x86? ( ${SOURCE_DEPEND} )
 	)"
-RDEPEND=""
-
-S="${WORKDIR}/ipxe-${GIT_SHORT}/src"
 
 src_configure() {
 	use binary && return
 
-	cat <<-EOF > "${S}"/config/local/general.h
-#undef BANNER_TIMEOUT
-#define BANNER_TIMEOUT 0
-EOF
+	cat > config/local/general.h <<-EOF || die
+		#undef BANNER_TIMEOUT
+		#define BANNER_TIMEOUT 0
+	EOF
 
-	use ipv6 && echo "#define NET_PROTO_IPV6" >> "${S}"/config/local/general.h
+	if use ipv6; then
+		cat >> config/local/general.h <<-EOF || die
+			#define NET_PROTO_IPV6
+		EOF
+	fi
 
 	if use vmware; then
-		cat <<-EOF >> "${S}"/config/local/general.h
-#define VMWARE_SETTINGS
-#define CONSOLE_VMWARE
-EOF
+		cat >> config/local/general.h <<-EOF || die
+			#define VMWARE_SETTINGS
+			#define CONSOLE_VMWARE
+		EOF
 	fi
 
 	restore_config config/local/general.h
@@ -95,7 +96,8 @@ src_compile() {
 		ipxemake bin/15ad07b0.rom # vmxnet3
 	fi
 
-	use efi && ipxemake PLATFORM=efi BIN=bin-efi bin-efi/ipxe.efi
+	use efi && ipxemake PLATFORM=efi BIN=bin-i386-efi bin-i386-efi/ipxe.efi
+	use efi64 && ipxemake PLATFORM=efi BIN=bin-x86_64-efi bin-x86_64-efi/ipxe.efi
 	use iso && ipxemake bin/ipxe.iso
 	use undi && ipxemake bin/undionly.kpxe
 	use usb && ipxemake bin/ipxe.usb
@@ -109,7 +111,13 @@ src_install() {
 		doins bin/*.rom
 	fi
 	use vmware && doins bin/*.mrom
-	use efi && doins bin-efi/*.efi
+	use efi && newins bin-i386-efi/ipxe.efi ipxe-i386.efi
+	use efi64 && newins bin-x86_64-efi/ipxe.efi ipxe-x86_64.efi
+	# Add a symlink for backwards compatiblity, in case both variants are
+	# enabled the x86_64 bit variant takes presedence.
+	use efi && dosym ipxe-i386.efi /usr/share/ipxe/ipxe.efi
+	use efi64 && dosym ipxe-x86_64.efi /usr/share/ipxe/ipxe.efi
+
 	use iso && doins bin/*.iso
 	use undi && doins bin/*.kpxe
 	use usb && doins bin/*.usb
