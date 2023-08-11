@@ -1,4 +1,4 @@
-BDEPEND=virtual/pkgconfig doc? ( dev-python/sphinx ) test? ( dev-util/cmocka dev-util/kyua ) >=app-portage/elt-patches-20170815 || ( >=sys-devel/automake-1.16.2-r1:1.16 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+BDEPEND=virtual/pkgconfig doc? ( dev-python/sphinx ) test? ( dev-util/cmocka dev-util/kyua ) >=app-portage/elt-patches-20170815 || ( >=sys-devel/automake-1.16.5-r1:1.16 >=sys-devel/automake-1.15.1-r2:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
 DEFINED_PHASES=compile configure install prepare test
 DEPEND=>=dev-libs/libuv-1.42.0:= dev-libs/openssl:= caps? ( sys-libs/libcap ) xml? ( dev-libs/libxml2 ) idn? ( net-dns/libidn2:= ) gssapi? ( virtual/krb5 ) libedit? ( dev-libs/libedit ) !libedit? ( readline? ( sys-libs/readline:= ) )
 DESCRIPTION=bind tools: dig, nslookup, host, nsupdate, dnssec-keygen
@@ -11,5 +11,5 @@ RDEPEND=>=dev-libs/libuv-1.42.0:= dev-libs/openssl:= caps? ( sys-libs/libcap ) x
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://downloads.isc.org/isc/bind9/9.16.41/bind-9.16.41.tar.xz
-_eclasses_=autotools	be8436084a6888a2c9d6dcc027f19914	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	9adb87822e85056674b476e1090a72ae	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=ce20cc87ef95cdf3df9e68b5c7dec766
