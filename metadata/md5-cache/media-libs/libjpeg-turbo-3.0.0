@@ -9,6 +9,6 @@ KEYWORDS=*
 LICENSE=BSD IJG ZLIB
 RDEPEND=!media-libs/jpeg:0 !media-libs/jpeg:62 java? ( >=virtual/jre-1.8:* ) java? ( >=dev-java/java-config-2.2.0-r3 )
 SLOT=0/0.2
-SRC_URI=mirror://sourceforge/libjpeg-turbo/libjpeg-turbo-2.1.5.1.tar.gz mirror://gentoo/libjpeg8_8d-2.debian.tar.gz
+SRC_URI=mirror://sourceforge/libjpeg-turbo/libjpeg-turbo-3.0.0.tar.gz mirror://gentoo/libjpeg8_8d-2.debian.tar.gz
 _eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	cmake-multilib	37d23064f303dcf23453353ab8c77059	flag-o-matic	ad475baa777c9978fa035216c8264a10	java-pkg-opt-2	be255db325e3af8fbf3506cf63998341	java-utils-2	82402a1c36ab4bf38f3313a543f9e827	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
-_md5_=66b02071c1d30dea29c7a6cf3597b0f8
+_md5_=3a055bbc6218fb8ba11fc34a9a33a331
