@@ -1,32 +1,28 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
+EAPI=7
 
 DESCRIPTION="c_rehash script from OpenSSL"
-HOMEPAGE="http://www.openssl.org/"
-SRC_URI="http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/packages/openssl/openssl-c_rehash.sh?rev=${PV} -> openssl-c_rehash.sh.${PV}"
+HOMEPAGE="https://www.openssl.org/ https://github.com/pld-linux/openssl/"
+SRC_URI="https://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/packages/openssl/openssl-c_rehash.sh?rev=${PV} -> openssl-c_rehash.sh.${PV}"
+S="${WORKDIR}"
 
 LICENSE="openssl"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
 
-RDEPEND="!<dev-libs/openssl-1.0.2e:0"
+RDEPEND="!<dev-libs/openssl-1.0.2d-r1:0"
 DEPEND="${RDEPEND}"
 
-S=${WORKDIR}
-
-src_prepare() {
-	SSL_CNF_DIR="/etc/ssl"
+src_configure() {
 	sed \
-		-e "/^DIR=/s:=.*:=${EPREFIX}${SSL_CNF_DIR}:" \
+		-e "/^DIR=/s:=.*:=${EPREFIX}/etc/ssl:" \
 		-e "s:SSL_CMD=/usr:SSL_CMD=${EPREFIX}/usr:" \
 		"${DISTDIR}"/openssl-c_rehash.sh.${PV} \
 		> "${WORKDIR}"/c_rehash || die #416717
 }
 
 src_install() {
-	dobin "${WORKDIR}"/c_rehash
+	dobin c_rehash
 }
