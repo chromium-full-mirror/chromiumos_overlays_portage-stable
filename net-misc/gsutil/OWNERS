@@ -1,2 +1,0 @@
-# Used in the build to fetch files.
-include chromiumos/owners:v1:/infra/OWNERS.build
