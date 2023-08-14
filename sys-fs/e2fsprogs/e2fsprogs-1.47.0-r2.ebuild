@@ -40,6 +40,11 @@ MULTILIB_WRAPPED_HEADERS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.42.13-fix-build-cflags.patch # bug #516854
+	# We can drop this metadata patch after 6 months or so to let initramfses
+	# upgrade. See bug #904093 and bug #904048.
+	"${FILESDIR}"/${PN}-1.47.0-disable-metadata_csum_seed-and-orphan_file-by-default.patch
+
+	"${FILESDIR}"/e2fsprogs-1.47.0-parallel-make.patch
 
 	# Upstream patches (can usually removed with next version bump)
 )
@@ -63,8 +68,8 @@ multilib_src_configure() {
 	# Keep the package from doing silly things, bug #261411
 	export VARTEXFONTS="${T}/fonts"
 
-	# Needs open64() prototypes and friends
-	append-cppflags -D_GNU_SOURCE
+	# needed for >=musl-1.2.4, bug 908892
+	use elibc_musl && append-cflags -D_FILE_OFFSET_BITS=64
 
 	local myeconfargs=(
 		--with-root-prefix="${EPREFIX}"
@@ -80,8 +85,8 @@ multilib_src_configure() {
 		--disable-fsck
 		--disable-uuidd
 		--disable-lto
-		--disable-largefile # need to check effect on ABI
 		--with-pthread
+		--enable-largefile
 	)
 
 	# We use blkid/uuid from util-linux now
