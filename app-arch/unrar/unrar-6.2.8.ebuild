@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,21 +10,13 @@ MY_PN="${PN}src"
 DESCRIPTION="Uncompress rar files"
 HOMEPAGE="https://www.rarlab.com/rar_add.htm"
 SRC_URI="https://www.rarlab.com/rar/${MY_PN}-${PV}.tar.gz -> ${P}.tar.gz"
-
-LICENSE="unRAR"
-# subslot = soname version
-SLOT="0/6"
-KEYWORDS="*"
-
-RDEPEND="!<=app-arch/unrar-gpl-0.0.1_p20080417"
-
 S="${WORKDIR}/unrar"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-5.9.3-build.patch
-	"${FILESDIR}"/${PN}-5.5.5-honor-flags.patch
-	"${FILESDIR}"/${PN}-6.0.7-fix-link-resolution.patch
-)
+LICENSE="unRAR"
+SLOT="0/6" # subslot = soname version
+KEYWORDS="*"
+
+PATCHES=( "${FILESDIR}/${PN}-6.2.6-honor-flags.patch" )
 
 src_prepare() {
 	default
