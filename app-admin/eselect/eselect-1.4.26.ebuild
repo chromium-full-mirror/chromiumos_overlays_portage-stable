@@ -1,31 +1,33 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-inherit eutils bash-completion-r1
+# Packages sharing a common release tarball:
+# app-admin/eselect
+# app-emacs/eselect-mode
+# Please bump and mark them stable together!
+
+inherit bash-completion-r1
 
 DESCRIPTION="Gentoo's multi-purpose configuration and management tool"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Eselect"
 SRC_URI="https://dev.gentoo.org/~ulm/eselect/${P}.tar.xz"
 
-LICENSE="GPL-2+ || ( GPL-2+ CC-BY-SA-3.0 )"
+LICENSE="GPL-2+ || ( GPL-2+ CC-BY-SA-4.0 )"
 SLOT="0"
 KEYWORDS="*"
 IUSE="doc emacs vim-syntax"
 
-RDEPEND="sys-apps/sed
+DEPEND="sys-apps/sed
 	|| (
 		sys-apps/coreutils
-		sys-freebsd/freebsd-bin
 		app-misc/realpath
 	)"
-DEPEND="${RDEPEND}
-	doc? ( dev-python/docutils )"
-RDEPEND="${RDEPEND}
+RDEPEND="${DEPEND}
 	sys-apps/file
 	sys-libs/ncurses:0"
-
+BDEPEND="doc? ( dev-python/docutils )"
 PDEPEND="emacs? ( app-emacs/eselect-mode )
 	vim-syntax? ( app-vim/eselect-syntax )"
 
