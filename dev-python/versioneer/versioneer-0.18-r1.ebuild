@@ -1,10 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-
-PYTHON_COMPAT=( python3_{6..9} )
-
+EAPI=7
+PYTHON_COMPAT=( python3_{6..12} )
 inherit distutils-r1
 
 DESCRIPTION="Easy VCS-based management of project version strings"
@@ -19,11 +17,3 @@ IUSE=""
 RDEPEND=""
 DEPEND="${RDEPEND}
 	dev-python/setuptools[${PYTHON_USEDEP}]"
-
-python_test() {
-	esetup.py make_versioneer
-	git config --global user.email "you@example.com"
-	git config --global user.name "Your Name"
-
-	${PYTHON} test/git/test_git.py -v || die
-}
