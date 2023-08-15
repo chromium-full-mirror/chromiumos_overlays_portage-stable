@@ -1,20 +1,21 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} pypy3 )
+PYTHON_COMPAT=( python3_{6..12} )
 
-inherit distutils-r1 eutils multilib-minimal versionator
+inherit distutils-r1 multilib-minimal autotools
 
 DESCRIPTION="A streaming protocol for test results"
 HOMEPAGE="https://launchpad.net/subunit https://pypi.org/project/python-subunit/"
-SRC_URI="https://launchpad.net/${PN}/trunk/$(get_version_component_range 1-2)/+download/${P}.tar.gz"
+SRC_URI="https://launchpad.net/${PN}/trunk/${PV}/+download/${P}.tar.gz"
 
 LICENSE="Apache-2.0 BSD"
 SLOT="0"
 KEYWORDS="*"
 IUSE="static-libs test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=dev-python/testtools-0.9.34[${PYTHON_USEDEP}]
@@ -26,17 +27,16 @@ DEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	>=dev-libs/check-0.9.11[${MULTILIB_USEDEP}]
 	>=dev-util/cppunit-1.13.2[${MULTILIB_USEDEP}]
-	>=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
+	>=virtual/pkgconfig-0-r1
 	test? (
 		dev-python/fixtures[${PYTHON_USEDEP}]
 		dev-python/hypothesis[${PYTHON_USEDEP}]
 		dev-python/testscenarios[${PYTHON_USEDEP}]
 	)"
 
-# Take out rogue & trivial failing tests that exit the suite before it even gets started
-# The removed class in fact works fine in py3 and fails with py2.7 & pupu
-# The setu to restrict this patch is just those 2 is not worth it.
-PATCHES=( "${FILESDIR}"/1.0.0-tests.patch )
+PATCHES=(
+	"${FILESDIR}/subunit-1.4.0-werror.patch"
+)
 
 src_prepare() {
 	sed -i -e 's/os.chdir(os.path.dirname(__file__))//' setup.py || die
@@ -44,8 +44,12 @@ src_prepare() {
 	# Install perl modules in vendor_perl, bug 534654.
 	export INSTALLDIRS=vendor
 
-	# needed for perl modules
+	# fails on py3.6
+	sed -i -e 's:test_add_tag:_&:' \
+		python/subunit/tests/test_subunit_tags.py || die
+
 	distutils-r1_src_prepare
+	eautoreconf
 	multilib_copy_sources
 }
 
@@ -91,5 +95,5 @@ multilib_src_install() {
 
 multilib_src_install_all() {
 	einstalldocs
-	prune_libtool_files
+	find "${D}" -name '*.la' -delete || die
 }
