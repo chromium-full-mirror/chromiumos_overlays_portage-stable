@@ -1,1 +1,0 @@
-seabios-1.14.0.ebuild
