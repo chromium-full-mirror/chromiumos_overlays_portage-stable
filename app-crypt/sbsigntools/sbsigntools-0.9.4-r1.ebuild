@@ -1,11 +1,11 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
 MY_PN="${PN::-1}"
 
-inherit eutils autotools
+inherit autotools toolchain-funcs
 
 DESCRIPTION="Utilities for signing and verifying files for UEFI Secure Boot"
 HOMEPAGE="https://git.kernel.org/cgit/linux/kernel/git/jejb/sbsigntools.git/"
@@ -20,14 +20,16 @@ IUSE=""
 RDEPEND="
 	dev-libs/openssl:0=
 	sys-apps/util-linux"
-# Soft blocker on sbsigntool becasue the package was renamed
-RDEPEND="${RDEPEND}
-	!app-crypt/sbsigntool"
 DEPEND="${RDEPEND}
 	sys-apps/help2man
 	sys-boot/gnu-efi
 	sys-libs/binutils-libs
 	virtual/pkgconfig"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.9.4-no-werror.patch
+	"${FILESDIR}"/${PN}-0.9.4-openssl3.patch
+)
 
 src_prepare() {
 	mv "${WORKDIR}"/lib/ccan "${S}"/lib || die "mv failed"
@@ -38,6 +40,7 @@ src_prepare() {
 		amd64) iarch=x86_64 ;;
 		arm64) iarch=aarch64 ;;
 		ia64)  iarch=ia64 ;;
+		riscv) iarch=riscv64 ;;
 		x86)   iarch=ia32 ;;
 		*)     die "unsupported architecture: ${ARCH}" ;;
 	esac
