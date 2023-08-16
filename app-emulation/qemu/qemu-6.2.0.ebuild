@@ -517,6 +517,7 @@ qemu_src_configure() {
 		fi
 	}
 	conf_opts+=(
+		--disable-auth-pam
 		$(conf_notuser accessibility brlapi)
 		$(conf_notuser aio linux-aio)
 		$(conf_softmmu bpf)
