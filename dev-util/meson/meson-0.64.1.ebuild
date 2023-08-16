@@ -1,20 +1,25 @@
-# Copyright 2016-2022 Gentoo Authors
+# Copyright 2016-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{6,7,8,9} )
+
+PYTHON_COMPAT=( python3_{6..12} )
+DISTUTILS_USE_PEP517=setuptools
 
 if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/mesonbuild/meson"
 	inherit git-r3
 else
-	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
-	KEYWORDS="*"
+	MY_P=${P/_/}
+	S=${WORKDIR}/${MY_P}
+	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${MY_P}.tar.gz"
+
+	if [[ ${PV} != *_rc* ]] ; then
+		KEYWORDS="*"
+	fi
 fi
 
-DISTUTILS_USE_SETUPTOOLS=rdepend
-
-inherit distutils-r1 toolchain-funcs
+inherit bash-completion-r1 distutils-r1 toolchain-funcs
 
 DESCRIPTION="Open source build system"
 HOMEPAGE="https://mesonbuild.com/"
@@ -34,6 +39,13 @@ DEPEND="
 		virtual/pkgconfig
 	)
 "
+RDEPEND="
+	virtual/pkgconfig
+"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.63-xtools-support.patch
+)
 
 python_prepare_all() {
 	local disable_unittests=(
@@ -52,7 +64,7 @@ python_prepare_all() {
 		-e 's/test_python_module/_&/'
 	)
 
-	sed -i "${disable_unittests[@]}" run_unittests.py || die
+	sed -i "${disable_unittests[@]}" unittests/*.py || die
 
 	# Broken due to python2 script created by python_wrapper_setup
 	rm -r "test cases/frameworks/1 boost" || die
@@ -65,8 +77,6 @@ src_test() {
 	if ${PKG_CONFIG} --exists Qt5Core && ! ${PKG_CONFIG} --exists Qt5Gui; then
 		ewarn "Found Qt5Core but not Qt5Gui; skipping tests"
 	else
-		# https://bugs.gentoo.org/687792
-		unset PKG_CONFIG
 		distutils-r1_src_test
 	fi
 }
@@ -75,6 +85,9 @@ python_test() {
 	(
 		# test_meson_installed
 		unset PYTHONDONTWRITEBYTECODE
+
+		# https://bugs.gentoo.org/687792
+		unset PKG_CONFIG
 
 		# test_cross_file_system_paths
 		unset XDG_DATA_HOME
@@ -89,7 +102,8 @@ python_test() {
 		# value in JAVA_HOME, and the tests should get skipped.
 		export JAVA_HOME=$(java-config -O 2>/dev/null)
 
-		${EPYTHON} -u run_tests.py
+		# Call python3 instead of EPYTHON to satisfy test_meson_uninstalled.
+		python3 run_tests.py
 	) || die "Testing failed with ${EPYTHON}"
 }
 
@@ -98,6 +112,9 @@ python_install_all() {
 
 	insinto /usr/share/vim/vimfiles
 	doins -r data/syntax-highlighting/vim/{ftdetect,indent,syntax}
+
 	insinto /usr/share/zsh/site-functions
 	doins data/shell-completions/zsh/_meson
+
+	dobashcomp data/shell-completions/bash/meson
 }
