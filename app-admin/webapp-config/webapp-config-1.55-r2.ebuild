@@ -1,9 +1,10 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+DISTUTILS_USE_SETUPTOOLS=no
+PYTHON_COMPAT=( python3_{6..12} )
 
 inherit distutils-r1 prefix
 
@@ -51,12 +52,11 @@ python_install_all() {
 
 	dodoc AUTHORS
 	doman doc/*.[58]
-	dohtml doc/*.[58].html
 }
 
 python_test() {
-	PYTHONPATH="." "${PYTHON}" WebappConfig/tests/external.py \
-		|| die "Testing failed with ${EPYTHON}"
+	PYTHONPATH="." "${EPYTHON}" WebappConfig/tests/external.py -v ||
+		die "Testing failed with ${EPYTHON}"
 }
 
 pkg_postinst() {
