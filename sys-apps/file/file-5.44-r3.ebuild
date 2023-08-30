@@ -1,11 +1,11 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{6..12} )
 
 inherit distutils-r1 libtool toolchain-funcs multilib-minimal
 
@@ -28,29 +28,42 @@ HOMEPAGE="https://www.darwinsys.com/file/"
 
 LICENSE="BSD-2"
 SLOT="0"
-IUSE="bzip2 lzma python seccomp static-libs zlib"
+IUSE="bzip2 lzip lzma python seccomp static-libs zlib zstd"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 DEPEND="
 	bzip2? ( app-arch/bzip2[${MULTILIB_USEDEP}] )
+	lzip? ( app-arch/lzlib )
 	lzma? ( app-arch/xz-utils[${MULTILIB_USEDEP}] )
 	python? (
 		${PYTHON_DEPS}
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	)
-	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )"
-RDEPEND="${DEPEND}
+	seccomp? ( >=sys-libs/libseccomp-2.5.4[${MULTILIB_USEDEP}] )
+	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )
+	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
+"
+RDEPEND="
+	${DEPEND}
 	python? ( !dev-python/python-magic )
-	seccomp? ( sys-libs/libseccomp[${MULTILIB_USEDEP}] )"
+	seccomp? ( >=sys-libs/libseccomp-2.5.4[${MULTILIB_USEDEP}] )
+"
 BDEPEND+="
 	python? (
 		${PYTHON_DEPS}
 		${DISTUTILS_DEPS}
-	)"
+	)
+"
+
+# https://bugs.gentoo.org/898676
+QA_CONFIG_IMPL_DECL_SKIP=( makedev )
 
 PATCHES=(
-	"${FILESDIR}/file-5.39-portage-sandbox.patch" #713710 #728978
-	"${FILESDIR}/file-5.40-seccomp-fstatat64-musl.patch" #789336, not upstream yet
+	"${FILESDIR}/file-5.43-seccomp-fstatat64-musl.patch" #789336, not upstream yet
+	"${FILESDIR}/file-5.43-portage-sandbox.patch" #889046
+	"${FILESDIR}/file-5.44-limits-solaris.patch" # applied upstream
+	"${FILESDIR}/file-5.44-seccomp-utimes.patch" # upstream
+	"${FILESDIR}/file-5.44-decompress-empty.patch" # upstream
 )
 
 src_prepare() {
@@ -62,21 +75,25 @@ src_prepare() {
 		elibtoolize
 	fi
 
-	# don't let python README kill main README, bug ##60043
+	# Don't let python README kill main README, bug ##60043
 	mv python/README.md python/README.python.md || die
+
 	# bug #662090
-	sed 's@README.md@README.python.md@' -i python/setup.py || die
+	sed -i 's@README.md@README.python.md@' python/setup.py || die
 }
 
 multilib_src_configure() {
 	local myeconfargs=(
 		--enable-fsect-man5
 		$(use_enable bzip2 bzlib)
+		$(multilib_native_use_enable lzip lzlib)
 		$(use_enable lzma xzlib)
 		$(use_enable seccomp libseccomp)
 		$(use_enable static-libs static)
 		$(use_enable zlib)
+		$(use_enable zstd zstdlib)
 	)
+
 	econf "${myeconfargs[@]}"
 }
 
@@ -93,7 +110,7 @@ build_src_configure() {
 }
 
 need_build_file() {
-	# when cross-compiling, we need to build up our own file
+	# When cross-compiling, we need to build up our own file
 	# because people often don't keep matching host/target
 	# file versions, bug #362941
 	tc-is-cross-compiler && ! has_version -b "~${CATEGORY}/${P}"
