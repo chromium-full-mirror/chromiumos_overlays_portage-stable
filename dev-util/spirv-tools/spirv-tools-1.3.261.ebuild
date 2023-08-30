@@ -4,8 +4,7 @@
 EAPI=7
 
 MY_PN=SPIRV-Tools
-CMAKE_ECLASS="cmake"
-PYTHON_COMPAT=( python3_{6..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 PYTHON_REQ_USE="xml(+)"
 inherit cmake-multilib python-any-r1
 
@@ -34,10 +33,9 @@ BDEPEND="${PYTHON_DEPS}"
 
 multilib_src_configure() {
 	local mycmakeargs=(
-		"-DSPIRV-Headers_SOURCE_DIR=${ESYSROOT}/usr/"
-		"-DSPIRV_WERROR=OFF"
-		"-DSPIRV_TOOLS_BUILD_STATIC=OFF"
-		"-DBUILD_SHARED_LIBS=ON"
+		-DSPIRV-Headers_SOURCE_DIR="${ESYSROOT}"/usr/
+		-DSPIRV_WERROR=OFF
+		-DSPIRV_TOOLS_BUILD_STATIC=OFF
 	)
 	# CHROMIUM (b/201531268): Enable LFS.
 	append-lfs-flags
