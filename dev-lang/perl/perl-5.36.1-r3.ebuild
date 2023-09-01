@@ -6,7 +6,7 @@ EAPI=7
 inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
 PATCH_VER=1
-CROSS_VER=1.4
+CROSS_VER=1.4.1
 PATCH_BASE="perl-5.36.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
@@ -92,7 +92,7 @@ dual_scripts() {
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.450.0       xsubpp
 	src_remove_dual      perl-core/IO-Compress        2.106.0       zipdetails
 	src_remove_dual      perl-core/JSON-PP            4.70.0        json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.205.200 corelist
+	src_remove_dual      perl-core/Module-CoreList    5.202.304.230 corelist
 	src_remove_dual      perl-core/Pod-Checker        1.740.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
 	src_remove_dual      perl-core/Pod-Usage          2.10.0       pod2usage
@@ -144,13 +144,8 @@ check_rebuild() {
 
 pkg_setup() {
 	case ${CHOST} in
-		*-freebsd*)   osname="freebsd" ;;
-		*-dragonfly*) osname="dragonfly" ;;
-		*-netbsd*)    osname="netbsd" ;;
-		*-openbsd*)   osname="openbsd" ;;
 		*-darwin*)    osname="darwin" ;;
 		*-solaris*)   osname="solaris" ;;
-		*-cygwin*)    osname="cygwin" ;;
 		*)            osname="linux" ;;
 	esac
 
@@ -396,13 +391,10 @@ src_prepare() {
 	# add_patch "${FILESDIR}/${PN}-5.26.2-hppa.patch" "100-5.26.2-hppa.patch"\
 	#		"Fix broken miniperl on hppa"\
 	#		"https://bugs.debian.org/869122" "https://bugs.gentoo.org/634162"
-	add_patch "${FILESDIR}/${PN}-5.36.0-clang16.patch" "100-5.36.0-clang16.patch" \
-			"Fix Clang 16 / modern C issues in configure" \
-			"https://bugs.gentoo.org/879857" "https://github.com/Perl/perl5/issues/20715"
-	add_patch "${FILESDIR}/${PN}-5.36.0-fix-configure-for-clang.patch" \
-			"100-5.36.0-fix-configure-for-clang.patch" \
-			"Fix clang check in configure" \
-			"https://github.com/Perl/perl5/issues/21099"
+
+	add_patch "${FILESDIR}/${PN}-5.36.1-http-tiny.patch" "0111-5.36.1-http-tiny.patch"\
+			"Enable certificate checking in HTTP::Tiny by default"\
+			"https://bugs.gentoo.org/905296" "https://bugs.debian.org/954089"
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# do NOT mess with nsl, on Solaris this is always necessary,
@@ -541,7 +533,7 @@ src_configure() {
 	filter-flags "-malign-double"
 
 	# Generic LTO broken since 5.28, triggers EUMM failures
-	filter-flags "-flto"
+	filter-lto
 
 	use sparc && myconf -Ud_longdbl
 
@@ -591,6 +583,9 @@ src_configure() {
 	# modifying 'optimize' prevents cross configure script from appending required flags
 	if tc-is-cross-compiler; then
 		append-cflags "-fwrapv"
+
+		# bug #913171
+		export HOSTCFLAGS="${CFLAGS_FOR_BUILD} -D_GNU_SOURCE"
 	fi
 
 	# bug #877659, bug #821577
@@ -634,10 +629,6 @@ src_configure() {
 	# apparently on more recent macOS releases is no longer necessary
 	[[ ${CHOST} == *-darwin* && ${CHOST##*darwin} -le 9 ]] && tc-is-gcc && \
 		append-cflags -Dinline=__inline__ -DPERL_DARWIN
-
-	# flock on 32-bit sparc Solaris is broken, fall back to fcntl
-	[[ ${CHOST} == sparc-*-solaris* ]] && \
-		myconf -Ud_flock
 
 	# Prefix: the host system needs not to follow Gentoo multilib stuff, and in
 	# Prefix itself we don't do multilib either, so make sure perl can find
