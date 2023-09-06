@@ -43,7 +43,7 @@ BDEPEND="
 		sys-devel/bc
 		sys-process/procps
 	)
-	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20230207 )"
+	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20230801 )"
 
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
@@ -51,11 +51,6 @@ PDEPEND="app-misc/ca-certificates"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
-)
-
-PATCHES=(
-	"${FILESDIR}"/${P}-CVE-2023-2975.patch
-	"${FILESDIR}"/${P}-CVE-2023-3446.patch
 )
 
 pkg_setup() {
