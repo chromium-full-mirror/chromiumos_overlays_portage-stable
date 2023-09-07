@@ -273,9 +273,6 @@ pkg_preinst() {
 			-module "${ED}/usr/$(get_libdir)/ossl-modules/fips.so"
 		eend $?
 	fi
-
-	preserve_old_lib /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
-		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
 }
 
 pkg_postinst() {
