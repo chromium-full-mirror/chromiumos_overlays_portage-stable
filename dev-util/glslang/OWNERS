@@ -1,4 +1,2 @@
-chadversary@chromium.org
-msturner@google.com
-olv@google.com
+include chromiumos/platform/graphics:/OWNERS.vulkan_base
 pwang@chromium.org
