@@ -23,6 +23,7 @@ S="${WORKDIR}/unrar"
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.9.3-build.patch
 	"${FILESDIR}"/${PN}-5.5.5-honor-flags.patch
+	"${FILESDIR}"/${PN}-6.0.7-fix-link-resolution.patch
 )
 
 src_prepare() {

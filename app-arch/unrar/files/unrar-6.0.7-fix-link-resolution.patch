@@ -1,0 +1,381 @@
+From 987c6631535d66d595abaf16607a032d7cb2eaad Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Fran=C3=A7ois=20Degros?= <fdegros@chromium.org>
+Date: Tue, 20 Dec 2022 20:03:01 +1300
+Subject: [PATCH] Fix improper link resolution before file access
+
+This ports some changes that were initially introduced in unrar 6.2.3.
+
+See https://nvd.nist.gov/vuln/detail/CVE-2022-48579
+---
+ extinfo.cpp   | 89 +++++++++++++++++++++++++++++++++++++++++++++++----
+ extinfo.hpp   |  5 ++-
+ extract.cpp   | 50 ++++++++++++++++++++++++++---
+ extract.hpp   |  6 ++++
+ hardlinks.cpp |  2 --
+ ulinks.cpp    | 40 +++++++++++++++++++----
+ 6 files changed, 172 insertions(+), 20 deletions(-)
+
+diff --git a/extinfo.cpp b/extinfo.cpp
+index 5cb90a4..0f25f31 100644
+--- a/extinfo.cpp
++++ b/extinfo.cpp
+@@ -112,6 +112,68 @@ static bool LinkInPath(const wchar *Name)
+ }
+ 
+ 
++// Delete symbolic links in file path, if any, and replace them by directories.
++// Prevents extracting files outside of destination folder with symlink chains.
++bool LinksToDirs(const wchar *SrcName,const wchar *SkipPart,std::wstring &LastChecked)
++{
++  // Unlike Unix, Windows doesn't expand lnk1 in symlink targets like
++  // "lnk1/../dir", but converts the path to "dir". In Unix we need to call
++  // this function to prevent placing unpacked files outside of destination
++  // folder if previously we unpacked "dir/lnk1" -> "..",
++  // "dir/lnk2" -> "lnk1/.." and "dir/lnk2/anypath/poc.txt".
++  // We may still need this function to prevent abusing symlink chains
++  // in link source path if we remove detection of such chains
++  // in IsRelativeSymlinkSafe. This function seems to make other symlink
++  // related safety checks redundant, but for now we prefer to keep them too.
++  //
++  // 2022.12.01: the performance impact is minimized after adding the check
++  // against the previous path and enabling this verification only after
++  // extracting a symlink with ".." in target. So we enabled it for Windows
++  // as well for extra safety.
++//#ifdef _UNIX
++  wchar Path[NM];
++  if (wcslen(SrcName)>=ASIZE(Path))
++    return false;  // It should not be that long, skip.
++  wcsncpyz(Path,SrcName,ASIZE(Path));
++
++  size_t SkipLength=wcslen(SkipPart);
++
++  if (SkipLength>0 && wcsncmp(Path,SkipPart,SkipLength)!=0)
++    SkipLength=0; // Parameter validation, not really needed now.
++
++  // Do not check parts already checked in previous path to improve performance.
++  for (uint I=0;Path[I]!=0 && I<LastChecked.size() && Path[I]==LastChecked[I];I++)
++    if (IsPathDiv(Path[I]) && I>SkipLength)
++      SkipLength=I;
++
++  wchar *Name=Path;
++  if (SkipLength>0)
++  {
++    // Avoid converting symlinks in destination path part specified by user.
++    Name+=SkipLength;
++    while (IsPathDiv(*Name))
++      Name++;
++  }
++
++  for (wchar *s=Path+wcslen(Path)-1;s>Name;s--)
++    if (IsPathDiv(*s))
++    {
++      *s=0;
++      FindData FD;
++      if (FindFile::FastFind(Path,&FD,true) && FD.IsLink)
++#ifdef _WIN_ALL
++        if (!DelDir(Path))
++#else
++        if (!DelFile(Path))
++#endif
++          return false; // Couldn't delete the symlink to replace it with directory.
++    }
++  LastChecked=SrcName;
++//#endif
++  return true;
++}
++
++
+ bool IsRelativeSymlinkSafe(CommandData *Cmd,const wchar *SrcName,const wchar *PrepSrcName,const wchar *TargetName)
+ {
+   // Catch root dir based /path/file paths also as stuff like \\?\.
+@@ -131,10 +193,14 @@ bool IsRelativeSymlinkSafe(CommandData *Cmd,const wchar *SrcName,const wchar *Pr
+       UpLevels++;
+     TargetName++;
+   }
+-  // If link target includes "..", it must not have another links
+-  // in the path, because they can bypass our safety check. For example,
++  // If link target includes "..", it must not have another links in its
++  // source path, because they can bypass our safety check. For example,
+   // suppose we extracted "lnk1" -> "." first and "lnk1/lnk2" -> ".." next
+-  // or "dir/lnk1" -> ".." first and "dir/lnk1/lnk2" -> ".." next.
++  // or "dir/lnk1" -> ".." first, "dir/lnk1/lnk2" -> ".." next and
++  // file "dir/lnk1/lnk2/poc.txt" last.
++  // Do not confuse with link chains in target, this is in link source path.
++  // It is important for Windows too, though this check can be omitted
++  // if LinksToDirs is invoked in Windows as well.
+   if (UpLevels>0 && LinkInPath(PrepSrcName))
+     return false;
+     
+@@ -160,15 +226,26 @@ bool IsRelativeSymlinkSafe(CommandData *Cmd,const wchar *SrcName,const wchar *Pr
+ }
+ 
+ 
+-bool ExtractSymlink(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,const wchar *LinkName)
++bool ExtractSymlink(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,const wchar *LinkName,bool &UpLink)
+ {
++  // Returning true in Uplink indicates that link target might include ".."
++  // and enables additional checks. It is ok to falsely return true here,
++  // as it implies only the minor performance penalty. But we shall always
++  // return true for links with ".." in target for security reason.
++
++  UpLink=true; // Assume the target might include potentially unsafe "..".
++#if defined(SAVE_LINKS) && defined(_UNIX) || defined(_WIN_ALL)
++  if (Arc.Format==RARFMT50) // For RAR5 archives we can check RedirName for both Unix and Windows.
++    UpLink=wcsstr(Arc.FileHead.RedirName,L"..")!=NULL;
++#endif
++
+ #if defined(SAVE_LINKS) && defined(_UNIX)
+   // For RAR 3.x archives we process links even in test mode to skip link data.
+   if (Arc.Format==RARFMT15)
+-    return ExtractUnixLink30(Cmd,DataIO,Arc,LinkName);
++    return ExtractUnixLink30(Cmd,DataIO,Arc,LinkName,UpLink);
+   if (Arc.Format==RARFMT50)
+     return ExtractUnixLink50(Cmd,LinkName,&Arc.FileHead);
+-#elif defined _WIN_ALL
++#elif defined(_WIN_ALL)
+   // RAR 5.0 archives store link information in file header, so there is
+   // no need to additionally test it if we do not create a file.
+   if (Arc.Format==RARFMT50)
+diff --git a/extinfo.hpp b/extinfo.hpp
+index f3c7511..b1a8621 100644
+--- a/extinfo.hpp
++++ b/extinfo.hpp
+@@ -1,8 +1,11 @@
+ #ifndef _RAR_EXTINFO_
+ #define _RAR_EXTINFO_
+ 
++#include <string>
++
++bool LinksToDirs(const wchar *SrcName,const wchar *SkipPart,std::wstring &LastChecked);
+ bool IsRelativeSymlinkSafe(CommandData *Cmd,const wchar *SrcName,const wchar *PrepSrcName,const wchar *TargetName);
+-bool ExtractSymlink(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,const wchar *LinkName);
++bool ExtractSymlink(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,const wchar *LinkName,bool &UpLink);
+ #ifdef _UNIX
+ void SetUnixOwner(Archive &Arc,const wchar *FileName);
+ #endif
+diff --git a/extract.cpp b/extract.cpp
+index 6c3e214..061a986 100644
+--- a/extract.cpp
++++ b/extract.cpp
+@@ -9,6 +9,12 @@ CmdExtract::CmdExtract(CommandData *Cmd)
+   *DestFileName=0;
+ 
+   TotalFileCount=0;
++
++  // Common for all archives involved. Set here instead of DoExtract()
++  // to use in unrar.dll too. Allows to avoid LinksToDirs() calls
++  // and save CPU time in no symlinks including ".." in target were extracted.
++  UpLinkExtracted=false;
++
+   Unp=new Unpack(&DataIO);
+ #ifdef RAR_SMP
+   Unp->SetThreads(Cmd->Threads);
+@@ -99,6 +105,8 @@ void CmdExtract::ExtractArchiveInit(Archive &Arc)
+   AnySolidDataUnpackedWell=false;
+ 
+   StartTime.SetCurrentTime();
++
++  LastCheckedSymlink.clear();
+ }
+ 
+ 
+@@ -523,6 +531,10 @@ bool CmdExtract::ExtractCurrentFile(Archive &Arc,size_t HeaderSize,bool &Repeat)
+       wcsncpyz(DestFileName,Cmd->DllDestName,ASIZE(DestFileName));
+ #endif
+ 
++    if (ExtrFile && Command!='P' && !Cmd->Test && !Cmd->AbsoluteLinks &&
++        UpLinkExtracted)
++      ExtrFile=LinksToDirs(DestFileName,Cmd->ExtrPath,LastCheckedSymlink);
++
+     File CurFile;
+ 
+     bool LinkEntry=Arc.FileHead.RedirType!=FSREDIR_NONE;
+@@ -650,6 +662,19 @@ bool CmdExtract::ExtractCurrentFile(Archive &Arc,size_t HeaderSize,bool &Repeat)
+ 
+         if (Type==FSREDIR_HARDLINK || Type==FSREDIR_FILECOPY)
+         {
++          wchar RedirName[NM];
++        
++          // 2022.11.15: Might be needed when unpacking WinRAR 5.0 links with
++          // Unix RAR. WinRAR 5.0 used \ path separators here, when beginning
++          // from 5.10 even Windows version uses / internally and converts
++          // them to \ when reading FHEXTRA_REDIR.
++          // We must perform this conversion before ConvertPath call,
++          // so paths mixing different slashes like \dir1/dir2\file are
++          // processed correctly.
++          SlashToNative(Arc.FileHead.RedirName,RedirName,ASIZE(RedirName));
++
++          ConvertPath(RedirName,RedirName,ASIZE(RedirName));
++
+           wchar NameExisting[NM];
+           ExtrPrepareName(Arc,Arc.FileHead.RedirName,NameExisting,ASIZE(NameExisting));
+           if (FileCreateMode && *NameExisting!=0) // *NameExisting can be 0 in case of excessive -ap switch.
+@@ -662,7 +687,22 @@ bool CmdExtract::ExtractCurrentFile(Archive &Arc,size_t HeaderSize,bool &Repeat)
+           if (Type==FSREDIR_UNIXSYMLINK || Type==FSREDIR_WINSYMLINK || Type==FSREDIR_JUNCTION)
+           {
+             if (FileCreateMode)
+-              LinkSuccess=ExtractSymlink(Cmd,DataIO,Arc,DestFileName);
++            {
++              bool UpLink;
++              LinkSuccess=ExtractSymlink(Cmd,DataIO,Arc,DestFileName,UpLink);
++              UpLinkExtracted|=LinkSuccess && UpLink;
++
++              // We do not actually need to reset the cache here if we cache
++              // only the single last checked path, because at this point
++              // it will always contain the link own path and link can't
++              // overwrite its parent folder. But if we ever decide to cache
++              // several already checked paths, we'll need to reset them here.
++              // Otherwise if no files were created in one of such paths,
++              // let's say because of file create error, it might be possible
++              // to overwrite the path with link and avoid checks. We keep this
++              // code here as a reminder in case of possible modifications.
++              LastCheckedSymlink.clear(); // Reset cache for safety reason.
++            }
+           }
+           else
+           {
+@@ -849,8 +889,6 @@ void CmdExtract::UnstoreFile(ComprDataIO &DataIO,int64 DestUnpSize)
+ 
+ bool CmdExtract::ExtractFileCopy(File &New,wchar *ArcName,wchar *NameNew,wchar *NameExisting,size_t NameExistingSize)
+ {
+-  SlashToNative(NameExisting,NameExisting,NameExistingSize); // Not needed for RAR 5.1+ archives.
+-
+   File Existing;
+   if (!Existing.WOpen(NameExisting))
+   {
+@@ -1122,6 +1160,8 @@ void CmdExtract::ExtrCreateDir(Archive &Arc,const wchar *ArcFileName)
+         DirExist=FileExist(DestFileName) && IsDir(GetFileAttr(DestFileName));
+         if (!DirExist)
+         {
++          if (!Cmd->AbsoluteLinks && UpLinkExtracted)
++            LinksToDirs(DestFileName,Cmd->ExtrPath,LastCheckedSymlink);
+           CreatePath(DestFileName,true,Cmd->DisableNames);
+           MDCode=MakeDir(DestFileName,!Cmd->IgnoreGeneralAttr,Arc.FileHead.FileAttr);
+         }
+@@ -1203,6 +1243,8 @@ bool CmdExtract::ExtrCreateFile(Archive &Arc,File &CurFile)
+ 
+           MakeNameUsable(DestFileName,true);
+ 
++          if (!Cmd->AbsoluteLinks && UpLinkExtracted)
++            LinksToDirs(DestFileName,Cmd->ExtrPath,LastCheckedSymlink);
+           CreatePath(DestFileName,true,Cmd->DisableNames);
+           if (FileCreate(Cmd,&CurFile,DestFileName,ASIZE(DestFileName),&UserReject,Arc.FileHead.UnpSize,&Arc.FileHead.mtime,true))
+           {
+@@ -1346,4 +1388,4 @@ void CmdExtract::GetFirstVolIfFullSet(const wchar *SrcName,bool NewNumbering,wch
+   wcsncpyz(DestName,ResultName,DestSize);
+ }
+ 
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/extract.hpp b/extract.hpp
+index 159759b..eadb8cf 100644
+--- a/extract.hpp
++++ b/extract.hpp
+@@ -52,6 +52,12 @@ class CmdExtract
+     bool PrevProcessed; // If previous file was successfully extracted or tested.
+     wchar DestFileName[NM];
+     bool PasswordCancelled;
++    bool UpLinkExtracted; // At least one symlink with ".." in target was extracted.
++
++    // Last path checked for symlinks. We use it to improve the performance,
++    // so we do not check recently checked folders again.
++    std::wstring LastCheckedSymlink;
++
+ #if defined(_WIN_ALL) && !defined(SFX_MODULE) && !defined(SILENT)
+     bool Fat32,NotFat32;
+ #endif
+diff --git a/hardlinks.cpp b/hardlinks.cpp
+index 40cc0aa..171b5fa 100644
+--- a/hardlinks.cpp
++++ b/hardlinks.cpp
+@@ -1,7 +1,5 @@
+ bool ExtractHardlink(CommandData *Cmd,wchar *NameNew,wchar *NameExisting,size_t NameExistingSize)
+ {
+-  SlashToNative(NameExisting,NameExisting,NameExistingSize); // Not needed for RAR 5.1+ archives.
+-
+   if (!FileExist(NameExisting))
+   {
+     uiMsg(UIERROR_HLINKCREATE,NameNew);
+diff --git a/ulinks.cpp b/ulinks.cpp
+index d198f2e..141a97f 100644
+--- a/ulinks.cpp
++++ b/ulinks.cpp
+@@ -50,7 +50,28 @@ static bool IsFullPath(const char *PathA) // Unix ASCII version.
+ }
+ 
+ 
+-bool ExtractUnixLink30(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,const wchar *LinkName)
++// For security purpose we prefer to be sure that CharToWide completed
++// successfully and even if it truncated a string for some reason,
++// it didn't affect the number of path related characters we analyze
++// in IsRelativeSymlinkSafe later.
++// This check is likely to be excessive, but let's keep it anyway.
++static bool SafeCharToWide(const char *Src,wchar *Dest,size_t DestSize)
++{
++  if (!CharToWide(Src,Dest,DestSize) || *Dest==0)
++    return false;
++  uint SrcChars=0,DestChars=0;
++  for (uint I=0;Src[I]!=0;I++)
++    if (Src[I]=='/' || Src[I]=='.')
++      SrcChars++;
++  for (uint I=0;Dest[I]!=0;I++)
++    if (Dest[I]=='/' || Dest[I]=='.')
++      DestChars++;
++  return SrcChars==DestChars;
++}
++
++
++static bool ExtractUnixLink30(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,
++                              const wchar *LinkName,bool &UpLink)
+ {
+   char Target[NM];
+   if (IsLink(Arc.FileHead.FileAttr))
+@@ -72,21 +93,22 @@ bool ExtractUnixLink30(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,const w
+       return true;
+ 
+     wchar TargetW[NM];
+-    CharToWide(Target,TargetW,ASIZE(TargetW));
+-    // Check for *TargetW==0 to catch CharToWide failure.
++    if (!SafeCharToWide(Target,TargetW,ASIZE(TargetW)))
++      return false;
+     // Use Arc.FileHead.FileName instead of LinkName, since LinkName
+     // can include the destination path as a prefix, which can
+     // confuse IsRelativeSymlinkSafe algorithm.
+-    if (!Cmd->AbsoluteLinks && (*TargetW==0 || IsFullPath(TargetW) ||
++    if (!Cmd->AbsoluteLinks && (IsFullPath(TargetW) ||
+         !IsRelativeSymlinkSafe(Cmd,Arc.FileHead.FileName,LinkName,TargetW)))
+       return false;
++    UpLink=strstr(Target,"..")!=NULL;
+     return UnixSymlink(Cmd,Target,LinkName,&Arc.FileHead.mtime,&Arc.FileHead.atime);
+   }
+   return false;
+ }
+ 
+ 
+-bool ExtractUnixLink50(CommandData *Cmd,const wchar *Name,FileHeader *hd)
++static bool ExtractUnixLink50(CommandData *Cmd,const wchar *Name,FileHeader *hd)
+ {
+   char Target[NM];
+   WideToChar(hd->RedirName,Target,ASIZE(Target));
+@@ -100,11 +122,15 @@ bool ExtractUnixLink50(CommandData *Cmd,const wchar *Name,FileHeader *hd)
+       return false;
+     DosSlashToUnix(Target,Target,ASIZE(Target));
+   }
++
++  wchar TargetW[NM];
++  if (!SafeCharToWide(Target,TargetW,ASIZE(TargetW)))
++    return false;
+   // Use hd->FileName instead of LinkName, since LinkName can include
+   // the destination path as a prefix, which can confuse
+   // IsRelativeSymlinkSafe algorithm.
+-  if (!Cmd->AbsoluteLinks && (IsFullPath(Target) ||
+-      !IsRelativeSymlinkSafe(Cmd,hd->FileName,Name,hd->RedirName)))
++  if (!Cmd->AbsoluteLinks && (IsFullPath(TargetW) ||
++      !IsRelativeSymlinkSafe(Cmd,hd->FileName,Name,TargetW)))
+     return false;
+   return UnixSymlink(Cmd,Target,Name,&hd->mtime,&hd->atime);
+ }
+-- 
+2.42.0.283.g2d96d420d3-goog
+
