@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..8} )
+PYTHON_COMPAT=( python3_{8..11} )
 inherit flag-o-matic multilib-minimal python-any-r1
 
 DESCRIPTION="C library for the Public Suffix List"
