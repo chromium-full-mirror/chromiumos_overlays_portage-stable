@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..12} )
+PYTHON_COMPAT=( python3_{8..11} )
 PYTHON_REQ_USE="xml(+)"
 
 XORG_TARBALL_SUFFIX="xz"
