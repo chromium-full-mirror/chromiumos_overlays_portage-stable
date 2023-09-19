@@ -162,11 +162,6 @@ media-video/mplayer2 -bluray
 # doomsday doesn't work on amd64 so mask off things that pull it in.
 games-fps/doom-data doomsday
 
-# Markos Chandras <hwoarang@gentoo.org> (19 Jan 2011)
-# Masking md5sum on mail-mta/ssmtp since it is broken on
-# earlier versions
-mail-mta/ssmtp md5sum
-
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (28 Nov 2010)
 # sys-devel/llvm is keyworded on amd64
 media-libs/mesa -llvm
