@@ -21,7 +21,7 @@ HOMEPAGE="
 "
 
 LICENSE="BSD"
-SLOT="0/32"
+SLOT="PITA/32"
 IUSE="emacs examples static-libs test zlib"
 RESTRICT="!test? ( test )"
 
@@ -94,6 +94,9 @@ multilib_src_configure() {
 		popd > /dev/null || die
 	fi
 
+	# Install libs to / intead of /usr to avoid needing a blocker.
+	options+=( --prefix=/ )
+
 	ECONF_SOURCE="${S}" econf "${options[@]}"
 }
 
@@ -117,37 +120,21 @@ multilib_src_test() {
 	emake check
 }
 
+multilib_src_install() {
+	emake -C "src" install-libLTLIBRARIES DESTDIR="${ED}"
+
+	# Remove
+	# * libprotoc which isn't needed.
+	# * top level .so symlinks
+	find "${ED}" \( -iname 'libprotoc.*' -or -iname 'libprotoc.*' -or -iname '*.so' \) -delete || die
+}
+
 multilib_src_install_all() {
 	find "${ED}" -name "*.la" -delete || die
 
-	if [[ ! -f "${ED}/usr/$(get_libdir)/libprotobuf.so.${SLOT#*/}" ]]; then
+	if [[ ! -f "${ED}/$(get_libdir)/libprotobuf.so.${SLOT#*/}" ]]; then
 		eerror "No matching library found with SLOT variable, currently set: ${SLOT}\n" \
 			"Expected value: ${ED}/usr/$(get_libdir)/libprotobuf.so.${SLOT#*/}"
 		die "Please update SLOT variable"
 	fi
-
-	insinto /usr/share/vim/vimfiles/syntax
-	doins editors/proto.vim
-	insinto /usr/share/vim/vimfiles/ftdetect
-	doins "${FILESDIR}/proto.vim"
-
-	if use emacs; then
-		elisp-install ${PN} editors/protobuf-mode.el*
-		elisp-site-file-install "${FILESDIR}/70${PN}-gentoo.el"
-	fi
-
-	if use examples; then
-		DOCS+=(examples)
-		docompress -x /usr/share/doc/${PF}/examples
-	fi
-
-	einstalldocs
-}
-
-pkg_postinst() {
-	use emacs && elisp-site-regen
-}
-
-pkg_postrm() {
-	use emacs && elisp-site-regen
 }
