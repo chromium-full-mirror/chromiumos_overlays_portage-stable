@@ -1,8 +1,0 @@
-DEFINED_PHASES=-
-DESCRIPTION=Virtual for Message Transfer Agents
-EAPI=7
-KEYWORDS=*
-LICENSE=metapackage
-RDEPEND=|| ( mail-mta/nullmailer mail-mta/msmtp[mta] mail-mta/ssmtp[mta] mail-mta/courier mail-mta/esmtp mail-mta/exim mail-mta/netqmail mail-mta/notqmail mail-mta/postfix mail-mta/sendmail mail-mta/opensmtpd[mta] )
-SLOT=0
-_md5_=abb21db1c4e437d1623b464fd9dcc42e

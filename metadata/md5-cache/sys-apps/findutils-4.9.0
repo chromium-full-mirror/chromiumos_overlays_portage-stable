@@ -1,4 +1,4 @@
-BDEPEND=nls? ( sys-devel/gettext ) test? ( || ( dev-lang/python:3.6 dev-lang/python:3.7 dev-lang/python:3.8 dev-lang/python:3.9 dev-lang/python:3.10 dev-lang/python:3.11 dev-lang/python:3.12 ) dev-util/dejagnu ) verify-sig? ( sec-keys/openpgp-keys-findutils ) verify-sig? ( app-crypt/gnupg >=app-portage/gemato-16 )
+BDEPEND=nls? ( sys-devel/gettext ) test? ( || ( dev-lang/python:3.8 dev-lang/python:3.9 dev-lang/python:3.10 dev-lang/python:3.11 ) dev-util/dejagnu ) verify-sig? ( sec-keys/openpgp-keys-findutils ) verify-sig? ( app-crypt/gnupg >=app-portage/gemato-16 )
 DEFINED_PHASES=compile configure install prepare setup test unpack
 DEPEND=selinux? ( sys-libs/libselinux ) nls? ( virtual/libintl )
 DESCRIPTION=GNU utilities for finding files
@@ -12,4 +12,4 @@ RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://gnu/findutils/findutils-4.9.0.tar.xz verify-sig? ( mirror://gnu/findutils/findutils-4.9.0.tar.xz.sig )
 _eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	5bd4686cbe063e46fff90664cfc1a5a1	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
-_md5_=20748c20c3a9590dc89b2934da42788b
+_md5_=c49e499583013bf452a3a27034e9211e

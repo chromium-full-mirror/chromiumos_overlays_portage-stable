@@ -1,4 +1,4 @@
-BDEPEND=app-arch/xz-utils test? ( dev-lang/perl dev-perl/Expect dev-util/strace || ( dev-lang/python:3.7 dev-lang/python:3.8 ) )
+BDEPEND=app-arch/xz-utils test? ( dev-lang/perl dev-perl/Expect dev-util/strace || ( dev-lang/python:3.8 dev-lang/python:3.9 dev-lang/python:3.10 dev-lang/python:3.11 ) )
 DEFINED_PHASES=configure install postinst prepare setup test
 DEPEND=!static? ( acl? ( sys-apps/acl ) caps? ( sys-libs/libcap ) gmp? ( dev-libs/gmp:= ) xattr? ( sys-apps/attr ) ) selinux? ( sys-libs/libselinux ) nls? ( virtual/libintl ) static? ( acl? ( sys-apps/acl[static-libs] ) caps? ( sys-libs/libcap ) gmp? ( dev-libs/gmp:=[static-libs] ) xattr? ( sys-apps/attr[static-libs] ) )
 DESCRIPTION=Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)
@@ -12,4 +12,4 @@ RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://gnu/coreutils/coreutils-8.32.tar.xz !vanilla? ( mirror://gentoo/coreutils-8.30-patches-01.tar.xz https://dev.gentoo.org/~polynomial-c/dist/coreutils-8.30-patches-01.tar.xz )
 _eclasses_=eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	5bd4686cbe063e46fff90664cfc1a5a1	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=f2464be06a85e7a8e3e6d7bce8f57965
+_md5_=57e4ec94804f9f62a8b91dec557bf011
