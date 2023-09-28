@@ -1,2 +1,8 @@
-# TODO: Add per-package OWNERS and delete this when done.
-*
+# Used by tast tests.
+include chromiumos/platform/tast:/OWNERS
+
+# Used by the factory team.
+include /dev-python/qrcode/OWNERS
+
+# Used by bmpblk.
+include chromiumos/overlays/chromiumos-overlay:/sys-boot/chromeos-bmpblk/OWNERS
