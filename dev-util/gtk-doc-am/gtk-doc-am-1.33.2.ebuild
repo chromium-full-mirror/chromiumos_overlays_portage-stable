@@ -1,23 +1,21 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 GNOME_ORG_MODULE="gtk-doc"
 
 inherit gnome.org
 
 DESCRIPTION="Automake files from gtk-doc"
-HOMEPAGE="https://www.gtk.org/gtk-doc/"
+HOMEPAGE="https://wiki.gnome.org/DocumentationProject/GtkDoc"
 
 LICENSE="GPL-2 FDL-1.1"
 SLOT="0"
 KEYWORDS="*"
 
-RDEPEND=""
-DEPEND="${RDEPEND}
-	virtual/pkgconfig
-	!<dev-util/gtk-doc-${GNOME_ORG_PVP}
-"
+RDEPEND="!<dev-util/gtk-doc-${PV}"
+PDEPEND="virtual/pkgconfig"
+
 # This ebuild doesn't even compile anything, causing tests to fail when updating (bug #316071)
 RESTRICT="test"
 
