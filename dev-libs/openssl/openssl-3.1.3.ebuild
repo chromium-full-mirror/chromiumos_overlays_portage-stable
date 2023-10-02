@@ -279,7 +279,4 @@ pkg_postinst() {
 	ebegin "Running 'openssl rehash ${EROOT}${SSL_CNF_DIR}/certs' to rebuild hashes (bug #333069)"
 	openssl rehash "${EROOT}${SSL_CNF_DIR}/certs"
 	eend $?
-
-	preserve_old_lib_notify /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
-		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
 }
