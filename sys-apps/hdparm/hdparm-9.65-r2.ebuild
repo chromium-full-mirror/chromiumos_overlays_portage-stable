@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,23 +9,29 @@ DESCRIPTION="Utility to change hard drive performance parameters"
 HOMEPAGE="https://sourceforge.net/projects/hdparm/"
 SRC_URI="mirror://sourceforge/hdparm/${P}.tar.gz"
 
-LICENSE="BSD GPL-2" # GPL-2 only
+# GPL-2 only
+LICENSE="BSD GPL-2"
 SLOT="0"
 KEYWORDS="*"
 IUSE="static"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-9.60-build.patch
+	"${FILESDIR}"/${P}-graceful-lfs.patch
 )
 
 src_prepare() {
 	default
+
 	use static && append-ldflags -static
 }
 
 src_configure() {
-	tc-export CC
-	export STRIP=:
+	append-lfs-flags
+}
+
+src_compile() {
+	emake STRIP="true" CC="$(tc-getCC)"
 }
 
 src_install() {
@@ -37,6 +43,7 @@ src_install() {
 
 	doman hdparm.8
 	dodoc hdparm.lsm Changelog README.acoustic hdparm-sysconfig
+
 	docinto wiper
 	dodoc wiper/{README.txt,wiper.sh}
 	docompress -x /usr/share/doc/${PF}/wiper/wiper.sh
