@@ -59,11 +59,3 @@ src_install() {
 
 	dodoc ChangeLog NEWS README TODO
 }
-
-pkg_preinst() {
-	usermod -s /bin/bash uucp || die
-}
-
-pkg_postrm() {
-	usermod -s /bin/false uucp || die
-}
