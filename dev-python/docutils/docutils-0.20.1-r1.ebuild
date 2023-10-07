@@ -1,23 +1,30 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} pypy3 )
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=( python3_{8..12} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
-DESCRIPTION="Python Documentation Utilities"
-HOMEPAGE="http://docutils.sourceforge.net/ https://pypi.org/project/docutils/"
-SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
+DESCRIPTION="Python Documentation Utilities (reference reStructuredText impl.)"
+HOMEPAGE="
+	https://docutils.sourceforge.io/
+	https://pypi.org/project/docutils/
+"
 
-LICENSE="BSD-2 GPL-3 public-domain"
+# GPL-3+ only for emacs/rst.el
+LICENSE="BSD BSD-2 GPL-3+ PSF-2.4 public-domain"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
 
-DEPEND="dev-python/pygments[${PYTHON_USEDEP}]"
-RDEPEND="${DEPEND}"
+RDEPEND="
+	dev-python/pygments[${PYTHON_USEDEP}]
+"
+BDEPEND="
+	${RDEPEND}
+"
 
 python_compile_all() {
 	# Generate html docs from reStructured text sources.
@@ -30,21 +37,20 @@ python_compile_all() {
 		--stylesheet-path=../html4css1.css, --traceback ../docs || die
 }
 
+src_test() {
+	cd test || die
+	distutils-r1_src_test
+}
+
 python_test() {
-	if python_is_python3; then
-		pushd test3 > /dev/null || die
-	else
-		pushd test > /dev/null || die
-	fi
-	"${EPYTHON}" alltests.py || die "Testing failed with ${EPYTHON}"
-	popd > /dev/null || die
+	"${EPYTHON}" alltests.py -v || die "Testing failed with ${EPYTHON}"
 }
 
 python_install() {
 	distutils-r1_python_install
 
 	# Install tools.
-	python_doscript tools/{buildhtml,quicktest}.py
+	python_doscript tools/buildhtml.py
 }
 
 install_txt_doc() {
