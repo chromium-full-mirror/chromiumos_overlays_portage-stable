@@ -1,0 +1,58 @@
+commit 4183b260f4cccae52a89efdfcdd43c4897989f42
+Author: Romaric Jodin <89833130+rjodinchr@users.noreply.github.com>
+Date:   Wed Oct 11 16:38:39 2023 +0200
+
+    ClspvReflection non-sematic: add NormalizedSamplerMaskPushConstant (#377)
+    
+    This is needed to implement 3D Image read using unnormalised sampler.
+    Ref google/clspv#1202
+
+diff --git a/include/spirv/unified1/NonSemanticClspvReflection.h b/include/spirv/unified1/NonSemanticClspvReflection.h
+index 1a31549..4ee87c2 100644
+--- a/include/spirv/unified1/NonSemanticClspvReflection.h
++++ b/include/spirv/unified1/NonSemanticClspvReflection.h
+@@ -33,7 +33,7 @@ extern "C" {
+ #endif
+ 
+ enum {
+-    NonSemanticClspvReflectionRevision = 5,
++    NonSemanticClspvReflectionRevision = 6,
+     NonSemanticClspvReflectionRevision_BitWidthPadding = 0x7fffffff
+ };
+ 
+@@ -78,6 +78,7 @@ enum NonSemanticClspvReflectionInstructions {
+     NonSemanticClspvReflectionPrintfInfo = 38,
+     NonSemanticClspvReflectionPrintfBufferStorageBuffer = 39,
+     NonSemanticClspvReflectionPrintfBufferPointerPushConstant = 40,
++    NonSemanticClspvReflectionNormalizedSamplerMaskPushConstant = 41,
+     NonSemanticClspvReflectionInstructionsMax = 0x7fffffff
+ };
+ 
+diff --git a/include/spirv/unified1/extinst.nonsemantic.clspvreflection.grammar.json b/include/spirv/unified1/extinst.nonsemantic.clspvreflection.grammar.json
+index d6499cc..cfccc80 100644
+--- a/include/spirv/unified1/extinst.nonsemantic.clspvreflection.grammar.json
++++ b/include/spirv/unified1/extinst.nonsemantic.clspvreflection.grammar.json
+@@ -1,5 +1,5 @@
+ {
+-  "revision" : 5,
++  "revision" : 6,
+   "instructions" : [
+     {
+       "opname" : "Kernel",
+@@ -395,6 +395,16 @@
+       { "kind" : "IdRef", "name" : "Size"},
+       { "kind" : "IdRef", "name" : "BufferSize"}
+       ]
++    },
++    {
++    "opname" : "NormalizedSamplerMaskPushConstant",
++    "opcode" : 41,
++    "operands" : [
++      { "kind" : "IdRef", "name" : "Kernel" },
++      { "kind" : "IdRef", "name" : "Ordinal" },
++      { "kind" : "IdRef", "name" : "Offset" },
++      { "kind" : "IdRef", "name" : "Size" }
++      ]
+     }
+   ],
+   "operand_kinds" : [

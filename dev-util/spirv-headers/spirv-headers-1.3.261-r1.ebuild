@@ -14,3 +14,5 @@ S="${WORKDIR}/SPIRV-Headers-${EGIT_COMMIT}"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
+
+PATCHES=("${FILESDIR}/GITHUB-4183b26-ClspvReflection_add_NormalizedSamplerMaskPushConstant.patch")
