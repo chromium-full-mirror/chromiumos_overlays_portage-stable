@@ -114,6 +114,7 @@ my_src_configure() {
 		--enable-large-secmem
 
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
+		GPGRT_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-gpgrt-config"
 		GPG_ERROR_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-gpg-error-config"
 		KSBA_CONFIG="${ESYSROOT}/usr/bin/ksba-config"
 		LIBASSUAN_CONFIG="${ESYSROOT}/usr/bin/libassuan-config"
