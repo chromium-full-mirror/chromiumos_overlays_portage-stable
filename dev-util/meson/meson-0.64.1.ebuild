@@ -40,6 +40,7 @@ DEPEND="
 	)
 "
 RDEPEND="
+	dev-python/setuptools[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 "
 
