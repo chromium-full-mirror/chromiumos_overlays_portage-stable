@@ -1,0 +1,15 @@
+BDEPEND=dev-lang/perl doc? ( app-arch/unzip ) >=dev-util/ninja-1.8.2 >=dev-util/cmake-3.20.5
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=media-libs/libjpeg-turbo:= sys-libs/zlib ssl? ( gnutls? ( net-libs/gnutls:= ) !gnutls? ( dev-libs/openssl:= ) ) test? ( app-text/ghostscript-gpl[tiff(+)] media-libs/tiff sys-apps/diffutils )
+DESCRIPTION=Command-line tool for structural, content-preserving transformation of PDF files
+EAPI=7
+HOMEPAGE=https://qpdf.sourceforge.net/
+IUSE=doc examples gnutls ssl test
+KEYWORDS=*
+LICENSE=|| ( Apache-2.0 Artistic-2 )
+RDEPEND=media-libs/libjpeg-turbo:= sys-libs/zlib ssl? ( gnutls? ( net-libs/gnutls:= ) !gnutls? ( dev-libs/openssl:= ) )
+RESTRICT=!test? ( test )
+SLOT=0/11
+SRC_URI=https://github.com/qpdf/qpdf/releases/download/v11.6.2/qpdf-11.6.2.tar.gz doc? ( https://github.com/qpdf/qpdf/releases/download/v11.6.2/qpdf-11.6.2-doc.zip )
+_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	cmake	34502c2b638b59994575d53ba3805d7b	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_md5_=3acc14261c24fe04bec984133658c466
