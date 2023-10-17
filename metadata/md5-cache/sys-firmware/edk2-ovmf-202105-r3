@@ -9,5 +9,5 @@ LICENSE=BSD-2 MIT
 REQUIRED_USE=!amd64? ( binary )
 SLOT=0
 SRC_URI=!binary? ( https://github.com/tianocore/edk2/archive/edk2-stable202105.tar.gz -> edk2-ovmf-202105.tar.gz https://github.com/openssl/openssl/archive/e2e09d9fba1187f8d6aafaa34d4172f56f1ffb72.tar.gz -> openssl-e2e09d9fba1187f8d6aafaa34d4172f56f1ffb72.tar.gz https://github.com/google/brotli/archive/666c3280cc11dc433c303d79a83d4ffbdd12cc8d.tar.gz -> brotli-666c3280cc11dc433c303d79a83d4ffbdd12cc8d.tar.gz ) binary? ( https://dev.gentoo.org/~tamiko/distfiles/edk2-ovmf-202105-r1-bin.tar.xz ) https://dev.gentoo.org/~tamiko/distfiles/edk2-ovmf-202105-qemu-firmware.tar.xz
-_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	5bd4686cbe063e46fff90664cfc1a5a1	readme.gentoo-r1	22ae82e140bdd95d17a34fd5fd733190	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	76252008070e69454f51fa80c07638c9	readme.gentoo-r1	22ae82e140bdd95d17a34fd5fd733190	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=20ed45512fafe53954feef995b41363c

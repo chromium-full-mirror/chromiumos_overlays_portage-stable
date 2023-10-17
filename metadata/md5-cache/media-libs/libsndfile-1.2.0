@@ -11,5 +11,5 @@ RDEPEND=!minimal? ( media-libs/flac:=[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/libsndfile/libsndfile/releases/download/1.2.0/libsndfile-1.2.0.tar.xz
-_eclasses_=multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	5bd4686cbe063e46fff90664cfc1a5a1	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=adede7d9a85a26d9581b07e43b819de5
