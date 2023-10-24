@@ -3,8 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
-CMAKE_ECLASS=cmake
+PYTHON_COMPAT=( python3_{8..12} )
 inherit cmake-multilib python-any-r1
 
 if [[ ${PV} == *9999* ]]; then
@@ -18,10 +17,10 @@ else
 	#     cd build && cmake ..
 	# 3.  Set LIBAOM_TEST_DATA_PATH to the directory you want and
 	#     run the "make testdata" target:
-	#     LIBAOM_TEST_DATA_PATH=../libaom-1.2.3-testdata make testdata
+	#     LIBAOM_TEST_DATA_PATH=../libaom-3.7.0-testdata make testdata
 	#     This will download the test data from the internet.
 	# 4.  Create a tarball out of that directory.
-	#     cd .. && tar cvaf libaom-1.2.3-testdata.tar.xz libaom-1.2.3-testdata
+	#     cd .. && tar cvaf libaom-3.7.0-testdata.tar.xz libaom-3.7.0-testdata
 	SRC_URI="
 		https://storage.googleapis.com/aom-releases/${P}.tar.gz
 		test? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-testdata.tar.xz )
@@ -58,6 +57,7 @@ DOCS=( PATENTS )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.4.0-posix-c-source-ftello.patch
+	"${FILESDIR}"/${PN}-3.7.0-allow-fortify-source.patch
 )
 
 multilib_src_configure() {
