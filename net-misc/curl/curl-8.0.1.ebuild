@@ -111,6 +111,7 @@ PATCHES=(
 
 	# Backports
 	"${FILESDIR}"/${PN}-8.0.1-onion-resolution.patch
+	"${FILESDIR}"/${PN}-socks5-overflow.patch
 )
 
 src_prepare() {
