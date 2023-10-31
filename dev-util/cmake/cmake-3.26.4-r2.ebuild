@@ -60,7 +60,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="CMake"
 SLOT="0"
-IUSE="${CMAKE_DOCS_USEFLAG} emacs ncurses qt5 test"
+IUSE="${CMAKE_DOCS_USEFLAG} +system-nghttp2 emacs ncurses qt5 test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
@@ -70,6 +70,7 @@ RDEPEND="
 	>=dev-libs/jsoncpp-1.9.2-r2:0=
 	>=dev-libs/libuv-1.10.0:=
 	>=net-misc/curl-7.21.5[ssl]
+	system-nghttp2? ( net-libs/nghttp2 )
 	sys-libs/zlib
 	virtual/pkgconfig
 	emacs? ( >=app-editors/emacs-23.1:* )
@@ -209,6 +210,7 @@ src_configure() {
 		-DBUILD_TESTING=$(usex test)
 	)
 	use qt5 && mycmakeargs+=( -DBUILD_QtDialog=ON )
+	use !system-nghttp2 && mycmakeargs+=( -DCMAKE_USE_SYSTEM_LIBRARY_NGHTTP2=OFF )
 
 	cmake_src_configure
 }
