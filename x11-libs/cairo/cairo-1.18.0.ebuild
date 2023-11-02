@@ -45,13 +45,12 @@ DEPEND="${RDEPEND}
 		gnome-base/librsvg
 	)
 	X? ( x11-base/xorg-proto )"
-BDEPEND="virtual/pkgconfig"
+BDEPEND="
+	virtual/pkgconfig
+	gtk-doc? ( dev-util/gtk-doc )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-respect-fontconfig.patch
-
-	# Upstream
-	"${FILESDIR}"/${PV}-tee-Fix-cairo-wrapper-functions.patch
 )
 
 multilib_src_configure() {
@@ -65,7 +64,6 @@ multilib_src_configure() {
 		$(meson_feature X xcb)
 		$(meson_feature X xlib)
 		-Dxlib-xcb=disabled
-		-Dxml=disabled
 		-Dzlib=enabled
 
 		# Requires poppler-glib (poppler[cairo]) which isn't available in multilib

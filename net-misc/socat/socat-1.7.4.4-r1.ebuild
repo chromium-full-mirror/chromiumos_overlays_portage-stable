@@ -14,9 +14,9 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="bindist ipv6 readline ssl tcpd"
+IUSE="ipv6 readline ssl tcpd"
 
-DEPEND="ssl? ( dev-libs/openssl:0= )
+DEPEND="ssl? ( >=dev-libs/openssl-3:0= )
 	readline? ( sys-libs/readline:= )
 	tcpd? ( sys-apps/tcp-wrappers )"
 RDEPEND="${DEPEND}"
@@ -24,22 +24,14 @@ RDEPEND="${DEPEND}"
 # Tests are a large bash script
 # Hard to disable individual tests needing network or privileges
 # in 1.7.4.2: FAILED:  59 329
-RESTRICT="test ssl? ( readline? ( bindist ) )"
+RESTRICT="test"
 
 DOCS=( BUGREPORTS CHANGES DEVELOPMENT EXAMPLES FAQ FILES PORTING README SECURITY )
 
 PATCHES=(
 	"${FILESDIR}/${PN}-1.7.4.4-configure-gcc.patch"
+	"${FILESDIR}/${PN}-1.7.4.4-large-file-support.patch"
 )
-
-pkg_setup() {
-	# bug #587740
-	if use readline && use ssl ; then
-		elog "You are enabling both readline and ssl (openssl) USE flags, the licenses"
-		elog "for these packages conflict. You may not be able to legally"
-		elog "redistribute the resulting binary."
-	fi
-}
 
 src_prepare() {
 	default
@@ -52,8 +44,6 @@ src_configure() {
 	filter-flags '-Wno-error*'
 
 	tc-export AR
-
-	append-lfs-flags
 
 	econf \
 		$(use_enable ssl openssl) \

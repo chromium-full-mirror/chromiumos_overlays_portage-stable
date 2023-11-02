@@ -1,6 +1,6 @@
-diff --git a/configure.ac.old b/configure.ac
+diff --git a/configure.ac b/configure.ac
 index 9d60473..e89f231 100644
---- a/configure.ac.old
+--- a/configure.ac
 +++ b/configure.ac
 @@ -16,7 +16,7 @@ fi
  # find out which defines gcc passes to cpp, so makedepend does not run into
@@ -9,5 +9,5 @@ index 9d60473..e89f231 100644
 -__cpp_defs=`gcc -v -E - </dev/null 2>&1 |$FGREP -e '/cpp ' -e '/cc1 '`
 +__cpp_defs=`$CC -v -E - </dev/null 2>&1 |$FGREP -e '/cpp ' -e '/cc1 '`
  SYSDEFS=`aa=; for a in $__cpp_defs
-        do case "$a" in -D*) aa="$aa $a";; esac; done; echo "$aa"`
+ 	do case "$a" in -D*) aa="$aa $a";; esac; done; echo "$aa"`
  AC_SUBST(SYSDEFS)
