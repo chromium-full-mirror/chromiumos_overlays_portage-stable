@@ -15,7 +15,7 @@ KEYWORDS="*"
 IUSE="hugepages +json"
 
 RDEPEND="
-	=sys-libs/libnvme-1.5*:=[json?]
+	>=sys-libs/libnvme-1.6:=[json?]
 	hugepages? ( sys-libs/libhugetlbfs:= )
 	json? ( dev-libs/json-c:= )
 	sys-libs/zlib:=
