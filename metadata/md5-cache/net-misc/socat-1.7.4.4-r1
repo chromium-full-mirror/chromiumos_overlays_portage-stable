@@ -1,15 +1,15 @@
 BDEPEND=>=app-portage/elt-patches-20170815 || ( >=sys-devel/automake-1.16.5-r1:1.16 >=sys-devel/automake-1.15.1-r2:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
-DEFINED_PHASES=configure install prepare setup
-DEPEND=ssl? ( dev-libs/openssl:0= ) readline? ( sys-libs/readline:= ) tcpd? ( sys-apps/tcp-wrappers )
+DEFINED_PHASES=configure install prepare
+DEPEND=ssl? ( >=dev-libs/openssl-3:0= ) readline? ( sys-libs/readline:= ) tcpd? ( sys-apps/tcp-wrappers )
 DESCRIPTION=Multipurpose relay (SOcket CAT)
 EAPI=7
 HOMEPAGE=http://www.dest-unreach.org/socat/ https://repo.or.cz/socat.git
-IUSE=bindist ipv6 readline ssl tcpd
+IUSE=ipv6 readline ssl tcpd
 KEYWORDS=*
 LICENSE=GPL-2
-RDEPEND=ssl? ( dev-libs/openssl:0= ) readline? ( sys-libs/readline:= ) tcpd? ( sys-apps/tcp-wrappers )
-RESTRICT=test ssl? ( readline? ( bindist ) )
+RDEPEND=ssl? ( >=dev-libs/openssl-3:0= ) readline? ( sys-libs/readline:= ) tcpd? ( sys-apps/tcp-wrappers )
+RESTRICT=test
 SLOT=0
 SRC_URI=http://www.dest-unreach.org/socat/download/socat-1.7.4.4.tar.bz2
 _eclasses_=autotools	9adb87822e85056674b476e1090a72ae	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=f8a6ba91cc79538bd021865ad7f57c8a
+_md5_=7a335fac3f9dde155b22b62dd2c8137b
