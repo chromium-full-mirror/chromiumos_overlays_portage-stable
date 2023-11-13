@@ -35,6 +35,7 @@ BDEPEND="${PYTHON_DEPS}
 	$(python_gen_any_dep '>=x11-base/xcb-proto-1.16.0[${PYTHON_USEDEP}]')
 	doc? ( app-doc/doxygen[dot] )
 	test? ( dev-libs/libxslt )
+	>=x11-misc/util-macros-1.18
 "
 
 PATCHES=(
