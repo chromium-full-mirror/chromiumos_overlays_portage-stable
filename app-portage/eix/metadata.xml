@@ -22,5 +22,6 @@
   </use>
   <upstream>
     <remote-id type="github">vaeth/eix</remote-id>
+    <remote-id type="cpe">cpe:/a:gentoo:linux_eix</remote-id>
   </upstream>
 </pkgmetadata>

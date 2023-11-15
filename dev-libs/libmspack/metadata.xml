@@ -7,5 +7,6 @@
 	</maintainer>
 	<upstream>
 		<remote-id type="github">kyz/libmspack</remote-id>
+		<remote-id type="github">cpe:/a:cabextract:libmspack</remote-id>
 	</upstream>
 </pkgmetadata>

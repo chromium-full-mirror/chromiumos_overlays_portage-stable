@@ -32,5 +32,6 @@
   </use>
   <upstream>
     <remote-id type="savannah">screen</remote-id>
+    <remote-id type="cpe">cpe:/a:gnu:screen</remote-id>
   </upstream>
 </pkgmetadata>

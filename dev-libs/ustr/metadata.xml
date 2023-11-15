@@ -12,4 +12,7 @@
 <use>
 	<flag name="ustr-import">Install ustr-import developer program and source code for bundling.</flag>
 </use>
+<upstream>
+	<remote-id type="cpe">cpe:/a:ustr_project:ustr</remote-id>
+</upstream>
 </pkgmetadata>

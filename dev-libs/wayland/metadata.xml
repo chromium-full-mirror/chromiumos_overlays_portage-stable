@@ -7,5 +7,6 @@
   </maintainer>
   <upstream>
     <remote-id type="freedesktop-gitlab">wayland/wayland</remote-id>
+    <remote-id type="cpe">cpe:/a:wayland:wayland</remote-id>
   </upstream>
 </pkgmetadata>

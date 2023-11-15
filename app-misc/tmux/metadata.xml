@@ -20,5 +20,6 @@
 	</longdescription>
 	<upstream>
 		<remote-id type="github">tmux/tmux</remote-id>
+		<remote-id type="cpe">cpe:/a:tmux_project:tmux</remote-id>
 	</upstream>
 </pkgmetadata>

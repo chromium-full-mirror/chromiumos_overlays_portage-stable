@@ -25,5 +25,6 @@
 	<upstream>
 		<remote-id type="github">OpenSC/OpenSC</remote-id>
 		<remote-id type="sourceforge">opensc</remote-id>
+		<remote-id type="cpe">cpe:/a:opensc_project:opensc</remote-id>
 	</upstream>
 </pkgmetadata>

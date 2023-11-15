@@ -15,6 +15,7 @@ Pentium, P6, MMX, 3DNow!, SSE and SSE2 opcodes, and has macro capability.
   </longdescription>
   <upstream>
     <remote-id type="github">netwide-assembler/nasm</remote-id>
+    <remote-id type="cpe">cpe:/a:nasm:network_assembler</remote-id>
     <bugs-to>https://bugzilla.nasm.us/</bugs-to>
   </upstream>
 </pkgmetadata>

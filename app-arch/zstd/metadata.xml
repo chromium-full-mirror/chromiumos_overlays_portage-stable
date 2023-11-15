@@ -6,5 +6,6 @@
 	</maintainer>
 	<upstream>
 		<remote-id type="github">facebook/zstd</remote-id>
+		<remote-id type="cpe">cpe:/a:facebook:zstandard</remote-id>
 	</upstream>
 </pkgmetadata>

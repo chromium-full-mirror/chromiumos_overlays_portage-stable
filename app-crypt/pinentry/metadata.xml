@@ -8,4 +8,7 @@
 	<use>
 		<flag name="efl">Build <pkg>dev-libs/efl</pkg> based pinentry</flag>
 	</use>
+	<upstream>
+		<remote-id type="cpe">cpe:/a:gentoo:app-crypt_pinentry</remote-id>
+	</upstream>
 </pkgmetadata>

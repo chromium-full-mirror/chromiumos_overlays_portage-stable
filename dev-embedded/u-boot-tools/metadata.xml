@@ -12,4 +12,7 @@
 	<use>
 		<flag name="envtools">Build only the target-side environment tools</flag>
 	</use>
+	<upstream>
+		<remote-id type="cpe">cpe:/a:denx:u-boot</remote-id>
+	</upstream>
 </pkgmetadata>

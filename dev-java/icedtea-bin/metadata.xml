@@ -12,4 +12,7 @@
 	<use>
 		<flag name="headless-awt">Don't install the X backend for AWT, needed by some GUIs (used to be X flag)</flag>
 	</use>
+	<upstream>
+		<remote-id type="cpe">cpe:/a:redhat:icedtea</remote-id>
+	</upstream>
 </pkgmetadata>

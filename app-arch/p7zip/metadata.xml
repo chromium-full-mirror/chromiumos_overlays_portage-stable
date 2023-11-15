@@ -9,5 +9,6 @@
   </use>
   <upstream>
     <remote-id type="sourceforge">p7zip</remote-id>
+    <remote-id type="cpe">cpe:/a:7-zip:p7zip</remote-id>
   </upstream>
 </pkgmetadata>

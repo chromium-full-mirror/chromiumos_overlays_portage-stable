@@ -10,5 +10,6 @@
 	</use>
 	<upstream>
 		<remote-id type="github">SELinuxProject/setools</remote-id>
+		<remote-id type="cpe">cpe:/a:selinuxproject:setools</remote-id>
 	</upstream>
 </pkgmetadata>

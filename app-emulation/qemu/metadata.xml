@@ -79,5 +79,6 @@
 	</use>
 	<upstream>
 		<remote-id type="gitlab">qemu-project/qemu</remote-id>
+		<remote-id type="cpe">cpe:/a:qemu:qemu</remote-id>
 	</upstream>
 </pkgmetadata>

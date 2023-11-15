@@ -11,5 +11,6 @@
 	</maintainer>
 	<upstream>
 		<remote-id type="github">akheron/jansson</remote-id>
+		<remote-id type="cpe">cpe:/a:jansson_project:jansson</remote-id>
 	</upstream>
 </pkgmetadata>
