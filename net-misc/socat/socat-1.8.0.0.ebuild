@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit autotools flag-o-matic toolchain-funcs
+inherit edo flag-o-matic toolchain-funcs
 
 MY_P=${P/_beta/-b}
 DESCRIPTION="Multipurpose relay (SOcket CAT)"
@@ -16,28 +16,19 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="ipv6 readline ssl tcpd"
 
-DEPEND="ssl? ( >=dev-libs/openssl-3:0= )
+DEPEND="
+	ssl? ( >=dev-libs/openssl-3:= )
 	readline? ( sys-libs/readline:= )
-	tcpd? ( sys-apps/tcp-wrappers )"
+	tcpd? ( sys-apps/tcp-wrappers )
+"
 RDEPEND="${DEPEND}"
 
 # Tests are a large bash script
 # Hard to disable individual tests needing network or privileges
 # in 1.7.4.2: FAILED:  59 329
-RESTRICT="test"
+#RESTRICT="test"
 
 DOCS=( BUGREPORTS CHANGES DEVELOPMENT EXAMPLES FAQ FILES PORTING README SECURITY )
-
-PATCHES=(
-	"${FILESDIR}/${PN}-1.7.4.4-configure-gcc.patch"
-	"${FILESDIR}/${PN}-1.7.4.4-large-file-support.patch"
-)
-
-src_prepare() {
-	default
-
-	eautoreconf
-}
 
 src_configure() {
 	# bug #293324
@@ -45,11 +36,18 @@ src_configure() {
 
 	tc-export AR
 
-	econf \
-		$(use_enable ssl openssl) \
-		$(use_enable readline) \
-		$(use_enable ipv6 ip6) \
+	local myeconfargs=(
+		$(use_enable ssl openssl)
+		$(use_enable readline)
+		$(use_enable ipv6 ip6)
 		$(use_enable tcpd libwrap)
+	)
+
+	econf "${myeconfargs[@]}"
+}
+
+src_test() {
+	edo ./test.sh -v --expect-fail 217,311,313,410,478,528
 }
 
 src_install() {
