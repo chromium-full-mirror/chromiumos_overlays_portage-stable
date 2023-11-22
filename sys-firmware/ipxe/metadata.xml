@@ -23,5 +23,6 @@
 	</use>
 	<upstream>
 		<remote-id type="github">ipxe/ipxe</remote-id>
+		<remote-id type="cpe">cpe:/o:ipxe:ipxe</remote-id>
 	</upstream>
 </pkgmetadata>
