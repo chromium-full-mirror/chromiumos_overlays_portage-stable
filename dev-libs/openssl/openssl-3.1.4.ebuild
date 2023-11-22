@@ -3,7 +3,7 @@
 
 EAPI=7
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/openssl.org.asc
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
 inherit edo flag-o-matic linux-info toolchain-funcs
 inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig
 
@@ -84,7 +84,7 @@ src_unpack() {
 	# Can delete this once test fix patch is dropped
 	if use verify-sig ; then
 		# Needed for downloaded patch (which is unsigned, which is fine)
-		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.gz{,.asc}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.gz{,.asc}
 	fi
 
 	default
@@ -224,16 +224,18 @@ multilib_src_test() {
 }
 
 multilib_src_install() {
-	emake DESTDIR="${D}" install_sw
+	# Only -j1 is supported for the install targets:
+	# https://github.com/openssl/openssl/issues/21999#issuecomment-1771150305
+	emake DESTDIR="${D}" -j1 install_sw
 	if use fips; then
-		emake DESTDIR="${D}" install_fips
+		emake DESTDIR="${D}" -j1 install_fips
 		# Regen this in pkg_preinst, bug 900625
 		rm "${ED}${SSL_CNF_DIR}"/fipsmodule.cnf || die
 	fi
 
 	if multilib_is_native_abi; then
-		emake DESTDIR="${D}" install_ssldirs
-		emake DESTDIR="${D}" DOCDIR='$(INSTALLTOP)'/share/doc/${PF} install_docs
+		emake DESTDIR="${D}" -j1 install_ssldirs
+		emake DESTDIR="${D}" DOCDIR='$(INSTALLTOP)'/share/doc/${PF} -j1 install_docs
 	fi
 
 	# This is crappy in that the static archives are still built even
