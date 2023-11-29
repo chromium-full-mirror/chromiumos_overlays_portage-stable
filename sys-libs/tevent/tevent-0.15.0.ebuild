@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..12} )
+PYTHON_COMPAT=( python3_{8..12} )
 PYTHON_REQ_USE="threads(+)"
 inherit waf-utils multilib-minimal python-single-r1
 
@@ -16,9 +16,9 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="python test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="test !test? ( test )"
+RESTRICT="!test? ( test )"
 
-TALLOC_VERSION="2.4.0"
+TALLOC_VERSION="2.4.1"
 
 RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
@@ -54,13 +54,19 @@ check_samba_dep_versions() {
 
 src_prepare() {
 	default
+
 	check_samba_dep_versions
+
+	if use test ; then
+		# TODO: Fix python tests to run w/ USE=python.
+		# (depsite the name. bindings.py is just for Python tests.)
+		truncate -s0 bindings.py || die
+	fi
+
 	multilib_copy_sources
 }
 
 multilib_src_configure() {
-	MAKEOPTS+=" -j1"
-
 	# When specifying libs for samba build you must append NONE to the end to
 	# stop it automatically including things
 	local bundled_libs="NONE"

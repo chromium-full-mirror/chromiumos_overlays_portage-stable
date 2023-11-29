@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..12} )
 PYTHON_REQ_USE="threads(+)"
 inherit waf-utils python-single-r1 multilib-minimal
 
@@ -14,10 +14,10 @@ SRC_URI="https://www.samba.org/ftp/${PN}/${P}.tar.gz"
 LICENSE="GPL-3 LGPL-3+ LGPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="compat +python"
+IUSE="compat +python test valgrind"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!elibc_SunOS? (
@@ -27,7 +27,11 @@ RDEPEND="
 	)
 	python? ( ${PYTHON_DEPS} )
 "
-DEPEND="${RDEPEND}"
+# Valgrind is automagic here but it's a build-only dep so it's not so bad.
+DEPEND="
+	${RDEPEND}
+	valgrind? ( dev-util/valgrind )
+"
 BDEPEND="
 	${PYTHON_DEPS}
 	dev-libs/libxslt
@@ -42,7 +46,7 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 pkg_setup() {
-	# try to turn off distcc and ccache for people that have a problem with it
+	# Try to turn off distcc and ccache for people that have a problem with it
 	export DISTCC_DISABLE=1
 	export CCACHE_DISABLE=1
 
@@ -59,7 +63,12 @@ src_prepare() {
 		sed -i "s/name = bld.pyembed_libname('pytalloc-util')/name = 'pytalloc-util'/" wscript || die
 	fi
 
-	# what would you expect of waf? i won't even waste time trying.
+	if use test ; then
+		# TODO: Fix python tests to run w/ USE=python.
+		truncate -s0 test_pytalloc.py || die
+	fi
+
+	# WAF
 	multilib_copy_sources
 }
 
