@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -8,27 +8,26 @@ inherit meson
 KEYWORDS="*"
 MY_P="${PN}-v${PV}"
 SRC_URI="https://gitlab.freedesktop.org/slirp/libslirp/-/archive/v${PV}/${MY_P}.tar.gz -> ${P}.tar.gz"
-DESCRIPTION="A general purpose TCP-IP emulator used by virtual machine hypervisors to provide virtual networking services."
+DESCRIPTION="A TCP-IP emulator used to provide virtual networking services"
 HOMEPAGE="https://gitlab.freedesktop.org/slirp/libslirp"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="static-libs"
+IUSE="static-libs valgrind"
 
 RDEPEND="dev-libs/glib:="
-
-DEPEND="${RDEPEND}"
+# Valgrind usage is automagic but it's not so bad given it's a header-only dep.
+DEPEND="
+	${RDEPEND}
+	valgrind? ( dev-util/valgrind )
+"
 
 S=${WORKDIR}/${MY_P}
 
-PATCHES=(
-	"${FILESDIR}/libslirp-4.3.1-bug-756910-check-pkt_len.patch"
-)
-
 src_prepare() {
-	default
 	echo "${PV}" > .tarball-version || die
 	echo -e "#!${BASH}\necho -n \$(cat '${S}/.tarball-version')" > build-aux/git-version-gen || die
+	default
 }
 
 src_configure() {
