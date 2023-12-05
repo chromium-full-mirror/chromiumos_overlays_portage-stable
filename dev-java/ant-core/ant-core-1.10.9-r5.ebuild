@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,8 +9,9 @@ JAVA_ANT_DISABLE_ANT_CORE_DEP="true"
 # Rewriting build.xml files for the testcases has no use at the moment.
 JAVA_PKG_BSFIX_ALL="no"
 JAVA_PKG_IUSE="doc source"
+MAVEN_ID="org.apache.ant:ant:1.10.9"
 
-inherit eutils java-pkg-2 java-ant-2 prefix
+inherit java-pkg-2 java-ant-2 prefix
 
 MY_P="apache-ant-${PV}"
 
@@ -24,14 +25,34 @@ SLOT="0"
 KEYWORDS="*"
 
 CDEPEND=">=virtual/jdk-1.8:*"
-DEPEND="${CDEPEND}"
+DEPEND="${CDEPEND}
+	doc? (
+		dev-java/bcel:0
+		dev-java/bsf:2.3
+		dev-java/commons-logging:0
+		dev-java/commons-net:0
+		dev-java/jakarta-activation-api:1
+		dev-java/jakarta-regexp:1.4
+		dev-java/jakarta-oro:2.0
+		dev-java/jdepend:0
+		dev-java/jsch:0
+		dev-java/log4j-12-api:2
+		dev-java/javax-mail:0
+		dev-java/sun-jai-bin:0
+		dev-java/xalan:0
+		dev-java/xml-commons-resolver:0
+		dev-java/xz-java:0
+	)"
 RDEPEND="${CDEPEND}"
 
 S="${WORKDIR}/${MY_P}"
 
 RESTRICT="test"
 
-PATCHES=( "${WORKDIR}/${PV}-build.patch" "${WORKDIR}/${PV}-launch.patch" )
+PATCHES=(
+	"${WORKDIR}/${PV}-build.patch"
+	"${WORKDIR}/${PV}-launch.patch"
+)
 
 src_prepare() {
 	default
@@ -67,8 +88,40 @@ src_compile() {
 		bsyscp="-Dbuild.sysclasspath=ignore"
 	fi
 
-	CLASSPATH="$(java-config -t)" ./build.sh ${bsyscp} jars dist-internal \
-		$(use_doc javadocs) || die "build failed"
+	CLASSPATH="$(java-config -t)" ./build.sh ${bsyscp} jars dist-internal ||
+		die "build failed"
+
+	if use doc; then
+		# All Java packages imported by the source files need to present in
+		# the classpath, otherwise it would be https://bugs.gentoo.org/780531
+		local doc_deps=(
+			bcel
+			bsf-2.3
+			commons-logging
+			commons-net
+			jakarta-activation-api-1
+			jakarta-oro-2.0
+			jakarta-regexp-1.4
+			jdepend
+			jsch
+			log4j-12-api-2
+			javax-mail
+			sun-jai-bin
+			xalan
+			xml-commons-resolver
+			xz-java
+		)
+		for dep in "${doc_deps[@]}"; do
+			java-pkg_jar-from --build-only --into lib/optional/ "${dep}"
+		done
+		# This file imports netrexx.lang.Rexx, which is not available
+		# from ::gentoo.  Fortunately, there is not a dev-java/ant-*
+		# package for it, so even if we could generate documentation
+		# for it, it would be irrelevant
+		rm src/main/org/apache/tools/ant/taskdefs/optional/NetRexxC.java ||
+			die "Failed to remove Java source file blocking Javadoc generation"
+		./build.sh ${bsyscp} javadocs || die "Javadoc build failed"
+	fi
 }
 
 src_install() {
