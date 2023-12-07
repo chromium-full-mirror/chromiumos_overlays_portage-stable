@@ -36,22 +36,28 @@ SLOT="${PV:0:4}"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
-RDEPEND=">=dev-lang/perl-5.6
+RDEPEND="
+	>=dev-lang/perl-5.6
 	>=sys-devel/automake-wrapper-11
 	>=sys-devel/autoconf-2.69:*
-	sys-devel/gnuconfig"
+	sys-devel/gnuconfig
+"
+DEPEND="${RDEPEND}"
 BDEPEND="
 	app-alternatives/gzip
 	sys-apps/help2man
-	sys-devel/autoconf-wrapper
-	sys-devel/autoconf
-	test? ( ${PYTHON_DEPS} )
+	test? (
+		${PYTHON_DEPS}
+		dev-util/dejagnu
+	)
 "
 
 PATCHES=(
-	"${FILESDIR}"/automake-1.16.2-py3-compile.patch
-	"${FILESDIR}"/automake-1.16.2-fix-instmany-python.sh-test.patch
-	"${FILESDIR}"/automake-1.16.2-fix-py-compile-basedir.sh-test.patch
+	"${FILESDIR}"/${PN}-1.16.5-py3-compile.patch
+	"${FILESDIR}"/${PN}-1.16.5-fix-instmany-python.sh-test.patch
+	"${FILESDIR}"/${PN}-1.16.5-fix-py-compile-basedir.sh-test.patch
+	"${FILESDIR}"/${PN}-1.16.5-apostrophe-in-tests.patch
+	"${FILESDIR}"/${PN}-1.16.5-parallel-build.patch
 )
 
 pkg_setup() {

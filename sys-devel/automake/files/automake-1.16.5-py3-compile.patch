@@ -1,3 +1,5 @@
+https://git.savannah.gnu.org/cgit/automake.git/commit/?h=bde43d0481ff540418271ac37012a574a4fcf097
+
 From aa449bd4c836abf0320033c5077259fc760b622d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
 Date: Sun, 3 Nov 2019 11:51:19 +0100
@@ -68,6 +70,6 @@ index e56d98d6e..5b9ae5d5d 100755
 +        py_compile.compile(filepath, $import_call(filepath), path)
      else:
          py_compile.compile(filepath, filepath + 'o', path)
- sys.stdout.write('\n')" 2>/dev/null || :
+ sys.stdout.write('\n')" 2>/dev/null || exit $?
 -- 
 2.25.2
