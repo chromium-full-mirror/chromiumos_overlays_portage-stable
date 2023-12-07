@@ -55,6 +55,10 @@ DEPEND="${RDEPEND}
 	)"
 BDEPEND="virtual/pkgconfig"
 
+PATCHES=(
+	"${FILESDIR}"/portage-utils-0.96.1-qmerge-Send-ewarn-etc-to-stderr.patch
+)
+
 pkg_setup() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
 }
