@@ -5,7 +5,7 @@ EAPI=7
 
 # Note: Please bump this in sync with dev-libs/libxml2.
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 inherit flag-o-matic python-r1 multilib-minimal
 
 DESCRIPTION="XSLT libraries and tools"
@@ -39,7 +39,9 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/libxslt/xsltconfig.h
 )
 
-DOCS=( AUTHORS FEATURES NEWS README TODO )
+PATCHES=(
+	"${FILESDIR}"/${P}-libxml2-2.11-tests.patch
+)
 
 src_prepare() {
 	default
@@ -96,7 +98,7 @@ multilib_src_test() {
 	default
 
 	if multilib_is_native_abi && use python ; then
-		python_foreach_impl run_in_build_dir libxslt_py_emake test
+		python_foreach_impl run_in_build_dir libxslt_py_emake check
 	fi
 }
 

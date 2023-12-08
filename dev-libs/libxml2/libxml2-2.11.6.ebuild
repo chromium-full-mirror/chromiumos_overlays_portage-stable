@@ -5,9 +5,9 @@ EAPI=7
 
 # Note: Please bump in sync with dev-libs/libxslt
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 PYTHON_REQ_USE="xml(+)"
-inherit flag-o-matic python-r1 multilib-minimal toolchain-funcs
+inherit flag-o-matic python-r1 multilib-minimal
 
 XSTS_HOME="http://www.w3.org/XML/2004/xml-schema-test-suite"
 XSTS_NAME_1="xmlschema2002-01-16"
@@ -31,7 +31,8 @@ SRC_URI+="
 		${XSTS_HOME}/${XSTS_NAME_1}/${XSTS_TARBALL_1}
 		${XSTS_HOME}/${XSTS_NAME_2}/${XSTS_TARBALL_2}
 		https://www.w3.org/XML/Test/${XMLCONF_TARBALL}
-	)"
+	)
+"
 S="${WORKDIR}/${PN}-${PV%_rc*}"
 
 LICENSE="MIT"
@@ -40,11 +41,14 @@ IUSE="debug examples +ftp icu lzma +python readline static-libs test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-RDEPEND=">=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
+RDEPEND="
+	virtual/libiconv
+	>=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
 	icu? ( >=dev-libs/icu-51.2-r1:=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:=[${MULTILIB_USEDEP}] )
 	python? ( ${PYTHON_DEPS} )
-	readline? ( sys-libs/readline:= )"
+	readline? ( sys-libs/readline:= )
+"
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
@@ -56,9 +60,9 @@ MULTILIB_CHOST_TOOLS=(
 	/usr/bin/xml2-config
 )
 
-PATCHES=( "${FILESDIR}"/${PN}-2.10.3-python3-unicode-errors.patch )
-
-DOCS=( NEWS README.md TODO TODO_SCHEMAS python/TODO )
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.11.5-CVE-2023-45322.patch
+)
 
 src_unpack() {
 	if [[ ${PV} == 9999 ]] ; then
@@ -71,7 +75,7 @@ src_unpack() {
 		unpack ${tarname}
 
 		if [[ -n ${PATCHSET_VERSION} ]] ; then
-			unpack ${PN}-${PATCHSET_VERSION}.tar.bz2
+			unpack ${PN}-${PATCHSET_VERSION}.tar.xz
 		fi
 	fi
 
@@ -101,13 +105,6 @@ src_prepare() {
 multilib_src_configure() {
 	# Filter seemingly problematic CFLAGS (bug #26320)
 	filter-flags -fprefetch-loop-arrays -funroll-loops
-
-	# ideally we want !tc-ld-is-bfd for best future-proofing, but it needs
-	# https://github.com/gentoo/gentoo/pull/28355
-	# mold needs this too but right now tc-ld-is-mold is also not available
-	if tc-ld-is-lld; then
-		append-ldflags -Wl,--undefined-version
-	fi
 
 	# Notes:
 	# The meaning of the 'debug' USE flag does not apply to the --with-debug
