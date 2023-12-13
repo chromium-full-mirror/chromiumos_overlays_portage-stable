@@ -7,6 +7,5 @@
 	</maintainer>
 	<upstream>
 		<remote-id type="cpe">cpe:/a:gnu:make</remote-id>
-		<remote-id type="savannah">make</remote-id>
 	</upstream>
 </pkgmetadata>
