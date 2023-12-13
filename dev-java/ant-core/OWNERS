@@ -1,2 +1,0 @@
-# Only one package pulls this in.
-include chromiumos/overlays/chromiumos-overlay:/chromeos-base/android-sdk/OWNERS
