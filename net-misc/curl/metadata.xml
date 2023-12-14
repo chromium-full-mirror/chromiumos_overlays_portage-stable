@@ -11,7 +11,6 @@
 	</maintainer>
 	<use>
 		<flag name="alt-svc">Enable alt-svc support</flag>
-		<flag name="brotli">Enable brotli compression support</flag>
 		<flag name="ftp">Enable FTP support</flag>
 		<flag name="gnutls">Enable gnutls ssl backend</flag>
 		<flag name="gopher">Enable Gopher protocol support</flag>
@@ -20,7 +19,6 @@
 		<flag name="imap">Enable Internet Message Access Protocol support</flag>
 		<flag name="mbedtls">Enable mbedtls ssl backend</flag>
 		<flag name="nghttp3">Enable HTTP/3.0 support using <pkg>net-libs/nghttp3</pkg> and <pkg>net-libs/ngtcp2</pkg></flag>
-		<flag name="nss">Enable nss ssl backend</flag>
 		<flag name="openssl">Enable openssl ssl backend</flag>
 		<flag name="pop3">Enable Post Office Protocol 3 support</flag>
 		<flag name="progress-meter">Enable the progress meter</flag>
@@ -33,7 +31,6 @@
 		<flag name="telnet">Enable Telnet protocol support</flag>
 		<flag name="tftp">Enable TFTP support</flag>
 		<flag name="websockets">Enable websockets support</flag>
-		<flag name="zstd">Enable zstd compression</flag>
 	</use>
 	<upstream>
 		<remote-id type="cpe">cpe:/a:curl:curl</remote-id>
