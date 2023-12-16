@@ -1,27 +1,31 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit bash-completion-r1 libtool
+inherit autotools bash-completion-r1 flag-o-matic
 
 DESCRIPTION="Libraries and applications to access smartcards"
 HOMEPAGE="https://github.com/OpenSC/OpenSC/wiki"
-SRC_URI="https://github.com/OpenSC/OpenSC/releases/download/${PV}/${P}.tar.gz"
+
+if [[ ${PV} == *9999 ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/OpenSC/OpenSC.git"
+else
+	SRC_URI="https://github.com/OpenSC/OpenSC/releases/download/${PV}/${P}.tar.gz"
+	KEYWORDS="*"
+fi
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="*"
-IUSE="ctapi doc libressl openct notify +pcsc-lite readline secure-messaging ssl test zlib"
+IUSE="ctapi doc openct notify pace +pcsc-lite readline secure-messaging ssl test zlib"
 RESTRICT="!test? ( test )"
 
 RDEPEND="zlib? ( sys-libs/zlib )
 	readline? ( sys-libs/readline:0= )
-	ssl? (
-		!libressl? ( dev-libs/openssl:0= )
-		libressl? ( >=dev-libs/libressl-3.1.0:0= )
-	)
+	ssl? ( dev-libs/openssl:0= )
 	openct? ( >=dev-libs/openct-0.5.0 )
+	pace? ( dev-libs/openpace:= )
 	pcsc-lite? ( >=sys-apps/pcsc-lite-1.3.0 )
 	notify? ( dev-libs/glib:2 )"
 DEPEND="${RDEPEND}
@@ -36,22 +40,31 @@ REQUIRED_USE="
 	ctapi? ( !pcsc-lite !openct )
 	|| ( pcsc-lite openct ctapi )"
 
+PATCHES=(
+	"${FILESDIR}"/${P}-CVE-2023-2977.patch
+	"${FILESDIR}"/${P}-backport-pr2656.patch
+)
+
 src_prepare() {
 	default
-	elibtoolize
+	eautoreconf
 }
 
 src_configure() {
+	# don't want to run upstream's clang-tidy checks
+	export ac_cv_path_CLANGTIDY=""
+
+	append-lfs-flags
+
 	econf \
 		--with-completiondir="$(get_bashcompdir)" \
-		--disable-openpace \
-		--disable-static \
 		--disable-strict \
 		--enable-man \
 		$(use_enable ctapi) \
 		$(use_enable doc) \
-		$(use_enable notify ) \
+		$(use_enable notify) \
 		$(use_enable openct) \
+		$(use_enable pace openpace) \
 		$(use_enable pcsc-lite pcsc) \
 		$(use_enable readline) \
 		$(use_enable secure-messaging sm) \
@@ -62,5 +75,9 @@ src_configure() {
 
 src_install() {
 	default
-	find "${D}" -name '*.la' -delete || die
+
+	insinto /etc/pkcs11/modules/
+	doins "${FILESDIR}"/opensc.module
+
+	find "${ED}" -name '*.la' -delete || die
 }
