@@ -1,11 +1,11 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 DIST_AUTHOR=PMQS
 DIST_TEST=parallel
-DIST_VERSION=2.202
+DIST_VERSION=2.206
 inherit perl-module
 
 DESCRIPTION="Low-Level Interface to zlib compression library"
@@ -15,7 +15,7 @@ KEYWORDS="*"
 
 # We use the bundled version of zlib as the minimum version for the system copy
 # Check on bumps! Look in https://github.com/pmqs/Compress-Raw-Zlib/commits/master/zlib-src.
-RDEPEND=">=sys-libs/zlib-1.2.12"
+RDEPEND=">=sys-libs/zlib-1.2.13"
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/perl-ExtUtils-MakeMaker"
 
