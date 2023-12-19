@@ -1,9 +1,9 @@
-# Copyright 2004-2022 Gentoo Authors
+# Copyright 2004-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 # NEED_BOOTSTRAP is for developers to quickly generate a tarball
 # for publishing to the tree.
 NEED_BOOTSTRAP="no"
@@ -13,7 +13,7 @@ DESCRIPTION="Extended crypt library for descrypt, md5crypt, bcrypt, and others"
 HOMEPAGE="https://github.com/besser82/libxcrypt"
 if [[ ${NEED_BOOTSTRAP} == "yes" ]] ; then
 	inherit autotools
-	SRC_URI="https://github.com/besser82/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/besser82/libxcrypt/releases/download/v${PV}/${P}.tar.xz"
 else
 	SRC_URI="https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-autotools.tar.xz"
 fi
@@ -21,7 +21,7 @@ fi
 LICENSE="LGPL-2.1+ public-domain BSD BSD-2"
 SLOT="0/1"
 KEYWORDS="*"
-IUSE="+compat split-usr static-libs system test headers-only"
+IUSE="+compat split-usr static-libs +system test headers-only"
 REQUIRED_USE="split-usr? ( system )"
 RESTRICT="!test? ( test )"
 
@@ -37,19 +37,23 @@ is_cross() {
 	[[ "${#enabled_abis[@]}" -le 1 ]] && [[ ${CHOST} != ${CTARGET} ]]
 }
 
-DEPEND="system? (
+DEPEND="
+	system? (
 		elibc_glibc? (
 			${CATEGORY}/glibc[-crypt(+)]
 			!${CATEGORY}/glibc[crypt(+)]
 		)
 		elibc_musl? (
+			${CATEGORY}/musl[-crypt(+)]
 			!${CATEGORY}/musl[crypt(+)]
 		)
 	)
 "
 RDEPEND="${DEPEND}"
-BDEPEND="dev-lang/perl
-	test? ( $(python_gen_any_dep 'dev-python/passlib[${PYTHON_USEDEP}]') )"
+BDEPEND="
+	dev-lang/perl
+	test? ( $(python_gen_any_dep 'dev-python/passlib[${PYTHON_USEDEP}]') )
+"
 
 python_check_deps() {
 	python_has_version "dev-python/passlib[${PYTHON_USEDEP}]"
@@ -118,10 +122,6 @@ src_prepare() {
 		eapply "${FILESDIR}"/${PN}-4.4.19-multibuild.patch
 		eautoreconf
 	fi
-
-	# Backport from newer libxcrypt to become compatible with Perl >=5.38
-	eapply "${FILESDIR}"/${PN}-4.4.35-smartmatch.patch
-	eapply "${FILESDIR}"/${PN}-4.4.35-buildcommon-smartmatch.patch
 }
 
 src_configure() {
@@ -132,6 +132,13 @@ src_configure() {
 	# Doesn't work with LTO: bug #852917.
 	# https://github.com/besser82/libxcrypt/issues/24
 	filter-lto
+
+	# ideally we want !tc-ld-is-bfd for best future-proofing, but it needs
+	# https://github.com/gentoo/gentoo/pull/28355
+	# mold needs this too but right now tc-ld-is-mold is also not available
+	if tc-ld-is-lld; then
+		append-ldflags -Wl,--undefined-version
+	fi
 
 	multibuild_foreach_variant multilib-minimal_src_configure
 }
@@ -189,13 +196,6 @@ multilib_src_configure() {
 		fi
 	fi
 
-	if use elibc_musl; then
-		# musl declares getcontext and swapcontext in ucontext.h,
-		# but does not implement them in libc.
-		# https://bugs.gentoo.org/838172
-		myconf+=( ac_cv_header_ucontext_h=no )
-	fi
-
 	case "${MULTIBUILD_ID}" in
 		xcrypt_compat-*)
 			myconf+=(
@@ -215,7 +215,7 @@ multilib_src_configure() {
 
 	if use headers-only; then
 		# Nothing is compiled here which would affect the headers for the target.
-		# So forcing CC is ok.
+		# So forcing CC is sane.
 		headers_only_flags="CC=$(tc-getBUILD_CC)"
 	fi
 
@@ -324,17 +324,17 @@ pkg_preinst() {
 	# is cleaned up in *_src_install.
 	local broken_symlinks=()
 	mapfile -d '' broken_symlinks < <(
-		find "${ED}" -type l ! -exec test -e {} \; -print0 2>/dev/null
+		find "${ED}" -xtype l -print0
 	)
 
-	[[ -z "${broken_symlinks[@]}" ]] && return
-
-	eerror "Broken symlinks found before merging!"
-	for symlink in "${broken_symlinks[@]}" ; do
-		bad_dest="$(readlink -f ${symlink})"
-		eerror "\t${symlink} is broken!"
-		eerror "\treadlink -f ${symlink}:"
-		eerror "\t\t${bad_dest}"
+	if [[ ${#broken_symlinks[@]} -gt 0 ]]; then
+		eerror "Broken symlinks found before merging!"
+		local symlink target resolved
+		for symlink in "${broken_symlinks[@]}" ; do
+			target="$(readlink "${symlink}")"
+			resolved="$(readlink -f "${symlink}")"
+			eerror "  '${symlink}' -> '${target}' (${resolved})"
+		done
 		die "Broken symlinks found! Aborting to avoid damaging system. Please report a bug."
-	done
+	fi
 }
