@@ -118,6 +118,10 @@ src_prepare() {
 		eapply "${FILESDIR}"/${PN}-4.4.19-multibuild.patch
 		eautoreconf
 	fi
+
+	# Backport from newer libxcrypt to become compatible with Perl >=5.38
+	eapply "${FILESDIR}"/${PN}-4.4.35-smartmatch.patch
+	eapply "${FILESDIR}"/${PN}-4.4.35-buildcommon-smartmatch.patch
 }
 
 src_configure() {
