@@ -27,9 +27,14 @@ SLOT="0"
 # in the generated library. Easily hit with non-standard compiler flags
 RESTRICT="test"
 
-DEPEND="~dev-util/spirv-headers-${PV}"
+DEPEND="
+	~dev-util/spirv-headers-${PV}
+	~dev-util/vulkan-headers-${PV}
+"
 RDEPEND=""
 BDEPEND="${PYTHON_DEPS}"
+
+PATCHES=("${FILESDIR}/GITHUB-PR-5512-vksp_passes.patch")
 
 multilib_src_configure() {
 	local mycmakeargs=(
