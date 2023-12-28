@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for Compress-Raw-Zlib
+EAPI=7
+KEYWORDS=*
+RDEPEND=~perl-core/Compress-Raw-Zlib-2.206.0 dev-lang/perl:= !<perl-core/Compress-Raw-Zlib-2.206.0 !>perl-core/Compress-Raw-Zlib-2.206.0-r999
+SLOT=0
+_md5_=e8dc4fcfa941f4450b3b9e2540fb188e

@@ -9,7 +9,7 @@ KEYWORDS=*
 LICENSE=|| ( Artistic GPL-1+ )
 PDEPEND=>=app-admin/perl-cleaner-2.30 !minimal? ( >=virtual/perl-CPAN-2.290.0 >=virtual/perl-Encode-3.120.0 >=virtual/perl-File-Temp-0.230.400-r2 >=virtual/perl-Data-Dumper-2.154.0 virtual/perl-Test-Harness )
 RDEPEND=berkdb? ( sys-libs/db:= ) gdbm? ( >=sys-libs/gdbm-1.8.3:= ) app-arch/bzip2 >=sys-libs/zlib-1.2.12 virtual/libcrypt:=
-SLOT=0/5.36
-SRC_URI=mirror://cpan/src/5.0/perl-5.36.1.tar.xz mirror://cpan/authors/id/R/RJ/RJBS/perl-5.36.1.tar.xz https://github.com/gentoo-perl/perl-patchset/releases/download/perl-5.36.0-patches-1/perl-5.36.0-patches-1.tar.xz https://dev.gentoo.org/~dilfridge/distfiles/perl-5.36.0-patches-1.tar.xz https://github.com/arsv/perl-cross/releases/download/1.4.1/perl-cross-1.4.1.tar.gz
+SLOT=0/5.38
+SRC_URI=mirror://cpan/src/5.0/perl-5.38.0.tar.xz mirror://cpan/authors/id/R/RJ/RJBS/perl-5.38.0.tar.xz https://github.com/gentoo-perl/perl-patchset/archive/refs/tags/perl-5.38.0-patches-1.tar.gz https://dev.gentoo.org/~dilfridge/distfiles/perl-5.38.0-patches-1.tar.gz https://github.com/arsv/perl-cross/releases/download/1.5/perl-cross-1.5.tar.gz
 _eclasses_=alternatives	eb864f6e50a20036e4cd47c8fd8f64d1	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=4b5dd4d56b1cf5bfee70b5ecb577538d
+_md5_=b5a47ed18c46e626d1dc6bfbf9b6b7de

@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for Scalar::Util and List::Util, also distributed as Scalar::List::Utils
+EAPI=7
+KEYWORDS=*
+RDEPEND=|| ( =dev-lang/perl-5.38* ~perl-core/Scalar-List-Utils-1.630.0 ) dev-lang/perl:= !<perl-core/Scalar-List-Utils-1.630.0 !>perl-core/Scalar-List-Utils-1.630.0-r999
+SLOT=0
+_md5_=c14f2f8e159a703f74f7513977f4396a
