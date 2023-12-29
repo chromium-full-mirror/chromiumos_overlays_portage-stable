@@ -1,0 +1,278 @@
+commit d5acd42cb7cdaa5d0f2c5f739208eeeed395f491
+Author: Dmitry Sidorov <dmitry.sidorov@intel.com>
+Date:   Wed Dec 6 17:54:06 2023 +0100
+
+    Update SPV_INTEL_long_composites tokens (#375)
+    
+    Signed-off-by: Sidorov, Dmitry <dmitry.sidorov@intel.com>
+
+diff --git a/include/spirv/unified1/spirv.bf b/include/spirv/unified1/spirv.bf
+index a4ce964..9193fe3 100644
+--- a/include/spirv/unified1/spirv.bf
++++ b/include/spirv/unified1/spirv.bf
+@@ -1197,7 +1197,7 @@ namespace Spv
+             GroupNonUniformRotateKHR = 6026,
+             AtomicFloat32AddEXT = 6033,
+             AtomicFloat64AddEXT = 6034,
+-            LongConstantCompositeINTEL = 6089,
++            LongCompositesINTEL = 6089,
+             OptNoneINTEL = 6094,
+             AtomicFloat16AddEXT = 6095,
+             DebugInfoModuleINTEL = 6114,
+@@ -2094,6 +2094,7 @@ namespace Spv
+             OpTypeStructContinuedINTEL = 6090,
+             OpConstantCompositeContinuedINTEL = 6091,
+             OpSpecConstantCompositeContinuedINTEL = 6092,
++            OpCompositeConstructContinuedINTEL = 6096,
+             OpConvertFToBF16INTEL = 6116,
+             OpConvertBF16ToFINTEL = 6117,
+             OpControlBarrierArriveINTEL = 6142,
+diff --git a/include/spirv/unified1/spirv.core.grammar.json b/include/spirv/unified1/spirv.core.grammar.json
+index 4dc955e..2aa0532 100644
+--- a/include/spirv/unified1/spirv.core.grammar.json
++++ b/include/spirv/unified1/spirv.core.grammar.json
+@@ -9564,7 +9564,7 @@
+       "operands" : [
+         { "kind" : "IdRef",    "quantifier" : "*", "name" : "'Member 0 type', +\n'member 1 type', +\n..." }
+       ],
+-      "capabilities" : [ "LongConstantCompositeINTEL" ],
++      "capabilities" : [ "LongCompositesINTEL" ],
+       "version" : "None"
+     },
+     {
+@@ -9574,7 +9574,7 @@
+       "operands" : [
+         { "kind" : "IdRef",        "quantifier" : "*", "name" : "'Constituents'" }
+       ],
+-      "capabilities" : [ "LongConstantCompositeINTEL" ],
++      "capabilities" : [ "LongCompositesINTEL" ],
+       "version" : "None"
+     },
+     {
+@@ -9584,9 +9584,21 @@
+       "operands" : [
+         { "kind" : "IdRef",        "quantifier" : "*", "name" : "'Constituents'" }
+       ],
+-      "capabilities" : [ "LongConstantCompositeINTEL" ],
++      "capabilities" : [ "LongCompositesINTEL" ],
+       "version" : "None"
+     },
++    {
++      "opname" : "OpCompositeConstructContinuedINTEL",
++      "class"  : "Composite",
++      "opcode" : 6096,
++      "operands" : [
++        { "kind" : "IdResultType" },
++        { "kind" : "IdResult" },
++        { "kind" : "IdRef",        "quantifier" : "*", "name" : "'Constituents'" }
++      ],
++      "capabilities" : [ "LongCompositesINTEL" ],
++      "version": "None"
++    },
+     {
+       "opname" : "OpConvertFToBF16INTEL",
+       "class"  : "Conversion",
+@@ -16224,9 +16236,9 @@
+           "version" : "None"
+         },
+         {
+-          "enumerant" : "LongConstantCompositeINTEL",
++          "enumerant" : "LongCompositesINTEL",
+           "value" : 6089,
+-          "extensions" : [ "SPV_INTEL_long_constant_composite" ],
++          "extensions" : [ "SPV_INTEL_long_composites" ],
+           "version" : "None"
+         },
+         {
+diff --git a/include/spirv/unified1/spirv.cs b/include/spirv/unified1/spirv.cs
+index 4465628..1d0d6e9 100644
+--- a/include/spirv/unified1/spirv.cs
++++ b/include/spirv/unified1/spirv.cs
+@@ -1196,7 +1196,7 @@ namespace Spv
+             GroupNonUniformRotateKHR = 6026,
+             AtomicFloat32AddEXT = 6033,
+             AtomicFloat64AddEXT = 6034,
+-            LongConstantCompositeINTEL = 6089,
++            LongCompositesINTEL = 6089,
+             OptNoneINTEL = 6094,
+             AtomicFloat16AddEXT = 6095,
+             DebugInfoModuleINTEL = 6114,
+@@ -2093,6 +2093,7 @@ namespace Spv
+             OpTypeStructContinuedINTEL = 6090,
+             OpConstantCompositeContinuedINTEL = 6091,
+             OpSpecConstantCompositeContinuedINTEL = 6092,
++            OpCompositeConstructContinuedINTEL = 6096,
+             OpConvertFToBF16INTEL = 6116,
+             OpConvertBF16ToFINTEL = 6117,
+             OpControlBarrierArriveINTEL = 6142,
+diff --git a/include/spirv/unified1/spirv.h b/include/spirv/unified1/spirv.h
+index a171871..684999d 100644
+--- a/include/spirv/unified1/spirv.h
++++ b/include/spirv/unified1/spirv.h
+@@ -1196,7 +1196,7 @@ typedef enum SpvCapability_ {
+     SpvCapabilityGroupNonUniformRotateKHR = 6026,
+     SpvCapabilityAtomicFloat32AddEXT = 6033,
+     SpvCapabilityAtomicFloat64AddEXT = 6034,
+-    SpvCapabilityLongConstantCompositeINTEL = 6089,
++    SpvCapabilityLongCompositesINTEL = 6089,
+     SpvCapabilityOptNoneINTEL = 6094,
+     SpvCapabilityAtomicFloat16AddEXT = 6095,
+     SpvCapabilityDebugInfoModuleINTEL = 6114,
+@@ -2090,6 +2090,7 @@ typedef enum SpvOp_ {
+     SpvOpTypeStructContinuedINTEL = 6090,
+     SpvOpConstantCompositeContinuedINTEL = 6091,
+     SpvOpSpecConstantCompositeContinuedINTEL = 6092,
++    SpvOpCompositeConstructContinuedINTEL = 6096,
+     SpvOpConvertFToBF16INTEL = 6116,
+     SpvOpConvertBF16ToFINTEL = 6117,
+     SpvOpControlBarrierArriveINTEL = 6142,
+@@ -2813,6 +2814,7 @@ inline void SpvHasResultAndType(SpvOp opcode, bool *hasResult, bool *hasResultTy
+     case SpvOpTypeStructContinuedINTEL: *hasResult = false; *hasResultType = false; break;
+     case SpvOpConstantCompositeContinuedINTEL: *hasResult = false; *hasResultType = false; break;
+     case SpvOpSpecConstantCompositeContinuedINTEL: *hasResult = false; *hasResultType = false; break;
++    case SpvOpCompositeConstructContinuedINTEL: *hasResult = true; *hasResultType = true; break;
+     case SpvOpConvertFToBF16INTEL: *hasResult = true; *hasResultType = true; break;
+     case SpvOpConvertBF16ToFINTEL: *hasResult = true; *hasResultType = true; break;
+     case SpvOpControlBarrierArriveINTEL: *hasResult = false; *hasResultType = false; break;
+diff --git a/include/spirv/unified1/spirv.hpp b/include/spirv/unified1/spirv.hpp
+index 5507f47..e85f942 100644
+--- a/include/spirv/unified1/spirv.hpp
++++ b/include/spirv/unified1/spirv.hpp
+@@ -1192,7 +1192,7 @@ enum Capability {
+     CapabilityGroupNonUniformRotateKHR = 6026,
+     CapabilityAtomicFloat32AddEXT = 6033,
+     CapabilityAtomicFloat64AddEXT = 6034,
+-    CapabilityLongConstantCompositeINTEL = 6089,
++    CapabilityLongCompositesINTEL = 6089,
+     CapabilityOptNoneINTEL = 6094,
+     CapabilityAtomicFloat16AddEXT = 6095,
+     CapabilityDebugInfoModuleINTEL = 6114,
+@@ -2086,6 +2086,7 @@ enum Op {
+     OpTypeStructContinuedINTEL = 6090,
+     OpConstantCompositeContinuedINTEL = 6091,
+     OpSpecConstantCompositeContinuedINTEL = 6092,
++    OpCompositeConstructContinuedINTEL = 6096,
+     OpConvertFToBF16INTEL = 6116,
+     OpConvertBF16ToFINTEL = 6117,
+     OpControlBarrierArriveINTEL = 6142,
+@@ -2809,6 +2810,7 @@ inline void HasResultAndType(Op opcode, bool *hasResult, bool *hasResultType) {
+     case OpTypeStructContinuedINTEL: *hasResult = false; *hasResultType = false; break;
+     case OpConstantCompositeContinuedINTEL: *hasResult = false; *hasResultType = false; break;
+     case OpSpecConstantCompositeContinuedINTEL: *hasResult = false; *hasResultType = false; break;
++    case OpCompositeConstructContinuedINTEL: *hasResult = true; *hasResultType = true; break;
+     case OpConvertFToBF16INTEL: *hasResult = true; *hasResultType = true; break;
+     case OpConvertBF16ToFINTEL: *hasResult = true; *hasResultType = true; break;
+     case OpControlBarrierArriveINTEL: *hasResult = false; *hasResultType = false; break;
+diff --git a/include/spirv/unified1/spirv.hpp11 b/include/spirv/unified1/spirv.hpp11
+index e49e491..2a52ddf 100644
+--- a/include/spirv/unified1/spirv.hpp11
++++ b/include/spirv/unified1/spirv.hpp11
+@@ -1192,7 +1192,7 @@ enum class Capability : unsigned {
+     GroupNonUniformRotateKHR = 6026,
+     AtomicFloat32AddEXT = 6033,
+     AtomicFloat64AddEXT = 6034,
+-    LongConstantCompositeINTEL = 6089,
++    LongCompositesINTEL = 6089,
+     OptNoneINTEL = 6094,
+     AtomicFloat16AddEXT = 6095,
+     DebugInfoModuleINTEL = 6114,
+@@ -2086,6 +2086,7 @@ enum class Op : unsigned {
+     OpTypeStructContinuedINTEL = 6090,
+     OpConstantCompositeContinuedINTEL = 6091,
+     OpSpecConstantCompositeContinuedINTEL = 6092,
++    OpCompositeConstructContinuedINTEL = 6096,
+     OpConvertFToBF16INTEL = 6116,
+     OpConvertBF16ToFINTEL = 6117,
+     OpControlBarrierArriveINTEL = 6142,
+@@ -2809,6 +2810,7 @@ inline void HasResultAndType(Op opcode, bool *hasResult, bool *hasResultType) {
+     case Op::OpTypeStructContinuedINTEL: *hasResult = false; *hasResultType = false; break;
+     case Op::OpConstantCompositeContinuedINTEL: *hasResult = false; *hasResultType = false; break;
+     case Op::OpSpecConstantCompositeContinuedINTEL: *hasResult = false; *hasResultType = false; break;
++    case Op::OpCompositeConstructContinuedINTEL: *hasResult = true; *hasResultType = true; break;
+     case Op::OpConvertFToBF16INTEL: *hasResult = true; *hasResultType = true; break;
+     case Op::OpConvertBF16ToFINTEL: *hasResult = true; *hasResultType = true; break;
+     case Op::OpControlBarrierArriveINTEL: *hasResult = false; *hasResultType = false; break;
+diff --git a/include/spirv/unified1/spirv.json b/include/spirv/unified1/spirv.json
+index f1ad055..660d6f3 100644
+--- a/include/spirv/unified1/spirv.json
++++ b/include/spirv/unified1/spirv.json
+@@ -1172,7 +1172,7 @@
+                     "GroupNonUniformRotateKHR": 6026,
+                     "AtomicFloat32AddEXT": 6033,
+                     "AtomicFloat64AddEXT": 6034,
+-                    "LongConstantCompositeINTEL": 6089,
++                    "LongCompositesINTEL": 6089,
+                     "OptNoneINTEL": 6094,
+                     "AtomicFloat16AddEXT": 6095,
+                     "DebugInfoModuleINTEL": 6114,
+@@ -2088,6 +2088,7 @@
+                     "OpTypeStructContinuedINTEL": 6090,
+                     "OpConstantCompositeContinuedINTEL": 6091,
+                     "OpSpecConstantCompositeContinuedINTEL": 6092,
++                    "OpCompositeConstructContinuedINTEL": 6096,
+                     "OpConvertFToBF16INTEL": 6116,
+                     "OpConvertBF16ToFINTEL": 6117,
+                     "OpControlBarrierArriveINTEL": 6142,
+diff --git a/include/spirv/unified1/spirv.lua b/include/spirv/unified1/spirv.lua
+index d4ca2fa..69c3d65 100644
+--- a/include/spirv/unified1/spirv.lua
++++ b/include/spirv/unified1/spirv.lua
+@@ -1154,7 +1154,7 @@ spv = {
+         GroupNonUniformRotateKHR = 6026,
+         AtomicFloat32AddEXT = 6033,
+         AtomicFloat64AddEXT = 6034,
+-        LongConstantCompositeINTEL = 6089,
++        LongCompositesINTEL = 6089,
+         OptNoneINTEL = 6094,
+         AtomicFloat16AddEXT = 6095,
+         DebugInfoModuleINTEL = 6114,
+@@ -2030,6 +2030,7 @@ spv = {
+         OpTypeStructContinuedINTEL = 6090,
+         OpConstantCompositeContinuedINTEL = 6091,
+         OpSpecConstantCompositeContinuedINTEL = 6092,
++        OpCompositeConstructContinuedINTEL = 6096,
+         OpConvertFToBF16INTEL = 6116,
+         OpConvertBF16ToFINTEL = 6117,
+         OpControlBarrierArriveINTEL = 6142,
+diff --git a/include/spirv/unified1/spirv.py b/include/spirv/unified1/spirv.py
+index c842bbf..179e9b2 100644
+--- a/include/spirv/unified1/spirv.py
++++ b/include/spirv/unified1/spirv.py
+@@ -1154,7 +1154,7 @@ spv = {
+         'GroupNonUniformRotateKHR' : 6026,
+         'AtomicFloat32AddEXT' : 6033,
+         'AtomicFloat64AddEXT' : 6034,
+-        'LongConstantCompositeINTEL' : 6089,
++        'LongCompositesINTEL' : 6089,
+         'OptNoneINTEL' : 6094,
+         'AtomicFloat16AddEXT' : 6095,
+         'DebugInfoModuleINTEL' : 6114,
+@@ -2030,6 +2030,7 @@ spv = {
+         'OpTypeStructContinuedINTEL' : 6090,
+         'OpConstantCompositeContinuedINTEL' : 6091,
+         'OpSpecConstantCompositeContinuedINTEL' : 6092,
++        'OpCompositeConstructContinuedINTEL' : 6096,
+         'OpConvertFToBF16INTEL' : 6116,
+         'OpConvertBF16ToFINTEL' : 6117,
+         'OpControlBarrierArriveINTEL' : 6142,
+diff --git a/include/spirv/unified1/spv.d b/include/spirv/unified1/spv.d
+index 238caac..b570d6e 100644
+--- a/include/spirv/unified1/spv.d
++++ b/include/spirv/unified1/spv.d
+@@ -1199,7 +1199,7 @@ enum Capability : uint
+     GroupNonUniformRotateKHR = 6026,
+     AtomicFloat32AddEXT = 6033,
+     AtomicFloat64AddEXT = 6034,
+-    LongConstantCompositeINTEL = 6089,
++    LongCompositesINTEL = 6089,
+     OptNoneINTEL = 6094,
+     AtomicFloat16AddEXT = 6095,
+     DebugInfoModuleINTEL = 6114,
+@@ -2096,6 +2096,7 @@ enum Op : uint
+     OpTypeStructContinuedINTEL = 6090,
+     OpConstantCompositeContinuedINTEL = 6091,
+     OpSpecConstantCompositeContinuedINTEL = 6092,
++    OpCompositeConstructContinuedINTEL = 6096,
+     OpConvertFToBF16INTEL = 6116,
+     OpConvertBF16ToFINTEL = 6117,
+     OpControlBarrierArriveINTEL = 6142,

@@ -15,4 +15,7 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
 
-PATCHES=("${FILESDIR}/GITHUB-4183b26-ClspvReflection_add_NormalizedSamplerMaskPushConstant.patch")
+PATCHES=(
+	"${FILESDIR}/GITHUB-4183b26-ClspvReflection_add_NormalizedSamplerMaskPushConstant.patch"
+	"${FILESDIR}/GITHUB-d5acd42-Update_SPV_INTEL_long_composites_tokens.patch"
+)
