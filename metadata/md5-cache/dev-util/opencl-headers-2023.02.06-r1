@@ -1,11 +1,13 @@
 BDEPEND=>=dev-util/ninja-1.8.2 >=dev-util/cmake-3.20.5
 DEFINED_PHASES=compile configure install prepare test
-DESCRIPTION=Machine-readable files for the SPIR-V Registry
+DESCRIPTION=Unified C language headers for the OpenCL API
 EAPI=7
-HOMEPAGE=https://registry.khronos.org/SPIR-V/
+HOMEPAGE=https://github.com/KhronosGroup/OpenCL-Headers
+IUSE=test
 KEYWORDS=*
-LICENSE=MIT
+LICENSE=Apache-2.0
+RESTRICT=!test? ( test )
 SLOT=0
-SRC_URI=https://github.com/KhronosGroup/SPIRV-Headers/archive/sdk-1.3.261.tar.gz -> spirv-headers-1.3.261.tar.gz
+SRC_URI=https://github.com/KhronosGroup/OpenCL-Headers/archive/refs/tags/v2023.02.06.tar.gz -> opencl-headers-2023.02.06.tar.gz
 _eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
-_md5_=9c11063dbeb7ed3d5253de547feb201d
+_md5_=c0c40adab8665bbb4ec1e79450eef008
