@@ -5,6 +5,10 @@
 		<email>jeffrey@icurse.nl</email>
 		<name>Jeffrey Lin</name>
 	</maintainer>
+	<maintainer type="person" proxied="yes">
+		<email>marbacz@gmail.com</email>
+		<name>Marcin Baczyński</name>
+	</maintainer>
 	<maintainer type="project" proxied="proxy">
 		<email>proxy-maint@gentoo.org</email>
 		<name>Proxy Maintainers</name>
