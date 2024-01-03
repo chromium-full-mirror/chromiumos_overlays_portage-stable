@@ -21,10 +21,6 @@ RESTRICT="!test? ( test )"
 
 S="${WORKDIR}"/${MY_P}
 
-PATCHES=(
-	"${FILESDIR}/UPSTREAM-8de09e8-update_extension_headers_for_the_latest_xml_file_240.patch"
-)
-
 src_configure() {
 	local mycmakeargs=(
 		-DBUILD_TESTING=$(usex test)
