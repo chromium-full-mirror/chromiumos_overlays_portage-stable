@@ -37,6 +37,12 @@ MULTILIB_CHOST_TOOLS=(
 	/usr/bin/pkgconf$(get_exeext)
 )
 
+# CHROMIUM: See b/317357322
+PATCHES=(
+	"${FILESDIR}/0001-pkg-split-pkgconf_pkg_traverse-into-a-serial-modifyi.patch"
+	"${FILESDIR}/0002-Use-traverse_id-to-prevent-traverse-pkgdep-twice.patch"
+)
+
 src_prepare() {
 	default
 
