@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -14,7 +14,7 @@ KEYWORDS="*"
 IUSE="bzip2 truetype"
 
 RDEPEND="sys-libs/zlib
-	dev-libs/libbsd
+	elibc_glibc? ( || ( >=sys-libs/glibc-2.38 dev-libs/libbsd ) )
 	x11-libs/libfontenc
 	bzip2? ( app-arch/bzip2 )
 	truetype? ( >=media-libs/freetype-2 )"

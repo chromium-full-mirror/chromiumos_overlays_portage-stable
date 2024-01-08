@@ -8,7 +8,6 @@ inherit meson-multilib
 if [[ ${PV} == *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://gitlab.freedesktop.org/cairo/cairo.git"
-	SRC_URI=""
 else
 	SRC_URI="https://gitlab.freedesktop.org/cairo/cairo/-/archive/${PV}/cairo-${PV}.tar.bz2"
 	KEYWORDS="*"
