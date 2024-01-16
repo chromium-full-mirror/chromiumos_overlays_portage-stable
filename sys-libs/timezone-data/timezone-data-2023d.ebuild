@@ -61,7 +61,7 @@ src_configure() {
 	if use nls ; then
 		# See if an external libintl is available. bug #154181, bug #578424
 		local c="${T}/test"
-		echo 'main(){}' > "${c}.c" || die
+		echo 'int main(){}' > "${c}.c" || die
 		if $(tc-getCC) ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} "${c}.c" -o "${c}" -lintl 2>/dev/null ; then
 			LDLIBS+=" -lintl"
 		fi
@@ -77,10 +77,9 @@ _emake() {
 }
 
 src_compile() {
+	tc-export AR CC RANLIB
+
 	_emake \
-		AR="$(tc-getAR)" \
-		cc="$(tc-getCC)" \
-		RANLIB="$(tc-getRANLIB)" \
 		CFLAGS="${CFLAGS} -std=gnu99 ${CPPFLAGS}" \
 		LDFLAGS="${LDFLAGS}" \
 		LDLIBS="${LDLIBS}"
@@ -88,7 +87,7 @@ src_compile() {
 	if tc-is-cross-compiler ; then
 		_emake -C "${S}"-native \
 			AR="$(tc-getBUILD_AR)" \
-			cc="$(tc-getBUILD_CC)" \
+			CC="$(tc-getBUILD_CC)" \
 			RANLIB="$(tc-getBUILD_RANLIB)" \
 			CFLAGS="${BUILD_CFLAGS} ${BUILD_CPPFLAGS}" \
 			LDFLAGS="${BUILD_LDFLAGS}" \
