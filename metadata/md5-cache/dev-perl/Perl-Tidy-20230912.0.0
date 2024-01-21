@@ -1,0 +1,14 @@
+BDEPEND=virtual/perl-ExtUtils-MakeMaker dev-lang/perl
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=dev-lang/perl
+DESCRIPTION=Perl script indenter and beautifier
+EAPI=7
+HOMEPAGE=https://perltidy.sourceforge.net/ https://metacpan.org/release/Perl-Tidy
+IUSE=examples
+KEYWORDS=*
+LICENSE=GPL-2+
+RDEPEND=dev-lang/perl:=
+SLOT=0
+SRC_URI=mirror://cpan/authors/id/S/SH/SHANCOCK/Perl-Tidy-20230912.tar.gz
+_eclasses_=multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	perl-functions	6ec4c4d8fc8324200f1c14e8d158c59b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
+_md5_=19b76961d954a79d80659eeee78a99f6
