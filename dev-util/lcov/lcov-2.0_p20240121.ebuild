@@ -13,7 +13,7 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/linux-test-project/lcov.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/linux-test-project/lcov/releases/download/v${PV}/${P}.tar.gz"
+	SRC_URI="gs://chromeos-localmirror/distfiles/${P}.tar.gz"
 	KEYWORDS="*"
 fi
 
@@ -46,7 +46,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${P}-wrong-error-code.patch
+	"${FILESDIR}"/${P}-test-CC.patch
 )
 
 python_check_deps() {
@@ -71,7 +71,7 @@ src_test() {
 }
 
 src_install() {
-	emake -j1 \
+	tc-env_build emake -j1 \
 		DESTDIR="${D}" \
 		CFG_DIR="${EPREFIX}/etc" \
 		PREFIX="${EPREFIX}/usr" \
