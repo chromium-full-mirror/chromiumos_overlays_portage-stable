@@ -6,8 +6,6 @@
 
 third_party {
   security {
-    # Not applicable to ChromeOS per vapier@: http://b/315975961#comment7
-    mitigated_security_patch: "CVE-2023-2861"
     # ChromeOS > Infra > Build
     tag: "vuln_reporting:buganizer_component:1027774"
   }
