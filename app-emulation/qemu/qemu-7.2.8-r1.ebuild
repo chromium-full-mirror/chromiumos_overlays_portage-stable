@@ -273,6 +273,7 @@ BDEPEND="
 	$(python_gen_impl_dep)
 	dev-lang/perl
 	>=dev-util/meson-0.64
+	dev-util/ninja
 	sys-apps/texinfo
 	virtual/pkgconfig
 	doc? (
