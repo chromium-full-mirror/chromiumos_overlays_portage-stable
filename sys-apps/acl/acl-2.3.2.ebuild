@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -7,9 +7,9 @@ inherit flag-o-matic libtool multilib-minimal usr-ldscript
 
 DESCRIPTION="Access control list utilities, libraries, and headers"
 HOMEPAGE="https://savannah.nongnu.org/projects/acl"
-SRC_URI="mirror://nongnu/${PN}/${P}.tar.gz"
+SRC_URI="mirror://nongnu/${PN}/${P}.tar.xz"
 
-LICENSE="LGPL-2.1"
+LICENSE="LGPL-2.1+ GPL-2"
 SLOT="0"
 KEYWORDS="*"
 IUSE="nls static-libs"
@@ -28,14 +28,14 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	# Filter out -flto flags as they break getfacl/setfacl binaries
-	# bug #667372
-	filter-flags -flto*
+	# Filter out -flto flags as they break getfacl/setfacl binaries (bug #667372)
+	filter-lto
 
 	local myeconfargs=(
 		--bindir="${EPREFIX}"/bin
-		$(use_enable static-libs static)
 		--libexecdir="${EPREFIX}"/usr/$(get_libdir)
+		--enable-largefile
+		$(use_enable static-libs static)
 		$(use_enable nls)
 	)
 
