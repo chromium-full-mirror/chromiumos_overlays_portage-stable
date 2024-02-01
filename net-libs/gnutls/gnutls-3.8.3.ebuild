@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/gnutls.asc
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnutls.asc
 inherit libtool multilib-minimal verify-sig
 
 DESCRIPTION="A secure communications library implementing the SSL, TLS and DTLS protocols"
@@ -12,59 +12,68 @@ SRC_URI="mirror://gnupg/gnutls/v$(ver_cut 1-2)/${P}.tar.xz"
 SRC_URI+=" verify-sig? ( mirror://gnupg/gnutls/v$(ver_cut 1-2)/${P}.tar.xz.sig )"
 
 LICENSE="GPL-3 LGPL-2.1+"
-SLOT="0/30.30" # <libgnutls.so number>.<libgnutlsxx.so number>
+# As of 3.8.0, the C++ library is header-only, but we won't drop the subslot
+# component for it until libgnutls.so breaks ABI, to avoid pointless rebuilds.
+# Subslot format:
+# <libgnutls.so number>.<libgnutlsxx.so number>
+SLOT="0/30.30"
 KEYWORDS="*"
-IUSE="brotli +cxx dane doc examples guile +idn nls +openssl pkcs11 seccomp sslv2 sslv3 static-libs test test-full +tls-heartbeat tools valgrind zlib zstd"
-
-REQUIRED_USE="test-full? ( cxx dane doc examples guile idn nls openssl pkcs11 seccomp tls-heartbeat tools )"
+IUSE="brotli +cxx dane doc examples +idn nls +openssl pkcs11 seccomp sslv2 sslv3 static-libs test test-full +tls-heartbeat tools zlib zstd"
+REQUIRED_USE="test-full? ( cxx dane doc examples idn nls openssl pkcs11 seccomp tls-heartbeat tools )"
 RESTRICT="!test? ( test )"
 
-RDEPEND=">=dev-libs/libtasn1-4.9:=[${MULTILIB_USEDEP}]
+RDEPEND="
+	>=dev-libs/libtasn1-4.9:=[${MULTILIB_USEDEP}]
 	dev-libs/libunistring:=[${MULTILIB_USEDEP}]
 	>=dev-libs/nettle-3.6:=[gmp,${MULTILIB_USEDEP}]
 	>=dev-libs/gmp-5.1.3-r1:=[${MULTILIB_USEDEP}]
 	brotli? ( >=app-arch/brotli-1.0.0:=[${MULTILIB_USEDEP}] )
 	dane? ( >=net-dns/unbound-1.4.20:=[${MULTILIB_USEDEP}] )
-	guile? ( >=dev-scheme/guile-2:=[networking] )
 	nls? ( >=virtual/libintl-0-r1:=[${MULTILIB_USEDEP}] )
 	pkcs11? ( >=app-crypt/p11-kit-0.23.1[${MULTILIB_USEDEP}] )
 	idn? ( >=net-dns/libidn2-0.16-r1:=[${MULTILIB_USEDEP}] )
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )
-	zstd? ( >=app-arch/zstd-1.3.0:=[${MULTILIB_USEDEP}] )"
-DEPEND="${RDEPEND}
+	zstd? ( >=app-arch/zstd-1.3.0:=[${MULTILIB_USEDEP}] )
+"
+DEPEND="
+	${RDEPEND}
 	test? (
 		seccomp? ( sys-libs/libseccomp )
-	)"
+	)
+"
 BDEPEND="
 	dev-util/gtk-doc-am
 	>=virtual/pkgconfig-0-r1
 	doc? ( dev-util/gtk-doc )
 	nls? ( sys-devel/gettext )
-	valgrind? ( dev-util/valgrind )
 	test-full? (
 		app-crypt/dieharder
-		>=app-misc/datefudge-1.22
+		|| ( sys-libs/libfaketime >=app-misc/datefudge-1.22 )
 		dev-libs/softhsm:2[-bindist(-)]
 		net-dialup/ppp
 		net-misc/socat
 	)
-	verify-sig? ( >=sec-keys/openpgp-keys-gnutls-20221017 )"
+	verify-sig? ( >=sec-keys/openpgp-keys-gnutls-20231129 )
+"
 
 DOCS=( README.md doc/certtool.cfg )
 
 HTML_DOCS=()
 
-pkg_setup() {
-	# bug #520818
-	export TZ=UTC
-
-	use doc && HTML_DOCS+=(
-		doc/gnutls.html
-	)
-}
+QA_CONFIG_IMPL_DECL_SKIP=(
+	# gnulib FPs
+	MIN
+	alignof
+	static_assert
+)
 
 src_prepare() {
 	default
+
+	# bug #520818
+	export TZ=UTC
+
+	use doc && HTML_DOCS+=( doc/gnutls.html )
 
 	# don't try to use system certificate store on macOS, it is
 	# confusingly ignoring our ca-certificates and more importantly
@@ -92,24 +101,20 @@ multilib_src_configure() {
 	#   complains about duplicate symbols
 	[[ ${CHOST} == *-darwin* ]] && libconf+=( --disable-hardware-acceleration )
 
-	# Cygwin as does not understand these asm files at all
-	[[ ${CHOST} == *-cygwin* ]] && libconf+=( --disable-hardware-acceleration )
-
 	# -fanalyzer substantially slows down the build and isn't useful for
 	# us. It's useful for upstream as it's static analysis, but it's not
 	# useful when just getting something built.
 	export gl_cv_warn_c__fanalyzer=no
 
 	local myeconfargs=(
+		--disable-valgrind-tests
 		$(multilib_native_enable manpages)
 		$(multilib_native_use_enable doc gtk-doc)
 		$(multilib_native_use_enable doc)
-		$(multilib_native_use_enable guile)
 		$(multilib_native_use_enable seccomp seccomp-tests)
 		$(multilib_native_use_enable test tests)
 		$(multilib_native_use_enable test-full full-test-suite)
 		$(multilib_native_use_enable tools)
-		$(multilib_native_use_enable valgrind valgrind-tests)
 		$(use_enable cxx)
 		$(use_enable dane libdane)
 		$(use_enable nls)
