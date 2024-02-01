@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -14,13 +14,13 @@ if [[ ${PV} == 9999 ]]; then
 	S="${WORKDIR}"/${PN}
 	PROPERTIES="live"
 else
-	SRC_PV="$(printf "%u%02u%02u%02u" $(ver_rs 1- " "))"
+	printf -v SRC_PV "%u%02u%02u%02u" $(ver_rs 1- " ")
 	DOC_PV="${SRC_PV}"
-	#DOC_PV="$(printf "%u%02u%02u00" $(ver_rs 1-3 " "))"
+	#printf -v DOC_PV "%u%02u%02u00" $(ver_rs 1-3 " ")
 
 	SRC_URI="
-		https://sqlite.org/2022/${PN}-src-${SRC_PV}.zip
-		doc? ( https://sqlite.org/2022/${PN}-doc-${DOC_PV}.zip )
+		https://sqlite.org/2023/${PN}-src-${SRC_PV}.zip
+		doc? ( https://sqlite.org/2023/${PN}-doc-${DOC_PV}.zip )
 	"
 	S="${WORKDIR}/${PN}-src-${SRC_PV}"
 
@@ -51,7 +51,7 @@ else
 fi
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-3.39.4-icu-72-test.patch
+	"${FILESDIR}"/${PN}-3.44.2-tracker-regression.patch
 )
 
 _fossil_fetch() {
@@ -364,9 +364,10 @@ multilib_src_test() {
 	# e_uri.test tries to open files in /.
 	# bug #839798
 	local SANDBOX_PREDICT=${SANDBOX_PREDICT}
-	addpredict "/test.db:/ÿ.db"
+	addpredict "/test.db"
+	addpredict "/ÿ.db"
 
-	emake HAVE_TCL="$(usex tcl 1 "")" $(usex debug 'fulltest' 'test')
+	emake -Onone HAVE_TCL="$(usex tcl 1 "")" $(usex debug 'fulltest' 'test')
 }
 
 multilib_src_install() {
