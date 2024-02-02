@@ -1,2 +1,3 @@
-simmonsjosh@google.com
-dats@chromium.org
+# Ad-hoc owners group based on a few packages that dep on sqlite:
+amoylan@chromium.org  # platform2/federated
+kerker@chromium.org   # platform2/heartd
