@@ -1,4 +1,4 @@
-BDEPEND=!cros_host? ( chromeos-base/chromite-sdk dev-python/psutil sys-apps/iproute2 sys-apps/proot sys-libs/libcap-ng !amd64? ( !x86? ( app-emulation/qemu ) ) ) >=dev-util/meson-0.58.2-r1 >=dev-util/ninja-1.8.2 dev-util/meson-format-array
+BDEPEND=!cros_host? ( dev-python/psutil sys-apps/iproute2 sys-apps/proot sys-libs/libcap-ng !amd64? ( !x86? ( app-emulation/qemu ) ) ) >=dev-util/meson-0.58.2-r1 >=dev-util/ninja-1.8.2 dev-util/meson-format-array
 DEFINED_PHASES=compile configure install test
 DEPEND=!cros_host? ( dev-lang/python )
 DESCRIPTION=LC3 is an efficient low latency audio codec
@@ -9,5 +9,5 @@ KEYWORDS=*
 LICENSE=Apache-2.0
 SLOT=0
 SRC_URI=https://github.com/google/liblc3/archive/refs/tags/v1.0.3.tar.gz -> liblc3-1.0.3.tar.gz
-_eclasses_=meson	e68978cf8efc3aa7dd92a23c9df4bcf3	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	d678a5689cd5cb02c8e3a62fd8cc6ed2	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=meson	e68978cf8efc3aa7dd92a23c9df4bcf3	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=f99315f568ed9c47d6132869da84f474
