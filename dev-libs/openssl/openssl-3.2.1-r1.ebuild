@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -21,7 +21,10 @@ else
 		mirror://openssl/source/${MY_P}.tar.gz
 		verify-sig? ( mirror://openssl/source/${MY_P}.tar.gz.asc )
 	"
-	KEYWORDS="*"
+
+	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
+		KEYWORDS="*"
+	fi
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -40,7 +43,7 @@ BDEPEND="
 	sctp? ( >=net-misc/lksctp-tools-1.0.12 )
 	test? (
 		sys-apps/diffutils
-		sys-devel/bc
+		app-alternatives/bc
 		sys-process/procps
 	)
 	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20230801 )"
@@ -51,6 +54,10 @@ PDEPEND="app-misc/ca-certificates"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
+)
+
+PATCHES=(
+	"${FILESDIR}"/${P}-p11-segfault.patch
 )
 
 pkg_setup() {
@@ -227,9 +234,7 @@ multilib_src_test() {
 	# -j1 here for https://github.com/openssl/openssl/issues/21999, but it
 	# shouldn't matter as tests were already built earlier, and HARNESS_JOBS
 	# controls running the tests.
-	#
-	# test_symbol_presence: https://github.com/openssl/openssl/issues/22837
-	emake -Onone -j1 HARNESS_JOBS="$(makeopts_jobs)" VFP=1 TESTS='-test_symbol_presence' test
+	emake -Onone -j1 HARNESS_JOBS="$(makeopts_jobs)" VFP=1 test
 }
 
 multilib_src_install() {
