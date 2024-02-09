@@ -43,6 +43,23 @@ BDEPEND="
 
 S="${WORKDIR}/${PN}-${P}"
 
+src_prepare() {
+	default
+
+	# Don't use the hard coded `cpp`. We don't use tc-getCPP because it defaults
+	# to `gcc -E`, and the Makefile states that doesn't work.
+	local x cpp=
+	for x in {${CHOST}-,}{,clang-}cpp; do
+		if cpp="$(type -P "${x}")"; then
+			break
+		fi
+	done
+	[[ -n ${cpp} ]] || die "Unable to find cpp"
+
+	export CPP="${cpp}"
+	sed -i -e '/^CPP=/d' Makefile || die
+}
+
 src_compile() {
 	local implementation linux_pam_version
 	if has_version sys-libs/pam; then
