@@ -1,5 +1,5 @@
 BDEPEND=app-portage/portage-utils
-DEFINED_PHASES=compile install test
+DEFINED_PHASES=compile install prepare test
 DEPEND=sys-libs/pam
 DESCRIPTION=PAM base configuration files
 EAPI=7
@@ -12,4 +12,4 @@ REQUIRED_USE=?? ( consolekit elogind systemd )
 RESTRICT=binchecks
 SLOT=0
 SRC_URI=https://github.com/gentoo/pambase/archive/pambase-20190402.tar.gz
-_md5_=82649d76e00cdeb588abb9b66c4487d5
+_md5_=1f29aaa3e2a85e07e9d1be1acc739d13
