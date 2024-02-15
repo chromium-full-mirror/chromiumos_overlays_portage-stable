@@ -29,7 +29,6 @@ RDEPEND="
 	>=dev-python/py-${PY_VER}[${PYTHON_USEDEP}]
 	>=dev-python/setuptools-40[${PYTHON_USEDEP}]
 	>=dev-python/six-1.10.0[${PYTHON_USEDEP}]
-	virtual/python-funcsigs[${PYTHON_USEDEP}]
 	!dev-python/logilab-common"
 
 # flake & pytest-capturelog cause a number of tests to fail
