@@ -33,9 +33,7 @@ BDEPEND="sys-apps/texinfo"
 PATCHES=(
 	# Don't use utempter even if it is found on the system.
 	"${FILESDIR}"/${PN}-4.3.0-no-utempter.patch
-	"${FILESDIR}"/${PN}-4.6.2-utmp-exit.patch
-	"${FILESDIR}"/${PN}-4.9.0-configure-implicit-function-decls.patch
-	"${FILESDIR}"/${P}-CVE-2023-24626.patch
+	"${FILESDIR}"/${PN}-4.9.1-utmp-exit.patch
 )
 
 src_prepare() {
@@ -66,6 +64,7 @@ src_prepare() {
 }
 
 src_configure() {
+	append-lfs-flags
 	append-cppflags "-DMAXWIN=${MAX_SCREEN_WINDOWS:-100}"
 
 	if [[ ${CHOST} == *-solaris* ]]; then
