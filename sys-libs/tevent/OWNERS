@@ -1,1 +1,1 @@
-include chromiumos/platform2:/smbfs/OWNERS
+include chromiumos/owners:v1:/filesandstorage/OWNERS.filesandstorage
