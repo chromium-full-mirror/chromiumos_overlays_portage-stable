@@ -1,18 +1,27 @@
-# Copyright 2016-2023 Gentoo Authors
+# Copyright 2016-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..12} )
+PYTHON_COMPAT=( python3_{8..11} pypy3 )
 DISTUTILS_USE_PEP517=setuptools
 
 if [[ ${PV} = *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/mesonbuild/meson"
 	inherit git-r3
 else
+	inherit verify-sig
+
+	MY_PV=${PV/_/}
 	MY_P=${P/_/}
 	S=${WORKDIR}/${MY_P}
-	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${MY_P}.tar.gz"
+
+	SRC_URI="
+		https://github.com/mesonbuild/meson/releases/download/${MY_PV}/${MY_P}.tar.gz
+		verify-sig? ( https://github.com/mesonbuild/meson/releases/download/${MY_PV}/${MY_P}.tar.gz.asc )
+	"
+	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-jpakkane )"
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/jpakkane.gpg
 
 	if [[ ${PV} != *_rc* ]] ; then
 		KEYWORDS="*"
@@ -33,19 +42,21 @@ DEPEND="
 	test? (
 		dev-libs/glib:2
 		dev-libs/gobject-introspection
-		dev-util/ninja
+		app-alternatives/ninja
 		dev-vcs/git
 		sys-libs/zlib[static-libs(+)]
 		virtual/pkgconfig
 	)
 "
 RDEPEND="
-	dev-python/setuptools[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-0.63-xtools-support.patch
+	"${FILESDIR}"/${PN}-1.2.1-python-path.patch
+
+	# backport fix for hiding compiler warnings (such as Modern C) in vala and cython
+	"${FILESDIR}"/0001-ninja-backend-don-t-hide-all-compiler-warnings-for-t.patch
 )
 
 python_prepare_all() {
@@ -57,12 +68,6 @@ python_prepare_all() {
 		# ASAN is unsupported on some targets
 		# https://bugs.gentoo.org/692822
 		-e 's/test_pch_with_address_sanitizer/_&/'
-
-		# https://github.com/mesonbuild/meson/issues/7203
-		-e 's/test_templates/_&/'
-
-		# Broken due to python2 wrapper
-		-e 's/test_python_module/_&/'
 	)
 
 	sed -i "${disable_unittests[@]}" unittests/*.py || die
@@ -84,6 +89,11 @@ src_test() {
 
 python_test() {
 	(
+		# remove unwanted python_wrapper_setup contents
+		# We actually do want to non-error if python2 is installed and tested.
+		remove="${T}/${EPYTHON}/bin:"
+		PATH=${PATH/${remove}/}
+
 		# test_meson_installed
 		unset PYTHONDONTWRITEBYTECODE
 
@@ -103,8 +113,7 @@ python_test() {
 		# value in JAVA_HOME, and the tests should get skipped.
 		export JAVA_HOME=$(java-config -O 2>/dev/null)
 
-		# Call python3 instead of EPYTHON to satisfy test_meson_uninstalled.
-		python3 run_tests.py
+		${EPYTHON} -u run_tests.py
 	) || die "Testing failed with ${EPYTHON}"
 }
 
