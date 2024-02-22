@@ -226,9 +226,8 @@ perl_rm_files() {
 # only sense for perl-core packages.
 perl_link_duallife_scripts() {
 	debug-print-function $FUNCNAME "$@"
-	if [[ ${CATEGORY} != perl-core ]] || ! has_version ">=dev-lang/perl-5.8.8-r8" ; then
-		return 0
-	fi
+
+	[[ ${CATEGORY} != perl-core ]] && return 0
 
 	local i ff
 	if has "${EBUILD_PHASE:-none}" "postinst" "postrm" ; then
