@@ -11,5 +11,5 @@ RDEPEND=!minimal? ( >=dev-perl/List-MoreUtils-0.428.0 >=dev-perl/Params-Util-1.7
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/R/RE/REHSACK/File-ShareDir-1.118.tar.gz
-_eclasses_=multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	perl-functions	6ec4c4d8fc8324200f1c14e8d158c59b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
+_eclasses_=multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
 _md5_=5f1134066d7e7cadf354659fdf382b1d

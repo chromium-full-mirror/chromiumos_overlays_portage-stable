@@ -9,5 +9,5 @@ LICENSE=|| ( Artistic GPL-1+ )
 RDEPEND=>=dev-perl/XML-SAX-Base-1.50.0 >=dev-perl/XML-NamespaceSupport-0.30.0 >=dev-libs/libxml2-2.4.1 virtual/perl-File-Temp dev-lang/perl:=
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/G/GR/GRANTM/XML-SAX-1.02.tar.gz
-_eclasses_=multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	perl-functions	6ec4c4d8fc8324200f1c14e8d158c59b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
+_eclasses_=multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
 _md5_=afbf5fb375fab75107f3c126d769db3e
