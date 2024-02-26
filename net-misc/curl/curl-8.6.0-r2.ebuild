@@ -128,6 +128,7 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 )
 
 PATCHES=(
+	"${FILESDIR}"/${PN}-multi-sock-select-bits.patch
 	"${FILESDIR}"/${PN}-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
 	"${FILESDIR}"/${P}-vtls-revert-receive-max-buffer-add-test-case.patch
