@@ -7,10 +7,4 @@ DESCRIPTION="Virtual for awk implementation"
 SLOT="0"
 KEYWORDS="*"
 
-RDEPEND="
-	|| (
-		>=sys-apps/gawk-4.0.1-r1
-		sys-apps/mawk
-		sys-apps/nawk
-		sys-apps/busybox
-	)"
+RDEPEND="app-alternatives/awk"
