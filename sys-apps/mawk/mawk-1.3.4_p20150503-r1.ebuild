@@ -15,9 +15,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
 
-RDEPEND="app-eselect/eselect-awk"
-DEPEND="${RDEPEND}"
-
 S=${WORKDIR}/${MY_P}
 
 DOCS=( ACKNOWLEDGMENT CHANGES README )
@@ -35,9 +32,13 @@ src_install() {
 }
 
 pkg_postinst() {
-	eselect awk update ifunset
+	if has_version app-admin/eselect && has_version app-eselect/eselect-awk; then
+		eselect awk update ifunset
+	fi
 }
 
 pkg_postrm() {
-	eselect awk update ifunset
+	if has_version app-admin/eselect && has_version app-eselect/eselect-awk; then
+		eselect awk update ifunset
+	fi
 }
