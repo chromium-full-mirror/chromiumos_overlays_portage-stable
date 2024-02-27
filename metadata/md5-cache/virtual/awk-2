@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for awk implementation
+EAPI=7
+KEYWORDS=*
+RDEPEND=app-alternatives/awk
+SLOT=0
+_md5_=b39e5b648cca5971c76c48503d7c0b98
