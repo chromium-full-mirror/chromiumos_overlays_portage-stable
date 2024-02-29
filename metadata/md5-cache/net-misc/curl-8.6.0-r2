@@ -13,4 +13,4 @@ RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://curl.se/download/curl-8.6.0.tar.xz verify-sig? ( https://curl.se/download/curl-8.6.0.tar.xz.asc )
 _eclasses_=autotools	9adb87822e85056674b476e1090a72ae	libtool	f143db5a74ccd9ca28c1234deffede96	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	prefix	e51c7882b7b721e54e684f7eb143cbfe	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
-_md5_=45a9b9f428ac699e3870c417eb39c57e
+_md5_=ac51f94cafe7ac1ff1d7a1af1a24df15
