@@ -1,2 +1,1 @@
-sidereal@google.com
-hollingum@google.com
+include chromiumos/owners:v1:/guestos/OWNERS.all

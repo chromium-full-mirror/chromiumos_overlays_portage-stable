@@ -1,3 +1,1 @@
-davidmunro@google.com
-jamesye@google.com
-sidereal@google.com
+include chromiumos/owners:v1:/guestos/OWNERS.all
