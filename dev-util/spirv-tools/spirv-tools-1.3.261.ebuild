@@ -46,3 +46,15 @@ multilib_src_configure() {
 	append-lfs-flags
 	cmake_src_configure
 }
+
+multilib_src_install() {
+	# Install files needed by vksp
+	local DIR="/usr/include/spirv-tools/vksp"
+	dodir "${DIR}"
+	insinto "${DIR}"
+	doins "${BUILD_DIR}/extension_enum.inc"
+	doins "${BUILD_DIR}/NonSemanticShaderDebugInfo100.h"
+	doins "${BUILD_DIR}/OpenCLDebugInfo100.h"
+
+	cmake_src_install
+}

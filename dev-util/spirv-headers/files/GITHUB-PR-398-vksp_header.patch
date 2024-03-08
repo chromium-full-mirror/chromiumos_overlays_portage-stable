@@ -1,3 +1,29 @@
+commit 2e3dc2e17b591a5303aa73f316ffcfefb3516e11
+Author: Romaric Jodin <89833130+rjodinchr@users.noreply.github.com>
+Date:   Wed Jan 10 18:02:35 2024 +0100
+
+    Publish the header for the vulkan-shader-profiler embedded reflection… (#398)
+    
+    * Publish the header for the vulkan-shader-profiler embedded reflection non-semantic instruction set
+    
+    vulkan-shader-profiler is a tool based on perfetto to help vulkan
+    developer profil their applications.
+    First on the Host side using perfetto, but then using the extractor
+    and the runner, this tools allow to get inside about a shader using
+    counters (based on SPV_KHR_shader_clock)
+    
+    * Update include/spirv/unified1/NonSemanticVkspReflection.h
+    
+    Co-authored-by: Ben Ashbaugh <ben.ashbaugh@intel.com>
+    
+    * Revert "Update include/spirv/unified1/NonSemanticVkspReflection.h"
+    
+    This reverts commit 3c9c24db2949c59926bd25d777e10ab60ae2cb9c.
+    
+    ---------
+    
+    Co-authored-by: Ben Ashbaugh <ben.ashbaugh@intel.com>
+
 diff --git a/BUILD.bazel b/BUILD.bazel
 index c898ade..25634d9 100644
 --- a/BUILD.bazel
@@ -36,7 +62,7 @@ index be3f43b..c15c56e 100644
      "include/spirv/unified1/spirv.hpp",
 diff --git a/include/spirv/unified1/NonSemanticVkspReflection.h b/include/spirv/unified1/NonSemanticVkspReflection.h
 new file mode 100644
-index 0000000..7d73015
+index 0000000..47a279d
 --- /dev/null
 +++ b/include/spirv/unified1/NonSemanticVkspReflection.h
 @@ -0,0 +1,57 @@
@@ -85,9 +111,9 @@ index 0000000..7d73015
 +    NonSemanticVkspReflectionStopCounter = 3,
 +    NonSemanticVkspReflectionPushConstants = 4,
 +    NonSemanticVkspReflectionSpecializationMapEntry = 5,
-+    NonSemanticVkspReflectionDescriptorSetsBuffer = 6,
-+    NonSemanticVkspReflectionDescriptorSetsImage = 7,
-+    NonSemanticVkspReflectionDescriptorSetsSampler = 8,
++    NonSemanticVkspReflectionDescriptorSetBuffer = 6,
++    NonSemanticVkspReflectionDescriptorSetImage = 7,
++    NonSemanticVkspReflectionDescriptorSetSampler = 8,
 +    NonSemanticVkspReflectionInstructionsMax = 0x7fffffff
 +};
 +
