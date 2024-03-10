@@ -275,11 +275,11 @@ PPC_FIRMWARE_DEPEND="
 	)
 "
 
+# See bug #913084 for pip dep
 BDEPEND="
 	$(python_gen_impl_dep)
 	dev-lang/perl
 	>=dev-util/meson-0.63.0
-	dev-util/ninja
 	virtual/pkgconfig
 	doc? (
 		>=dev-python/sphinx-1.6.0[${PYTHON_USEDEP}]
@@ -301,7 +301,7 @@ CDEPEND="
 "
 DEPEND="
 	${CDEPEND}
-	kernel_linux? ( >=sys-kernel/linux-headers-4.14-r90 )
+	kernel_linux? ( >=sys-kernel/linux-headers-2.6.35 )
 	static-user? ( ${ALL_DEPEND} )
 "
 RDEPEND="
