@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PATCH_VER=0
+PATCH_VER=5
 PATCH_DEV=dilfridge
 
 inherit libtool toolchain-funcs multilib-minimal
@@ -20,11 +20,17 @@ SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
 	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
-SLOT="0/${PV%_p?}"
-IUSE="64-bit-bfd cet multitarget nls static-libs"
-KEYWORDS="*"
 
-BDEPEND="nls? ( sys-devel/gettext )"
+SLOT="0/${PV%_p?}.0"
+
+IUSE="64-bit-bfd cet multitarget nls static-libs test"
+KEYWORDS="*"
+RESTRICT="!test? ( test )"
+
+BDEPEND="
+	nls? ( sys-devel/gettext )
+	test? ( dev-util/dejagnu )
+"
 DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
 # Need a newer binutils-config that'll reset include/lib symlinks for us.
 RDEPEND="${DEPEND}
@@ -43,12 +49,22 @@ src_prepare() {
 		eapply "${WORKDIR}/patch"/*.patch
 	fi
 
-	einfo "Applying local CrOS patches"
-	eapply "${FILESDIR}"
-	einfo "Done."
-
 	# Fix cross-compile relinking issue, bug #626402
 	elibtoolize
+
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		# somehow libtool/configure is messed up and (custom patch at
+		# upstream?) and misdetects (basically assumes) nm can be called
+		# with -B arg -- can't run eautoreconf (fails), so patch up
+		# manually, this would break any target that needs -B to nm
+		sed -i -e 's/lt_cv_path_NM="$tmp_nm -B"/lt_cv_path_NM="$tmp_nm"/' \
+			libctf/configure || die
+	fi
+
+	# See https://www.gnu.org/software/make/manual/html_node/Parallel-Output.html
+	# Avoid really confusing logs from subconfigure spam, makes logs far
+	# more legible.
+	export MAKEOPTS="--output-sync=line ${MAKEOPTS}"
 
 	default
 }
@@ -60,6 +76,11 @@ pkgversion() {
 
 multilib_src_configure() {
 	local myconf=(
+		# portage's econf() does not detect presence of --d-d-t
+		# because it greps only top-level ./configure. But not
+		# libiberty's or bfd's configure.
+		--disable-dependency-tracking
+		--disable-silent-rules
 		--enable-obsolete
 		--enable-shared
 		--enable-threads
@@ -79,7 +100,7 @@ multilib_src_configure() {
 		--without-zlib
 		--with-system-zlib
 		# We only care about the libs, so disable programs. #528088
-		--disable-{binutils,etc,ld,gas,gold,gprof}
+		--disable-{binutils,etc,ld,gas,gold,gprof,gprofng}
 		# Disable modules that are in a combined binutils/gdb tree. #490566
 		--disable-{gdb,libdecnumber,readline,sim}
 		# Strip out broken static link flags.
@@ -94,6 +115,9 @@ multilib_src_configure() {
 		# avoid automagic dependency on (currently prefix) systems
 		# systems with debuginfod library, bug #754753
 		--without-debuginfod
+
+		# Revisit if it's useful, we do have binutils[zstd] though
+		--without-zstd
 
 		# Allow user to opt into CET for host libraries.
 		# Ideally we would like automagic-or-disabled here.
@@ -118,8 +142,7 @@ multilib_src_configure() {
 			"${S}"/opcodes/Makefile.in || die
 	fi
 
-	ECONF_SOURCE=${S} \
-	econf "${myconf[@]}"
+	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 
 	# Prevent makeinfo from running as we don't build docs here.
 	# bug #622652
@@ -129,7 +152,11 @@ multilib_src_configure() {
 }
 
 multilib_src_install() {
-	default
+	emake DESTDIR="${D}" install
+
+	# Provided by dev-debug/gdb instead
+	rm "${ED}"/usr/share/info/sframe-spec.info || die
+
 	# Provide libiberty.h directly.
 	dosym libiberty/libiberty.h /usr/include/libiberty.h
 }
