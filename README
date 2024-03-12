@@ -2,7 +2,7 @@ This overlay contains curated unmodified(*) Gentoo packages that are part of
 the Chromium OS build and are exact copies of upstream Gentoo packages.
 
 For information on updating ebuilds here, see:
-	https://chromium.googlesource.com/chromiumos/docs/+/HEAD/portage/package_upgrade_process.md
+	https://www.chromium.org/chromium-os/developer-library/guides/portage/package-upgrade-process/
 
 Note: While there are tools to help automate importing of updates, the overall
 process is not fully automatic: a developer must initiate the process as well
