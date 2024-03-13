@@ -7,12 +7,8 @@
 # For more information, see:
 #     http://go/third-party-package-remediation-playbook#special-case-back-ported-patches
 third_party {
-  version: "2.37_p1"
+  version: "2.41"
   security {
-    tag: "cpe:/a:gnu:binutils:2.37_p1"
-    mitigated_security_patch: "CVE-2021-3826"  # 0003-sync-libiberty-sources-with-gcc-mainline.patch
-    mitigated_security_patch: "CVE-2021-46195" # 0003-sync-libiberty-sources-with-gcc-mainline.patch
-    mitigated_security_patch: "CVE-2022-4285"  # 0002-Fix-an-illegal-memory-access-when-parsing-an-ELF-fil.patch
-    mitigated_security_patch: "CVE-2022-38533" # 0001-PR29482-strip-heap-buffer-overflow.patch
+    tag: "cpe:/a:gnu:binutils:2.41"
   }
 }
