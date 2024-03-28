@@ -25,8 +25,10 @@ RDEPEND="caps? ( sys-libs/libcap )
 	systemd? ( sys-apps/systemd:= )
 	tcpd? ( sys-apps/tcp-wrappers )
 	>=dev-libs/libconfig-1.5:="
-DEPEND="${RDEPEND}
-	dev-lang/perl"
+DEPEND="${RDEPEND}"
+BDEPEND="
+	dev-lang/perl
+"
 
 RESTRICT="test"
 
