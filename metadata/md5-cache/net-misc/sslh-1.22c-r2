@@ -1,6 +1,6 @@
-BDEPEND=virtual/pkgconfig
+BDEPEND=dev-lang/perl virtual/pkgconfig
 DEFINED_PHASES=compile install prepare
-DEPEND=caps? ( sys-libs/libcap ) dev-libs/libpcre2:= systemd? ( sys-apps/systemd:= ) tcpd? ( sys-apps/tcp-wrappers ) >=dev-libs/libconfig-1.5:= dev-lang/perl
+DEPEND=caps? ( sys-libs/libcap ) dev-libs/libpcre2:= systemd? ( sys-apps/systemd:= ) tcpd? ( sys-apps/tcp-wrappers ) >=dev-libs/libconfig-1.5:=
 DESCRIPTION=Port multiplexer - accept both HTTPS and SSH connections on the same port
 EAPI=7
 HOMEPAGE=https://www.rutschle.net/tech/sslh/README.html
@@ -12,4 +12,4 @@ RESTRICT=test
 SLOT=0
 SRC_URI=https://github.com/yrutschle/sslh/archive/v1.22c.tar.gz -> sslh-1.22c.tar.gz
 _eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=b9301f879ecdcfca59c7e18885e5828f
+_md5_=11f7e4cda88d3fc03548f391fe607038
