@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 inherit autotools flag-o-matic python-any-r1 systemd toolchain-funcs multilib-minimal
 
 MY_P="${P/mit-}"
@@ -11,6 +11,7 @@ P_DIR=$(ver_cut 1-2)
 DESCRIPTION="MIT Kerberos V"
 HOMEPAGE="https://web.mit.edu/kerberos/www/"
 SRC_URI="https://web.mit.edu/kerberos/dist/krb5/${P_DIR}/${MY_P}.tar.gz"
+S=${WORKDIR}/${MY_P}/src
 
 LICENSE="openafs-krb5-a BSD MIT OPENLDAP BSD-2 HPND BSD-4 ISC RSA CC-BY-SA-3.0 || ( BSD-2 GPL-2+ )"
 SLOT="0"
@@ -35,7 +36,7 @@ DEPEND="
 	"
 BDEPEND="
 	${PYTHON_DEPS}
-	virtual/yacc
+	app-alternatives/yacc
 	cpu_flags_x86_aes? (
 		amd64? ( dev-lang/yasm )
 		x86? ( dev-lang/yasm )
@@ -46,15 +47,10 @@ BDEPEND="
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-kerberos )"
 
-S=${WORKDIR}/${MY_P}/src
-
 PATCHES=(
 	"${FILESDIR}/${PN}-1.12_warn_cflags.patch"
-	"${FILESDIR}/${PN}-config_LDFLAGS-r1.patch"
 	"${FILESDIR}/${PN}_dont_create_rundir.patch"
 	"${FILESDIR}/${PN}-1.18.2-krb5-config.patch"
-	"${FILESDIR}/${PN}-1.20-missing-time-include.patch"
-	"${FILESDIR}/${PN}-1.20.1-autoconf-2.72.patch"
 )
 
 MULTILIB_CHOST_TOOLS=(
@@ -73,6 +69,9 @@ src_prepare() {
 src_configure() {
 	# ChromeOS; Upstream PR: https://github.com/krb5/krb5/pull/1282
 	append-lfs-flags
+
+	# lto-type-mismatch (bug #854225)
+	filter-lto
 
 	multilib-minimal_src_configure
 }
