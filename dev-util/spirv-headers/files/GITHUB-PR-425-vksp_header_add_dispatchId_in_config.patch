@@ -1,0 +1,43 @@
+commit 6ff3bdf1bd53454bfdea7a41ea8615843ba5b37c
+Author: Romaric Jodin <rjodin@chromium.org>
+Date:   Wed Apr 17 17:18:45 2024 +0200
+
+    VkspReflection non-sematic: add dispatchId in configuration
+    
+    This is needed to add new features intercepting buffers content in
+    vksp.
+
+diff --git a/include/spirv/unified1/NonSemanticVkspReflection.h b/include/spirv/unified1/NonSemanticVkspReflection.h
+index 0ef478a..331a3d9 100644
+--- a/include/spirv/unified1/NonSemanticVkspReflection.h
++++ b/include/spirv/unified1/NonSemanticVkspReflection.h
+@@ -33,7 +33,7 @@ extern "C" {
+ #endif
+ 
+ enum {
+-    NonSemanticVkspReflectionRevision = 1,
++    NonSemanticVkspReflectionRevision = 2,
+     NonSemanticVkspReflectionRevision_BitWidthPadding = 0x7fffffff
+ };
+ 
+diff --git a/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json b/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json
+index bee1bea..379457b 100644
+--- a/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json
++++ b/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json
+@@ -1,5 +1,5 @@
+ {
+-  "revision" : 1,
++  "revision" : 2,
+   "instructions" : [
+     {
+       "opname" : "Configuration",
+@@ -12,7 +12,8 @@
+         {"kind" : "LiteralString", "name" : "EntryPoint" },
+         {"kind" : "LiteralInteger", "name" : "groupCountX" },
+         {"kind" : "LiteralInteger", "name" : "groupCountY" },
+-        {"kind" : "LiteralInteger", "name" : "groupCountZ" }
++        {"kind" : "LiteralInteger", "name" : "groupCountZ" },
++        {"kind" : "LiteralInteger", "name" : "dispatchId" }
+       ]
+     },
+     {

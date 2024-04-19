@@ -17,4 +17,5 @@ KEYWORDS="*"
 
 PATCHES=(
 	"${FILESDIR}/GITHUB-PR-398-vksp_header.patch"
+	"${FILESDIR}/GITHUB-PR-425-vksp_header_add_dispatchId_in_config.patch"
 )
