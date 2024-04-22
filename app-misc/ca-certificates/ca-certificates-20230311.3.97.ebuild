@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # The Debian ca-certificates package merely takes the CA database as it exists
@@ -13,12 +13,15 @@
 # now we know our cert database is kept in sync with nss and, if need be,
 # can be sync with nss tip of tree more frequently to respond to bugs.
 
+# Where possible, bump to stable/LTS releases of NSS for the last part
+# of the version (when not using a pure Debian release).
+
 # When triaging user reports, refer to our wiki for tips:
 # https://wiki.gentoo.org/wiki/Certificates#Debugging_certificate_issues
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 
 inherit python-any-r1
 
@@ -41,44 +44,45 @@ NMU_PR=""
 if ${PRECOMPILED} ; then
 	SRC_URI="mirror://debian/pool/main/c/${PN}/${PN}_${PV}${NMU_PR:++nmu}${NMU_PR}_all.deb"
 else
-	SRC_URI="mirror://debian/pool/main/c/${PN}/${PN}_${DEB_VER}${NMU_PR:++nmu}${NMU_PR}.tar.xz
+	SRC_URI="
+		mirror://debian/pool/main/c/${PN}/${PN}_${DEB_VER}${NMU_PR:++nmu}${NMU_PR}.tar.xz
 		https://archive.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/nss-${NSS_VER}.tar.gz
 		cacert? (
 			https://dev.gentoo.org/~whissi/dist/ca-certificates/nss-cacert-class1-class3-r2.patch
-		)"
+		)
+	"
 fi
+
+S="${WORKDIR}"
 
 LICENSE="MPL-1.1"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
 ${PRECOMPILED} || IUSE+=" cacert"
 
-# c_rehash: we run `c_rehash`
-# debianutils: we run `run-parts`
-CDEPEND="app-misc/c_rehash
-	sys-apps/debianutils"
-
-BDEPEND="${CDEPEND}"
+BDEPEND="${COMMON_DEPEND}"
 if ! ${PRECOMPILED} ; then
 	BDEPEND+=" ${PYTHON_DEPS}"
 fi
 
-DEPEND=""
 if ${PRECOMPILED} ; then
 	DEPEND+=" !<sys-apps/portage-2.1.10.41"
 fi
 
-RDEPEND="${CDEPEND}
-	${DEPEND}"
-
-S=${WORKDIR}
+RDEPEND="
+	${COMMON_DEPEND}
+	${DEPEND}
+"
 
 pkg_setup() {
 	# For the conversion to having it in CONFIG_PROTECT_MASK,
 	# we need to tell users about it once manually first.
 	[[ -f "${EPREFIX}"/etc/env.d/98ca-certificates ]] \
 		|| ewarn "You should run update-ca-certificates manually after etc-update"
+
+	if ! ${PRECOMPILED} ; then
+		python-any-r1_pkg_setup
+	fi
 }
 
 src_unpack() {
@@ -102,9 +106,10 @@ src_unpack() {
 
 src_prepare() {
 	cd "image/${EPREFIX}" || die
+
 	if ! ${PRECOMPILED} ; then
 		mkdir -p usr/sbin || die
-		cp -p "${S}"/${PN}-${DEB_VER}/sbin/update-ca-certificates \
+		cp -p "${S}"/${PN}/sbin/update-ca-certificates \
 			usr/sbin/ || die
 
 		if use cacert ; then
@@ -116,19 +121,27 @@ src_prepare() {
 
 	default
 	eapply -p2 "${FILESDIR}"/${PN}-20150426-root.patch
+	eapply -p2 "${FILESDIR}"/0001-update-ca-certificates-drop-pointless-dependency-on-.patch
+
+	pushd "${S}/${PN}" >/dev/null || die
+	# We patch out the dep on cryptography as it's not particularly useful
+	# for us. Please see the discussion in bug #821706. Not to be removed lightly!
+	eapply "${FILESDIR}"/${PN}-20230311.3.89-no-cryptography.patch
+	popd >/dev/null || die
+
 	local relp=$(echo "${EPREFIX}" | sed -e 's:[^/]\+:..:g')
 	sed -i \
 		-e '/="$ROOT/s:ROOT:ROOT'"${EPREFIX}"':' \
 		-e '/RELPATH="\.\./s:"$:'"${relp}"'":' \
-		-e 's/openssl rehash/c_rehash/' \
 		usr/sbin/update-ca-certificates || die
 }
 
 src_compile() {
 	cd "image/${EPREFIX}" || die
+
 	if ! ${PRECOMPILED} ; then
-		python_setup
-		local d="${S}/${PN}-${DEB_VER}/mozilla" c="usr/share/${PN}"
+		local d="${S}/${PN}/mozilla" c="usr/share/${PN}"
+
 		# Grab the database from the nss sources.
 		cp "${S}"/nss-${NSS_VER}/nss/lib/ckfw/builtins/{certdata.txt,nssckbi.h} "${d}" || die
 		emake -C "${d}"
@@ -163,18 +176,18 @@ src_compile() {
 src_install() {
 	cp -pPR image/* "${D}"/ || die
 	if ! ${PRECOMPILED} ; then
-		cd ${PN}-${DEB_VER} || die
+		cd ${PN} || die
 		doman sbin/*.8
 		dodoc debian/README.* examples/ca-certificates-local/README
 	fi
 
-	echo 'CONFIG_PROTECT_MASK="/etc/ca-certificates.conf"' > 98ca-certificates
+	echo 'CONFIG_PROTECT_MASK="/etc/ca-certificates.conf"' > 98ca-certificates || die
 	doenvd 98ca-certificates
 }
 
 pkg_postinst() {
 	if [[ -d "${EROOT}/usr/local/share/ca-certificates" ]] ; then
-		# if the user has local certs, we need to rebuild again
+		# If the user has local certs, we need to rebuild again
 		# to include their stuff in the db.
 		# However it's too overzealous when the user has custom certs in place.
 		# --fresh is to clean up dangling symlinks
