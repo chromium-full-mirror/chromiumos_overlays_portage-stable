@@ -3,7 +3,8 @@
 
 EAPI=7
 
-inherit bash-completion-r1 meson-multilib
+PYTHON_COMPAT=( python3_{8..12} )
+inherit bash-completion-r1 meson-multilib python-any-r1
 
 DESCRIPTION="Provides a standard configuration setup for installing PKCS#11"
 HOMEPAGE="https://p11-glue.github.io/p11-glue/p11-kit.html"
@@ -23,6 +24,7 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
+	${PYTHON_DEPS}
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
 	virtual/pkgconfig
@@ -31,14 +33,35 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${P}-fix-C_GetInterface.patch
+	"${FILESDIR}"/p11-kit-0.25.3-pointer.patch
 )
+
+src_prepare() {
+	default
+
+	# Relies on dlopen which won't work for multilib tests (bug #913971)
+	cat <<-EOF > "${S}"/p11-kit/test-server.sh || die
+	#!/bin/sh
+	exit 77
+	EOF
+}
 
 multilib_src_configure() {
 	# Disable unsafe tests, bug#502088
 	export FAKED_MODE=1
 
+	local native_file="${T}"/meson.${CHOST}.${ABI}.ini.local
+
+	# p11-kit doesn't need this to build and castxml needs Clang. To get
+	# a deterministic non-automagic build, always disable the search for
+	# castxml.
+	cat >> ${native_file} <<-EOF || die
+	[binaries]
+	castxml='castxml-falseified'
+	EOF
+
 	local emesonargs=(
+		--native-file "${native_file}"
 		-Dbashcompdir="$(get_bashcompdir)"
 		-Dtrust_module=enabled
 		-Dtrust_paths="${EPREFIX}"/etc/ssl/certs/ca-certificates.crt
