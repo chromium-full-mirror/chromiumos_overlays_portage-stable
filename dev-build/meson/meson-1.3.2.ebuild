@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} pypy3 )
+PYTHON_COMPAT=( python3_{8..12} )
 DISTUTILS_USE_PEP517=setuptools
 
 if [[ ${PV} = *9999* ]]; then
@@ -50,6 +50,7 @@ DEPEND="
 "
 RDEPEND="
 	virtual/pkgconfig
+	!dev-util/meson
 "
 
 PATCHES=(
