@@ -1,18 +1,20 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{6..9} pypy3 )
+PYTHON_COMPAT=( python3_{8..12} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="Python Serial Port extension"
-HOMEPAGE="https://github.com/pyserial/pyserial https://pypi.org/project/pyserial/"
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
+HOMEPAGE="
+	https://github.com/pyserial/pyserial/
+	https://pypi.org/project/pyserial/
+"
 
-LICENSE="PSF-2"
+LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
 IUSE="examples"
@@ -22,7 +24,8 @@ DOCS=( CHANGES.rst README.rst )
 distutils_enable_sphinx documentation --no-autodoc
 
 python_test() {
-	"${EPYTHON}" test/run_all_tests.py loop:// -v || die "Testing failed with ${EPYTHON}"
+	"${EPYTHON}" test/run_all_tests.py loop:// -v ||
+		die "Testing failed with ${EPYTHON}"
 }
 
 python_install_all() {
