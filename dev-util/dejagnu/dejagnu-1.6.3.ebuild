@@ -16,5 +16,5 @@ IUSE="test"
 RESTRICT="test" # needs fixing
 
 RDEPEND="dev-tcltk/expect"
+BDEPEND="app-alternatives/awk"
 #DEPEND="test? ( dev-tcltk/expect )"
-BDEPEND="virtual/awk"
