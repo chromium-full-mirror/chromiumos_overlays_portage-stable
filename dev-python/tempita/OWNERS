@@ -1,2 +1,2 @@
-# TODO: Add per-package OWNERS and delete this when done.
-*
+# Only used by mali GPU drivers builds.
+include chromiumos/platform/graphics:/OWNERS.graphics
