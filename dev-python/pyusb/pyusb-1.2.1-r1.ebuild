@@ -1,27 +1,28 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
-inherit distutils-r1
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=( python3_{8..12} )
+inherit distutils-r1 pypi
 
 DESCRIPTION="USB support for Python"
 HOMEPAGE="https://pyusb.github.io/pyusb/ https://pypi.org/project/pyusb/"
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
 
 ### This version is compatible with both 0.X and 1.X versions of libusb
-RDEPEND="virtual/libusb:="
-DEPEND="
-	${RDEPEND}
-	dev-python/setuptools_scm[${PYTHON_USEDEP}]
-"
+DEPEND="virtual/libusb:="
+RDEPEND="${DEPEND}"
 
 DOCS=( README.rst docs/tutorial.rst )
+
+PATCHES=(
+	"${FILESDIR}"/${P}-setuptools.patch
+)
 
 python_test() {
 	cd tests || die
