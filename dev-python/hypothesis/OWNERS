@@ -1,1 +1,1 @@
-include chromiumos/platform/ec:/OWNERS
+include chromiumos/overlays/chromiumos-overlay:/chromeos-base/zephyr-build-tools/OWNERS
