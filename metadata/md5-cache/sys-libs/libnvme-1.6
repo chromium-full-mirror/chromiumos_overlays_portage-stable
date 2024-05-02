@@ -1,4 +1,4 @@
-BDEPEND=dev-lang/swig !cros_host? ( dev-python/psutil sys-apps/iproute2 sys-apps/proot sys-libs/libcap-ng !amd64? ( !x86? ( app-emulation/qemu ) ) ) >=dev-util/meson-0.58.2-r1 >=dev-util/ninja-1.8.2 dev-util/meson-format-array
+BDEPEND=dev-lang/swig !cros_host? ( dev-python/psutil sys-apps/iproute2 sys-apps/proot sys-libs/libcap-ng !amd64? ( !x86? ( app-emulation/qemu ) ) ) >=dev-build/meson-0.58.2-r1 >=dev-util/ninja-1.8.2 dev-util/meson-format-array
 DEFINED_PHASES=compile configure install test
 DEPEND=json? ( dev-libs/json-c:= ) keyutils? ( sys-apps/keyutils:= ) dbus? ( sys-apps/dbus:= ) python? ( python_targets_python3_12? ( dev-lang/python:3.12 ) python_targets_python3_11? ( dev-lang/python:3.11 ) python_targets_python3_10? ( dev-lang/python:3.10 ) python_targets_python3_9? ( dev-lang/python:3.9 ) python_targets_python3_8? ( dev-lang/python:3.8 ) >=dev-lang/python-exec-2:=[python_targets_python3_12(-)?,python_targets_python3_11(-)?,python_targets_python3_10(-)?,python_targets_python3_9(-)?,python_targets_python3_8(-)?,-python_single_target_python3_12(-),-python_single_target_python3_11(-),-python_single_target_python3_10(-),-python_single_target_python3_9(-),-python_single_target_python3_8(-)] ) ssl? ( >=dev-libs/openssl-1.1:= ) uuid? ( sys-apps/util-linux:= ) !cros_host? ( dev-lang/python )
 DESCRIPTION=C Library for NVM Express on Linux
@@ -12,5 +12,5 @@ REQUIRED_USE=python? ( || ( python_targets_python3_12 python_targets_python3_11 
 RESTRICT=!test? ( test )
 SLOT=0/1
 SRC_URI=https://github.com/linux-nvme/libnvme/archive/refs/tags/v1.6.tar.gz -> libnvme-1.6.tar.gz
-_eclasses_=meson	13a9b57a1d2186fac90fedbc1fede595	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-r1	79e26ce8f853c9daebe9a4956e37cc1b	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=meson	ff2529fe126f0cc7eb82156d373eb418	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-r1	79e26ce8f853c9daebe9a4956e37cc1b	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=bdff0b2d04638f265af72a33b721da07
