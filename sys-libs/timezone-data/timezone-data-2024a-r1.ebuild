@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,8 +9,10 @@ MY_CODE_VER=${PV}
 MY_DATA_VER=${PV}
 DESCRIPTION="Timezone data (/usr/share/zoneinfo) and utilities (tzselect/zic/zdump)"
 HOMEPAGE="https://www.iana.org/time-zones"
-SRC_URI="https://www.iana.org/time-zones/repository/releases/tzdata${MY_DATA_VER}.tar.gz
-	https://www.iana.org/time-zones/repository/releases/tzcode${MY_CODE_VER}.tar.gz"
+SRC_URI="
+	https://www.iana.org/time-zones/repository/releases/tzdata${MY_DATA_VER}.tar.gz
+	https://www.iana.org/time-zones/repository/releases/tzcode${MY_CODE_VER}.tar.gz
+"
 
 LICENSE="BSD public-domain"
 SLOT="0"
@@ -22,6 +24,10 @@ RDEPEND="
 	${DEPEND}
 	!sys-libs/glibc[vanilla(+)]
 "
+
+PATCHES=(
+	"${FILESDIR}"/${P}-AsiaAlmaty.patch
+)
 
 src_unpack() {
 	mkdir "${S}" && cd "${S}" || die
