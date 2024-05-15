@@ -1,4 +1,4 @@
-# Copyright 2020-2023 Gentoo Authors
+# Copyright 2020-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -20,15 +20,18 @@ DEPEND="
 	x11-base/xorg-proto
 	>=x11-libs/libxcb-1.11.1
 	x11-libs/xtrans"
-RDEPEND=""
+# RDEPEND=""
 
-XORG_CONFIGURE_OPTIONS=(
-	--without-xmlto
-	--without-fop
-	--disable-specs
-	--disable-xkb
-	--with-keysymdefdir="${ESYSROOT}/usr/include/X11"
-)
+src_configure() {
+	local XORG_CONFIGURE_OPTIONS=(
+		--without-xmlto
+		--without-fop
+		--disable-specs
+		--disable-xkb
+		--with-keysymdefdir="${ESYSROOT}/usr/include/X11"
+	)
+	xorg-3_src_configure
+}
 
 src_compile() {
 	emake -C nls

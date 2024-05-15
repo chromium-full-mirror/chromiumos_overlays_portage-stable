@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -20,9 +20,9 @@ RDEPEND="
 	>=dev-libs/glib-2.62.2:2[${MULTILIB_USEDEP}]
 	>=dev-libs/fribidi-1.0.6[${MULTILIB_USEDEP}]
 	>=media-libs/harfbuzz-2.6.0:=[glib(+),introspection?,truetype(+),${MULTILIB_USEDEP}]
-	>=media-libs/fontconfig-2.13.0:1.0=[${MULTILIB_USEDEP}]
-	>=x11-libs/cairo-1.12.10:=[X?,${MULTILIB_USEDEP}]
-	>=media-libs/freetype-2.5.0.1:2=[${MULTILIB_USEDEP}]
+	>=media-libs/fontconfig-2.13.0:1.0[${MULTILIB_USEDEP}]
+	>=x11-libs/cairo-1.12.10[X?,${MULTILIB_USEDEP}]
+	>=media-libs/freetype-2.5.0.1:2[${MULTILIB_USEDEP}]
 	introspection? ( >=dev-libs/gobject-introspection-0.9.5:= )
 	X? (
 		>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]
