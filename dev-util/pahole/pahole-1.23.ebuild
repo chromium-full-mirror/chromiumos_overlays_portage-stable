@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..11} )
 inherit multilib cmake python-single-r1
 
 DESCRIPTION="pahole (Poke-a-Hole) and other DWARF2 utilities"

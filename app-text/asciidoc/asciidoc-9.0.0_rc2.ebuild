@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} pypy3 )
+PYTHON_COMPAT=( python3_{8..11} pypy3 )
 
 inherit autotools eutils python-single-r1 readme.gentoo-r1
 

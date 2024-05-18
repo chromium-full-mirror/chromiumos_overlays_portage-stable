@@ -1,0 +1,1 @@
+zbar-0.23.1.ebuild

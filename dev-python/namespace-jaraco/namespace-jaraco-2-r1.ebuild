@@ -1,0 +1,1 @@
+namespace-jaraco-2.ebuild

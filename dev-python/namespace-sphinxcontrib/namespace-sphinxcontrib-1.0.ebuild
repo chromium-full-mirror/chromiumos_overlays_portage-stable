@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( pypy3 python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{8..11} pypy3 )
 inherit python-r1
 
 DESCRIPTION="Namespace package declaration for sphinxcontrib"

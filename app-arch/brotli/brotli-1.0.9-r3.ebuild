@@ -4,7 +4,7 @@
 EAPI=7
 
 DISTUTILS_OPTIONAL="1"
-PYTHON_COMPAT=( python3_{6..9} pypy3 )
+PYTHON_COMPAT=( python3_{8..11} pypy3 )
 inherit cmake-multilib distutils-r1 flag-o-matic
 
 if [[ ${PV} == *9999* ]] ; then
