@@ -27,7 +27,7 @@ IUSE="bluetooth dbus netlink rdma remote static-libs test usb yydebug"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	bluetooth? ( net-wireless/bluez:=[${MULTILIB_USEDEP}] )
+	bluetooth? ( net-wireless/libbluez:=[${MULTILIB_USEDEP}] )
 	dbus? ( sys-apps/dbus[${MULTILIB_USEDEP}] )
 	netlink? ( dev-libs/libnl:3[${MULTILIB_USEDEP}] )
 	remote? ( virtual/libcrypt:=[${MULTILIB_USEDEP}] )
