@@ -3,17 +3,17 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_{8..13} )
 inherit cmake-multilib python-any-r1
 
 if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/KhronosGroup/${PN}.git"
 	inherit git-r3
 else
-	SNAPSHOT_COMMIT="vulkan-sdk-${PV}.0"
-	SRC_URI="https://github.com/KhronosGroup/${PN}/archive/${SNAPSHOT_COMMIT}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="*"
-	S="${WORKDIR}/${PN}-${SNAPSHOT_COMMIT}"
+	GIT_COMMIT="vulkan-sdk-${PV}"
+	SRC_URI="https://github.com/KhronosGroup/${PN}/archive/${GIT_COMMIT}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="* ~loong ~ppc ~ppc64 ~riscv ~x86"
+	S="${WORKDIR}/${PN}-${GIT_COMMIT}"
 fi
 
 DESCRIPTION="Khronos reference front-end for GLSL and ESSL, and sample SPIR-V generator"
@@ -26,13 +26,11 @@ SLOT="0/14"
 RESTRICT="test"
 
 BDEPEND="${PYTHON_DEPS}
-	~dev-util/spirv-tools-${PV}:=[${MULTILIB_USEDEP}]
+	~dev-util/spirv-tools-${PV}[${MULTILIB_USEDEP}]
 "
 
-DEPEND="~dev-util/spirv-tools-${PV}:=[${MULTILIB_USEDEP}]"
+DEPEND="~dev-util/spirv-tools-${PV}[${MULTILIB_USEDEP}]"
 RDEPEND="${DEPEND}"
-
-PATCHES=( "${FILESDIR}/${PN}-1.3.236-Install-static-libs.patch" )
 
 multilib_src_configure() {
 	local mycmakeargs=(
