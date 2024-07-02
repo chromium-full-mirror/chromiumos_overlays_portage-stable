@@ -4,7 +4,7 @@
 EAPI=7
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssh.org.asc
-inherit user-info flag-o-matic autotools pam systemd toolchain-funcs verify-sig
+inherit user-info flag-o-matic autotools optfeature pam systemd toolchain-funcs verify-sig
 
 # Make it more portable between straight releases
 # and _p? releases.
@@ -22,7 +22,7 @@ LICENSE="BSD GPL-2"
 SLOT="0"
 KEYWORDS="*"
 # Probably want to drop ssl defaulting to on in a future version.
-IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam +pie security-key selinux +ssl static test X xmss"
+IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam +pie security-key selinux +ssl static test xmss"
 
 RESTRICT="!test? ( test )"
 
@@ -68,26 +68,20 @@ RDEPEND="
 	!net-misc/openssh-contrib
 	pam? ( >=sys-auth/pambase-20081028 )
 	!prefix? ( sys-apps/shadow )
-	X? ( x11-apps/xauth )
 "
-# Weird dep construct for newer gcc-config for bug #872416
 BDEPEND="
 	sys-devel/autoconf
 	virtual/pkgconfig
-	|| (
-		sys-devel/gcc-config
-		>=sys-devel/clang-toolchain-symlinks-14-r1:14
-		>=sys-devel/clang-toolchain-symlinks-15-r1:15
-		>=sys-devel/clang-toolchain-symlinks-16-r1:*
-	)
 	verify-sig? ( sec-keys/openpgp-keys-openssh )
 "
 
 PATCHES=(
 	"${FILESDIR}/${PN}-9.3_p1-disable-conch-interop-tests.patch"
 	"${FILESDIR}/${PN}-9.3_p1-fix-putty-tests.patch"
-	"${FILESDIR}/${PN}-9.3_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch"
 	"${FILESDIR}/${PN}-9.4_p1-Allow-MAP_NORESERVE-in-sandbox-seccomp-filter-maps.patch"
+	"${FILESDIR}/${PN}-9.6_p1-fix-xmss-c99.patch"
+	"${FILESDIR}/${PN}-9.6_p1-CVE-2024-6387.patch"
+	"${FILESDIR}/${PN}-9.6_p1-chaff-logic.patch"
 )
 
 pkg_pretend() {
@@ -129,10 +123,6 @@ pkg_pretend() {
 }
 
 src_prepare() {
-	sed -i \
-		-e "/_PATH_XAUTH/s:/usr/X11R6/bin/xauth:${EPREFIX}/usr/bin/xauth:" \
-		pathnames.h || die
-
 	# don't break .ssh/authorized_keys2 for fun
 	sed -i '/^AuthorizedKeysFile/s:^:#:' sshd_config || die
 
@@ -186,6 +176,8 @@ src_configure() {
 		--datadir="${EPREFIX}"/usr/share/openssh
 		--with-privsep-path="${EPREFIX}"/var/empty
 		--with-privsep-user=sshd
+		# optional at runtime; guarantee a known path
+		--with-xauth="${EPREFIX}"/usr/bin/xauth
 
 		# --with-hardening adds the following in addition to flags we
 		# already set in our toolchain:
@@ -341,6 +333,9 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
+	# bug #139235
+	optfeature "x11 forwarding" x11-apps/xauth
+
 	local old_ver
 	for old_ver in ${REPLACING_VERSIONS}; do
 		if ver_test "${old_ver}" -lt "5.8_p1"; then
