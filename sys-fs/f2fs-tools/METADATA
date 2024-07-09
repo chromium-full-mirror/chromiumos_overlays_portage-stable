@@ -15,4 +15,5 @@ third_party {
     mitigated_security_patch: "CVE-2020-6108"
     # ChromeOS > Platform > baseOS > Storage
     tag: "vuln_reporting:buganizer_component:974567"
+  }
 }
