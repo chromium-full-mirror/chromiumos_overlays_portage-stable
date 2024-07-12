@@ -1,4 +1,4 @@
-# Copyright 2005-2023 Gentoo Authors
+# Copyright 2005-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,22 +10,22 @@ if [[ ${PV} == *9999* ]] ; then
 	EGIT_REPO_URI="https://anongit.freedesktop.org/git/poppler/poppler.git"
 	SLOT="0/9999"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/aacid.asc
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/aacid.asc
 	inherit verify-sig
 
-	TEST_COMMIT="e3cdc82782941a8d7b8112f83b4a81b3d334601a"
+	TEST_COMMIT="ff3133cdb6cb496ee1d2c3231bfa35006a5e8410"
 	SRC_URI="https://poppler.freedesktop.org/${P}.tar.xz"
 	SRC_URI+=" test? ( https://gitlab.freedesktop.org/poppler/test/-/archive/${TEST_COMMIT}/test-${TEST_COMMIT}.tar.bz2 -> ${PN}-test-${TEST_COMMIT}.tar.bz2 )"
 	SRC_URI+=" verify-sig? ( https://poppler.freedesktop.org/${P}.tar.xz.sig )"
 	KEYWORDS="*"
-	SLOT="0/130"   # CHECK THIS WHEN BUMPING!!! SUBSLOT IS libpoppler.so SOVERSION
+	SLOT="0/138"   # CHECK THIS WHEN BUMPING!!! SUBSLOT IS libpoppler.so SOVERSION
 fi
 
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
 HOMEPAGE="https://poppler.freedesktop.org/"
 
 LICENSE="GPL-2"
-IUSE="boost cairo cjk curl +cxx debug doc gpgme +introspection +jpeg +jpeg2k +lcms nss png qt5 test tiff +utils"
+IUSE="boost cairo cjk curl +cxx debug doc gpgme +introspection +jpeg +jpeg2k +lcms nss png qt5 qt6 test tiff +utils"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
@@ -35,7 +35,7 @@ COMMON_DEPEND="
 	cairo? (
 		>=dev-libs/glib-2.64:2
 		>=x11-libs/cairo-1.16
-		introspection? ( >=dev-libs/gobject-introspection-1.64:= )
+		introspection? ( >=dev-libs/gobject-introspection-1.72:= )
 	)
 	curl? ( net-misc/curl )
 	gpgme? ( >=app-crypt/gpgme-1.19.0:=[cxx] )
@@ -45,21 +45,25 @@ COMMON_DEPEND="
 	nss? ( >=dev-libs/nss-3.49 )
 	png? ( media-libs/libpng:0= )
 	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtgui:5
-		dev-qt/qtxml:5
+		>=dev-qt/qtcore-5.15.2:5
+		>=dev-qt/qtgui-5.15.2:5
+		>=dev-qt/qtxml-5.15.2:5
 	)
+	qt6? ( dev-qt/qtbase:6[gui,xml] )
 	tiff? ( media-libs/tiff:= )
 "
 RDEPEND="${COMMON_DEPEND}
 	cjk? ( app-text/poppler-data )
 "
 DEPEND="${COMMON_DEPEND}
-	boost? ( >=dev-libs/boost-1.71 )
-	test? ( qt5? (
-		dev-qt/qttest:5
-		dev-qt/qtwidgets:5
-	) )
+	boost? ( >=dev-libs/boost-1.74 )
+	test? (
+		qt5? (
+			>=dev-qt/qttest-5.15.2:5
+			>=dev-qt/qtwidgets-5.15.2:5
+		)
+		qt6? ( dev-qt/qtbase:6[widgets] )
+	)
 "
 BDEPEND="
 	>=dev-util/glib-utils-2.64
@@ -67,13 +71,14 @@ BDEPEND="
 "
 
 if [[ ${PV} != *9999* ]] ; then
-	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-aacid-20230313 )"
+	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-aacid-20230907 )"
 fi
 
 DOCS=( AUTHORS NEWS README.md README-XPDF )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-20.12.1-qt5-deps.patch"
+	"${FILESDIR}/${PN}-24.06.1-pdfinfo-fix-crash.patch"
+	"${FILESDIR}/${PN}-23.10.0-qt-deps.patch"
 	"${FILESDIR}/${PN}-21.09.0-respect-cflags.patch"
 	"${FILESDIR}/${PN}-0.57.0-disable-internal-jpx.patch"
 )
@@ -112,6 +117,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DBUILD_GTK_TESTS=OFF
 		-DBUILD_QT5_TESTS=$(usex test $(usex qt5))
+		-DBUILD_QT6_TESTS=$(usex test $(usex qt6))
 		-DBUILD_CPP_TESTS=$(usex test)
 		-DBUILD_MANUAL_TESTS=$(usex test)
 		-DTESTDATADIR="${WORKDIR}"/test-${TEST_COMMIT}
@@ -123,17 +129,17 @@ src_configure() {
 		-DWITH_Cairo=$(usex cairo)
 		-DENABLE_LIBCURL=$(usex curl)
 		-DENABLE_CPP=$(usex cxx)
-		-DWITH_Gpgmepp=$(usex gpgme)
+		-DENABLE_GPGME=$(usex gpgme)
 		-DWITH_JPEG=$(usex jpeg)
 		-DENABLE_DCTDECODER=$(usex jpeg libjpeg none)
 		-DENABLE_LIBOPENJPEG=$(usex jpeg2k openjpeg2 none)
-		-DENABLE_CMS=$(usex lcms lcms2 none)
-		-DWITH_NSS3=$(usex nss)
+		-DENABLE_LCMS=$(usex lcms)
+		-DENABLE_NSS3=$(usex nss)
 		-DWITH_PNG=$(usex png)
-		$(cmake_use_find_package qt5 Qt5Core)
-		-DWITH_TIFF=$(usex tiff)
+		-DENABLE_QT5=$(usex qt5)
+		-DENABLE_QT6=$(usex qt6)
+		-DENABLE_LIBTIFF=$(usex tiff)
 		-DENABLE_UTILS=$(usex utils)
-		-DENABLE_QT6=OFF
 	)
 	use cairo && mycmakeargs+=( -DWITH_GObjectIntrospection=$(usex introspection) )
 

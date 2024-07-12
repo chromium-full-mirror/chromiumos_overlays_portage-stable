@@ -1,1 +1,0 @@
-poppler-23.08.0.ebuild
