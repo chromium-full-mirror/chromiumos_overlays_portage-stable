@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,7 +6,7 @@ EAPI=7
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 
 inherit toolchain-funcs perl-module bash-completion-r1 optfeature plocale python-single-r1 systemd
 
@@ -58,7 +58,7 @@ S="${WORKDIR}"/${MY_P}
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +safe-directory selinux subversion tk +webdav xinetd cvs test"
+IUSE="+blksha1 +curl cgi doc keyring +gpg highlight +iconv mediawiki +nls +pcre perforce +perl +safe-directory selinux subversion tk +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -68,7 +68,7 @@ DEPEND="
 		net-misc/curl
 		webdav? ( dev-libs/expat )
 	)
-	gnome-keyring? (
+	keyring? (
 		app-crypt/libsecret
 		dev-libs/glib:2
 	)
@@ -121,7 +121,7 @@ BDEPEND="
 		sys-apps/texinfo
 	)
 	curl? ( net-misc/curl )
-	gnome-keyring? ( virtual/pkgconfig )
+	keyring? ( virtual/pkgconfig )
 	nls? ( sys-devel/gettext )
 	test? (	app-crypt/gnupg	)
 "
@@ -137,7 +137,6 @@ REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
 	mediawiki? ( perl )
-	mediawiki-experimental? ( mediawiki )
 	perforce? ( ${PYTHON_REQUIRED_USE} )
 	subversion? ( perl )
 	webdav? ( curl )
@@ -173,15 +172,15 @@ exportmakeopts() {
 	myopts=(
 		ASCIIDOC_NO_ROFF=YesPlease
 
-		# ChromeOS: switch to usex until we have EAPI 8 support
-		$(usex cvs '' NO_CVS=YesPlease)
-		$(usex elibc_musl NO_REGEX=YesPlease '')
-		$(usex iconv '' NO_ICONV=YesPlease)
-		$(usex nls '' NO_GETTEXT=YesPlease)
 		$(usex perl 'INSTALLDIRS=vendor NO_PERL_CPAN_FALLBACKS=YesPlease' NO_PERL=YesPlease)
-		$(usex perforce '' NO_PYTHON=YesPlease)
-		$(usex subversion '' NO_SVN_TESTS=YesPlease)
-		$(usex tk '' NO_TCLTK=YesPlease)
+
+		$(usex elibc_musl NO_REGEX=NeedsStartEnd '')
+		$(usex !cvs NO_CVS=YesPlease '')
+		$(usex !iconv NO_ICONV=YesPlease '')
+		$(usex !nls NO_GETTEXT=YesPlease '')
+		$(usex !perforce NO_PYTHON=YesPlease '')
+		$(usex !subversion NO_SVN_TESTS=YesPlease '')
+		$(usex !tk NO_TCLTK=YesPlease '')
 	)
 
 	if use blksha1 ; then
@@ -251,16 +250,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Add experimental patches to improve mediawiki support,
-	# see patches for origin.
-	if use mediawiki-experimental ; then
-		PATCHES+=(
-			"${FILESDIR}"/git-2.7.0-mediawiki-namespaces.patch
-			"${FILESDIR}"/git-2.7.0-mediawiki-subpages.patch
-			"${FILESDIR}"/git-2.7.0-mediawiki-500pages.patch
-		)
-	fi
-
 	if ! use safe-directory ; then
 		# This patch neuters the "safe directory" detection.
 		# bugs #838271, #838223
@@ -273,7 +262,10 @@ src_prepare() {
 
 	if use prefix ; then
 		# bug #757309
-		eapply "${FILESDIR}"/git-2.37.2-darwin-prefix-gettext.patch
+		sed -i \
+			-e 's:/usr/local/opt/gettext/:/do/not/look/elsewhere/:g' \
+			-e 's:/opt/homebrew/:/do/not/look/elsewhere/:g' \
+			config.mak.uname || die
 	fi
 
 	sed -i \
@@ -355,7 +347,7 @@ src_compile() {
 	fi
 	popd &>/dev/null || die
 
-	if use gnome-keyring ; then
+	if use keyring ; then
 		git_emake -C contrib/credential/libsecret
 	fi
 
@@ -555,7 +547,7 @@ src_install() {
 	doexe contrib/contacts/git-contacts
 	dodoc contrib/contacts/git-contacts.txt
 
-	if use gnome-keyring ; then
+	if use keyring ; then
 		pushd contrib/credential/libsecret &>/dev/null || die
 		dobin git-credential-libsecret
 		popd &>/dev/null || die
@@ -653,6 +645,4 @@ pkg_postinst() {
 	optfeature_header "Some scripts require additional dependencies:"
 	optfeature git-quiltimport dev-util/quilt
 	optfeature git-instaweb www-servers/lighttpd www-servers/apache www-servers/nginx
-
-	use mediawiki-experimental && ewarn "Using experimental git-mediawiki patches. The stability of cloned wiki filesystems is not guaranteed."
 }
