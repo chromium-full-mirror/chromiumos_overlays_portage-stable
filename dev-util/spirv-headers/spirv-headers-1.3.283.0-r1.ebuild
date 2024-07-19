@@ -21,6 +21,10 @@ HOMEPAGE="https://registry.khronos.org/SPIR-V/ https://github.com/KhronosGroup/S
 LICENSE="MIT"
 SLOT="0"
 
+PATCHES=(
+	"${FILESDIR}/vksp.patch"
+)
+
 src_configure() {
 	local mycmakeargs=(
 		-DSPIRV_HEADERS_ENABLE_TESTS=OFF

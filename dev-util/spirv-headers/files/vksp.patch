@@ -1,0 +1,45 @@
+diff --git a/include/spirv/unified1/NonSemanticVkspReflection.h b/include/spirv/unified1/NonSemanticVkspReflection.h
+index 0ef478a..e50ae48 100644
+--- a/include/spirv/unified1/NonSemanticVkspReflection.h
++++ b/include/spirv/unified1/NonSemanticVkspReflection.h
+@@ -33,7 +33,7 @@ extern "C" {
+ #endif
+ 
+ enum {
+-    NonSemanticVkspReflectionRevision = 1,
++    NonSemanticVkspReflectionRevision = 3,
+     NonSemanticVkspReflectionRevision_BitWidthPadding = 0x7fffffff
+ };
+ 
+diff --git a/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json b/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json
+index bee1bea..74eb57b 100644
+--- a/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json
++++ b/include/spirv/unified1/extinst.nonsemantic.vkspreflection.grammar.json
+@@ -1,5 +1,5 @@
+ {
+-  "revision" : 1,
++  "revision" : 3,
+   "instructions" : [
+     {
+       "opname" : "Configuration",
+@@ -12,7 +12,8 @@
+         {"kind" : "LiteralString", "name" : "EntryPoint" },
+         {"kind" : "LiteralInteger", "name" : "groupCountX" },
+         {"kind" : "LiteralInteger", "name" : "groupCountY" },
+-        {"kind" : "LiteralInteger", "name" : "groupCountZ" }
++        {"kind" : "LiteralInteger", "name" : "groupCountZ" },
++        {"kind" : "LiteralInteger", "name" : "dispatchId" }
+       ]
+     },
+     {
+@@ -64,7 +65,9 @@
+         { "kind" : "LiteralInteger", "name" : "offset" },
+         { "kind" : "LiteralInteger", "name" : "memorySize" },
+         { "kind" : "LiteralInteger", "name" : "memoryType" },
+-        { "kind" : "LiteralInteger", "name" : "bindOffset" }
++        { "kind" : "LiteralInteger", "name" : "bindOffset" },
++        { "kind" : "LiteralInteger", "name" : "viewFlags" },
++        { "kind" : "LiteralInteger", "name" : "viewFormat" }
+       ]
+     },
+     {
