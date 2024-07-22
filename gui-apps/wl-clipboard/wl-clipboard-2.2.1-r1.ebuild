@@ -19,7 +19,10 @@ fi
 LICENSE="GPL-3"
 SLOT="0"
 
-DEPEND="dev-libs/wayland"
+DEPEND="
+	dev-libs/wayland
+	dev-libs/wayland-protocols
+"
 RDEPEND="${DEPEND}"
 BDEPEND="
 	dev-libs/wayland-protocols
