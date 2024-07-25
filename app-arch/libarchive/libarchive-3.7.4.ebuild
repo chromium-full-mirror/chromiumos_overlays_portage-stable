@@ -1,8 +1,8 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-inherit multilib-minimal toolchain-funcs verify-sig
+inherit libtool multilib-minimal toolchain-funcs verify-sig
 
 DESCRIPTION="Multi-format archive and compression library"
 HOMEPAGE="
@@ -17,8 +17,11 @@ SRC_URI="
 LICENSE="BSD BSD-2 BSD-4 public-domain"
 SLOT="0/13"
 KEYWORDS="*"
-IUSE="acl blake2 +bzip2 +e2fsprogs expat +iconv lz4 +lzma lzo nettle static-libs xattr zstd"
-VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/libarchive.org.asc
+IUSE="
+	acl blake2 +bzip2 +e2fsprogs expat +iconv lz4 +lzma lzo nettle
+	static-libs test xattr +zstd
+"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	sys-libs/zlib[${MULTILIB_USEDEP}]
@@ -43,11 +46,22 @@ DEPEND="${RDEPEND}
 		virtual/os-headers
 		e2fsprogs? ( sys-fs/e2fsprogs[${MULTILIB_USEDEP}] )
 	)
+	test? (
+		app-arch/lrzip
+		app-arch/lz4
+		app-arch/lzip
+		app-arch/lzop
+		app-arch/xz-utils
+		app-arch/zstd
+		lzma? ( app-arch/xz-utils[extra-filters(+)] )
+	)
 "
 BDEPEND="
 	verify-sig? ( >=sec-keys/openpgp-keys-libarchive-20221209 )
 	elibc_musl? ( sys-libs/queue-standalone )
 "
+
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/libarchive.org.asc
 
 # false positives (checks for libc-defined hash functions)
 QA_CONFIG_IMPL_DECL_SKIP=(
@@ -55,6 +69,19 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	SHA384_Init SHA384_Update SHA384_Final
 	SHA512_Init SHA512_Update SHA512_Final
 )
+
+PATCHES=(
+	# https://github.com/libarchive/libarchive/issues/2069
+	# (we can simply update the command since we don't support old lrzip)
+	"${FILESDIR}/${PN}-3.7.2-lrzip.patch"
+)
+
+src_prepare() {
+	default
+
+	# Needed for flags to be respected w/ LTO
+	elibtoolize
+}
 
 multilib_src_configure() {
 	export ac_cv_header_ext2fs_ext2_fs_h=$(usex e2fsprogs) #354923
@@ -109,6 +136,13 @@ src_test() {
 	mkdir -p "${T}"/bin || die
 	# tests fail when lbzip2[symlink] is used in place of ref bunzip2
 	ln -s "${BROOT}/bin/bunzip2" "${T}"/bin || die
+	# workaround lrzip broken on 32-bit arches with >= 10 threads
+	# https://bugs.gentoo.org/927766
+	cat > "${T}"/bin/lrzip <<-EOF || die
+		#!/bin/sh
+		exec "$(type -P lrzip)" -p1 "\${@}"
+	EOF
+	chmod +x "${T}/bin/lrzip" || die
 	local -x PATH=${T}/bin:${PATH}
 	multilib-minimal_src_test
 }
@@ -118,7 +152,7 @@ multilib_src_test() {
 	local -x SANDBOX_ON=0
 	local -x LD_PRELOAD=
 	# some locales trigger different output that breaks tests
-	local -x LC_ALL=C
+	local -x LC_ALL=C.UTF-8
 	emake check
 }
 
