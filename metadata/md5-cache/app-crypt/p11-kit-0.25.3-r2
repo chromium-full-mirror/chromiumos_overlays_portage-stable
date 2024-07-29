@@ -1,5 +1,5 @@
-BDEPEND=app-text/docbook-xsl-stylesheets dev-libs/libxslt virtual/pkgconfig gtk-doc? ( dev-util/gtk-doc ) nls? ( sys-devel/gettext ) !cros_host? ( dev-python/psutil sys-apps/iproute2 sys-apps/proot sys-libs/libcap-ng !amd64? ( !x86? ( app-emulation/qemu ) ) ) >=dev-build/meson-0.58.2-r1 >=dev-util/ninja-1.8.2 dev-util/meson-format-array
-DEFINED_PHASES=compile configure install test
+BDEPEND=|| ( dev-lang/python:3.8 dev-lang/python:3.9 dev-lang/python:3.10 dev-lang/python:3.11 dev-lang/python:3.12 ) app-text/docbook-xsl-stylesheets dev-libs/libxslt virtual/pkgconfig gtk-doc? ( dev-util/gtk-doc ) nls? ( sys-devel/gettext ) !cros_host? ( dev-python/psutil sys-apps/iproute2 sys-apps/proot sys-libs/libcap-ng !amd64? ( !x86? ( app-emulation/qemu ) ) ) >=dev-build/meson-0.58.2-r1 >=dev-util/ninja-1.8.2 dev-util/meson-format-array
+DEFINED_PHASES=compile configure install prepare setup test
 DEPEND=app-misc/ca-certificates >=dev-libs/libtasn1-3.4:=[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?,abi_ppc_32(-)?,abi_ppc_64(-)?,abi_s390_32(-)?,abi_s390_64(-)?,abi_arm_32(-)?,abi_arm_64(-)?] libffi? ( dev-libs/libffi:=[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?,abi_ppc_32(-)?,abi_ppc_64(-)?,abi_s390_32(-)?,abi_s390_64(-)?,abi_arm_32(-)?,abi_arm_64(-)?] ) systemd? ( sys-apps/systemd:= ) !cros_host? ( dev-lang/python )
 DESCRIPTION=Provides a standard configuration setup for installing PKCS#11
 EAPI=7
@@ -10,6 +10,6 @@ LICENSE=MIT
 RDEPEND=app-misc/ca-certificates >=dev-libs/libtasn1-3.4:=[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?,abi_ppc_32(-)?,abi_ppc_64(-)?,abi_s390_32(-)?,abi_s390_64(-)?,abi_arm_32(-)?,abi_arm_64(-)?] libffi? ( dev-libs/libffi:=[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?,abi_ppc_32(-)?,abi_ppc_64(-)?,abi_s390_32(-)?,abi_s390_64(-)?,abi_arm_32(-)?,abi_arm_64(-)?] ) systemd? ( sys-apps/systemd:= )
 RESTRICT=!test? ( test )
 SLOT=0
-SRC_URI=https://github.com/p11-glue/p11-kit/releases/download/0.25.0/p11-kit-0.25.0.tar.xz
-_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	meson	ff2529fe126f0cc7eb82156d373eb418	meson-multilib	84c0d4019bf29be0d9d0a2d98fb8b0d9	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
-_md5_=792a89c8ea593c605ab04bae6c940989
+SRC_URI=https://github.com/p11-glue/p11-kit/releases/download/0.25.3/p11-kit-0.25.3.tar.xz
+_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	meson	ff2529fe126f0cc7eb82156d373eb418	meson-multilib	84c0d4019bf29be0d9d0a2d98fb8b0d9	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_md5_=1007102bd3c48365f5e5b93f29fe7643
