@@ -1,4 +1,3 @@
-From e8343f09917920b1e9119d3ecddb646c4121b906 Mon Sep 17 00:00:00 2001
 From: Peter Marheine <pmarheine@chromium.org>
 Date: Wed, 24 Jan 2024 11:17:57 +1100
 Subject: [PATCH] tests: use $CC, not hard-coded gcc
@@ -7,24 +6,10 @@ Cross-compiling may need to use a different compiler, so don't hard code
 references to plain `gcc` and instead determine the compiler to use from
 the environment.
 ---
- tests/common.mak                            |  2 +-
- tests/gendiffcov/insensitive/insensitive.sh |  5 +++--
- tests/gendiffcov/simple/script.sh           |  5 +++--
- tests/gendiffcov/synthesize/synthesize.sh   |  5 +++--
- tests/genhtml/lambda/lambda.sh              |  3 ++-
- tests/genhtml/relative/relative.sh          |  3 ++-
- tests/lcov/branch/branch.sh                 | 12 +++++++-----
- tests/lcov/exception/exception.sh           | 10 ++++++----
- tests/lcov/extract/extract.sh               | 12 +++++++-----
- tests/lcov/format/format.sh                 |  8 +++++---
- tests/lcov/merge/merge.sh                   |  8 +++++---
- 11 files changed, 44 insertions(+), 29 deletions(-)
-
-diff --git a/tests/common.mak b/tests/common.mak
-index 4c41bce..676d7b2 100644
---- a/tests/common.mak
-+++ b/tests/common.mak
-@@ -67,7 +67,7 @@ LCOVRC       := $(TOPDIR)lcovrc
+diff -ur a/tests/common.mak b/tests/common.mak
+--- a/tests/common.mak	2024-04-01 16:07:46.000000000 +0000
++++ b/tests/common.mak	2024-07-29 18:05:33.011201103 +0000
+@@ -68,7 +68,7 @@
  
  # Specify size for artificial info files (small, medium, large)
  SIZE         := small
@@ -33,11 +18,11 @@ index 4c41bce..676d7b2 100644
  
  export LCOV_TOOL := $(EXEC_COVER) $(BINDIR)/lcov
  export GENHTML_TOOL := $(EXEC_COVER) $(BINDIR)/genhtml
-diff --git a/tests/gendiffcov/insensitive/insensitive.sh b/tests/gendiffcov/insensitive/insensitive.sh
-index 0287f01..354e3fc 100755
---- a/tests/gendiffcov/insensitive/insensitive.sh
-+++ b/tests/gendiffcov/insensitive/insensitive.sh
-@@ -6,7 +6,8 @@ COVER=
+Only in b/tests: common.mak.orig
+diff -ur a/tests/gendiffcov/insensitive/insensitive.sh b/tests/gendiffcov/insensitive/insensitive.sh
+--- a/tests/gendiffcov/insensitive/insensitive.sh	2024-02-13 19:17:46.000000000 +0000
++++ b/tests/gendiffcov/insensitive/insensitive.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -6,7 +6,8 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -47,7 +32,7 @@ index 0287f01..354e3fc 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -144,7 +145,7 @@ echo `which gcov`
+@@ -144,7 +145,7 @@
  echo `which lcov`
  
  # old gcc version generates inconsistent line/function data
@@ -56,11 +41,10 @@ index 0287f01..354e3fc 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
  fi
-diff --git a/tests/gendiffcov/simple/script.sh b/tests/gendiffcov/simple/script.sh
-index 5947223..0d17df3 100755
---- a/tests/gendiffcov/simple/script.sh
-+++ b/tests/gendiffcov/simple/script.sh
-@@ -6,7 +6,8 @@ COVER=
+diff -ur a/tests/gendiffcov/simple/script.sh b/tests/gendiffcov/simple/script.sh
+--- a/tests/gendiffcov/simple/script.sh	2024-03-28 20:59:47.000000000 +0000
++++ b/tests/gendiffcov/simple/script.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -6,7 +6,8 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -70,7 +54,7 @@ index 5947223..0d17df3 100755
  LOCAL_COVERAGE=1
  KEEP_GOING=0
  
-@@ -159,7 +160,7 @@ ${CXX} --coverage test.cpp
+@@ -170,7 +171,7 @@
  echo `which gcov`
  echo `which lcov`
  # old version of gcc has inconsistent line/function data
@@ -79,11 +63,11 @@ index 5947223..0d17df3 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
  fi
-diff --git a/tests/gendiffcov/synthesize/synthesize.sh b/tests/gendiffcov/synthesize/synthesize.sh
-index 983e073..3e3fb64 100755
---- a/tests/gendiffcov/synthesize/synthesize.sh
-+++ b/tests/gendiffcov/synthesize/synthesize.sh
-@@ -6,7 +6,8 @@ COVER=
+Only in b/tests/gendiffcov/simple: script.sh.orig
+diff -ur a/tests/gendiffcov/synthesize/synthesize.sh b/tests/gendiffcov/synthesize/synthesize.sh
+--- a/tests/gendiffcov/synthesize/synthesize.sh	2024-03-22 12:13:52.000000000 +0000
++++ b/tests/gendiffcov/synthesize/synthesize.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -6,7 +6,8 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -93,7 +77,7 @@ index 983e073..3e3fb64 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -134,7 +135,7 @@ echo `which gcov`
+@@ -136,7 +137,7 @@
  echo `which lcov`
  
  # old gcc version generates inconsistent line/function data
@@ -102,11 +86,11 @@ index 983e073..3e3fb64 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
  fi
-diff --git a/tests/genhtml/lambda/lambda.sh b/tests/genhtml/lambda/lambda.sh
-index b8ccb00..1280ad4 100755
---- a/tests/genhtml/lambda/lambda.sh
-+++ b/tests/genhtml/lambda/lambda.sh
-@@ -8,6 +8,7 @@ COVER=
+Only in b/tests/gendiffcov/synthesize: synthesize.sh.orig
+diff -ur a/tests/genhtml/lambda/lambda.sh b/tests/genhtml/lambda/lambda.sh
+--- a/tests/genhtml/lambda/lambda.sh	2024-02-13 19:17:45.000000000 +0000
++++ b/tests/genhtml/lambda/lambda.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -8,6 +8,7 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -114,7 +98,7 @@ index b8ccb00..1280ad4 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -91,7 +92,7 @@ PARENT=`(cd .. ; pwd)`
+@@ -91,7 +92,7 @@
  
  LCOV_OPTS="--branch $PARALLEL $PROFILE"
  # gcc/4.8.5 (and possibly other old versions) generate inconsistent line/function data
@@ -123,11 +107,10 @@ index b8ccb00..1280ad4 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
      # and filter exception branches to avoid spurious differences for old compiler
-diff --git a/tests/genhtml/relative/relative.sh b/tests/genhtml/relative/relative.sh
-index b58ef3b..7128823 100755
---- a/tests/genhtml/relative/relative.sh
-+++ b/tests/genhtml/relative/relative.sh
-@@ -8,6 +8,7 @@ COVER=
+diff -ur a/tests/genhtml/relative/relative.sh b/tests/genhtml/relative/relative.sh
+--- a/tests/genhtml/relative/relative.sh	2024-01-08 19:59:45.000000000 +0000
++++ b/tests/genhtml/relative/relative.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -8,6 +8,7 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -135,7 +118,7 @@ index b58ef3b..7128823 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -90,7 +91,7 @@ PARENT=`(cd .. ; pwd)`
+@@ -90,7 +91,7 @@
  
  LCOV_OPTS="--branch $PARALLEL $PROFILE"
  # gcc/4.8.5 (and possibly other old versions) generate inconsistent line/function data
@@ -144,11 +127,10 @@ index b58ef3b..7128823 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
      # and filter exception branches to avoid spurious differences for old compiler
-diff --git a/tests/lcov/branch/branch.sh b/tests/lcov/branch/branch.sh
-index bd6246a..cf2ed04 100755
---- a/tests/lcov/branch/branch.sh
-+++ b/tests/lcov/branch/branch.sh
-@@ -6,6 +6,8 @@ COVER=
+diff -ur a/tests/lcov/branch/branch.sh b/tests/lcov/branch/branch.sh
+--- a/tests/lcov/branch/branch.sh	2024-01-08 19:59:45.000000000 +0000
++++ b/tests/lcov/branch/branch.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -6,6 +6,8 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -157,7 +139,7 @@ index bd6246a..cf2ed04 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -93,7 +95,7 @@ PARENT=`(cd .. ; pwd)`
+@@ -93,7 +95,7 @@
  
  LCOV_OPTS="--branch $PARALLEL $PROFILE"
  # gcc/4.8.5 (and possibly other old versions) generate inconsistent line/function data
@@ -166,7 +148,7 @@ index bd6246a..cf2ed04 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
  fi
-@@ -115,12 +117,12 @@ if [[ 1 == $CLEAN_ONLY ]] ; then
+@@ -115,12 +117,12 @@
      exit 0
  fi
  
@@ -182,7 +164,7 @@ index bd6246a..cf2ed04 100755
  if [ 0 != $? ] ; then
      echo "Error:  unexpected error from gcc -o no_macro"
      exit 1
-@@ -150,7 +152,7 @@ fi
+@@ -150,7 +152,7 @@
  
  rm -f *.gcda *.gcno
  
@@ -191,11 +173,22 @@ index bd6246a..cf2ed04 100755
  if [ 0 != $? ] ; then
      echo "Error:  unexpected error from gcc -o macro"
      exit 1
-diff --git a/tests/lcov/exception/exception.sh b/tests/lcov/exception/exception.sh
-index 0ab16a7..586b985 100755
---- a/tests/lcov/exception/exception.sh
-+++ b/tests/lcov/exception/exception.sh
-@@ -6,6 +6,8 @@ COVER=
+diff -ur a/tests/lcov/errs/errs.sh b/tests/lcov/errs/errs.sh
+--- a/tests/lcov/errs/errs.sh	2024-04-01 14:03:22.000000000 +0000
++++ b/tests/lcov/errs/errs.sh	2024-07-29 18:11:52.511501901 +0000
+@@ -89,7 +89,7 @@
+ 
+ LCOV_OPTS="--branch $PARALLEL $PROFILE"
+ # gcc/4.8.5 (and possibly other old versions) generate inconsistent line/function data
+-IFS='.' read -r -a VER <<< `gcc -dumpversion`
++IFS='.' read -r -a VER <<< `${CC} -dumpversion`
+ if [ "${VER[0]}" -lt 5 ] ; then
+     IGNORE="--ignore inconsistent"
+     # and filter exception branches to avoid spurious differences for old compiler
+diff -ur a/tests/lcov/exception/exception.sh b/tests/lcov/exception/exception.sh
+--- a/tests/lcov/exception/exception.sh	2024-01-08 19:59:45.000000000 +0000
++++ b/tests/lcov/exception/exception.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -6,6 +6,8 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -204,7 +197,7 @@ index 0ab16a7..586b985 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -94,7 +96,7 @@ PARENT=`(cd .. ; pwd)`
+@@ -94,7 +96,7 @@
  
  LCOV_OPTS="--branch-coverage $PARALLEL $PROFILE"
  
@@ -213,7 +206,7 @@ index 0ab16a7..586b985 100755
  
  rm -rf *.gcda *.gcno a.out *.info* *.txt* *.json dumper* testRC *.gcov *.gcov.*
  
-@@ -106,12 +108,12 @@ if [[ 1 == $CLEAN_ONLY ]] ; then
+@@ -106,12 +108,12 @@
      exit 0
  fi
  
@@ -229,11 +222,10 @@ index 0ab16a7..586b985 100755
  if [ 0 != $? ] ; then
      echo "Error:  unexpected error from gcc"
      exit 1
-diff --git a/tests/lcov/extract/extract.sh b/tests/lcov/extract/extract.sh
-index 0cdec93..aa1ba2a 100755
---- a/tests/lcov/extract/extract.sh
-+++ b/tests/lcov/extract/extract.sh
-@@ -6,6 +6,8 @@ COVER=
+diff -ur a/tests/lcov/extract/extract.sh b/tests/lcov/extract/extract.sh
+--- a/tests/lcov/extract/extract.sh	2024-03-06 15:21:55.000000000 +0000
++++ b/tests/lcov/extract/extract.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -6,6 +6,8 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -242,7 +234,7 @@ index 0cdec93..aa1ba2a 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -93,7 +95,7 @@ PARENT=`(cd .. ; pwd)`
+@@ -93,7 +95,7 @@
  
  LCOV_OPTS="--rc lcov_branch_coverage=1 $PARALLEL $PROFILE"
  # gcc/4.8.5 (and possibly other old versions) generate inconsistent line/function data
@@ -251,7 +243,7 @@ index 0cdec93..aa1ba2a 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
      # and filter exception branches to avoid spurious differences for old compiler
-@@ -114,12 +116,12 @@ if [[ 1 == $CLEAN_ONLY ]] ; then
+@@ -116,12 +118,12 @@
      exit 0
  fi
  
@@ -265,9 +257,9 @@ index 0cdec93..aa1ba2a 100755
 -g++ -std=c++1y --coverage extract.cpp
 +${CXX} -std=c++1y --coverage extract.cpp
  if [ 0 != $? ] ; then
-     echo "Error:  unexpected error from gcc"
+     echo "Error:  unexpected error from g++"
      exit 1
-@@ -399,7 +401,7 @@ let STRIP=$DEPTH+2
+@@ -505,7 +507,7 @@
  mkdir -p separate/build
  mkdir -p separate/run
  mkdir -p separate/copy
@@ -276,11 +268,11 @@ index 0cdec93..aa1ba2a 100755
  cp separate/build/*.gcno separate/copy
  # make unwritable - so we don't allow lcov to write temporaries
  #  this emulates what happens when the build job is owned by one user,
-diff --git a/tests/lcov/format/format.sh b/tests/lcov/format/format.sh
-index a9f2b3f..0c70b45 100755
---- a/tests/lcov/format/format.sh
-+++ b/tests/lcov/format/format.sh
-@@ -8,6 +8,8 @@ COVER=
+Only in b/tests/lcov/extract: extract.sh.orig
+diff -ur a/tests/lcov/format/format.sh b/tests/lcov/format/format.sh
+--- a/tests/lcov/format/format.sh	2024-01-08 19:59:45.000000000 +0000
++++ b/tests/lcov/format/format.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -8,6 +8,8 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -289,7 +281,7 @@ index a9f2b3f..0c70b45 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -92,7 +94,7 @@ PARENT=`(cd .. ; pwd)`
+@@ -92,7 +94,7 @@
  
  LCOV_OPTS="--branch $PARALLEL $PROFILE"
  # gcc/4.8.5 (and possibly other old versions) generate inconsistent line/function data
@@ -298,7 +290,7 @@ index a9f2b3f..0c70b45 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
      # and filter exception branches to avoid spurious differences for old compiler
-@@ -109,8 +111,8 @@ if [[ 1 == $CLEAN_ONLY ]] ; then
+@@ -109,8 +111,8 @@
      exit 0
  fi
  
@@ -309,11 +301,10 @@ index a9f2b3f..0c70b45 100755
          exit 2
  fi
  
-diff --git a/tests/lcov/merge/merge.sh b/tests/lcov/merge/merge.sh
-index 3e5817c..65605a6 100755
---- a/tests/lcov/merge/merge.sh
-+++ b/tests/lcov/merge/merge.sh
-@@ -8,6 +8,8 @@ COVER=
+diff -ur a/tests/lcov/merge/merge.sh b/tests/lcov/merge/merge.sh
+--- a/tests/lcov/merge/merge.sh	2024-03-06 15:21:55.000000000 +0000
++++ b/tests/lcov/merge/merge.sh	2024-07-29 18:05:33.015201529 +0000
+@@ -8,6 +8,8 @@
  
  PARALLEL='--parallel 0'
  PROFILE="--profile"
@@ -322,7 +313,7 @@ index 3e5817c..65605a6 100755
  COVER_DB='cover_db'
  LOCAL_COVERAGE=1
  KEEP_GOING=0
-@@ -85,7 +87,7 @@ PARENT=`(cd .. ; pwd)`
+@@ -91,7 +93,7 @@
  
  LCOV_OPTS="--branch $PARALLEL $PROFILE"
  # gcc/4.8.5 (and possibly other old versions) generate inconsistent line/function data
@@ -331,7 +322,7 @@ index 3e5817c..65605a6 100755
  if [ "${VER[0]}" -lt 5 ] ; then
      IGNORE="--ignore inconsistent"
      # and filter exception branches to avoid spurious differences for old compiler
-@@ -102,8 +104,8 @@ if [[ 1 == $CLEAN_ONLY ]] ; then
+@@ -108,8 +110,8 @@
      exit 0
  fi
  
@@ -342,6 +333,4 @@ index 3e5817c..65605a6 100755
          exit 2
  fi
  
--- 
-2.43.0.429.g432eaa2c6b-goog
-
+Only in b/tests/lcov/merge: merge.sh.orig

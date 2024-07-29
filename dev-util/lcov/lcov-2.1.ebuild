@@ -13,7 +13,7 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/linux-test-project/lcov.git"
 	inherit git-r3
 else
-	SRC_URI="gs://chromeos-localmirror/distfiles/${P}.tar.gz"
+	SRC_URI="https://github.com/linux-test-project/lcov/releases/download/v${PV}/${P}.tar.gz"
 	KEYWORDS="*"
 fi
 
