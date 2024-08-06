@@ -3,6 +3,7 @@
 
 EAPI=7
 
+DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{8..11} pypy3 )
 PYTHON_REQ_USE="threads(+)"
@@ -26,6 +27,7 @@ KEYWORDS="*"
 IUSE="emacs test"
 RESTRICT="!test? ( test )"
 
+DEPEND="${PYTHON_DEPS}"
 RDEPEND="
 	emacs? ( >=app-editors/emacs-23.1:* )
 "

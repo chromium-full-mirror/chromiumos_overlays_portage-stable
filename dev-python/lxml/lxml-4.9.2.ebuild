@@ -3,6 +3,7 @@
 
 EAPI=7
 
+DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{8..11} pypy3 )
 
@@ -28,6 +29,7 @@ RESTRICT="!test? ( test )"
 
 # Note: lib{xml2,xslt} are used as C libraries, not Python modules.
 DEPEND="
+	${PYTHON_DEPS}
 	>=dev-libs/libxml2-2.9.12-r2
 	>=dev-libs/libxslt-1.1.28
 "
@@ -69,6 +71,9 @@ python_prepare_all() {
 	# don't use some random SDK on Darwin
 	sed -i -e '/_ldflags =/s/=.*isysroot.*darwin.*None/= None/' \
 		setupinfo.py || die
+
+	# sys.argv[0] will be "gpep517"
+	sed -i -Ee 's/sys\.argv\[0\]/__file__/g' versioninfo.py
 
 	distutils-r1_python_prepare_all
 }

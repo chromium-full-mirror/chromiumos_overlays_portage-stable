@@ -1,1 +1,0 @@
-httplib2-0.19.0-r1.ebuild

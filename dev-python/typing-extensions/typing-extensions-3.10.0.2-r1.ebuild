@@ -1,1 +1,0 @@
-typing-extensions-3.10.0.2.ebuild

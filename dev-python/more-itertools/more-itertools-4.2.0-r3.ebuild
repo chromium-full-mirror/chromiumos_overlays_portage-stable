@@ -1,1 +1,0 @@
-more-itertools-4.2.0-r2.ebuild

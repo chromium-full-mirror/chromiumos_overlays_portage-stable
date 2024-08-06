@@ -1,1 +1,0 @@
-jaraco-functools-2.0.ebuild
