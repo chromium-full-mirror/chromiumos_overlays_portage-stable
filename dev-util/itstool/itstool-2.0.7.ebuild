@@ -1,10 +1,10 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
-PYTHON_REQ_USE="xml"
+PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_REQ_USE="xml(+)"
 
 inherit python-single-r1
 
@@ -16,13 +16,12 @@ SRC_URI="http://files.itstool.org/itstool/${P}.tar.bz2"
 LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="${PYTHON_DEPS}
 	$(python_gen_cond_dep '
-		dev-libs/libxml2[python,${PYTHON_MULTI_USEDEP}]
+		dev-libs/libxml2[python,${PYTHON_USEDEP}]
 	')"
 DEPEND="${RDEPEND}"
 BDEPEND=""
