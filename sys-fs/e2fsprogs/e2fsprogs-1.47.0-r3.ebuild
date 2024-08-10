@@ -47,6 +47,7 @@ PATCHES=(
 	"${FILESDIR}"/e2fsprogs-1.47.0-parallel-make.patch
 
 	# Upstream patches (can usually removed with next version bump)
+	"${FILESDIR}"/e2fsprogs-1.47.0-do-not-set-dirty-when-default-is-not-.patch
 )
 
 src_prepare() {
