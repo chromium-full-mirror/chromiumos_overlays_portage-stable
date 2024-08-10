@@ -47,6 +47,8 @@ PATCHES=(
 	"${FILESDIR}"/e2fsprogs-1.47.0-parallel-make.patch
 
 	# Upstream patches (can usually removed with next version bump)
+
+	# Out of tree patches that will hopefull make it upstream.
 	"${FILESDIR}"/e2fsprogs-1.47.0-do-not-set-dirty-when-default-is-not-.patch
 )
 
