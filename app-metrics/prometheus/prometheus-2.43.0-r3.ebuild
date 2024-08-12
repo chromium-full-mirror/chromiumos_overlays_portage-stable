@@ -52,14 +52,12 @@ src_install() {
 	doins -r console_libraries consoles
 	insinto /etc/prometheus
 	doins documentation/examples/prometheus.yml
-	dosym -r /usr/share/prometheus/console_libraries /etc/prometheus/console_libraries
-	dosym -r /usr/share/prometheus/consoles /etc/prometheus/consoles
+	dosym /usr/share/prometheus/console_libraries /etc/prometheus/console_libraries
+	dosym /usr/share/prometheus/consoles /etc/prometheus/consoles
 
 	systemd_dounit "${FILESDIR}"/prometheus.service
 	newinitd "${FILESDIR}"/prometheus.initd prometheus
 	newconfd "${FILESDIR}"/prometheus.confd prometheus
-	keepdir /var/log/prometheus /var/lib/prometheus
-	fowners prometheus:prometheus /var/log/prometheus /var/lib/prometheus
 }
 
 pkg_postinst() {
