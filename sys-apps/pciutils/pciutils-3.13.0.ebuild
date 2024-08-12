@@ -30,9 +30,6 @@ BDEPEND="|| ( >=sys-devel/binutils-2.36:* sys-devel/lld sys-devel/native-cctools
 
 MULTILIB_WRAPPED_HEADERS=( /usr/include/pci/config.h )
 
-PATCHES=(
-	"${FILESDIR}"/fix-versioned-symbol-aliases.patch
-)
 
 switch_config() {
 	[[ $# -ne 2 ]] && return 1
