@@ -59,6 +59,10 @@ BDEPEND="
 
 DOCS=( AUTHORS MAILING-LIST NEWS README )
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-fix-CVE-2024-38428.patch
+)
+
 pkg_setup() {
 	use test && python-any-r1_pkg_setup
 }
