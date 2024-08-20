@@ -3,6 +3,7 @@
 
 EAPI=7
 
+DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{8..12} )
 
@@ -25,6 +26,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="+native-extensions"
 
+DEPEND="${PYTHON_DEPS}"
 RDEPEND="
 	>=dev-python/typing-extensions-4.1.0[${PYTHON_USEDEP}]
 "
