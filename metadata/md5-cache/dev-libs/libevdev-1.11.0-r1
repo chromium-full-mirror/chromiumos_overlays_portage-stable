@@ -1,4 +1,4 @@
-BDEPEND=|| ( dev-lang/python:3.8 dev-lang/python:3.9 dev-lang/python:3.10 dev-lang/python:3.11 ) doc? ( app-doc/doxygen ) virtual/pkgconfig !cros_host? ( dev-python/psutil sys-apps/iproute2 sys-apps/proot sys-libs/libcap-ng !amd64? ( !x86? ( app-emulation/qemu ) ) ) >=dev-build/meson-0.58.2-r1 >=dev-util/ninja-1.8.2 dev-util/meson-format-array
+BDEPEND=|| ( >=dev-lang/python-3.8.15_p3:3.8 >=dev-lang/python-3.9.15_p3:3.9 >=dev-lang/python-3.10.8_p3:3.10 >=dev-lang/python-3.11.0_p2:3.11 ) doc? ( app-doc/doxygen ) virtual/pkgconfig !cros_host? ( dev-python/psutil sys-apps/iproute2 sys-apps/proot sys-libs/libcap-ng !amd64? ( !x86? ( app-emulation/qemu ) ) ) >=dev-build/meson-0.58.2-r1 >=dev-util/ninja-1.8.2 dev-util/meson-format-array
 DEFINED_PHASES=compile configure install setup test
 DEPEND=test? ( dev-libs/check[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?,abi_ppc_32(-)?,abi_ppc_64(-)?,abi_s390_32(-)?,abi_s390_64(-)?,abi_arm_32(-)?,abi_arm_64(-)?] ) !cros_host? ( dev-lang/python )
 DESCRIPTION=Handler library for evdev events
@@ -10,5 +10,5 @@ LICENSE=MIT
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://www.freedesktop.org/software/libevdev/libevdev-1.11.0.tar.xz
-_eclasses_=meson	e785a2770f8840637cc0341468f8e565	meson-multilib	84c0d4019bf29be0d9d0a2d98fb8b0d9	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	meson	e785a2770f8840637cc0341468f8e565	meson-multilib	84c0d4019bf29be0d9d0a2d98fb8b0d9	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	a68093a392c4b63b0697fb2954d028a8	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=fec8f7aac27b0e7e320c3495b02aa670

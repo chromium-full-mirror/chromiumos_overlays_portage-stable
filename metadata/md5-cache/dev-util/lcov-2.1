@@ -1,4 +1,4 @@
-BDEPEND=test? ( dev-lang/perl dev-perl/Capture-Tiny dev-perl/DateTime || ( dev-perl/JSON-XS dev-perl/Cpanel-JSON-XS virtual/perl-JSON-PP dev-perl/JSON ) dev-perl/PerlIO-gzip dev-perl/GD || ( ( dev-lang/python:3.8 dev-python/xlsxwriter[python_targets_python3_8(-),python_single_target_python3_8(+)] ) ( dev-lang/python:3.9 dev-python/xlsxwriter[python_targets_python3_9(-),python_single_target_python3_9(+)] ) ( dev-lang/python:3.10 dev-python/xlsxwriter[python_targets_python3_10(-),python_single_target_python3_10(+)] ) ( dev-lang/python:3.11 dev-python/xlsxwriter[python_targets_python3_11(-),python_single_target_python3_11(+)] ) ( dev-lang/python:3.12 dev-python/xlsxwriter[python_targets_python3_12(-),python_single_target_python3_12(+)] ) ) )
+BDEPEND=test? ( dev-lang/perl dev-perl/Capture-Tiny dev-perl/DateTime || ( dev-perl/JSON-XS dev-perl/Cpanel-JSON-XS virtual/perl-JSON-PP dev-perl/JSON ) dev-perl/PerlIO-gzip dev-perl/GD || ( ( >=dev-lang/python-3.8.15_p3:3.8 dev-python/xlsxwriter[python_targets_python3_8(-)] ) ( >=dev-lang/python-3.9.15_p3:3.9 dev-python/xlsxwriter[python_targets_python3_9(-)] ) ( >=dev-lang/python-3.10.8_p3:3.10 dev-python/xlsxwriter[python_targets_python3_10(-)] ) ( >=dev-lang/python-3.11.0_p2:3.11 dev-python/xlsxwriter[python_targets_python3_11(-)] ) ( dev-lang/python:3.12 dev-python/xlsxwriter[python_targets_python3_12(-)] ) ) )
 DEFINED_PHASES=compile install postinst prepare setup test
 DESCRIPTION=A graphical front-end for GCC's coverage testing tool gcov
 EAPI=7
@@ -10,5 +10,5 @@ RDEPEND=dev-lang/perl dev-perl/Capture-Tiny dev-perl/DateTime || ( dev-perl/JSON
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/linux-test-project/lcov/releases/download/v2.1/lcov-2.1.tar.gz
-_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	optfeature	f4941a15f8b66955c45f7b0e7c4ae890	prefix	e51c7882b7b721e54e684f7eb143cbfe	python-any-r1	54a3178500786b0a7ede4a23b7f2a6ad	python-utils-r1	76252008070e69454f51fa80c07638c9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	optfeature	f4941a15f8b66955c45f7b0e7c4ae890	prefix	e51c7882b7b721e54e684f7eb143cbfe	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	a68093a392c4b63b0697fb2954d028a8	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=dbb751f8e88f018938124e7883226536
