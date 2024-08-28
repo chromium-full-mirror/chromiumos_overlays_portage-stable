@@ -1,25 +1,22 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# please keep this ebuild at EAPI 7 -- sys-apps/portage dep
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=7
 
 # please bump dev-python/ensurepip-setuptools along with this package!
 
 DISTUTILS_USE_PEP517=standalone
-PYTHON_TESTED=( python3_{8..11} pypy3 )
+PYTHON_TESTED=( python3_{10..12} pypy3 )
 PYTHON_COMPAT=( python3_{8..12} )
 PYTHON_REQ_USE="xml(+)"
 
-inherit distutils-r1 multiprocessing
+inherit distutils-r1 multiprocessing pypi
 
 DESCRIPTION="Collection of extensions to Distutils"
 HOMEPAGE="
 	https://github.com/pypa/setuptools/
 	https://pypi.org/project/setuptools/
-"
-SRC_URI="
-	mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz
 "
 
 LICENSE="MIT"
@@ -29,12 +26,12 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	>=dev-python/appdirs-1.4.4-r2[${PYTHON_USEDEP}]
 	>=dev-python/jaraco-text-3.7.0-r1[${PYTHON_USEDEP}]
 	>=dev-python/more-itertools-8.12.0-r1[${PYTHON_USEDEP}]
 	>=dev-python/nspektr-0.3.0[${PYTHON_USEDEP}]
 	>=dev-python/ordered-set-4.0.2-r1[${PYTHON_USEDEP}]
 	>=dev-python/packaging-21.3-r2[${PYTHON_USEDEP}]
+	>=dev-python/platformdirs-2.6.2-r1[${PYTHON_USEDEP}]
 	>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '
 		>=dev-python/importlib_metadata-4.11.1[${PYTHON_USEDEP}]
@@ -42,10 +39,10 @@ RDEPEND="
 	$(python_gen_cond_dep '
 		>=dev-python/importlib_resources-5.4.0-r3[${PYTHON_USEDEP}]
 	' 3.8)
+	>=dev-python/wheel-0.37.1-r1[${PYTHON_USEDEP}]
 "
 BDEPEND="
 	${RDEPEND}
-	>=dev-python/wheel-0.37.1-r1[${PYTHON_USEDEP}]
 	test? (
 		$(python_gen_cond_dep '
 			dev-python/build[${PYTHON_USEDEP}]
@@ -62,7 +59,6 @@ BDEPEND="
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
 			>=dev-python/tomli-w-1.0.0[${PYTHON_USEDEP}]
 			>=dev-python/virtualenv-20[${PYTHON_USEDEP}]
-			dev-python/wheel[${PYTHON_USEDEP}]
 		' "${PYTHON_TESTED[@]}")
 	)
 "
@@ -79,6 +75,8 @@ src_prepare() {
 		"${FILESDIR}"/setuptools-62.4.0-py-compile.patch
 	)
 
+	distutils-r1_src_prepare
+
 	# remove bundled dependencies, setuptools will switch to system deps
 	# automatically
 	rm -r */_vendor || die
@@ -88,10 +86,6 @@ src_prepare() {
 	find -name '*.py' -exec sed \
 		-e 's:from \w*[.]\+extern ::' -e 's:\w*[.]\+extern[.]::' \
 		-i {} + || die
-
-	distutils-r1_src_prepare
-
-	export SETUPTOOLS_SCM_PRETEND_VERSION=${PV}
 }
 
 python_compile() {
@@ -100,8 +94,6 @@ python_compile() {
 }
 
 python_test() {
-	local -x SETUPTOOLS_USE_DISTUTILS=stdlib
-
 	if ! has "${EPYTHON}" "${PYTHON_TESTED[@]/_/.}"; then
 		return
 	fi
@@ -126,7 +118,18 @@ python_test() {
 		setuptools/tests/config/test_apply_pyprojecttoml.py::TestMeta::test_example_file_in_sdist
 		setuptools/tests/config/test_apply_pyprojecttoml.py::TestMeta::test_example_file_not_in_wheel
 		setuptools/tests/test_editable_install.py::test_editable_with_pyproject
+		# fails if python-xlib is installed
+		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_allow_hosts
+		# fails with importlib-metadata-6.6.0
+		setuptools/tests/test_egg_info.py::TestWriteEntries::test_invalid_entry_point
 	)
+
+	if has_version "<dev-python/packaging-22"; then
+		EPYTEST_DESELECT+=(
+			# old packaging is more lenient
+			setuptools/tests/config/test_setupcfg.py::TestOptions::test_raises_accidental_env_marker_misconfig
+		)
+	fi
 
 	epytest -n "$(makeopts_jobs)" setuptools
 }

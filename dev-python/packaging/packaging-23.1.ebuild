@@ -1,0 +1,36 @@
+# Copyright 1999-2023 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
+EAPI=7
+
+DISTUTILS_USE_PEP517=flit
+PYTHON_COMPAT=( python3_{8..12} )
+
+inherit distutils-r1 pypi
+
+DESCRIPTION="Core utilities for Python packages"
+HOMEPAGE="
+	https://github.com/pypa/packaging/
+	https://pypi.org/project/packaging/
+"
+
+SLOT="0"
+LICENSE="|| ( Apache-2.0 BSD-2 )"
+KEYWORDS="*"
+
+RDEPEND="
+	>=dev-python/pyparsing-3.0.7-r1[${PYTHON_USEDEP}]
+	!<dev-python/setuptools-67
+"
+DEPEND="
+	test? (
+		dev-python/pretend[${PYTHON_USEDEP}]
+	)
+"
+
+distutils_enable_tests pytest
+
+python_test() {
+	epytest --capture=no
+}

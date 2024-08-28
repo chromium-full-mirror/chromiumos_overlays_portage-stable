@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # please keep this ebuild at EAPI 7 -- sys-apps/portage dep
@@ -9,14 +9,13 @@ DISTUTILS_USE_PEP517=flit
 # new entry_point API not yet included in cpython release
 PYTHON_COMPAT=( python3_{8..12} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="Read metadata from Python packages"
 HOMEPAGE="
 	https://github.com/python/importlib_metadata/
 	https://pypi.org/project/importlib-metadata/
 "
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -29,9 +28,6 @@ BDEPEND="
 	test? (
 		dev-python/packaging[${PYTHON_USEDEP}]
 		dev-python/pyfakefs[${PYTHON_USEDEP}]
-		$(python_gen_cond_dep '
-			dev-python/importlib_resources[${PYTHON_USEDEP}]
-		' 3.8)
 	)
 "
 
