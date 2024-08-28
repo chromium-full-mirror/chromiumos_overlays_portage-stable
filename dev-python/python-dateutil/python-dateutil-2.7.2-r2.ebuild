@@ -1,1 +1,0 @@
-python-dateutil-2.7.2-r1.ebuild
