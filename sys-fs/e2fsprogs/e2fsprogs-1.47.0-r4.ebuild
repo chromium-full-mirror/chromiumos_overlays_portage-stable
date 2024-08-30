@@ -50,6 +50,7 @@ PATCHES=(
 
 	# Out of tree patches that will hopefull make it upstream.
 	"${FILESDIR}"/e2fsprogs-1.47.0-do-not-set-dirty-when-default-is-not-.patch
+	"${FILESDIR}"/e2fsprogs-1.47.0-do-not-update-quota-when-not-needed.patch
 )
 
 src_prepare() {
