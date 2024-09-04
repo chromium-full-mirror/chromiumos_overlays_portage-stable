@@ -3,7 +3,6 @@
 
 EAPI="7"
 PYTHON_COMPAT=( python3_{6..11} )
-PYTHON_REQ_USE="xml"
 
 inherit python-r1 toolchain-funcs
 
