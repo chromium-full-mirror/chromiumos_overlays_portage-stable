@@ -14,7 +14,7 @@ HOMEPAGE="
 	https://pypi.org/project/flit-core/
 	https://github.com/pypa/flit/
 "
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
+SRC_URI="mirror://pypi/${PN:0:1}/${PN}/flit_core-${PV}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
@@ -28,6 +28,11 @@ BDEPEND="
 "
 
 distutils_enable_tests pytest
+
+src_unpack() {
+	default_src_unpack
+	mv flit_core-${PV} flit-core-${PV}
+}
 
 src_prepare() {
 	rm -r flit_core/vendor || die

@@ -207,7 +207,7 @@ _distutils_set_globals() {
 		case ${DISTUTILS_USE_PEP517} in
 			flit)
 				bdep+='
-					>=dev-python/flit_core-3.8.0[${PYTHON_USEDEP}]
+					>=dev-python/flit-core-3.8.0[${PYTHON_USEDEP}]
 				'
 				;;
 			flit_scm)
@@ -916,12 +916,12 @@ _distutils-r1_print_package_versions() {
 		case ${DISTUTILS_USE_PEP517} in
 			flit)
 				packages+=(
-					dev-python/flit_core
+					dev-python/flit-core
 				)
 				;;
 			flit_scm)
 				packages+=(
-					dev-python/flit_core
+					dev-python/flit-core
 					dev-python/flit_scm
 					dev-python/setuptools_scm
 				)
