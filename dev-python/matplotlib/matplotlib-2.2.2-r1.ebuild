@@ -141,7 +141,7 @@ python_prepare_all() {
 }
 
 python_configure_all() {
-	append-flags -fno-strict-aliasing
+	append-flags -fno-strict-aliasing -Wno-register
 	append-cppflags -DNDEBUG  # or get old trying to do triangulation
 	append-cxxflags -std=c++14
 	tc-export PKG_CONFIG
