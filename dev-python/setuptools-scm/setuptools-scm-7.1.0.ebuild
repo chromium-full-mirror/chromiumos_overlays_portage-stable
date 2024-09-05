@@ -20,6 +20,7 @@ SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="
+	!dev-python/setuptools_scm
 	dev-python/packaging[${PYTHON_USEDEP}]
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '

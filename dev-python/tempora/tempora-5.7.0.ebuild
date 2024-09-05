@@ -24,7 +24,7 @@ RDEPEND="
 	dev-python/python-dateutil[${PYTHON_USEDEP}]
 "
 BDEPEND="
-	dev-python/setuptools_scm[${PYTHON_USEDEP}]
+	dev-python/setuptools-scm[${PYTHON_USEDEP}]
 	test? (
 		$(python_gen_cond_dep '
 			dev-python/pytest-freezer[${PYTHON_USEDEP}]

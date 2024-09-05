@@ -923,7 +923,7 @@ _distutils-r1_print_package_versions() {
 				packages+=(
 					dev-python/flit-core
 					dev-python/flit_scm
-					dev-python/setuptools_scm
+					dev-python/setuptools-scm
 				)
 				;;
 			hatchling)
@@ -937,7 +937,7 @@ _distutils-r1_print_package_versions() {
 				packages+=(
 					dev-python/jupyter_packaging
 					dev-python/setuptools
-					dev-python/setuptools_scm
+					dev-python/setuptools-scm
 					dev-python/wheel
 				)
 				;;
@@ -975,7 +975,7 @@ _distutils-r1_print_package_versions() {
 			setuptools)
 				packages+=(
 					dev-python/setuptools
-					dev-python/setuptools_scm
+					dev-python/setuptools-scm
 					dev-python/wheel
 				)
 				;;

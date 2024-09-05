@@ -33,7 +33,7 @@ RDEPEND="
 
 # flake & pytest-capturelog cause a number of tests to fail
 DEPEND="${RDEPEND}
-	dev-python/setuptools_scm[${PYTHON_USEDEP}]
+	dev-python/setuptools-scm[${PYTHON_USEDEP}]
 	test? (
 		>=dev-python/hypothesis-3.56[${PYTHON_USEDEP}]
 		dev-python/nose[${PYTHON_USEDEP}]
