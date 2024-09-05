@@ -1,22 +1,20 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# please keep this ebuild at EAPI 7 -- sys-apps/portage dep
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=7
 
 DISTUTILS_USE_PEP517=flit
+PYPI_PN=${PN/-/.}
 PYTHON_COMPAT=( python3_{8..12} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
-MY_P=${P/-/.}
 DESCRIPTION="Additional functions used by other projects by developer jaraco"
 HOMEPAGE="
 	https://github.com/jaraco/jaraco.functools/
 	https://pypi.org/project/jaraco.functools/
 "
-SRC_URI="mirror://pypi/${PN::1}/${PN/-/.}/${MY_P}.tar.gz"
-S=${WORKDIR}/${MY_P}
 
 LICENSE="MIT"
 SLOT="0"

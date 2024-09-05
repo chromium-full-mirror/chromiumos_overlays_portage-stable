@@ -1,22 +1,20 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# please keep this ebuild at EAPI 7 -- sys-apps/portage dep
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=7
 
 DISTUTILS_USE_PEP517=flit
+PYPI_PN=${PN/-/.}
 PYTHON_COMPAT=( python3_{8..12} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
-MY_P=${P/-/.}
 DESCRIPTION="Text utilities used by other projects by developer jaraco"
 HOMEPAGE="
 	https://github.com/jaraco/jaraco.text/
 	https://pypi.org/project/jaraco.text/
 "
-SRC_URI="mirror://pypi/${PN:0:1}/${PN/-/.}/${MY_P}.tar.gz"
-S=${WORKDIR}/${MY_P}
 
 LICENSE="MIT"
 SLOT="0"
@@ -25,24 +23,6 @@ KEYWORDS="*"
 RDEPEND="
 	>=dev-python/jaraco-context-4.1.1-r1[${PYTHON_USEDEP}]
 	>=dev-python/jaraco-functools-3.5.0-r1[${PYTHON_USEDEP}]
-	$(python_gen_cond_dep '
-		>=dev-python/importlib_resources-5.4.0-r3[${PYTHON_USEDEP}]
-	' 3.8)
-"
-# needed only for CLI tool, make it PDEPEND to reduce pain in setuptools
-# bootstrap
-PDEPEND="
-	dev-python/autocommand[${PYTHON_USEDEP}]
-	dev-python/inflect[${PYTHON_USEDEP}]
-	dev-python/more-itertools[${PYTHON_USEDEP}]
-"
-BDEPEND="
-	test? (
-		${PDEPEND}
-		$(python_gen_cond_dep '
-			dev-python/pathlib2[${PYTHON_USEDEP}]
-		' 3.8 3.9)
-	)
 "
 
 distutils_enable_tests pytest
@@ -61,6 +41,11 @@ src_configure() {
 		version = "${PV}"
 		description = "Module for text manipulation"
 	EOF
+
+	# remove CLI tools, they have annoying deps, no entry points
+	# and since there are dashes in their names, they can't be imported
+	# anyway
+	rm jaraco/text/*-*.py || die
 }
 
 python_install() {

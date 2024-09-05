@@ -1,25 +1,43 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# please keep this ebuild at EAPI 7 -- sys-apps/portage dep
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=7
 
 DISTUTILS_USE_PEP517=flit
+PYPI_PN=${PN/-/.}
 PYTHON_COMPAT=( python3_{8..12} )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
-MY_P=${P/-/.}
 DESCRIPTION="Context managers by jaraco"
-HOMEPAGE="https://github.com/jaraco/jaraco.context"
-SRC_URI="mirror://pypi/${PN:0:1}/${PN/-/.}/${MY_P}.tar.gz"
-S="${WORKDIR}/${MY_P}"
+HOMEPAGE="
+	https://github.com/jaraco/jaraco.context/
+	https://pypi.org/project/jaraco.context/
+"
 
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
 
+# https://packages.gentoo.org/packages/dev-python/backports-tarfile
+RDEPEND="
+	$(python_gen_cond_dep '
+		dev-python/backports-tarfile[${PYTHON_USEDEP}]
+	' 3.{8..11})
+"
+BDEPEND="
+	test? (
+		dev-python/portend[${PYTHON_USEDEP}]
+	)
+"
+
 distutils_enable_tests pytest
+
+EPYTEST_DESELECT=(
+	# Internet
+	jaraco/context/__init__.py::jaraco.context.repo_context
+)
 
 src_configure() {
 	grep -q 'build-backend = "setuptools' pyproject.toml ||

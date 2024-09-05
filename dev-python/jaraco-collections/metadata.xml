@@ -7,8 +7,8 @@
 	</maintainer>
 	<stabilize-allarches/>
 	<upstream>
-		<remote-id type="pypi">jaraco.text</remote-id>
-		<remote-id type="github">jaraco/jaraco.text</remote-id>
-		<bugs-to>https://github.com/jaraco/jaraco.text/issues</bugs-to>
+		<remote-id type="pypi">jaraco.collections</remote-id>
+		<remote-id type="github">jaraco/jaraco.collections</remote-id>
+		<bugs-to>https://github.com/jaraco/jaraco.collections/issues</bugs-to>
 	</upstream>
 </pkgmetadata>
