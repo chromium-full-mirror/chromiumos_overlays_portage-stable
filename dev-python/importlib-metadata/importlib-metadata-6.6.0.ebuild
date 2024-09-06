@@ -22,6 +22,7 @@ SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="
+	!dev-python/importlib_metadata
 	dev-python/zipp[${PYTHON_USEDEP}]
 "
 BDEPEND="

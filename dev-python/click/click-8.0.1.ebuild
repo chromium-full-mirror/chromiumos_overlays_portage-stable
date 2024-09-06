@@ -18,7 +18,7 @@ IUSE="examples"
 
 RDEPEND="
 	$(python_gen_cond_dep '
-		dev-python/importlib_metadata[${PYTHON_USEDEP}]
+		dev-python/importlib-metadata[${PYTHON_USEDEP}]
 	' python3_6 python3_7 pypy3)"
 
 distutils_enable_sphinx docs \

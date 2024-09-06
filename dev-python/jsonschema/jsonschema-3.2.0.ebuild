@@ -22,7 +22,7 @@ BDEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	dev-python/six[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '
-		dev-python/importlib_metadata[${PYTHON_USEDEP}]
+		dev-python/importlib-metadata[${PYTHON_USEDEP}]
 		' python{2_7,3_{5,6,7}} pypy{,3})
 	$(python_gen_cond_dep \
 		'dev-python/functools32[${PYTHON_USEDEP}]' -2)
