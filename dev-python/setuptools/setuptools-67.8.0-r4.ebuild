@@ -37,7 +37,7 @@ RDEPEND="
 		>=dev-python/importlib-metadata-4.11.1[${PYTHON_USEDEP}]
 	' 3.8 3.9)
 	$(python_gen_cond_dep '
-		>=dev-python/importlib_resources-5.4.0-r3[${PYTHON_USEDEP}]
+		>=dev-python/importlib-resources-5.4.0-r3[${PYTHON_USEDEP}]
 	' 3.8)
 	>=dev-python/wheel-0.37.1-r1[${PYTHON_USEDEP}]
 "
