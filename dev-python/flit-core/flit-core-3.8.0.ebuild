@@ -21,6 +21,7 @@ SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="
+	!dev-python/flit_core
 	dev-python/tomli[${PYTHON_USEDEP}]
 "
 BDEPEND="
