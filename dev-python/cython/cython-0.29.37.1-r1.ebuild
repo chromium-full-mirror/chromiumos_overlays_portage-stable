@@ -1,14 +1,13 @@
-# Copyright 1999-2023 Gentoo Authors
-# Distributed under the terms of the GNU General Public License v2
-
 EAPI=7
 
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{8..11} pypy3 )
+PYTHON_TESTED=( python3_{8..11} )
+# 3.12 not tested yet for https://github.com/cython/cython/issues/5285.
+PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_12 pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
-inherit distutils-r1 toolchain-funcs elisp-common
+inherit distutils-r1 multiprocessing toolchain-funcs elisp-common flag-o-matic
 
 DESCRIPTION="A Python to C compiler"
 HOMEPAGE="
@@ -27,7 +26,6 @@ KEYWORDS="*"
 IUSE="emacs test"
 RESTRICT="!test? ( test )"
 
-DEPEND="${PYTHON_DEPS}"
 RDEPEND="
 	emacs? ( >=app-editors/emacs-23.1:* )
 "
@@ -36,13 +34,17 @@ BDEPEND="
 	test? (
 		$(python_gen_cond_dep '
 			dev-python/numpy[${PYTHON_USEDEP}]
-		' python3_{8..10})
+		' "${PYTHON_TESTED[@]}")
 	)
 "
 
 PATCHES=(
 	"${FILESDIR}/${PN}-0.29.22-spawn-multiprocessing.patch"
 	"${FILESDIR}/${PN}-0.29.23-test_exceptions-py310.patch"
+	"${FILESDIR}/${PN}-0.29.23-pythran-parallel-install.patch"
+	# workaround for https://bugs.gentoo.org/918983
+	# https://github.com/cython/cython/issues/2747
+	"${FILESDIR}/${PN}-0.29.37.1-no-warn-ptr-types.patch"
 )
 
 SITEFILE=50cython-gentoo.el
@@ -53,6 +55,12 @@ python_compile() {
 	# Python gets confused when it is in sys.path before build.
 	local -x PYTHONPATH=
 
+	# Prevents "error: include location '/usr/include/python3.8' is unsafe for
+	# cross-compilation", which for some reason only happens when building for
+	# the target board under Bazel (the host version of the package builds fine,
+	# and both the host and target packages build fine with Portage.)
+	append-flags -Wno-poison-system-directories
+
 	distutils-r1_python_compile
 }
 
@@ -61,7 +69,7 @@ python_compile_all() {
 }
 
 python_test() {
-	if has "${EPYTHON}" pypy3 python3.11; then
+	if ! has "${EPYTHON/./_}" "${PYTHON_TESTED[@]}"; then
 		einfo "Skipping tests on ${EPYTHON} (xfail)"
 		return
 	fi
@@ -69,7 +77,7 @@ python_test() {
 	tc-export CC
 	# https://github.com/cython/cython/issues/1911
 	local -x CFLAGS="${CFLAGS} -fno-strict-overflow"
-	"${PYTHON}" runtests.py -vv --work-dir "${BUILD_DIR}"/tests ||
+	"${PYTHON}" runtests.py -vv -j "$(makeopts_jobs)" --work-dir "${BUILD_DIR}"/tests ||
 		die "Tests fail with ${EPYTHON}"
 }
 
