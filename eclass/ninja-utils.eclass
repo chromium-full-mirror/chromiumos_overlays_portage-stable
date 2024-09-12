@@ -63,6 +63,16 @@ case "${NINJA}" in
 	;;
 esac
 
+# @FUNCTION: get_NINJAOPTS
+# @DESCRIPTION:
+# Get the value of NINJAOPTS, inferring them from MAKEOPTS if unset.
+get_NINJAOPTS() {
+	if [[ -z ${NINJAOPTS+set} ]]; then
+		NINJAOPTS="-j$(get_makeopts_jobs 999) -l$(get_makeopts_loadavg 0)"
+	fi
+	echo "${NINJAOPTS}"
+}
+
 # @FUNCTION: eninja
 # @USAGE: [<args>...]
 # @DESCRIPTION:

@@ -75,6 +75,24 @@ get_nproc() {
 	fi
 }
 
+# @FUNCTION: _get_all_makeopts
+# @INTERNAL
+# @DESCRIPTION:
+# Returns ${MAKEOPTS} ${GNUMAKEFLAGS} ${MAKEFLAGS}.
+_get_all_makeopts() {
+	echo "${MAKEOPTS} ${GNUMAKEFLAGS} ${MAKEFLAGS}"
+}
+
+# @FUNCTION: get_makeopts_jobs
+# @USAGE: [default-jobs]
+# @DESCRIPTION:
+# Return the number of jobs extracted from the make options (MAKEOPTS,
+# GNUMAKEFLAGS, MAKEFLAGS). If the make options do not specify a number,
+# then either the provided default is returned, or 1.
+get_makeopts_jobs() {
+	makeopts_jobs "$(_get_all_makeopts)" "${1:-1}"
+}
+
 # @FUNCTION: makeopts_jobs
 # @USAGE: [${MAKEOPTS}]
 # @DESCRIPTION:
@@ -92,6 +110,16 @@ makeopts_jobs() {
 		-e 's:.*[[:space:]](-j|--jobs[=[:space:]])[[:space:]]*([0-9]+).*:\2:p' \
 		-e 's:.*[[:space:]](-j|--jobs)[[:space:]].*:999:p')
 	echo ${jobs:-1}
+}
+
+# @FUNCTION: get_makeopts_loadavg
+# @USAGE: [default-loadavg]
+# @DESCRIPTION:
+# Return the value for the load-average extracted from the make options (MAKEOPTS,
+# GNUMAKEFLAGS, MAKEFLAGS).  If the make options do not specify a value, then
+# either the optional provided default is returned, or 999.
+get_makeopts_loadavg() {
+	makeopts_loadavg "$(_get_all_makeopts)" "${1:-999}"
 }
 
 # @FUNCTION: makeopts_loadavg
