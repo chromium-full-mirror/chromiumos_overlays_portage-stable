@@ -93,9 +93,10 @@ src_install() {
 		README.txt \
 		Doc \
 		Samples \
-		Devices \
 		ETC \
-		GDBServer
+		GDBServer \
+		Script \
+		Firmwares
 
 	udev_dorules 99-jlink.rules
 }
