@@ -1,1 +1,0 @@
-sphinxcontrib-jsmath-1.0.1-r1.ebuild

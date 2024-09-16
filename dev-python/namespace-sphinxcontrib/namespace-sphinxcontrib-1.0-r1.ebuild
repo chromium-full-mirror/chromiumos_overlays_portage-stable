@@ -1,1 +1,0 @@
-namespace-sphinxcontrib-1.0.ebuild
