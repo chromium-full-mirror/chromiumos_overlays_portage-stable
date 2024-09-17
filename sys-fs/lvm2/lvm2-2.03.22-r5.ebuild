@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -40,21 +40,21 @@ RDEPEND="
 	>=sys-apps/baselayout-2.2
 	lvm? (
 		virtual/tmpfiles
-		thin? ( <sys-block/thin-provisioning-tools-1.0.0 )
+		thin? ( >=sys-block/thin-provisioning-tools-1.0.6 )
 	)
 "
 # note: thin-0.3.0 is required to avoid --disable-thin_check_needs_check
 DEPEND="
 	${DEPEND_COMMON}
 	static? (
+		sys-apps/util-linux[static-libs]
 		lvm? (
 			dev-libs/libaio[static-libs]
-			sys-apps/util-linux[static-libs]
 			readline? ( sys-libs/readline[static-libs] )
 		)
 		selinux? ( sys-libs/libselinux[static-libs] )
 	)
-	valgrind? ( >=dev-util/valgrind-3.6 )
+	valgrind? ( >=dev-debug/valgrind-3.6 )
 "
 BDEPEND="
 	sys-devel/autoconf-archive
@@ -68,7 +68,8 @@ PATCHES=(
 	# For upstream -- review and forward:
 	"${FILESDIR}"/${PN}-2.03.20-dmeventd-no-idle-exit.patch
 	"${FILESDIR}"/${PN}-2.03.20-freopen-musl.patch
-	"${FILESDIR}"/${PN}-2.03.21-cleanup-correcting-some-log_print.patch
+	"${FILESDIR}"/${PN}-2.03.22-autoconf-2.72-egrep.patch
+	"${FILESDIR}"/${PN}-2.03.22-thin-version-checking.patch
 )
 
 pkg_setup() {
@@ -135,8 +136,8 @@ src_configure() {
 		myeconfargs+=( --with-thin=internal --with-cache=internal )
 		local texec
 		for texec in check dump repair restore; do
-			myeconfargs+=( --with-thin-${texec}="${EPREFIX}"/sbin/thin_${texec} )
-			myeconfargs+=( --with-cache-${texec}="${EPREFIX}"/sbin/cache_${texec} )
+			myeconfargs+=( --with-thin-${texec}="${EPREFIX}"/usr/sbin/thin_${texec} )
+			myeconfargs+=( --with-cache-${texec}="${EPREFIX}"/usr/sbin/cache_${texec} )
 		done
 	else
 		myeconfargs+=( --with-thin=none --with-cache=none )
@@ -195,13 +196,19 @@ src_test() {
 }
 
 src_install() {
-	local INSTALL_TARGETS=(
-		# full LVM2 or just device mapper.
-		$(usex lvm "install install_tmpfiles_configuration" "install_device-mapper")
-		# install systemd related files only when requested, bug #522430
-		$(usex $(usex lvm systemd lvm) "SYSTEMD_GENERATOR_DIR=$(systemd_get_systemgeneratordir) install_systemd_units install_systemd_generators" "")
-	)
-	emake V=1 DESTDIR="${D}" "${INSTALL_TARGETS[@]}"
+	local targets=()
+	if use lvm; then
+		targets+=( install install_tmpfiles_configuration )
+		if use systemd; then
+			# install systemd related files only when requested, bug #522430
+			targets+=( install_systemd_units )
+		fi
+	else
+		targets+=( install_device-mapper )
+	fi
+
+	# -j1 for bug #918125
+	emake -j1 V=1 DESTDIR="${D}" "${targets[@]}"
 
 	newinitd "${FILESDIR}"/device-mapper.rc-r3 device-mapper
 	newconfd "${FILESDIR}"/device-mapper.conf-r4 device-mapper
