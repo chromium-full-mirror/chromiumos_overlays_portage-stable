@@ -16,7 +16,7 @@ S=${WORKDIR}/${MY_P}/src
 LICENSE="openafs-krb5-a BSD MIT OPENLDAP BSD-2 HPND BSD-4 ISC RSA CC-BY-SA-3.0 || ( BSD-2 GPL-2+ )"
 SLOT="0"
 KEYWORDS="*"
-IUSE="cpu_flags_x86_aes doc +keyutils lmdb nls openldap +pkinit selinux +threads test xinetd"
+IUSE="cpu_flags_x86_aes doc +keyutils lmdb nls openldap +pkinit selinux test xinetd"
 
 RESTRICT="!test? ( test )"
 
@@ -34,8 +34,13 @@ DEPEND="
 	pkinit? ( >=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}] )
 	xinetd? ( sys-apps/xinetd )
 	"
+
+# The missing `sys-fs/e2fsprogs` dependency was added here on ChromeOS but not
+# yet upstream, in Gentoo repository.
+# TODO(b/370470845): File a Gentoo bug for this fix and the link it here.
 BDEPEND="
 	${PYTHON_DEPS}
+	>=sys-fs/e2fsprogs-1.46.4-r51[${MULTILIB_USEDEP}]
 	app-alternatives/yacc
 	cpu_flags_x86_aes? (
 		amd64? ( dev-lang/yasm )
@@ -84,7 +89,6 @@ multilib_src_configure() {
 		$(use_with openldap ldap) \
 		$(use_enable nls) \
 		$(use_enable pkinit) \
-		$(use_enable threads thread-support) \
 		$(use_with lmdb) \
 		$(use_with keyutils) \
 		--without-hesiod \
@@ -94,6 +98,7 @@ multilib_src_configure() {
 		--enable-dns-for-realm \
 		--enable-kdc-lookaside-cache \
 		--with-system-verto \
+		--enable-thread-support \
 		--disable-rpath
 }
 
@@ -119,12 +124,6 @@ multilib_src_install_all() {
 	cd ..
 	dodoc README
 
-	if use doc; then
-		dodoc -r doc/html
-		docinto pdf
-		dodoc doc/pdf/*.pdf
-	fi
-
 	newinitd "${FILESDIR}"/mit-krb5kadmind.initd-r2 mit-krb5kadmind
 	newinitd "${FILESDIR}"/mit-krb5kdc.initd-r2 mit-krb5kdc
 	newinitd "${FILESDIR}"/mit-krb5kpropd.initd-r2 mit-krb5kpropd
@@ -144,6 +143,8 @@ multilib_src_install_all() {
 	newins "${ED}/usr/share/doc/${PF}/examples/kdc.conf" kdc.conf.example
 
 	if use openldap ; then
+		dodoc "${S}/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif"
+		dodoc "${S}/plugins/kdb/ldap/libkdb_ldap/kerberos.openldap.ldif"
 		insinto /etc/openldap/schema
 		doins "${S}/plugins/kdb/ldap/libkdb_ldap/kerberos.schema"
 	fi
@@ -151,5 +152,11 @@ multilib_src_install_all() {
 	if use xinetd ; then
 		insinto /etc/xinetd.d
 		newins "${FILESDIR}/kpropd.xinetd" kpropd
+	fi
+
+	if use doc; then
+		dodoc -r doc/html
+		docinto pdf
+		dodoc doc/pdf/*.pdf
 	fi
 }
