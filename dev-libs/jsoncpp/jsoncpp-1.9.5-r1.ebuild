@@ -1,32 +1,31 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 
-inherit meson python-any-r1
+inherit meson-multilib python-any-r1
 
-EGIT_COMMIT="90ca694e4697497a8c2bc8c60a9c9f89e7290a10"
 DESCRIPTION="C++ JSON reader and writer"
-HOMEPAGE="https://github.com/open-source-parsers/jsoncpp"
+HOMEPAGE="https://github.com/open-source-parsers/jsoncpp/"
 SRC_URI="
-	https://github.com/open-source-parsers/${PN}/archive/${EGIT_COMMIT}.tar.gz
-		-> ${P}.tar.gz"
-S=${WORKDIR}/${PN}-${EGIT_COMMIT}
+	https://github.com/open-source-parsers/${PN}/archive/${PV}.tar.gz
+		-> ${P}.tar.gz
+"
 
 LICENSE="|| ( public-domain MIT )"
-SLOT="0/23"
+SLOT="0/25"
 KEYWORDS="*"
 IUSE="doc test"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
 	${PYTHON_DEPS}
-	doc? ( app-doc/doxygen )"
-RDEPEND=""
+	doc? ( app-text/doxygen )
+"
 
-src_configure() {
+multilib_src_configure() {
 	local emesonargs=(
 		# Follow Debian, Ubuntu, Arch convention for headers location
 		# bug #452234
@@ -37,11 +36,16 @@ src_configure() {
 }
 
 src_compile() {
-	meson_src_compile
+	meson-multilib_src_compile
 
 	if use doc; then
 		echo "${PV}" > version || die
 		"${EPYTHON}" doxybuild.py --doxygen="${EPREFIX}"/usr/bin/doxygen || die
 		HTML_DOCS=( dist/doxygen/jsoncpp*/. )
 	fi
+}
+
+multilib_src_test() {
+	# increase test timeout due to failures on slower hardware
+	meson_src_test -t 2
 }
