@@ -11,5 +11,5 @@ RDEPEND=!static? ( acl? ( sys-apps/acl ) caps? ( sys-libs/libcap ) gmp? ( dev-li
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://gnu/coreutils/coreutils-8.32.tar.xz !vanilla? ( mirror://gentoo/coreutils-8.30-patches-01.tar.xz https://dev.gentoo.org/~polynomial-c/dist/coreutils-8.30-patches-01.tar.xz )
-_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	a68093a392c4b63b0697fb2954d028a8	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	eutils	fcb2aa98e1948b835b5ae66ca52868c5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=57e4ec94804f9f62a8b91dec557bf011

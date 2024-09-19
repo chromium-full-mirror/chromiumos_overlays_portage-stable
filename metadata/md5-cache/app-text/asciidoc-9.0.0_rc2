@@ -12,5 +12,5 @@ REQUIRED_USE=^^ ( python_single_target_pypy3 python_single_target_python3_11 pyt
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/asciidoc/asciidoc-py3/archive/9.0.0rc2.tar.gz -> asciidoc-9.0.0_rc2.tar.gz
-_eclasses_=autotools	9adb87822e85056674b476e1090a72ae	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	eutils	fcb2aa98e1948b835b5ae66ca52868c5	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	python-single-r1	a5747fe6dc0651d95cb78eddd5e160a8	python-utils-r1	a68093a392c4b63b0697fb2954d028a8	readme.gentoo-r1	22ae82e140bdd95d17a34fd5fd733190	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	9adb87822e85056674b476e1090a72ae	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	eutils	fcb2aa98e1948b835b5ae66ca52868c5	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	python-single-r1	a5747fe6dc0651d95cb78eddd5e160a8	python-utils-r1	27286775f89db2dee6e810617d879ad9	readme.gentoo-r1	22ae82e140bdd95d17a34fd5fd733190	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=05357ddc61ee5e4d2b97906748f9b935

@@ -11,5 +11,5 @@ RDEPEND=caps? ( sys-libs/libcap ) idn? ( net-dns/libidn2:= ) nls? ( virtual/libi
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/iputils/iputils/releases/download/20240117/iputils-20240117.tar.xz
-_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	fcaps	babe6282ea5c195981bd302af1adaf3a	meson	e785a2770f8840637cc0341468f8e565	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	plocale	89c6aac5da68423465e6fd79fb4ad5fb	python-utils-r1	a68093a392c4b63b0697fb2954d028a8	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	fcaps	babe6282ea5c195981bd302af1adaf3a	meson	e785a2770f8840637cc0341468f8e565	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	plocale	89c6aac5da68423465e6fd79fb4ad5fb	python-utils-r1	27286775f89db2dee6e810617d879ad9	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=c2c5276324c7be91be945970cf7cebe4
