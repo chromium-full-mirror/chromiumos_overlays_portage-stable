@@ -13,7 +13,7 @@ sys-libs/glibc
 sys-libs/musl
 sys-devel/binutils
 sys-devel/binutils-config
-sys-devel/libtool
+dev-build/libtool
 sys-devel/make
 dev-lang/python
 dev-lang/perl

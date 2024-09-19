@@ -13,7 +13,7 @@ SLOT="0/${PV}"
 KEYWORDS="*"
 IUSE="static-libs"
 
-DEPEND="sys-devel/libtool"
+DEPEND="dev-build/libtool"
 RDEPEND="!sys-apps/rescan-scsi-bus"
 
 src_configure() {

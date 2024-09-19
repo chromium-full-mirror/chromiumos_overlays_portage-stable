@@ -17,7 +17,7 @@ KEYWORDS="*"
 IUSE="+cxx examples static-libs"
 
 DEPEND="
-	sys-devel/libtool
+	dev-build/libtool
 	sys-devel/bison"
 
 PATCHES=( "${FILESDIR}/${PN}-1.5-out-of-source-build.patch" )

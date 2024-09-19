@@ -16,7 +16,7 @@ IUSE="nls static-libs"
 
 BDEPEND="
 	sys-devel/flex
-	sys-devel/libtool
+	dev-build/libtool
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )
 "

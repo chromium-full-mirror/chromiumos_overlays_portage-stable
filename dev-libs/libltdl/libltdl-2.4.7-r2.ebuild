@@ -3,7 +3,7 @@
 
 EAPI="7"
 
-# Please bump with sys-devel/libtool.
+# Please bump with dev-build/libtool.
 
 inherit multilib-minimal flag-o-matic
 

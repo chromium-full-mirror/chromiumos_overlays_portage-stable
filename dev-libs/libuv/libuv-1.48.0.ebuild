@@ -25,7 +25,7 @@ LICENSE="BSD BSD-2 ISC MIT"
 SLOT="0/1"
 
 BDEPEND="
-	sys-devel/libtool
+	dev-build/libtool
 	virtual/pkgconfig
 	verify-sig? ( sec-keys/openpgp-keys-libuv )
 "
