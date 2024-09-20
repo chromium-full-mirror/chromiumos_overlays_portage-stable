@@ -9,5 +9,5 @@ LICENSE=|| ( Artistic GPL-1+ )
 RDEPEND=>=sys-libs/zlib-1.2.13 dev-lang/perl:=
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/P/PM/PMQS/Compress-Raw-Zlib-2.206.tar.gz
-_eclasses_=alternatives	eb864f6e50a20036e4cd47c8fd8f64d1	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
+_eclasses_=alternatives	eb864f6e50a20036e4cd47c8fd8f64d1	multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
 _md5_=42f8787152d11992e36b8b18c860a849

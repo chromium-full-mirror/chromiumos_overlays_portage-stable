@@ -12,5 +12,5 @@ REQUIRED_USE=test? ( tofu )
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://gnupg/gnupg/gnupg-2.4.0.tar.bz2 verify-sig? ( mirror://gnupg/gnupg/gnupg-2.4.0.tar.bz2.sig )
-_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	out-of-source	9779900d240517b0631874f05d190aae	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
+_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	out-of-source	9779900d240517b0631874f05d190aae	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
 _md5_=8ef10a1fdfe986304cadfe8e4c6b9d90

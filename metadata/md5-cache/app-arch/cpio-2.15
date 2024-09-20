@@ -7,5 +7,5 @@ KEYWORDS=*
 LICENSE=GPL-3+
 SLOT=0
 SRC_URI=mirror://gnu/cpio/cpio-2.15.tar.bz2
-_eclasses_=multiprocessing	c3cf317581e5bd068a4b851f03dd8cba
+_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55
 _md5_=4078e4507df499ab4489195e1e4f1247

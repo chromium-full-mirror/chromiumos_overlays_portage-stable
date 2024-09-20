@@ -11,5 +11,5 @@ RDEPEND=dev-libs/glib:2 dev-libs/libgudev:=
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/linuxwacom/libwacom/releases/download/libwacom-1.12/libwacom-1.12.tar.bz2
-_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	meson	e785a2770f8840637cc0341468f8e565	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	ninja-utils	578ba3585e2f3ebe63ab00c07874016e	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	udev	eec0bbab06977f1cfc5597269c1fa152
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	meson	e785a2770f8840637cc0341468f8e565	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	udev	eec0bbab06977f1cfc5597269c1fa152
 _md5_=32a57726210b3d952b8f54dd45979190

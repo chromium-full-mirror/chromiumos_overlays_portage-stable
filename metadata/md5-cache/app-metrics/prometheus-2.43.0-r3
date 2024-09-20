@@ -10,5 +10,5 @@ RDEPEND=acct-group/prometheus acct-user/prometheus
 RESTRICT=test
 SLOT=0
 SRC_URI=https://github.com/prometheus/prometheus/archive/v2.43.0.tar.gz -> prometheus-2.43.0.tar.gz https://dev.gentoo.org/~williamh/dist/prometheus-2.43.0-deps.tar.xz https://dev.gentoo.org/~williamh/dist/prometheus-2.43.0-assets.tar.xz
-_eclasses_=go-env	96e1747610bbb2f5c5d3fb16f0f3a83a	go-module	83fd3ed1657cfc316c93d6a37018290d	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	c3cf317581e5bd068a4b851f03dd8cba	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=go-env	96e1747610bbb2f5c5d3fb16f0f3a83a	go-module	83fd3ed1657cfc316c93d6a37018290d	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=100716bd4f749c774baa38f8be6593ca
