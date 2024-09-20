@@ -1,10 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-DISTUTILS_USE_PEP517=setuptools
-PYPI_NO_NORMALIZE=1
+DISTUTILS_USE_PEP517=hatchling
 PYPI_PN=${PN^}
 PYTHON_COMPAT=( python3_{8..12} )
 
@@ -38,6 +37,7 @@ EPYTEST_DESELECT=(
 	tests/test_html_formatter.py::test_ctags
 )
 
+EPYTEST_XDIST=1
 distutils_enable_tests pytest
 
 src_install() {
