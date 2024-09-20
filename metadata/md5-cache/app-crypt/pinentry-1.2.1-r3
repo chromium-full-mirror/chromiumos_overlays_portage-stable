@@ -1,4 +1,4 @@
-BDEPEND=sys-devel/gettext virtual/pkgconfig verify-sig? ( sec-keys/openpgp-keys-gnupg ) >=app-portage/elt-patches-20170815 || ( >=sys-devel/automake-1.16.5-r1:1.16 >=sys-devel/automake-1.15.1-r2:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 verify-sig? ( app-crypt/gnupg >=app-portage/gemato-16 )
+BDEPEND=sys-devel/gettext virtual/pkgconfig verify-sig? ( sec-keys/openpgp-keys-gnupg ) >=app-portage/elt-patches-20170815 || ( >=sys-devel/automake-1.16.5-r1:1.16 >=sys-devel/automake-1.15.1-r2:1.15 ) >=sys-devel/autoconf-2.69 >=dev-build/libtool-2.4 verify-sig? ( app-crypt/gnupg >=app-portage/gemato-16 )
 DEFINED_PHASES=configure install postinst postrm prepare unpack
 DEPEND=>=dev-libs/libassuan-2.1 >=dev-libs/libgcrypt-1.6.3 >=dev-libs/libgpg-error-1.17 efl? ( dev-libs/efl[X] ) keyring? ( app-crypt/libsecret ) ncurses? ( sys-libs/ncurses:= ) qt5? ( dev-qt/qtcore:5 dev-qt/qtgui:5 dev-qt/qtwidgets:5 wayland? ( kde-frameworks/kwayland:5 ) X? ( dev-qt/qtx11extras:5 x11-libs/libX11 ) )
 DESCRIPTION=Simple passphrase entry dialogs which utilize the Assuan protocol
@@ -10,5 +10,5 @@ LICENSE=GPL-2
 RDEPEND=>=dev-libs/libassuan-2.1 >=dev-libs/libgcrypt-1.6.3 >=dev-libs/libgpg-error-1.17 efl? ( dev-libs/efl[X] ) keyring? ( app-crypt/libsecret ) ncurses? ( sys-libs/ncurses:= ) qt5? ( dev-qt/qtcore:5 dev-qt/qtgui:5 dev-qt/qtwidgets:5 wayland? ( kde-frameworks/kwayland:5 ) X? ( dev-qt/qtx11extras:5 x11-libs/libX11 ) ) gtk? ( app-crypt/gcr:0[gtk] )
 SLOT=0
 SRC_URI=mirror://gnupg/pinentry/pinentry-1.2.1.tar.bz2 verify-sig? ( mirror://gnupg/pinentry/pinentry-1.2.1.tar.bz2.sig )
-_eclasses_=autotools	9adb87822e85056674b476e1090a72ae	estack	686eaab303305a908fd57b2fd7617800	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	qmake-utils	bdf97e69a34b864d6d545f4ec3143ff7	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
+_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	estack	686eaab303305a908fd57b2fd7617800	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	qmake-utils	bdf97e69a34b864d6d545f4ec3143ff7	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
 _md5_=b3d028f08f74cf3bad6a5d3a04119034

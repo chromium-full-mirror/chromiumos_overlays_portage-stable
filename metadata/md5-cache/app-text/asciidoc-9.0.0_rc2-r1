@@ -1,4 +1,4 @@
-BDEPEND=>=app-portage/elt-patches-20170815 || ( >=sys-devel/automake-1.16.5-r1:1.16 >=sys-devel/automake-1.15.1-r2:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+BDEPEND=>=app-portage/elt-patches-20170815 || ( >=sys-devel/automake-1.16.5-r1:1.16 >=sys-devel/automake-1.15.1-r2:1.15 ) >=sys-devel/autoconf-2.69 >=dev-build/libtool-2.4
 DEFINED_PHASES=configure install postinst prepare setup test
 DEPEND=test? ( python_single_target_pypy3? ( >=dev-python/pypy3-7.3.9_p9:0= ) python_single_target_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11 ) python_single_target_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10 ) python_single_target_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9 ) python_single_target_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8 ) app-text/dvipng app-text/dvisvgm dev-texlive/texlive-latex dev-util/source-highlight media-gfx/graphviz media-gfx/imagemagick media-sound/lilypond )
 DESCRIPTION=A plain text human readable/writable document format
@@ -12,5 +12,5 @@ REQUIRED_USE=^^ ( python_single_target_pypy3 python_single_target_python3_11 pyt
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/asciidoc/asciidoc-py3/archive/9.0.0rc2.tar.gz -> asciidoc-9.0.0_rc2.tar.gz
-_eclasses_=autotools	9adb87822e85056674b476e1090a72ae	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	eutils	fcb2aa98e1948b835b5ae66ca52868c5	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-single-r1	a5747fe6dc0651d95cb78eddd5e160a8	python-utils-r1	27286775f89db2dee6e810617d879ad9	readme.gentoo-r1	22ae82e140bdd95d17a34fd5fd733190	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	eutils	fcb2aa98e1948b835b5ae66ca52868c5	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-single-r1	a5747fe6dc0651d95cb78eddd5e160a8	python-utils-r1	27286775f89db2dee6e810617d879ad9	readme.gentoo-r1	22ae82e140bdd95d17a34fd5fd733190	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=05357ddc61ee5e4d2b97906748f9b935
