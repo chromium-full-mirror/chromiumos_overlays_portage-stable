@@ -1,1 +1,0 @@
-pyrsistent-0.14.4.ebuild
