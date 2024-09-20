@@ -11,7 +11,7 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/gdk-pixbuf"
 LICENSE="LGPL-2.1+"
 SLOT="2"
 KEYWORDS="*"
-IUSE="gtk-doc +introspection jpeg test tiff"
+IUSE="gtk-doc +introspection gif jpeg test tiff"
 RESTRICT="!test? ( test )"
 
 # TODO: For windows/darwin support: shared-mime-info conditional, native_windows_loaders option review
@@ -48,6 +48,8 @@ src_prepare() {
 multilib_src_configure() {
 	local emesonargs=(
 		-Dpng=enabled
+		$(meson_feature gif)
+		-Dothers=enabled
 		$(meson_feature tiff)
 		$(meson_feature jpeg)
 		-Dbuiltin_loaders=png,jpeg
