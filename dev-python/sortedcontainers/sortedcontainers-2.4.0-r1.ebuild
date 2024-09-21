@@ -1,19 +1,24 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{8..11} pypy3 )
+
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=( python3_{8..12} )
 
 inherit distutils-r1
 
 MY_P=python-${P}
 DESCRIPTION="Python library to sort collections and containers"
-HOMEPAGE="http://www.grantjenks.com/docs/sortedcontainers/
+HOMEPAGE="
+	https://www.grantjenks.com/docs/sortedcontainers/
+	https://github.com/grantjenks/python-sortedcontainers/
 	https://pypi.org/project/sortedcontainers/
-	https://github.com/grantjenks/python-sortedcontainers/"
+"
 SRC_URI="
 	https://github.com/grantjenks/python-sortedcontainers/archive/v${PV}.tar.gz
-		-> ${MY_P}.gh.tar.gz"
+		-> ${MY_P}.gh.tar.gz
+"
 S=${WORKDIR}/${MY_P}
 
 LICENSE="Apache-2.0"
@@ -23,6 +28,5 @@ KEYWORDS="*"
 distutils_enable_tests pytest
 
 python_test() {
-	local -x PYTHONPATH=.
-	pytest -vv --ignore docs/conf.py || die "Tests fail with ${EPYTHON}"
+	epytest --ignore docs/conf.py
 }
