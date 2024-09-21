@@ -1,39 +1,34 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python3_{8..11} )
+EAPI=7
 
-inherit distutils-r1
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=( python3_{8..12} )
+inherit distutils-r1 optfeature pypi
 
 DESCRIPTION="Python binding to libudev"
 HOMEPAGE="https://pyudev.readthedocs.io/en/latest/ https://github.com/pyudev/pyudev"
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="*"
-IUSE="qt5 test"
+IUSE="qt5"
 
-RDEPEND="
-	dev-python/six[${PYTHON_USEDEP}]
-	virtual/udev
-	qt5? ( dev-python/PyQt5[${PYTHON_USEDEP}] )
-"
-DEPEND="${RDEPEND}
-	dev-python/setuptools[${PYTHON_USEDEP}]
+# Known to fail on test system that aren't exactly the same devices as on CI
+RESTRICT="test"
+
+RDEPEND="virtual/udev"
+BDEPEND="
 	test? (
 		dev-python/docutils[${PYTHON_USEDEP}]
 		dev-python/hypothesis[${PYTHON_USEDEP}]
-		dev-python/mock[${PYTHON_USEDEP}]
-		>=dev-python/pytest-2.8[${PYTHON_USEDEP}]
-	)"
+	)
+"
 
 DOCS=( CHANGES.rst README.rst )
 
-PATCHES=(
-	"${FILESDIR}/${PN}-0.19.0-skip-non-deterministic-test.patch"
-)
+distutils_enable_tests pytest
 
 python_prepare_all() {
 	if use test; then
@@ -43,12 +38,15 @@ python_prepare_all() {
 
 	# tests are known to pass then fail on alternate runs
 	# tests: fix run_path
-	sed -i -e "s|== \('/run/udev'\)|in (\1,'/dev/.udev')|g" \
-		tests/test_core.py || die
+	sed -e "s|== \('/run/udev'\)|in (\1,'/dev/.udev')|g" \
+		-i tests/test_core.py || die
+
+	# disable usage of hypothesis timeouts (too short)
+	sed -e '/@settings/s/(/(deadline=None,/' -i tests{,/_device_tests}/*.py || die
 
 	distutils-r1_python_prepare_all
 }
 
-python_test() {
-	py.test -v || die "Tests fail with ${EPYTHON}"
+pkg_postinst() {
+	optfeature "PyQt5 bindings" "dev-python/PyQt5"
 }
