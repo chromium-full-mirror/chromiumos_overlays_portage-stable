@@ -12,7 +12,6 @@ ebuild-reviews@google.com
 # http://g/ebuild-reviews
 allenwebb@google.com #{LAST_RESORT_SUGGESTION}
 bmgordon@chromium.org #{LAST_RESORT_SUGGESTION}
-jrosenth@chromium.org #{LAST_RESORT_SUGGESTION}
 manojgupta@chromium.org #{LAST_RESORT_SUGGESTION}
 
 include chromiumos/owners:v1:/infra/OWNERS.build
