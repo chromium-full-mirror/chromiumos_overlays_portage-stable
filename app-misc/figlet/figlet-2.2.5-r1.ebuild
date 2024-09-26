@@ -1,9 +1,9 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=5
-inherit eutils bash-completion-r1 toolchain-funcs
+EAPI=7
+
+inherit bash-completion-r1 toolchain-funcs
 
 DESCRIPTION="program for making large letters out of ordinary text"
 HOMEPAGE="http://www.figlet.org/"
@@ -12,23 +12,24 @@ SRC_URI="ftp://ftp.figlet.org/pub/figlet/program/unix/${P}.tar.gz"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
+
+PATCHES=( "${FILESDIR}"/${P}-musl.patch )
 
 src_compile() {
 	emake clean
 	emake \
 		CC="$(tc-getCC)" \
-		LD="$(tc-getCC)" \
 		CFLAGS="${CFLAGS}" \
-	    LDFLAGS="${LDFLAGS}" \
+		LD="$(tc-getCC)" \
+		LDFLAGS="${LDFLAGS}" \
 		prefix="${EPREFIX}/usr" \
 		all
 }
 
 src_install() {
 	emake \
-		DESTDIR="${ED}" \
 		BINDIR="${EPREFIX}/usr/bin" \
+		DESTDIR="${D}" \
 		MANDIR="${EPREFIX}/usr/share/man" \
 		prefix="${EPREFIX}/usr" \
 		install
@@ -36,5 +37,5 @@ src_install() {
 	doman chkfont.6 figlet.6 figlist.6 showfigfonts.6
 	dodoc README figfont.txt
 
-	dobashcomp "${FILESDIR}"/figlet.bashcomp
+	newbashcomp "${FILESDIR}"/figlet.bashcomp-r1 figlet
 }
