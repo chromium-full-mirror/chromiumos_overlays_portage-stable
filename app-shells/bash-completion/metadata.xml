@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>mgorny@gentoo.org</email>
-		<name>Michał Górny</name>
-	</maintainer>
 	<maintainer type="project">
 		<email>shell-tools@gentoo.org</email>
 		<name>Gentoo Shell Tools Project</name>
 	</maintainer>
+	<maintainer type="person">
+		<email>arthurzam@gentoo.org</email>
+		<name>Arthur Zamarin</name>
+	</maintainer>
 	<use>
 		<flag name="eselect">
-			Support blacklisting of completions via 'eselect bash-completion'.
+			Support blacklisting of completions via 'eselect bashcomp'.
 			This enables custom Gentoo patching of upstream completion loader.
 		</flag>
 	</use>
