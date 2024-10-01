@@ -53,9 +53,9 @@ diff -ur a/configure.ac b/configure.ac
    [echo "        => the Java unit test will *NOT* be enabled"])
 +AS_IF([test "x$with_zbarimg_tests" != "xyes"],
 +  [echo "        => zbarimg tests will *NOT* be enabled"])
- #echo "NPAPI Plugin     --with-npapi=$with_npapi"
- #AS_IF([test "x$with_mozilla" != "xyes"],
- #  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])
+ dnl echo "NPAPI Plugin     --with-npapi=$with_npapi"
+ dnl AS_IF([test "x$with_mozilla" != "xyes"],
+ dnl  [echo "       => the Mozilla/Firefox/OpenOffice plugin will *NOT* be built"])
 diff -ur a/test/Makefile.am.inc b/test/Makefile.am.inc
 --- a/test/Makefile.am.inc	2020-04-21 00:09:21.000000000 +0300
 +++ b/test/Makefile.am.inc	2020-04-23 17:03:07.819999370 +0300

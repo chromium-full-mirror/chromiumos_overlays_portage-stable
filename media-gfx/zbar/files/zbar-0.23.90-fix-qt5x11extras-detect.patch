@@ -13,6 +13,6 @@ diff -ur a/configure.ac b/configure.ac
        [PKG_CHECK_MODULES([QT],
 -		         [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 $qt_extra],,
 +		         [Qt5Core >= 5 Qt5Gui >= 5 Qt5Widgets >= 5.0 Qt5X11Extras >= 5.0],,
- 		         [with_qt5 = "no"
+ 		         [with_qt5="no"
  		          PKG_CHECK_MODULES([QT],
  					    [QtCore >= 4 QtGui >= 4],,

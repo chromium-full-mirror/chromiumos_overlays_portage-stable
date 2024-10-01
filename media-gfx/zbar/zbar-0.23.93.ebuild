@@ -1,11 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
-
-inherit autotools flag-o-matic java-pkg-opt-2 multilib-minimal python-single-r1 virtualx
+PYTHON_COMPAT=( python3_{8..12} )
+inherit autotools flag-o-matic java-pkg-opt-2 multilib-minimal python-single-r1 qmake-utils virtualx
 
 DESCRIPTION="Library and tools for reading barcodes from images or video"
 HOMEPAGE="https://github.com/mchehab/zbar"
@@ -14,8 +13,8 @@ SRC_URI="https://github.com/mchehab/zbar/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="*"
-
 IUSE="dbus graphicsmagick gtk +imagemagick introspection java jpeg nls python qt5 static-libs test +threads v4l X xv"
+
 REQUIRED_USE="
 	introspection? ( gtk )
 	python? ( ${PYTHON_REQUIRED_USE} )
@@ -38,7 +37,7 @@ COMMON_DEPEND="
 		!graphicsmagick? ( media-gfx/imagemagick:=[png,jpeg?] )
 		graphicsmagick? ( media-gfx/graphicsmagick:=[png,jpeg?] )
 	)
-	jpeg? ( virtual/jpeg:0[${MULTILIB_USEDEP}] )
+	jpeg? ( media-libs/libjpeg-turbo:0[${MULTILIB_USEDEP}] )
 	python? ( ${PYTHON_DEPS} )
 	qt5? (
 		dev-qt/qtcore:5
@@ -69,10 +68,12 @@ DEPEND="${COMMON_DEPEND}
 		$(python_gen_cond_dep '
 			dev-python/pillow[${PYTHON_USEDEP}]
 		')
+		elibc_musl? ( sys-libs/argp-standalone )
 	)"
 
 BDEPEND="
 	app-text/xmlto
+	sys-devel/gettext
 	virtual/pkgconfig
 	gtk? ( dev-util/glib-utils )
 	nls? (
@@ -80,17 +81,15 @@ BDEPEND="
 		virtual/libiconv
 	)"
 
-PATCHES=(
-	"${FILESDIR}/${P}_fix_leftover_on_shell_compatibility.patch"
-	"${FILESDIR}/${P}_fix_unittest.patch"
-	"${FILESDIR}/${P}_musl_include_locale_h.patch"
-	"${FILESDIR}/${PN}-0.23_fix_Qt5X11Extras_detect.patch"
-	"${FILESDIR}/${PN}-0.23_fix_python_detect.patch"
-	"${FILESDIR}/${P}-autoconf-2.70.patch"
-	"${FILESDIR}/${PN}-0.23.1_python_tp_print.patch"
-)
-
 DOCS=( README.md NEWS.md TODO.md HACKING.md TODO.md ChangeLog )
+
+PATCHES=(
+	# TODO: upstream?
+	"${FILESDIR}/${PN}-0.23_fix_python_detect.patch"
+	"${FILESDIR}/${PN}-0.23.90-fix-unittest.patch"
+	"${FILESDIR}/${PN}-0.23.93-configure-ac-do-not-use-hardcoded-pkg-config-command.patch"
+	"${FILESDIR}/${PN}-0.23.93-configure-ac-use-old-way-to-detect-qt5.patch"
+)
 
 pkg_setup() {
 	if use python || use test; then
@@ -128,11 +127,14 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	# CHROMIUM (b/201531268): Enable LFS.
+	append-lfs-flags
+
 	append-cppflags -DNDEBUG
 
 	local myeconfargs=(
 		$(use_with dbus)
-		$(use_with gtk gtk gtk3) # default is gtk2
+		$(use_with gtk gtk gtk3) # avoid 'auto'
 		$(use_with jpeg)
 		$(multilib_native_use_with introspection gir)
 		$(multilib_native_use_with java)
@@ -148,12 +150,12 @@ multilib_src_configure() {
 
 	if multilib_is_native_abi; then
 		# both must be enabled to use GraphicsMagick
-		if use graphicsmagick; then
+		if use imagemagick && use graphicsmagick; then
 			myeconfargs+=(
 				--with-graphicsmagick
 				--without-imagemagick
 			)
-		elif use imagemagick; then
+		elif ! use graphicsmagick && use imagemagick; then
 			myeconfargs+=(
 				--with-imagemagick
 				--without-graphicsmagick
@@ -170,20 +172,23 @@ multilib_src_configure() {
 			append-cflags "$(java-pkg_get-jni-cflags)"
 			if use test; then # bug 629078
 				myeconfargs+=( --with-java-unit )
-				java-pkg_append_ CLASSPATH .
-				java-pkg_append_ CLASSPATH $(java-pkg_getjar --build-only junit-4 junit.jar)
-				java-pkg_append_ CLASSPATH $(java-pkg_getjar --build-only hamcrest-core-1.3 hamcrest-core.jar)
+				CLASSPATH+=":$(java-pkg_getjar --build-only junit-4 junit.jar)"
+				CLASSPATH+=":$(java-pkg_getjar --build-only hamcrest-core-1.3 hamcrest-core.jar)"
 			fi
 		fi
 
 		if use qt5; then
 			myeconfargs+=(
 				--with-qt
-				--with-qt5
 			)
 		else
 			myeconfargs+=( --without-qt )
 		fi
+
+		if use test && use elibc_musl; then
+			append-ldflags -largp
+		fi
+
 	else
 		myeconfargs+=(
 			--without-graphicsmagick
@@ -199,6 +204,7 @@ multilib_src_configure() {
 	# use bash (bug 721370)
 	CONFIG_SHELL='/bin/bash' \
 	ECONF_SOURCE="${S}" \
+	MOC="$(qt5_get_bindir)"/moc \
 		econf "${myeconfargs[@]}"
 
 	# work around out-of-source build issues for multilib systems (bug 672184)
