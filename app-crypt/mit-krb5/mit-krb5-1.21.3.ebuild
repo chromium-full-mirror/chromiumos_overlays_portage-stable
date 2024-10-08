@@ -36,8 +36,7 @@ DEPEND="
 	"
 
 # The missing `sys-fs/e2fsprogs` dependency was added here on ChromeOS but not
-# yet upstream, in Gentoo repository.
-# TODO(b/370470845): File a Gentoo bug for this fix and the link it here.
+# yet upstream. Gentoo bug: https://bugs.gentoo.org/941161.
 BDEPEND="
 	${PYTHON_DEPS}
 	>=sys-fs/e2fsprogs-1.46.4-r51[${MULTILIB_USEDEP}]
