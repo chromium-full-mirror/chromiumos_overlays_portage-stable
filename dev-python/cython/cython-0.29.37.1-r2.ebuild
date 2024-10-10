@@ -55,12 +55,6 @@ python_compile() {
 	# Python gets confused when it is in sys.path before build.
 	local -x PYTHONPATH=
 
-	# Prevents "error: include location '/usr/include/python3.8' is unsafe for
-	# cross-compilation", which for some reason only happens when building for
-	# the target board under Bazel (the host version of the package builds fine,
-	# and both the host and target packages build fine with Portage.)
-	append-flags -Wno-poison-system-directories
-
 	distutils-r1_python_compile
 }
 
