@@ -55,6 +55,21 @@ case "${EAPI:-0}" in
 		;;
 esac
 
+# @ECLASS_VARIABLE: DISTUTILS_EXT
+# @PRE_INHERIT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Set this variable to a non-null value if the package (possibly
+# optionally) builds Python extensions (loadable modules written in C,
+# Cython, Rust, etc.).
+#
+# When enabled, the eclass:
+#
+# - adds PYTHON_DEPS to DEPEND (for cross-compilation support), unless
+#   DISTUTILS_OPTIONAL is used
+#
+# - adds `debug` flag to IUSE that controls assertions (i.e. -DNDEBUG)
+
 # @ECLASS_VARIABLE: DISTUTILS_OPTIONAL
 # @DEFAULT_UNSET
 # @DESCRIPTION:
@@ -328,6 +343,15 @@ _distutils_set_globals() {
 			DEPEND="${PYTHON_DEPS} ${bdep}"
 		fi
 		REQUIRED_USE=${PYTHON_REQUIRED_USE}
+
+		if [[ ${DISTUTILS_EXT} ]]; then
+			DEPEND="${PYTHON_DEPS}"
+			IUSE="debug"
+		fi
+	fi
+
+	if [[ ${DISTUTILS_EXT} ]]; then
+		IUSE="debug"
 	fi
 }
 _distutils_set_globals
@@ -913,6 +937,11 @@ _distutils-r1_print_package_versions() {
 			dev-python/gpep517
 			dev-python/installer
 		)
+		if [[ ${DISTUTILS_EXT} ]]; then
+			packages+=(
+				dev-python/cython
+			)
+		fi
 		case ${DISTUTILS_USE_PEP517} in
 			flit)
 				packages+=(
@@ -1780,6 +1809,20 @@ distutils-r1_run_phase() {
 	local -x AR=${AR} CC=${CC} CPP=${CPP} CXX=${CXX}
 	tc-export AR CC CPP CXX
 
+	# Perform additional environment modifications only for python_compile
+	# phase.  This is the only phase where we expect to be calling the Python
+	# build system.  We want to localize the altered variables to avoid them
+	# leaking to other parts of multi-language ebuilds.  However, we want
+	# to avoid localizing them in other phases, particularly
+	# python_configure_all, where the ebuild may wish to alter them globally.
+	if [[ ${DISTUTILS_EXT} && ( ${1} == *compile* || ${1} == *test* ) ]]; then
+		local -x CPPFLAGS="${CPPFLAGS} $(usex debug '-UNDEBUG' '-DNDEBUG')"
+		# always generate .c files from .pyx files to ensure we get latest
+		# bug fixes from Cython (this works only when setup.py is using
+		# cythonize() but it's better than nothing)
+		local -x CYTHON_FORCE_REGEN=1
+	fi
+
 	# How to build Python modules in different worlds...
 	local ldopts
 	case "${CHOST}" in
@@ -2017,6 +2060,16 @@ _distutils-r1_post_python_install() {
 				die "Package installs '${p}' package which is forbidden and likely a bug in the build system."
 			fi
 		done
+
+		if [[ ! ${DISTUTILS_EXT} && ! ${_DISTUTILS_EXT_WARNED} ]]; then
+			if [[ $(find "${sitedir}" -name "*$(get_modname)" | head -n 1) ]]
+			then
+				eqawarn "Python extension modules (*$(get_modname)) found installed. Please set:"
+				eqawarn "  DISTUTILS_EXT=1"
+				eqawarn "in the ebuild."
+				_DISTUTILS_EXT_WARNED=1
+			fi
+		fi
 	fi
 }
 
