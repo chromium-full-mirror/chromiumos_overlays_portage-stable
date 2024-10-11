@@ -23,6 +23,7 @@ SLOT="0"
 
 PATCHES=(
 	"${FILESDIR}/vksp.patch"
+	"${FILESDIR}/UPSTREAM-50bc4de-vksp_remove_literals_for_ids.patch"
 )
 
 src_configure() {
