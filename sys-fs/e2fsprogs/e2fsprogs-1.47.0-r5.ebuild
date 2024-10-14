@@ -46,6 +46,10 @@ PATCHES=(
 
 	"${FILESDIR}"/e2fsprogs-1.47.0-parallel-make.patch
 
+	# Adds support for libext2fs to call fallocate() with fixed goal
+	# extents.
+	"${FILESDIR}"/e2fsprogs-1.47.0-fallocate-fixed-goal.patch
+
 	# Upstream patches (can usually removed with next version bump)
 
 	# Out of tree patches that will hopefull make it upstream.
