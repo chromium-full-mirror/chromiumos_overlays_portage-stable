@@ -24,22 +24,19 @@ IUSE="
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	sys-libs/zlib[${MULTILIB_USEDEP}]
-	acl? ( virtual/acl[${MULTILIB_USEDEP}] )
-	blake2? ( app-crypt/libb2[${MULTILIB_USEDEP}] )
-	bzip2? ( app-arch/bzip2[${MULTILIB_USEDEP}] )
-	expat? ( dev-libs/expat[${MULTILIB_USEDEP}] )
-	!expat? ( dev-libs/libxml2[${MULTILIB_USEDEP}] )
-	iconv? ( virtual/libiconv[${MULTILIB_USEDEP}] )
-	kernel_linux? (
-		xattr? ( sys-apps/attr[${MULTILIB_USEDEP}] )
-	)
-	dev-libs/openssl:0=[${MULTILIB_USEDEP}]
-	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
-	lzma? ( >=app-arch/xz-utils-5.2.5-r1[${MULTILIB_USEDEP}] )
-	lzo? ( >=dev-libs/lzo-2[${MULTILIB_USEDEP}] )
-	nettle? ( dev-libs/nettle:0=[${MULTILIB_USEDEP}] )
-	zstd? ( app-arch/zstd[${MULTILIB_USEDEP}] )
+	sys-libs/zlib:=[${MULTILIB_USEDEP}]
+	acl? ( virtual/acl:=[${MULTILIB_USEDEP}] )
+	blake2? ( app-crypt/libb2:=[${MULTILIB_USEDEP}] )
+	bzip2? ( app-arch/bzip2:=[${MULTILIB_USEDEP}] )
+	expat? ( dev-libs/expat:=[${MULTILIB_USEDEP}] )
+	!expat? ( dev-libs/libxml2:=[${MULTILIB_USEDEP}] )
+	iconv? ( virtual/libiconv:=[${MULTILIB_USEDEP}] )
+	dev-libs/openssl:=[${MULTILIB_USEDEP}]
+	lz4? ( >=app-arch/lz4-0_p131:=[${MULTILIB_USEDEP}] )
+	lzma? ( >=app-arch/xz-utils-5.2.5-r1:=[${MULTILIB_USEDEP}] )
+	lzo? ( >=dev-libs/lzo-2:=[${MULTILIB_USEDEP}] )
+	nettle? ( dev-libs/nettle:=[${MULTILIB_USEDEP}] )
+	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
 "
 DEPEND="${RDEPEND}
 	kernel_linux? (
