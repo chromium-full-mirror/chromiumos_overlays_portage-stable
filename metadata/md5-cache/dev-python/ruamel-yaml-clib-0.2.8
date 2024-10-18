@@ -1,14 +1,15 @@
 BDEPEND=dev-python/cython[python_targets_python3_12(-)?,python_targets_python3_11(-)?,python_targets_python3_10(-)?,python_targets_python3_9(-)?,python_targets_python3_8(-)?] python_targets_python3_12? ( dev-lang/python:3.12 ) python_targets_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11 ) python_targets_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10 ) python_targets_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9 ) python_targets_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8 ) >=dev-python/gpep517-9[python_targets_python3_12(-)?,python_targets_python3_11(-)?,python_targets_python3_10(-)?,python_targets_python3_9(-)?,python_targets_python3_8(-)?] >=dev-python/setuptools-65.5.1[python_targets_python3_12(-)?,python_targets_python3_11(-)?,python_targets_python3_10(-)?,python_targets_python3_9(-)?,python_targets_python3_8(-)?] >=dev-python/wheel-0.38.4[python_targets_python3_12(-)?,python_targets_python3_11(-)?,python_targets_python3_10(-)?,python_targets_python3_9(-)?,python_targets_python3_8(-)?]
 DEFINED_PHASES=compile configure install prepare test unpack
+DEPEND=python_targets_python3_12? ( dev-lang/python:3.12 ) python_targets_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11 ) python_targets_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10 ) python_targets_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9 ) python_targets_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8 )
 DESCRIPTION=C-based reader/scanner and emitter for dev-python/ruamel-yaml
 EAPI=7
 HOMEPAGE=https://pypi.org/project/ruamel.yaml.clib/ https://sourceforge.net/projects/ruamel-yaml-clib/
-IUSE=python_targets_python3_12 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8
+IUSE=python_targets_python3_12 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8 debug
 KEYWORDS=*
 LICENSE=MIT
 RDEPEND=python_targets_python3_12? ( dev-lang/python:3.12 ) python_targets_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11 ) python_targets_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10 ) python_targets_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9 ) python_targets_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8 )
 REQUIRED_USE=|| ( python_targets_python3_12 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8 )
 SLOT=0
 SRC_URI=https://downloads.sourceforge.net/ruamel-dl-tagged-releases/ruamel.yaml.clib-0.2.8.tar.xz
-_eclasses_=distutils-r1	39a0b7a359f5400a723368392c3fa3be	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=distutils-r1	8b339b1c8dbb1edc18b151528202890c	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
 _md5_=42207d54854bb51958a86c7a5c64439c
