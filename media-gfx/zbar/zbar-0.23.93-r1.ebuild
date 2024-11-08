@@ -4,7 +4,7 @@
 EAPI=7
 
 PYTHON_COMPAT=( python3_{8..12} )
-inherit autotools flag-o-matic java-pkg-opt-2 multilib-minimal python-single-r1 qmake-utils virtualx
+inherit autotools flag-o-matic java-pkg-opt-2 multilib-minimal python-r1 qmake-utils virtualx
 
 DESCRIPTION="Library and tools for reading barcodes from images or video"
 HOMEPAGE="https://github.com/mchehab/zbar"
@@ -93,7 +93,7 @@ PATCHES=(
 
 pkg_setup() {
 	if use python || use test; then
-		python-single-r1_pkg_setup
+		python_setup
 	fi
 	use java && java-pkg-opt-2_pkg_setup
 }
