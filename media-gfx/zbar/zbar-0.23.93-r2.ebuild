@@ -126,6 +126,10 @@ src_prepare() {
 	eautoreconf
 }
 
+src_configure() {
+	python_foreach_impl multilib-minimal_src_configure
+}
+
 multilib_src_configure() {
 	# CHROMIUM (b/201531268): Enable LFS.
 	append-lfs-flags
@@ -211,6 +215,10 @@ multilib_src_configure() {
 	mkdir qt zbarcam || die
 }
 
+src_compile() {
+	python_foreach_impl multilib-minimal_src_compile
+}
+
 src_test() {
 	virtx multilib-minimal_src_test
 }
@@ -222,7 +230,7 @@ src_install() {
 			/usr/include/zbar/QZBarImage.h
 		)
 	fi
-	multilib-minimal_src_install
+	python_foreach_impl multilib-minimal_src_install
 }
 
 multilib_src_install_all() {
