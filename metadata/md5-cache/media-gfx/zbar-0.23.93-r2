@@ -13,4 +13,4 @@ RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/mchehab/zbar/archive/0.23.93.tar.gz -> zbar-0.23.93.tar.gz
 _eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	estack	686eaab303305a908fd57b2fd7617800	flag-o-matic	ad475baa777c9978fa035216c8264a10	java-pkg-opt-2	be255db325e3af8fbf3506cf63998341	java-utils-2	82402a1c36ab4bf38f3313a543f9e827	libtool	f143db5a74ccd9ca28c1234deffede96	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	qmake-utils	bdf97e69a34b864d6d545f4ec3143ff7	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	virtualx	e9162f65645513120b4e12863a5fa972
-_md5_=a820f1b4cac65598ba4223efe6a451df
+_md5_=d411f4777469de0e7bfe73cf1d4e82d3
