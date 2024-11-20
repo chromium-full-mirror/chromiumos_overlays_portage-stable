@@ -10,5 +10,7 @@ third_party {
   version: "2.41"
   security {
     tag: "cpe:/a:gnu:binutils:2.41"
+    # ChromeOS > Infra > Toolchain
+    tag: "vuln_reporting:buganizer_component:1034879"
   }
 }
