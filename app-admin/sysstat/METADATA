@@ -8,5 +8,8 @@ third_party {
   security {
     # CVEs mitigated by PATCHES.
     mitigated_security_patch: "CVE-2023-33204"  # Fixed in files/sysstat-12.6.2-check_overflow.patch
+
+    # ChromeOS > Platform > baseOS > Performance
+    tag: "vuln_reporting:buganizer_component:167279"
   }
 }
