@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 
 inherit python-any-r1
 
@@ -28,6 +28,7 @@ pkg_setup() {
 src_configure() {
 	econf \
 		--enable-golang \
+		--enable-rust \
 		ac_cv_path_BISON="no" \
 		$(use_enable debug)
 }
