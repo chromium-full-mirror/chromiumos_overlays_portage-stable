@@ -1,1 +1,0 @@
-rsync-3.2.7-r2.ebuild
