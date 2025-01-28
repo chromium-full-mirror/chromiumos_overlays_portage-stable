@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -18,7 +18,7 @@ HOMEPAGE="https://code.videolan.org/videolan/dav1d"
 
 LICENSE="BSD-2"
 # Check SONAME on version bumps!
-SLOT="0/6"
+SLOT="0/7"
 IUSE="+8bit +10bit +asm test xxhash"
 RESTRICT="!test? ( test )"
 
