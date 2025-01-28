@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_11 )
 
 inherit meson-multilib python-any-r1
 

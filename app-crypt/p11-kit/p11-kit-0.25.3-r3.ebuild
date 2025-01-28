@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_11 )
 inherit bash-completion-r1 meson-multilib python-any-r1
 
 DESCRIPTION="Provides a standard configuration setup for installing PKCS#11"

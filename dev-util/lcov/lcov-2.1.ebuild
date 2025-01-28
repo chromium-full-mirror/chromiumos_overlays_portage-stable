@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_11 )
 inherit optfeature prefix python-any-r1
 
 DESCRIPTION="A graphical front-end for GCC's coverage testing tool gcov"

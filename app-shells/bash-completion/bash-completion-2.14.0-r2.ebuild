@@ -4,7 +4,7 @@
 EAPI=7
 
 BASHCOMP_P=bashcomp-2.0.3
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_11 )
 
 inherit python-any-r1
 

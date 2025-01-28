@@ -4,7 +4,7 @@
 EAPI=7
 
 CONFIG_CHECK="~ADVISE_SYSCALLS"
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_11 )
 PYTHON_REQ_USE="threads(+)"
 
 inherit bash-completion-r1 check-reqs flag-o-matic linux-info pax-utils python-any-r1 toolchain-funcs xdg-utils

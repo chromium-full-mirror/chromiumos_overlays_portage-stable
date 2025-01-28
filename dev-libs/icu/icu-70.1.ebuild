@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_11 )
 inherit autotools flag-o-matic multilib-minimal python-any-r1 toolchain-funcs
 
 DESCRIPTION="International Components for Unicode"
