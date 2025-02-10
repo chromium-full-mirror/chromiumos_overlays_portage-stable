@@ -1,24 +1,27 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
-inherit multilib-minimal usr-ldscript
+EAPI=7
 
-MY_PV=${PV/./-}
-MY_P=${PN}-${MY_PV}
+inherit multilib-minimal
 
+MY_P=${P/./-}
 DESCRIPTION="BSD replacement for libreadline"
 HOMEPAGE="https://thrysoee.dk/editline/"
 SRC_URI="https://thrysoee.dk/editline/${MY_P}.tar.gz"
 S=${WORKDIR}/${MY_P}
 
-LICENSE="BSD-2"
+LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
 IUSE="static-libs"
 
-RDEPEND=">=sys-libs/ncurses-5.9-r3[static-libs?,${MULTILIB_USEDEP}]"
-DEPEND=${RDEPEND}
+DEPEND="
+	>=sys-libs/ncurses-5.9-r3[static-libs?,${MULTILIB_USEDEP}]
+"
+RDEPEND="
+	${DEPEND}
+"
 
 QA_PKGCONFIG_VERSION=$(ver_cut 2-3)
 
@@ -31,14 +34,7 @@ multilib_src_configure() {
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 }
 
-multilib_src_install() {
-	emake DESTDIR="${D}" install
-	gen_usr_ldscript -a edit
-}
-
 multilib_src_install_all() {
 	einstalldocs
 	find "${D}" -name '*.la' -delete || die
-	# file collision with sys-libs/readline
-	rm "${ED}/usr/share/man/man3/history.3" || die
 }

@@ -13,7 +13,4 @@ The patch is handcrafted with a few ideas from libedit.sf.net and a few ideas
 from the debian package.  This patch aims to be as small as possible (so as
 to make future cvs snapshots cake).
 </longdescription>
-<upstream>
-	<remote-id type="cpe">cpe:/a:libedit_project:libedit</remote-id>
-</upstream>
 </pkgmetadata>
