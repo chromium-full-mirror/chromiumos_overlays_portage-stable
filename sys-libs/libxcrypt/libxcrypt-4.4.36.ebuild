@@ -317,24 +317,3 @@ multilib_src_install() {
 		*) die "Unexpected MULTIBUILD_ID: ${MULTIBUILD_ID}";;
 	esac
 }
-
-pkg_preinst() {
-	# Verify we're not in a bad case like bug #843209 with broken symlinks.
-	# This can be dropped when, if ever, the split-usr && system && compat case
-	# is cleaned up in *_src_install.
-	local broken_symlinks=()
-	mapfile -d '' broken_symlinks < <(
-		find "${ED}" -xtype l -print0
-	)
-
-	if [[ ${#broken_symlinks[@]} -gt 0 ]]; then
-		eerror "Broken symlinks found before merging!"
-		local symlink target resolved
-		for symlink in "${broken_symlinks[@]}" ; do
-			target="$(readlink "${symlink}")"
-			resolved="$(readlink -f "${symlink}")"
-			eerror "  '${symlink}' -> '${target}' (${resolved})"
-		done
-		die "Broken symlinks found! Aborting to avoid damaging system. Please report a bug."
-	fi
-}
