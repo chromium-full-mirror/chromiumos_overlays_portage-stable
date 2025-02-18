@@ -1,1 +1,1 @@
-include /chromiumos/platform/factory:/OWNERS
+include chromiumos/owners:v1:/factory/OWNERS.factory
