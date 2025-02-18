@@ -1,2 +1,1 @@
-# TODO: Add per-package OWNERS and delete this when done.
-*
+include chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
