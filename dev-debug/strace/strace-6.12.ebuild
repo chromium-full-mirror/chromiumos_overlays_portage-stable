@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools edo flag-o-matic toolchain-funcs
+inherit autotools edo flag-o-matic toolchain-funcs verify-sig
 
 DESCRIPTION="Useful diagnostic, instructional, and debugging tool"
 HOMEPAGE="https://strace.io/"
@@ -12,16 +12,25 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/strace/strace.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/${PN}/${PN}/releases/download/v${PV}/${P}.tar.xz"
+	SRC_URI="
+		https://github.com/${PN}/${PN}/releases/download/v${PV}/${P}.tar.xz
+		verify-sig? ( https://github.com/${PN}/${PN}/releases/download/v${PV}/${P}.tar.xz.asc )
+	"
 	KEYWORDS="*"
 fi
 
-LICENSE="BSD"
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/strace.asc
+
+LICENSE="LGPL-2.1+ test? ( GPL-2+ )"
 SLOT="0"
-IUSE="aio perl selinux static unwind elfutils"
+IUSE="aio perl selinux static test unwind elfutils"
+RESTRICT="!test? ( test )"
 REQUIRED_USE="?? ( unwind elfutils )"
 
-BDEPEND="virtual/pkgconfig"
+BDEPEND="
+	virtual/pkgconfig
+	verify-sig? ( >=sec-keys/openpgp-keys-strace-20151021 )
+"
 LIB_DEPEND="
 	unwind? ( sys-libs/libunwind[static-libs(+)] )
 	elfutils? ( dev-libs/elfutils[static-libs(+)] )
@@ -36,10 +45,11 @@ DEPEND="
 RDEPEND="
 	!static? ( ${LIB_DEPEND//\[static-libs(+)]} )
 	perl? ( dev-lang/perl )
+	!dev-util/strace
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.11-static.patch"
+	"${FILESDIR}/${PN}-6.5-static.patch"
 )
 
 src_prepare() {
