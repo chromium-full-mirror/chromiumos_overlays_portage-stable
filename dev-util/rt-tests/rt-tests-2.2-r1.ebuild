@@ -1,1 +1,0 @@
-rt-tests-2.2.ebuild

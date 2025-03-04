@@ -1,14 +1,14 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 
-inherit python-single-r1 toolchain-funcs
+inherit python-single-r1 toolchain-funcs flag-o-matic
 
 DESCRIPTION="A collection of latency testing tools for the linux(-rt) kernel"
-HOMEPAGE="https://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git/about/"
+HOMEPAGE="https://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git/"
 SRC_URI="
 	https://kernel.org/pub/linux/utils/rt-tests/${P}.tar.xz
 	https://kernel.org/pub/linux/utils/rt-tests/older/${P}.tar.xz"
@@ -23,7 +23,7 @@ DEPEND="${PYTHON_DEPS}
 RDEPEND="${DEPEND}"
 
 PATCHES=(
-	"${FILESDIR}/${P}-avoid_cc_in_install.patch"
+	"${FILESDIR}/${P}-glibc.patch"
 )
 
 src_prepare() {
@@ -32,11 +32,12 @@ src_prepare() {
 }
 
 src_compile() {
+	append-lfs-flags
 	emake CC="$(tc-getCC)" AR="$(tc-getAR)"
 }
 
 src_install() {
-	emake prefix=/usr DESTDIR="${ED}" install
+	emake CC="$(tc-getCC)" prefix=/usr DESTDIR="${ED}" install
 	python_fix_shebang "${ED}"
 	python_optimize
 }

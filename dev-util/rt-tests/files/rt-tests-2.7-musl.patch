@@ -7,7 +7,7 @@ There are a few problems:
 
  * pi stress:  pthread_attr_setaffinity_np() is not supported
  * cyclictest: SIGEV_THREAD_ID is not supported
- * hackbench:  Fix include
+ * hackbench:  Fix include, add missing casts
  * all:        Fix sched_* calls
 
 With these changes applied, the rt-tests seem to run fine.
@@ -16,22 +16,21 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
 ---
  Makefile                              |    5 --
  src/backfire/sendme.c                 |    1 
- src/cyclictest/cyclictest.c           |   70 ++++------------------------------
- src/hackbench/hackbench.c             |    4 +
- src/include/musl.h                    |   28 +++++++++++++
+ src/cyclictest/cyclictest.c           |   68 ++++------------------------------
+ src/hackbench/hackbench.c             |   12 +++---
+ src/include/musl.h                    |   28 ++++++++++++++
  src/lib/rt-utils.c                    |    1 
- src/pi_tests/classic_pi.c             |    2 
- src/pi_tests/tst-mutexpi10.c          |    2 
+ src/pi_tests/tst-mutexpi10.c          |    2 +
  src/pmqtest/pmqtest.c                 |    1 
  src/ptsematest/ptsematest.c           |    1 
  src/rt-migrate-test/rt-migrate-test.c |    1 
  src/sched_deadline/cyclicdeadline.c   |    1 
- 12 files changed, 50 insertions(+), 67 deletions(-)
+ 11 files changed, 51 insertions(+), 70 deletions(-)
  create mode 100644 src/include/musl.h
 
 --- a/Makefile
 +++ b/Makefile
-@@ -7,7 +7,6 @@ OBJDIR = bld
+@@ -8,7 +8,6 @@ OBJDIR = bld
  sources = cyclictest.c \
  	  hackbench.c \
  	  pip_stress.c \
@@ -39,7 +38,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  	  pmqtest.c \
  	  ptsematest.c \
  	  rt-migrate-test.c \
-@@ -42,7 +41,6 @@ ifeq (${PYLIB},)
+@@ -43,7 +42,6 @@ ifeq (${PYLIB},)
  endif
  
  MANPAGES = src/cyclictest/cyclictest.8 \
@@ -47,7 +46,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  	   src/ptsematest/ptsematest.8 \
  	   src/rt-migrate-test/rt-migrate-test.8 \
  	   src/sigwaittest/sigwaittest.8 \
-@@ -130,9 +128,6 @@ deadline_test: $(OBJDIR)/deadline_test.o
+@@ -131,9 +129,6 @@ deadline_test: $(OBJDIR)/deadline_test.o
  signaltest: $(OBJDIR)/signaltest.o $(OBJDIR)/librttest.a $(OBJDIR)/librttestnuma.a
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LIBS) $(RTTESTLIB) $(RTTESTNUMA)
  
@@ -59,7 +58,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  	ln -s src/hwlatdetect/hwlatdetect.py hwlatdetect
 --- a/src/backfire/sendme.c
 +++ b/src/backfire/sendme.c
-@@ -29,6 +29,7 @@
+@@ -16,6 +16,7 @@
  #include <string.h>
  #include <time.h>
  #include <errno.h>
@@ -69,7 +68,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  
 --- a/src/cyclictest/cyclictest.c
 +++ b/src/cyclictest/cyclictest.c
-@@ -33,6 +33,7 @@
+@@ -30,6 +30,7 @@
  #include <sys/utsname.h>
  #include <sys/mman.h>
  #include <sys/syscall.h>
@@ -77,20 +76,20 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  #include "rt_numa.h"
  
  #include "rt-utils.h"
-@@ -502,12 +503,8 @@ static void *timerthread(void *param)
+@@ -469,12 +470,8 @@ static void *timerthread(void *param)
  {
  	struct thread_param *par = param;
  	struct sched_param schedp;
 -	struct sigevent sigev;
  	sigset_t sigset;
 -	timer_t timer;
- 	struct timespec now, next, interval, stop;
+ 	struct timespec now, next, interval, stop = { 0 };
 -	struct itimerval itimer;
 -	struct itimerspec tspec;
  	struct thread_stat *stat = par->stats;
  	int stopped = 0;
  	cpu_set_t mask;
-@@ -538,14 +535,6 @@ static void *timerthread(void *param)
+@@ -503,14 +500,6 @@ static void *timerthread(void *param)
  	sigaddset(&sigset, par->signal);
  	sigprocmask(SIG_BLOCK, &sigset, NULL);
  
@@ -105,7 +104,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  	memset(&schedp, 0, sizeof(schedp));
  	schedp.sched_priority = par->prio;
  	if (setscheduler(0, par->policy, &schedp))
-@@ -600,20 +589,6 @@ static void *timerthread(void *param)
+@@ -564,20 +553,6 @@ static void *timerthread(void *param)
  		stop = now;
  		stop.tv_sec += duration;
  	}
@@ -126,7 +125,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  
  	stat->threadstarted++;
  
-@@ -621,16 +596,10 @@ static void *timerthread(void *param)
+@@ -585,16 +560,10 @@ static void *timerthread(void *param)
  
  		uint64_t diff;
  		unsigned long diff_smi = 0;
@@ -144,7 +143,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  		case MODE_CLOCK_NANOSLEEP:
  			if (par->timermode == TIMER_ABSTIME) {
  				ret = clock_nanosleep(par->clock, TIMER_ABSTIME,
-@@ -751,11 +720,6 @@ static void *timerthread(void *param)
+@@ -708,11 +677,6 @@ static void *timerthread(void *param)
  
  		next.tv_sec += interval.tv_sec;
  		next.tv_nsec += interval.tv_nsec;
@@ -156,7 +155,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  		tsnorm(&next);
  
  		while (tsgreater(&now, &next)) {
-@@ -780,17 +744,6 @@ out:
+@@ -737,17 +701,6 @@ out:
  		pthread_mutex_unlock(&refresh_on_max_lock);
  	}
  
@@ -174,7 +173,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  	/* close msr file */
  	if (smi)
  		close(par->msr_fd);
-@@ -1174,7 +1127,8 @@ static void process_options(int argc, ch
+@@ -1143,7 +1096,8 @@ static void process_options(int argc, ch
  		case OPT_VERBOSE: verbose = 1; break;
  		case 'x':
  		case OPT_POSIX_TIMERS:
@@ -184,7 +183,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  		case '?':
  		case OPT_HELP:
  			display_help(0); break;
-@@ -1207,13 +1161,6 @@ static void process_options(int argc, ch
+@@ -1176,13 +1130,6 @@ static void process_options(int argc, ch
  		}
  	}
  
@@ -198,7 +197,7 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  	/* if smp wasn't requested, test for numa automatically */
  	if (!smp) {
  		numa = numa_initialize();
-@@ -1943,7 +1890,6 @@ int main(int argc, char **argv)
+@@ -1876,7 +1823,6 @@ int main(int argc, char **argv)
  
  	}
  
@@ -206,18 +205,19 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  	mode = use_nanosleep + use_system;
  
  	sigemptyset(&sigset);
-@@ -1993,16 +1939,18 @@ int main(int argc, char **argv)
- 			void *stack;
+@@ -1931,6 +1877,7 @@ int main(int argc, char **argv)
  			void *currstk;
  			size_t stksize;
+ 			int node_cpu = cpu;
 +			int err;
  
- 			/* find the memory node associated with the cpu i */
- 			node = rt_numa_numa_node_of_cpu(cpu);
+ 			if (node_cpu == -1)
+ 				node_cpu = cpu_for_thread_ua(i, max_cpus);
+@@ -1939,11 +1886,12 @@ int main(int argc, char **argv)
+ 			node = rt_numa_numa_node_of_cpu(node_cpu);
  
--			/* get the stack size set for this thread */
+ 			/* get the stack size set for this thread */
 -			if (pthread_attr_getstack(&attr, &currstk, &stksize))
-+			/* get the stack size set for for this thread */
 +			err = pthread_attr_getstack(&attr, &currstk, &stksize);
 +			if (err != EINVAL)
  				fatal("failed to get stack size for thread %d\n", i);
@@ -230,15 +230,16 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  			/*  allocate memory for a stack on appropriate node */
 --- a/src/hackbench/hackbench.c
 +++ b/src/hackbench/hackbench.c
-@@ -24,13 +24,15 @@
+@@ -25,7 +25,7 @@
  #include <sys/socket.h>
  #include <sys/wait.h>
  #include <sys/time.h>
 -#include <sys/poll.h>
 +#include <poll.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
  #include <limits.h>
- #include <getopt.h>
- #include <signal.h>
+@@ -34,6 +34,8 @@
  #include <setjmp.h>
  #include <sched.h>
  
@@ -247,6 +248,30 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  static unsigned int datasize = 100;
  static unsigned int loops = 100;
  static unsigned int num_groups = 10;
+@@ -128,9 +130,9 @@ static int inet_socketpair(int fds[2])
+ 	sin.sin_port = 0;
+ 	sin.sin_addr.s_addr = inet_addr("127.0.0.1");
+ 
+-	if (bind(s1, &sin, len) < 0)
++	if (bind(s1, (struct sockaddr *)&sin, len) < 0)
+ 		barf("bind");
+-	if (getsockname(s1, &sin, &len) < 0)
++	if (getsockname(s1, (struct sockaddr *)&sin, &len) < 0)
+ 		barf("getsockname");
+ 	if (listen(s1, 10) < 0)
+ 		barf("listen");
+@@ -138,9 +140,9 @@ static int inet_socketpair(int fds[2])
+ 		barf("ioctl");
+ 	if (ioctl(s1, FIONBIO, &ul) < 0)
+ 		barf("ioctl");
+-	if (connect(s2, &sin, len) < 0)
++	if (connect(s2, (struct sockaddr *)&sin, len) < 0)
+ 		barf("connect");
+-	if ((fds[0] = accept(s1, &sin, &len)) < 0)
++	if ((fds[0] = accept(s1, (struct sockaddr *)&sin, &len)) < 0)
+ 		barf("accept");
+ 	ul = 0;
+ 	if (ioctl(s2, FIONBIO, &ul) < 0)
 --- /dev/null
 +++ b/src/include/musl.h
 @@ -0,0 +1,28 @@
@@ -288,17 +313,6 @@ Signed-off-by: Kurt Kanzenbach <kurt@kmk-computers.de>
  #include "rt-utils.h"
  #include "rt-sched.h"
  #include "rt-error.h"
---- a/src/pi_tests/classic_pi.c
-+++ b/src/pi_tests/classic_pi.c
-@@ -34,6 +34,8 @@
- #include <signal.h>
- #include <getopt.h>
- 
-+#include "musl.h"
-+
- /* test timeout */
- #define TIMEOUT 2
- 
 --- a/src/pi_tests/tst-mutexpi10.c
 +++ b/src/pi_tests/tst-mutexpi10.c
 @@ -35,6 +35,8 @@
