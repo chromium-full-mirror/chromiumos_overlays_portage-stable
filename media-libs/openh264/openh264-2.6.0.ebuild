@@ -1,12 +1,12 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 inherit toolchain-funcs multilib-minimal flag-o-matic
 
-MOZVER=39
-MY_GMP_COMMIT="3a01c086d1b0394238ff1b5ad22e76022830625a"
+MOZVER=135
+MY_GMP_COMMIT="1f5a2f07a565a9465c14d3a8b12f3202f83c775e"
 
 DESCRIPTION="Cisco OpenH264 library and Gecko Media Plugin for Mozilla packages"
 HOMEPAGE="https://www.openh264.org/ https://github.com/cisco/openh264"
@@ -15,9 +15,7 @@ SRC_URI="https://github.com/cisco/openh264/archive/refs/tags/v${PV}.tar.gz -> ${
 LICENSE="BSD"
 
 # openh264 soname version.
-# (2.2.0 needed a minor bump due to undocumented but breaking ABI changes, just to be sure.
-#  https://github.com/cisco/openh264/issues/3459 )
-SLOT="0/7"
+SLOT="0/8"
 KEYWORDS="*"
 IUSE="cpu_flags_arm_neon cpu_flags_x86_avx2 +plugin test utils"
 
@@ -63,6 +61,7 @@ emakecmd() {
 		HAVE_AVX2=$(usex cpu_flags_x86_avx2 Yes No) \
 		HAVE_GTEST=$(usex test Yes No) \
 		ARCH="$(tc-arch)" \
+		ENABLEPIC="Yes" \
 		$@
 }
 
