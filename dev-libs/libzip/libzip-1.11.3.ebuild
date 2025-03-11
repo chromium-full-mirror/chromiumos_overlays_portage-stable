@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,8 +13,7 @@ LICENSE="BSD"
 SLOT="0/5"
 KEYWORDS="*"
 IUSE="bzip2 gnutls lzma mbedtls ssl static-libs test tools zstd"
-REQUIRED_USE="test? ( tools )"
-
+REQUIRED_USE="test? ( ssl tools )"
 RESTRICT="!test? ( test )"
 
 DEPEND="
@@ -23,17 +22,24 @@ DEPEND="
 	lzma? ( app-arch/xz-utils )
 	ssl? (
 		gnutls? (
-			dev-libs/nettle:0=
+			dev-libs/nettle:=
 			>=net-libs/gnutls-3.6.5:=
 		)
 		!gnutls? (
-			mbedtls? ( net-libs/mbedtls:= )
-			!mbedtls? ( dev-libs/openssl:0= )
+			mbedtls? ( net-libs/mbedtls:0= )
+			!mbedtls? ( dev-libs/openssl:= )
 		)
 	)
-	zstd? ( app-arch/zstd )
+	zstd? ( >=app-arch/zstd-1.4.0:= )
 "
 RDEPEND="${DEPEND}"
+BDEPEND="
+	test? ( dev-util/nihtest )
+"
+
+PATCHES=(
+	"${FILESDIR}"/${P}-uninit.patch
+)
 
 pkg_setup() {
 	# Upstream doesn't support building dynamic & static
@@ -45,6 +51,7 @@ src_configure() {
 	append-lfs-flags
 	myconfigure() {
 		local mycmakeargs=(
+			-DBUILD_OSSFUZZ=OFF
 			-DBUILD_EXAMPLES=OFF # nothing is installed
 			-DENABLE_COMMONCRYPTO=OFF # not in tree
 			-DENABLE_BZIP2=$(usex bzip2)
