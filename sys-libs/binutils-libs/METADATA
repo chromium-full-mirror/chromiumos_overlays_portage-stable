@@ -12,5 +12,9 @@ third_party {
     tag: "cpe:/a:gnu:binutils:2.41"
     # ChromeOS > Infra > Toolchain
     tag: "vuln_reporting:buganizer_component:1034879"
+
+    # CVE-2025-0840 is irrelevant to binutils-libs; it was fixed in
+    # chromiumos-overlay's binutils by crrev.com/c/6328999.
+    mitigated_security_patch: "CVE-2025-0840"
   }
 }
