@@ -24,6 +24,7 @@ SLOT="0"
 PATCHES=(
 	"${FILESDIR}/vksp.patch"
 	"${FILESDIR}/UPSTREAM-50bc4de-vksp_remove_literals_for_ids.patch"
+	"${FILESDIR}/UPSTREAM-bf08186-clspv_add_workgroupvariablesize.patch"
 )
 
 src_configure() {
