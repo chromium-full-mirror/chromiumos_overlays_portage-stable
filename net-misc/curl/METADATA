@@ -8,9 +8,9 @@ third_party {
   security {
     # ChromeOS > Platform > System > Networking
     tag: "vuln_reporting:buganizer_component:156085"
-  }
 
-  # vuln not applicable for OpenSSL (ChromeOS SSL backend)
-  mitigated_security_patch: "CVE-2024-6197"
-  mitigated_security_patch: "CVE-2024-7264"
+    # vuln not applicable for OpenSSL (ChromeOS SSL backend)
+    mitigated_security_patch: "CVE-2024-6197"
+    mitigated_security_patch: "CVE-2024-7264"
+  }
 }
