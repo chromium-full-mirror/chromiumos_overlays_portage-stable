@@ -315,6 +315,7 @@ RDEPEND="
 "
 
 PATCHES=(
+	"${FILESDIR}"/${PN}-9.0.0-glibc-2.41.patch
 	"${FILESDIR}"/${PN}-9.0.0-disable-keymap.patch
 	"${FILESDIR}"/${PN}-9.0.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-9.0.0-also-build-virtfs-proxy-helper.patch
