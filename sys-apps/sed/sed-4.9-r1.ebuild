@@ -1,17 +1,17 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/sed.asc
-inherit flag-o-matic verify-sig
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/sed.asc
+inherit autotools flag-o-matic verify-sig
 
 DESCRIPTION="Super-useful stream editor"
-HOMEPAGE="http://sed.sourceforge.net/"
+HOMEPAGE="https://www.gnu.org/software/sed/"
 SRC_URI="mirror://gnu/sed/${P}.tar.xz"
 SRC_URI+=" verify-sig? ( mirror://gnu/sed/${P}.tar.xz.sig )"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="*"
 IUSE="acl nls selinux static"
@@ -33,9 +33,15 @@ DEPEND="${RDEPEND}
 BDEPEND="nls? ( sys-devel/gettext )
 	verify-sig? ( sec-keys/openpgp-keys-sed )"
 
-PATCHES=(
-	"${FILESDIR}/${P}-avoid-noreturn-diagnostic.patch"
-)
+src_prepare() {
+	default
+
+	# Ignore prefix as a workaround for bug #934329
+	if ! use prefix ; then
+		# Modern C fixes from latest autotools. bug #900382
+		eautoreconf
+	fi
+}
 
 src_configure() {
 	use static && append-ldflags -static
@@ -45,6 +51,23 @@ src_configure() {
 		$(use_enable acl)
 		$(use_enable nls)
 		$(use_with selinux)
+		# rename to gsed for better BSD compatibility
+		--program-prefix=g
 	)
 	econf "${myconf[@]}"
+}
+
+src_test() {
+	# We don't want to automagically use Valgrind for tests.
+	sed -i -e 's:valgrind --error-exitcode=1:false:' init.cfg || die
+
+	emake VERBOSE=yes check
+}
+
+src_install() {
+	default
+
+	# symlink to the standard name
+	dosym gsed /bin/sed
+	dosym gsed.1 /usr/share/man/man1/sed.1
 }
