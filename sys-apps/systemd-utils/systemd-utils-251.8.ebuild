@@ -82,7 +82,7 @@ PDEPEND="
 	udev? ( >=sys-fs/udev-init-scripts-34 )
 "
 BDEPEND="
-	$(python_gen_any_dep 'dev-python/jinja[${PYTHON_USEDEP}]')
+	$(python_gen_any_dep 'dev-python/jinja2[${PYTHON_USEDEP}]')
 	app-text/docbook-xml-dtd:4.2
 	app-text/docbook-xml-dtd:4.5
 	app-text/docbook-xsl-stylesheets
@@ -95,10 +95,6 @@ BDEPEND="
 
 TMPFILES_OPTIONAL=1
 UDEV_OPTIONAL=1
-
-python_check_deps() {
-	python_has_version "dev-python/jinja[${PYTHON_USEDEP}]"
-}
 
 QA_EXECSTACK="usr/lib/systemd/boot/efi/*"
 QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"

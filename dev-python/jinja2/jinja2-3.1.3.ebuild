@@ -17,8 +17,10 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://github.com/pallets/jinja/archive/${PV}.tar.gz
-		-> ${P}.gh.tar.gz
+		-> jinja-${PV}.gh.tar.gz
 "
+
+S="${WORKDIR}/jinja-${PV}"
 
 LICENSE="BSD"
 SLOT="0"
@@ -27,6 +29,7 @@ IUSE="examples"
 
 RDEPEND="
 	>=dev-python/markupsafe-2.0.0[${PYTHON_USEDEP}]
+	!dev-python/jinja
 "
 
 distutils_enable_sphinx docs \
