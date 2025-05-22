@@ -1,10 +1,10 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 DISTUTILS_USE_PEP517=flit
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 inherit distutils-r1 pypi
 
@@ -20,13 +20,6 @@ KEYWORDS="*"
 
 RDEPEND="
 	>=dev-python/packaging-19[${PYTHON_USEDEP}]
-"
-BDEPEND="
-	test? (
-		$(python_gen_cond_dep '
-			>=dev-python/tomli-1.0.0[${PYTHON_USEDEP}]
-		' 3.10)
-	)
 "
 
 distutils_enable_tests pytest
