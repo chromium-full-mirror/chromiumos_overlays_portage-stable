@@ -3,13 +3,13 @@
 
 EAPI=7
 
-inherit flag-o-matic libtool toolchain-funcs multilib-minimal
+inherit dot-a libtool toolchain-funcs multilib-minimal
 
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
-IUSE="64-bit-bfd cet doc multitarget nls static-libs test"
+IUSE="64-bit-bfd cet multitarget nls static-libs test"
 
 # Variables that can be set here  (ignored for live ebuilds)
 # PATCH_VER          - the patchset version
@@ -19,7 +19,7 @@ IUSE="64-bit-bfd cet doc multitarget nls static-libs test"
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=1
+PATCH_VER=4
 PATCH_DEV=dilfridge
 
 MY_PN=binutils
@@ -44,6 +44,7 @@ fi
 BDEPEND="
 	nls? ( sys-devel/gettext )
 	test? ( dev-util/dejagnu )
+	sys-apps/texinfo
 "
 DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
 # Need a newer binutils-config that'll reset include/lib symlinks for us.
@@ -52,8 +53,6 @@ RDEPEND="${DEPEND}
 "
 
 RESTRICT="!test? ( test )"
-
-MY_BUILDDIR=${WORKDIR}/build
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/bfd.h
@@ -94,7 +93,6 @@ src_unpack() {
 	fi
 
 	cd "${WORKDIR}" || die
-	mkdir -p "${MY_BUILDDIR}" || die
 }
 
 src_prepare() {
@@ -128,9 +126,12 @@ pkgversion() {
 	[[ -n ${PATCHVER} ]] && printf " p${PATCHVER}"
 }
 
-multilib_src_configure() {
-	filter-lto
+src_configure() {
+	lto-guarantee-fat
+	multilib-minimal_src_configure
+}
 
+multilib_src_configure() {
 	local myconf=(
 		# portage's econf() does not detect presence of --d-d-t
 		# because it greps only top-level ./configure. But not
@@ -168,8 +169,8 @@ multilib_src_configure() {
 		# USE=64-bit-bfd changes data structures of exported API
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)-$(usex 64-bit-bfd 64 def)
 
-		# avoid automagic dependency on (currently prefix) systems
-		# systems with debuginfod library, bug #754753
+		# Avoid automagic dependency on (currently prefix) systems
+		# with debuginfod library, bug #754753
 		--without-debuginfod
 
 		# Revisit if it's useful, we do have binutils[zstd] though
@@ -198,15 +199,6 @@ multilib_src_configure() {
 			"${S}"/opcodes/Makefile.in || die
 	fi
 
-	# The configure script triggers './missing makeinfo' if makeinfo is not present.
-	# This 'missing' script outputs a string containing "command not found" to PORTAGE_LOG_FILE,
-	# which is checked by the Portage QA in the post-install phases. This check triggers
-	# a "QA Notice: command not found:", which is treated as fatal in ChromiumOS (but
-	# not in Gentoo), causing the emerge to fail.
-	# This export makes the configure script skip this check.
-	if ! use doc ; then
-		export MAKEINFO=true
-	fi
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 
 	# Prevent makeinfo from running as we don't build docs here.
@@ -214,6 +206,12 @@ multilib_src_configure() {
 	sed -i \
 		-e '/^MAKEINFO/s:=.*:= true:' \
 		Makefile || die
+}
+
+multilib_src_test() {
+	# Without this, the default `src_test` check for the 'check' target
+	# with `-n` may fail with parallel make and silently skip tests (bug #955595)
+	emake check
 }
 
 multilib_src_install() {
@@ -230,4 +228,6 @@ multilib_src_install() {
 
 multilib_src_install_all() {
 	use static-libs || find "${ED}"/usr -name '*.la' -delete
+	# Explicit "${ED}" as we need it to do things even w/ USE=-static-libs
+	strip-lto-bytecode "${ED}"
 }
