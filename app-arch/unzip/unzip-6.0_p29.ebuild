@@ -1,39 +1,48 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit toolchain-funcs flag-o-matic
+inherit flag-o-matic multilib toolchain-funcs
 
 MY_PV="${PV//.}"
 MY_PV="${MY_PV%_p*}"
 MY_P="${PN}${MY_PV}"
 
 DESCRIPTION="unzipper for pkzip-compressed files"
-HOMEPAGE="http://www.info-zip.org/"
-SRC_URI="mirror://sourceforge/infozip/${MY_P}.tar.gz
-	mirror://debian/pool/main/u/${PN}/${PN}_${PV/_p/-}.debian.tar.xz"
+HOMEPAGE="https://infozip.sourceforge.net/UnZip.html"
+SRC_URI="
+	https://downloads.sourceforge.net/infozip/${MY_P}.tar.gz
+	mirror://debian/pool/main/u/${PN}/${PN}_${PV/_p/-}.debian.tar.xz
+"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="Info-ZIP"
 SLOT="0"
 KEYWORDS="*"
 IUSE="bzip2 natspec unicode"
 
-DEPEND="bzip2? ( app-arch/bzip2 )
-	natspec? ( dev-libs/libnatspec )"
+DEPEND="
+	bzip2? ( app-arch/bzip2 )
+	natspec? ( dev-libs/libnatspec )
+"
 RDEPEND="${DEPEND}"
 
-S="${WORKDIR}/${MY_P}"
+PATCHES=(
+	"${WORKDIR}"/debian/patches
+	"${FILESDIR}"/${PN}-6.0-no-exec-stack.patch
+	"${FILESDIR}"/${PN}-6.0-format-security.patch
+	"${FILESDIR}"/${PN}-6.0-fix-false-overlap-detection-on-32bit-systems.patch
+)
 
 src_prepare() {
-	local deb="${WORKDIR}"/debian/patches
-	rm "${deb}"/02-this-is-debian-unzip.patch || die
-	eapply "${deb}"/*.patch
+	# bug #275244
+	use natspec && PATCHES+=( "${FILESDIR}"/${PN}-6.0-natspec.patch )
 
-	eapply "${FILESDIR}"/${PN}-6.0-no-exec-stack.patch
-	eapply "${FILESDIR}"/${PN}-6.0-format-security.patch
-	eapply "${FILESDIR}"/${PN}-6.0-fix-false-overlap-detection-on-32bit-systems.patch
-	use natspec && eapply "${FILESDIR}/${PN}-6.0-natspec.patch" #275244
+	rm "${WORKDIR}"/debian/patches/02-this-is-debian-unzip.patch || die
+
+	default
+
 	sed -i -r \
 		-e '/^CFLAGS/d' \
 		-e '/CFLAGS/s:-O[0-9]?:$(CFLAGS) $(CPPFLAGS):' \
@@ -52,32 +61,28 @@ src_prepare() {
 
 	# Delete bundled code to make sure we don't use it.
 	rm -r bzip2 || die
-
-	eapply_user
 }
 
 src_configure() {
 	case ${CHOST} in
 		i?86*-*linux*)       TARGET="linux_asm" ;;
 		*linux*)             TARGET="linux_noasm" ;;
-		i?86*-*bsd* | \
-		i?86*-dragonfly*)    TARGET="freebsd" ;; # mislabelled bsd with x86 asm
-		*bsd* | *dragonfly*) TARGET="bsd" ;;
 		*-darwin*)           TARGET="macosx" ;;
-		*-solaris*)          TARGET="generic" ;;
-		*-cygwin*)           TARGET="generic" ;;
-		*) die "Unknown target; please update the ebuild to handle ${CHOST}	" ;;
+		*-solaris*)          TARGET="linux_noasm" ;;
+		*) die "Unknown target; please update the ebuild to handle ${CHOST}" ;;
 	esac
 
 	[[ ${CHOST} == *linux* ]] && append-cppflags -DNO_LCHMOD
+	[[ ${CHOST} == *-solaris* ]] && append-cppflags -DNO_LCHMOD -DBSD4_4
 	use bzip2 && append-cppflags -DUSE_BZIP2
 	use unicode && append-cppflags -DUNICODE_SUPPORT -DUNICODE_WCHAR -DUTF8_MAYBE_NATIVE -DUSE_ICONV_MAPPING
-	append-cppflags -DLARGE_FILE_SUPPORT #281473
+
+	# bug #281473
+	append-cppflags -DLARGE_FILE_SUPPORT
 }
 
 src_compile() {
-	ASFLAGS="${ASFLAGS} $(get_abi_var CFLAGS)" \
-		emake -f unix/Makefile ${TARGET}
+	ASFLAGS="${ASFLAGS} $(get_abi_CFLAGS)" emake -f unix/Makefile ${TARGET}
 }
 
 src_install() {
