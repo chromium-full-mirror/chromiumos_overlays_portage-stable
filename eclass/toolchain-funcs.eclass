@@ -15,8 +15,6 @@
 if [[ -z ${_TOOLCHAIN_FUNCS_ECLASS} ]]; then
 _TOOLCHAIN_FUNCS_ECLASS=1
 
-inherit multilib usr-ldscript
-
 # tc-getPROG <VAR [search vars]> <default> [tuple]
 _tc-getPROG() {
 	local tuple=$1
