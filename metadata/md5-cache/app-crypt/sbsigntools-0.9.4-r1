@@ -4,10 +4,11 @@ DEPEND=dev-libs/openssl:0= sys-apps/util-linux sys-apps/help2man sys-boot/gnu-ef
 DESCRIPTION=Utilities for signing and verifying files for UEFI Secure Boot
 EAPI=7
 HOMEPAGE=https://git.kernel.org/cgit/linux/kernel/git/jejb/sbsigntools.git/
+IUSE=split-usr
 KEYWORDS=*
 LICENSE=GPL-3 LGPL-3 LGPL-2.1 CC0-1.0
 RDEPEND=dev-libs/openssl:0= sys-apps/util-linux
 SLOT=0
 SRC_URI=https://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git/snapshot/sbsigntools-0.9.4.tar.gz https://dev.gentoo.org/~tamiko/distfiles/sbsigntool-0.8-ccan.tar.gz
-_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=c4b6abd112d588efc2b1ff3e8bc19b00

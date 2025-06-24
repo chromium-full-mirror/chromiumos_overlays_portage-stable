@@ -4,7 +4,7 @@ DEPEND=nls? ( >=sys-devel/gettext-0.21 )
 DESCRIPTION=A general-purpose (yacc-compatible) parser generator
 EAPI=7
 HOMEPAGE=https://www.gnu.org/software/bison/
-IUSE=examples nls static test verify-sig
+IUSE=examples nls static test split-usr verify-sig
 KEYWORDS=*
 LICENSE=GPL-3+
 PDEPEND=app-alternatives/yacc
@@ -12,5 +12,5 @@ RDEPEND=nls? ( >=sys-devel/gettext-0.21 ) >=sys-devel/m4-1.4.16
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://gnu/bison/bison-3.8.2.tar.xz verify-sig? ( mirror://gnu/bison/bison-3.8.2.tar.xz.sig )
-_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
+_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
 _md5_=262a951a8fb49cb1ba02720bd387fce3

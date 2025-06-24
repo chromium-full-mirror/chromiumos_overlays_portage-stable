@@ -4,12 +4,12 @@ DEPEND=input_devices_wacom? ( >=dev-libs/libwacom-0.27:= ) >=dev-libs/libevdev-1
 DESCRIPTION=Library to handle input devices in Wayland
 EAPI=7
 HOMEPAGE=https://www.freedesktop.org/wiki/Software/libinput/ https://gitlab.freedesktop.org/libinput/libinput
-IUSE=doc input_devices_wacom test cros_host test
+IUSE=doc input_devices_wacom test split-usr cros_host test
 KEYWORDS=*
 LICENSE=MIT
 RDEPEND=input_devices_wacom? ( >=dev-libs/libwacom-0.27:= ) >=dev-libs/libevdev-1.9.902 >=sys-libs/mtdev-1.1 virtual/libudev:= virtual/udev
 RESTRICT=!test? ( test )
 SLOT=0/10
 SRC_URI=https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.24.0/libinput-1.24.0.tar.bz2
-_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	meson	e785a2770f8840637cc0341468f8e565	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	optfeature	f4941a15f8b66955c45f7b0e7c4ae890	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	udev	eec0bbab06977f1cfc5597269c1fa152
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	meson	e785a2770f8840637cc0341468f8e565	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	optfeature	f4941a15f8b66955c45f7b0e7c4ae890	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	udev	eec0bbab06977f1cfc5597269c1fa152	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=d19bbc5ea6fbf1b9c7e973eb09cccd26

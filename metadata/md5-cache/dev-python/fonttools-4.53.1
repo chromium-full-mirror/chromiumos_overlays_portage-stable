@@ -4,7 +4,7 @@ DEPEND=python_targets_python3_12? ( dev-lang/python:3.12[xml(+)] ) python_target
 DESCRIPTION=Library for manipulating TrueType, OpenType, AFM and Type1 fonts
 EAPI=7
 HOMEPAGE=https://github.com/fonttools/fonttools/ https://pypi.org/project/fonttools/
-IUSE=+native-extensions test python_targets_python3_12 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8 debug test
+IUSE=+native-extensions test split-usr python_targets_python3_12 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8 debug test
 KEYWORDS=*
 LICENSE=BSD
 RDEPEND=>=dev-python/fs-2.4.9[python_targets_python3_12(-)?,python_targets_python3_11(-)?,python_targets_python3_10(-)?,python_targets_python3_9(-)?,python_targets_python3_8(-)?] python_targets_python3_12? ( dev-lang/python:3.12[xml(+)] ) python_targets_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11[xml(+)] ) python_targets_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10[xml(+)] ) python_targets_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9[xml(+)] ) python_targets_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8[xml(+)] )
@@ -12,5 +12,5 @@ REQUIRED_USE=|| ( python_targets_python3_12 python_targets_python3_11 python_tar
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/fonttools/fonttools/archive/4.53.1.tar.gz -> fonttools-4.53.1.gh.tar.gz
-_eclasses_=distutils-r1	5b0430814dd5bfa7458231378d5d77c8	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	virtualx	e9162f65645513120b4e12863a5fa972
+_eclasses_=distutils-r1	5b0430814dd5bfa7458231378d5d77c8	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1	virtualx	e9162f65645513120b4e12863a5fa972
 _md5_=e1b3964f7e596361a547b636c0690531

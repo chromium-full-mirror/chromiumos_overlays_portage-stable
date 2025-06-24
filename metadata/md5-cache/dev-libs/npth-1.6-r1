@@ -3,11 +3,11 @@ DEFINED_PHASES=configure install prepare
 DESCRIPTION=New GNU Portable Threads Library
 EAPI=7
 HOMEPAGE=https://git.gnupg.org/cgi-bin/gitweb.cgi?p=npth.git
-IUSE=test
+IUSE=test split-usr
 KEYWORDS=*
 LICENSE=LGPL-2.1+
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://gnupg/npth/npth-1.6.tar.bz2
-_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=62223a2c9b45e495f15f10ff2b0f6a0a

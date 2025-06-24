@@ -4,12 +4,12 @@ DEPEND=app-arch/zstd:= redis? ( dev-libs/hiredis:= ) test? ( dev-libs/elfutils )
 DESCRIPTION=Fast compiler cache
 EAPI=7
 HOMEPAGE=https://ccache.dev/
-IUSE=doc redis +static-c++ test verify-sig
+IUSE=doc redis +static-c++ test split-usr verify-sig
 KEYWORDS=*
 LICENSE=GPL-3 LGPL-3
 RDEPEND=app-arch/zstd:= redis? ( dev-libs/hiredis:= ) dev-util/shadowman sys-apps/gentoo-functions
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/ccache/ccache/releases/download/v4.8.2/ccache-4.8.2.tar.xz verify-sig? ( https://github.com/ccache/ccache/releases/download/v4.8.2/ccache-4.8.2.tar.xz.asc ) !doc? ( https://dev.gentoo.org/~sam/distfiles/dev-util/ccache/ccache-4.8-docs.tar.xz )
-_eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1	verify-sig	40b4f4f782cf67118f594ce604cc4c0a	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
 _md5_=f5eb0c16560feb0023d5c038fef464d3

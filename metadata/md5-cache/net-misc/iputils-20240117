@@ -4,12 +4,12 @@ DEPEND=caps? ( sys-libs/libcap ) idn? ( net-dns/libidn2:= ) nls? ( virtual/libin
 DESCRIPTION=Network monitoring tools including ping and ping6
 EAPI=7
 HOMEPAGE=https://wiki.linuxfoundation.org/networking/iputils
-IUSE=+arping caps clockdiff doc idn nls test tracepath +filecaps cros_host test
+IUSE=+arping caps clockdiff doc idn nls test tracepath +filecaps split-usr cros_host test
 KEYWORDS=*
 LICENSE=BSD arping? ( GPL-2+ ) clockdiff? ( BSD ) tracepath? ( GPL-2+ )
 RDEPEND=caps? ( sys-libs/libcap ) idn? ( net-dns/libidn2:= ) nls? ( virtual/libintl ) filecaps? ( sys-libs/libcap )
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/iputils/iputils/releases/download/20240117/iputils-20240117.tar.xz
-_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	fcaps	babe6282ea5c195981bd302af1adaf3a	meson	e785a2770f8840637cc0341468f8e565	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	plocale	89c6aac5da68423465e6fd79fb4ad5fb	python-utils-r1	27286775f89db2dee6e810617d879ad9	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	fcaps	babe6282ea5c195981bd302af1adaf3a	meson	e785a2770f8840637cc0341468f8e565	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	plocale	89c6aac5da68423465e6fd79fb4ad5fb	python-utils-r1	27286775f89db2dee6e810617d879ad9	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=c2c5276324c7be91be945970cf7cebe4

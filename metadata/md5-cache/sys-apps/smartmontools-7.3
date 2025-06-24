@@ -4,12 +4,12 @@ DEPEND=caps? ( static? ( sys-libs/libcap-ng:=[static-libs] ) !static? ( sys-libs
 DESCRIPTION=Tools to monitor storage systems to provide advanced warning of disk degradation
 EAPI=7
 HOMEPAGE=https://www.smartmontools.org
-IUSE=caps +daemon selinux static systemd +update-drivedb
+IUSE=caps +daemon selinux static systemd +update-drivedb split-usr
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=caps? ( static? ( sys-libs/libcap-ng:=[static-libs] ) !static? ( sys-libs/libcap-ng:= ) ) selinux? ( sys-libs/libselinux:= ) daemon? ( virtual/mailx ) selinux? ( sec-policy/selinux-smartmon ) systemd? ( sys-apps/systemd ) update-drivedb? ( app-crypt/gnupg || ( net-misc/curl net-misc/wget www-client/lynx dev-vcs/subversion ) )
 REQUIRED_USE=( caps? ( daemon ) static? ( !systemd ) )
 SLOT=0
 SRC_URI=mirror://sourceforge/smartmontools/smartmontools-7.3.tar.gz
-_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	systemd	5f4bb0758df2e483babf68cd517078ca	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=2a75dfbdaf382a96df89f3acabebbb43

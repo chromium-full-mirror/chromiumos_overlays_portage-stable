@@ -4,11 +4,11 @@ DEPEND=>=net-libs/libmnl-1.0.3 >=net-libs/libnfnetlink-1.0.0
 DESCRIPTION=Programming interface (API) to the in-kernel connection tracking state table
 EAPI=7
 HOMEPAGE=https://www.netfilter.org/projects/libnetfilter_conntrack/
-IUSE=kernel_linux verify-sig
+IUSE=split-usr kernel_linux verify-sig
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=>=net-libs/libmnl-1.0.3 >=net-libs/libnfnetlink-1.0.0
 SLOT=0
 SRC_URI=https://www.netfilter.org/projects/libnetfilter_conntrack/files/libnetfilter_conntrack-1.0.9.tar.bz2 verify-sig? ( https://www.netfilter.org/projects/libnetfilter_conntrack/files/libnetfilter_conntrack-1.0.9.tar.bz2.sig )
-_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	linux-info	327865b9921771330775d971263dc234	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
+_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	linux-info	327865b9921771330775d971263dc234	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
 _md5_=6e54ceba13a619681d7d005a1754918e

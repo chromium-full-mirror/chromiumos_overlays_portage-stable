@@ -4,12 +4,12 @@ DEPEND=>=dev-lang/perl-5.6 >=sys-devel/automake-wrapper-11 >=sys-devel/autoconf-
 DESCRIPTION=Used to generate Makefile.in from Makefile.am
 EAPI=7
 HOMEPAGE=https://www.gnu.org/software/automake/
-IUSE=test
+IUSE=test split-usr
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=>=dev-lang/perl-5.6 >=sys-devel/automake-wrapper-11 >=sys-devel/autoconf-2.69:* sys-devel/gnuconfig
 RESTRICT=!test? ( test )
 SLOT=1.16
 SRC_URI=mirror://gnu/automake/automake-1.16.5.tar.xz https://alpha.gnu.org/pub/gnu/automake/automake-1.16.5.tar.xz
-_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=c2fdacb75219e01c35b73ee4d2aff6cb

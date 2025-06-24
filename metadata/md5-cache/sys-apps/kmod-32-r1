@@ -4,11 +4,11 @@ DEPEND=!sys-apps/module-init-tools !sys-apps/modutils !<sys-apps/openrc-0.13.8 !
 DESCRIPTION=Library and tools for managing linux kernel modules
 EAPI=7
 HOMEPAGE=https://git.kernel.org/?p=utils/kernel/kmod/kmod.git
-IUSE=debug doc +lzma pkcs7 split-usr static-libs +tools +zlib +zstd
+IUSE=debug doc +lzma pkcs7 split-usr static-libs +tools +zlib +zstd split-usr
 KEYWORDS=*
 LICENSE=LGPL-2
 RDEPEND=!sys-apps/module-init-tools !sys-apps/modutils !<sys-apps/openrc-0.13.8 !<sys-apps/systemd-216-r3 lzma? ( >=app-arch/xz-utils-5.0.4-r1 ) pkcs7? ( >=dev-libs/openssl-1.1.0:= ) zlib? ( >=sys-libs/zlib-1.2.6 ) zstd? ( >=app-arch/zstd-1.5.2-r1:= )
 SLOT=0
 SRC_URI=https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-32.tar.xz
-_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	bash-completion-r1	47a7402d95930413ce25ba8d857339bb	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	bash-completion-r1	47a7402d95930413ce25ba8d857339bb	libtool	f143db5a74ccd9ca28c1234deffede96	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=db5f20a27b9baa371394deb85468600b

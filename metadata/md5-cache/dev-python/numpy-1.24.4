@@ -4,7 +4,7 @@ DEPEND=python_targets_pypy3? ( >=dev-python/pypy3-7.3.9_p9:0=[threads(+)] ) pyth
 DESCRIPTION=Fast array and numerical python library
 EAPI=7
 HOMEPAGE=https://numpy.org/ https://github.com/numpy/numpy/ https://pypi.org/project/numpy/
-IUSE=lapack test python_targets_pypy3 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8 debug
+IUSE=lapack test split-usr python_targets_pypy3 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8 debug
 KEYWORDS=*
 LICENSE=BSD
 RDEPEND=lapack? ( >=virtual/cblas-3.8 >=virtual/lapack-3.8 ) python_targets_pypy3? ( >=dev-python/pypy3-7.3.9_p9:0=[threads(+)] ) python_targets_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11[threads(+)] ) python_targets_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10[threads(+)] ) python_targets_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9[threads(+)] ) python_targets_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8[threads(+)] ) lapack? ( virtual/fortran )
@@ -12,5 +12,5 @@ REQUIRED_USE=|| ( python_targets_pypy3 python_targets_python3_11 python_targets_
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://files.pythonhosted.org/packages/source/n/numpy/numpy-1.24.4.tar.gz
-_eclasses_=distutils-r1	5b0430814dd5bfa7458231378d5d77c8	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	fortran-2	f75a2d9321053acf424991e805f32ede	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	pypi	3b6a844fbf71f1581992b44c78b549b7	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=distutils-r1	5b0430814dd5bfa7458231378d5d77c8	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	fortran-2	f75a2d9321053acf424991e805f32ede	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	pypi	3b6a844fbf71f1581992b44c78b549b7	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=01765f5bdb6a6870ce45d4314e58242b

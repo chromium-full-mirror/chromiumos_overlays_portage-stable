@@ -4,12 +4,12 @@ DEPEND=gtk? ( x11-libs/gtk+:2 ) llvm? ( <sys-devel/llvm-13:= ) sqlite? ( dev-db/
 DESCRIPTION=C semantic parser
 EAPI=7
 HOMEPAGE=https://sparse.wiki.kernel.org/index.php/Main_Page
-IUSE=gtk llvm sqlite test xml
+IUSE=gtk llvm sqlite test xml split-usr
 KEYWORDS=*
 LICENSE=MIT
 RDEPEND=gtk? ( x11-libs/gtk+:2 ) llvm? ( <sys-devel/llvm-13:= ) sqlite? ( dev-db/sqlite:= ) xml? ( dev-libs/libxml2 )
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://www.kernel.org/pub/software/devel/sparse/dist/sparse-0.6.4.tar.xz
-_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=5a2475f3db474b06ae0d680b899e30f9

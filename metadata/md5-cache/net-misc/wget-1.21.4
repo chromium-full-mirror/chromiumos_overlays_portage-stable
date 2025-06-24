@@ -4,7 +4,7 @@ DEPEND=!static? ( cookie-check? ( net-libs/libpsl ) idn? ( >=net-dns/libidn2-0.1
 DESCRIPTION=Network utility to retrieve files from the WWW
 EAPI=7
 HOMEPAGE=https://www.gnu.org/software/wget/
-IUSE=cookie-check debug gnutls idn ipv6 metalink nls ntlm pcre +ssl static test uuid zlib verify-sig
+IUSE=cookie-check debug gnutls idn ipv6 metalink nls ntlm pcre +ssl static test uuid zlib split-usr verify-sig
 KEYWORDS=*
 LICENSE=GPL-3+
 RDEPEND=!static? ( cookie-check? ( net-libs/libpsl ) idn? ( >=net-dns/libidn2-0.14:= ) metalink? ( app-crypt/gpgme media-libs/libmetalink ) pcre? ( dev-libs/libpcre2 ) ssl? ( gnutls? ( net-libs/gnutls:= ) !gnutls? ( dev-libs/openssl:= ) ) uuid? ( sys-apps/util-linux ) zlib? ( sys-libs/zlib ) )
@@ -12,5 +12,5 @@ REQUIRED_USE=ntlm? ( !gnutls ssl ) gnutls? ( ssl )
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://gnu/wget/wget-1.21.4.tar.gz verify-sig? ( mirror://gnu/wget/wget-1.21.4.tar.gz.sig )
-_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
 _md5_=b64a66ddb39253b87f8de2660545ac69

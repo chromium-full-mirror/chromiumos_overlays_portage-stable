@@ -4,11 +4,11 @@ DEPEND=dev-libs/openssl:=
 DESCRIPTION=utilities for working with Das U-Boot
 EAPI=7
 HOMEPAGE=https://www.denx.de/wiki/U-Boot/WebHome
-IUSE=envtools
+IUSE=envtools split-usr
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=dev-libs/openssl:=
 SLOT=0
 SRC_URI=https://ftp.denx.de/pub/u-boot/u-boot-2023.01.tar.bz2
-_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=21723f0a4be7bbb1d7b5ffe9acd5ff96

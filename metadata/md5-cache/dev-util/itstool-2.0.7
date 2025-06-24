@@ -3,12 +3,12 @@ DEPEND=python_single_target_python3_12? ( dev-lang/python:3.12[xml(+)] ) python_
 DESCRIPTION=Translation tool for XML documents that uses gettext files and ITS rules
 EAPI=7
 HOMEPAGE=http://itstool.org/
-IUSE=python_single_target_python3_12 python_single_target_python3_11 python_single_target_python3_10 python_single_target_python3_9 python_single_target_python3_8
+IUSE=split-usr python_single_target_python3_12 python_single_target_python3_11 python_single_target_python3_10 python_single_target_python3_9 python_single_target_python3_8
 KEYWORDS=*
 LICENSE=GPL-3+
 RDEPEND=python_single_target_python3_12? ( dev-lang/python:3.12[xml(+)] ) python_single_target_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11[xml(+)] ) python_single_target_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10[xml(+)] ) python_single_target_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9[xml(+)] ) python_single_target_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8[xml(+)] ) python_single_target_python3_12? ( dev-libs/libxml2[python,python_targets_python3_12(-)] ) python_single_target_python3_11? ( dev-libs/libxml2[python,python_targets_python3_11(-)] ) python_single_target_python3_10? ( dev-libs/libxml2[python,python_targets_python3_10(-)] ) python_single_target_python3_9? ( dev-libs/libxml2[python,python_targets_python3_9(-)] ) python_single_target_python3_8? ( dev-libs/libxml2[python,python_targets_python3_8(-)] )
 REQUIRED_USE=^^ ( python_single_target_python3_12 python_single_target_python3_11 python_single_target_python3_10 python_single_target_python3_9 python_single_target_python3_8 )
 SLOT=0
 SRC_URI=http://files.itstool.org/itstool/itstool-2.0.7.tar.bz2
-_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-single-r1	a5747fe6dc0651d95cb78eddd5e160a8	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-single-r1	a5747fe6dc0651d95cb78eddd5e160a8	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=f1505388d87c7da25d2d2b6f6ee10f54

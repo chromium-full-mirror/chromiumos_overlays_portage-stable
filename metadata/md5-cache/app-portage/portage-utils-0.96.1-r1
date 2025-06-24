@@ -4,11 +4,11 @@ DEPEND=openmp? ( || ( sys-devel/gcc:*[openmp] sys-libs/libomp ) ) qmanifest? ( !
 DESCRIPTION=Small and fast Portage helper tools written in C
 EAPI=7
 HOMEPAGE=https://wiki.gentoo.org/wiki/Portage-utils
-IUSE=openmp +qmanifest +qtegrity static
+IUSE=openmp +qmanifest +qtegrity static split-usr
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=openmp? ( || ( sys-devel/gcc:*[openmp] sys-libs/libomp ) ) qmanifest? ( !static? ( app-crypt/gpgme:= app-crypt/libb2:= dev-libs/openssl:= sys-libs/zlib:= ) ) qtegrity? ( !static? ( dev-libs/openssl:= ) )
 SLOT=0
 SRC_URI=https://dev.gentoo.org/~grobian/distfiles/portage-utils-0.96.1.tar.xz
-_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=3b4af001773822b70251ab956467198d

@@ -4,12 +4,12 @@ DEPEND=python_single_target_python3_12? ( dev-lang/python:3.12 ) python_single_t
 DESCRIPTION=pahole (Poke-a-Hole) and other DWARF utilities
 EAPI=7
 HOMEPAGE=https://git.kernel.org/cgit/devel/pahole/pahole.git/
-IUSE=debug python_single_target_python3_12 python_single_target_python3_11 python_single_target_python3_10 python_single_target_python3_9 python_single_target_python3_8 verify-sig
+IUSE=debug split-usr python_single_target_python3_12 python_single_target_python3_11 python_single_target_python3_10 python_single_target_python3_9 python_single_target_python3_8 verify-sig
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=python_single_target_python3_12? ( dev-lang/python:3.12 ) python_single_target_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11 ) python_single_target_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10 ) python_single_target_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9 ) python_single_target_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8 ) >=dev-libs/elfutils-0.178 sys-libs/zlib
 REQUIRED_USE=^^ ( python_single_target_python3_12 python_single_target_python3_11 python_single_target_python3_10 python_single_target_python3_9 python_single_target_python3_8 )
 SLOT=0
 SRC_URI=http://fedorapeople.org/~acme/dwarves/dwarves-1.27.tar.xz verify-sig? ( http://fedorapeople.org/~acme/dwarves/dwarves-1.27.tar.sign )
-_eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	python-single-r1	a5747fe6dc0651d95cb78eddd5e160a8	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6	verify-sig	40b4f4f782cf67118f594ce604cc4c0a	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_eclasses_=cmake	34502c2b638b59994575d53ba3805d7b	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	python-single-r1	a5747fe6dc0651d95cb78eddd5e160a8	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1	verify-sig	40b4f4f782cf67118f594ce604cc4c0a	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
 _md5_=a23a255558ecbaa9680379accf49a286

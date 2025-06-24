@@ -4,11 +4,11 @@ DEPEND=sys-libs/zlib:= client? ( kernel_linux? ( ipv6? ( sys-apps/iproute2 ) sys
 DESCRIPTION=ISC Dynamic Host Configuration Protocol (DHCP) client/server
 EAPI=7
 HOMEPAGE=https://www.isc.org/dhcp
-IUSE=+client ipv6 ldap selinux +server ssl vim-syntax
+IUSE=+client ipv6 ldap selinux +server ssl vim-syntax split-usr
 KEYWORDS=*
 LICENSE=MPL-2.0 BSD SSLeay GPL-2
 RDEPEND=acct-group/dhcp acct-user/dhcp sys-libs/zlib:= client? ( kernel_linux? ( ipv6? ( sys-apps/iproute2 ) sys-apps/net-tools ) ) ldap? ( net-nds/openldap:= ssl? ( dev-libs/openssl:= ) ) selinux? ( sec-policy/selinux-dhcp ) vim-syntax? ( app-vim/dhcpd-syntax ) virtual/tmpfiles
 SLOT=0
 SRC_URI=ftp://ftp.isc.org/isc/dhcp/dhcp-4.4.3-P1.tar.gz ftp://ftp.isc.org/isc/dhcp/4.4.3-P1/dhcp-4.4.3-P1.tar.gz
-_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	systemd	5f4bb0758df2e483babf68cd517078ca	tmpfiles	216aa76c3a6fcb5d893c23a0de86048f	toolchain-funcs	f783d68a26b62d6b19e070e6bcada5e6
+_eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multilib	2477ebe553d3e4d2c606191fe6c33602	systemd	5f4bb0758df2e483babf68cd517078ca	tmpfiles	216aa76c3a6fcb5d893c23a0de86048f	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
 _md5_=7a11cfde2c08a2249340b34c586a4ce9
