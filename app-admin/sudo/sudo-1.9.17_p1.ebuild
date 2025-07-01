@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit pam libtool tmpfiles toolchain-funcs
+inherit pam tmpfiles toolchain-funcs
 
 MY_P="${P/_/}"
 MY_P="${MY_P/beta/b}"
@@ -12,11 +12,11 @@ DESCRIPTION="Allows users or groups to run commands as other users"
 HOMEPAGE="https://www.sudo.ws/"
 
 if [[ ${PV} == 9999 ]] ; then
-	inherit mercurial
+	inherit autotools mercurial
 	EHG_REPO_URI="https://www.sudo.ws/repos/sudo"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/sudo.ws.asc
-	inherit verify-sig
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/sudo.ws.asc
+	inherit libtool verify-sig
 
 	uri_prefix=
 	case ${P} in
@@ -25,10 +25,8 @@ else
 
 	SRC_URI="
 		https://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
-		ftp://ftp.sudo.ws/pub/sudo/${uri_prefix}${MY_P}.tar.gz
 		verify-sig? (
 			https://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz.sig
-			ftp://ftp.sudo.ws/pub/sudo/${uri_prefix}${MY_P}.tar.gz.sig
 		)
 	"
 
@@ -36,7 +34,7 @@ else
 		KEYWORDS="*"
 	fi
 
-	BDEPEND+="verify-sig? ( sec-keys/openpgp-keys-sudo )"
+	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-sudo )"
 fi
 
 S="${WORKDIR}/${MY_P}"
@@ -62,8 +60,8 @@ DEPEND="
 	sasl? ( dev-libs/cyrus-sasl )
 	selinux? ( sys-libs/libselinux )
 	skey? ( >=sys-auth/skey-1.1.5-r1 )
-	ssl? ( dev-libs/openssl:0= )
-	sssd? ( sys-auth/sssd[sudo] )
+	ssl? ( dev-libs/openssl:= )
+	sssd? ( sys-auth/sssd[sudo(+)] )
 "
 RDEPEND="
 	${DEPEND}
@@ -75,7 +73,7 @@ RDEPEND="
 	sendmail? ( virtual/mta )
 "
 BDEPEND+="
-	sys-devel/bison
+	app-alternatives/yacc
 	virtual/pkgconfig
 "
 
@@ -89,7 +87,11 @@ MAKEOPTS+=" SAMPLES="
 src_prepare() {
 	default
 
-	elibtoolize
+	if [[ ${PV} == 9999 ]] ; then
+		eautoreconf
+	else
+		elibtoolize
+	fi
 }
 
 set_secure_path() {
@@ -178,7 +180,8 @@ src_configure() {
 		$(use_with offensive all-insults)
 		$(use_with pam)
 		$(use_with pam pam-login)
-		$(use_with secure-path secure-path "${SECURE_PATH}")
+		$(use_with secure-path)
+		"$(use_with secure-path secure-path-value "${SECURE_PATH}")"
 		$(use_with selinux)
 		$(use_with sendmail)
 		$(use_with skey)
