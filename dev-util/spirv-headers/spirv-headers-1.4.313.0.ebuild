@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -20,12 +20,6 @@ HOMEPAGE="https://registry.khronos.org/SPIR-V/ https://github.com/KhronosGroup/S
 
 LICENSE="MIT"
 SLOT="0"
-
-PATCHES=(
-	"${FILESDIR}/vksp.patch"
-	"${FILESDIR}/UPSTREAM-50bc4de-vksp_remove_literals_for_ids.patch"
-	"${FILESDIR}/UPSTREAM-bf08186-clspv_add_workgroupvariablesize.patch"
-)
 
 src_configure() {
 	local mycmakeargs=(
