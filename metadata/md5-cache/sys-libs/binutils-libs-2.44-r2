@@ -4,12 +4,12 @@ DEPEND=sys-libs/zlib[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(
 DESCRIPTION=Core binutils libraries (libbfd, libopcodes, libiberty) for external packages
 EAPI=7
 HOMEPAGE=https://sourceware.org/binutils/
-IUSE=64-bit-bfd cet multitarget nls static-libs test split-usr abi_x86_32 abi_x86_64 abi_x86_x32 abi_mips_n32 abi_mips_n64 abi_mips_o32 abi_ppc_32 abi_ppc_64 abi_s390_32 abi_s390_64 abi_arm_32 abi_arm_64
+IUSE=64-bit-bfd cet multitarget nls static-libs test abi_x86_32 abi_x86_64 abi_x86_x32 abi_mips_n32 abi_mips_n64 abi_mips_o32 abi_ppc_32 abi_ppc_64 abi_s390_32 abi_s390_64 abi_arm_32 abi_arm_64
 KEYWORDS=*
 LICENSE=|| ( GPL-3 LGPL-3 )
 RDEPEND=sys-libs/zlib[abi_x86_32(-)?,abi_x86_64(-)?,abi_x86_x32(-)?,abi_mips_n32(-)?,abi_mips_n64(-)?,abi_mips_o32(-)?,abi_ppc_32(-)?,abi_ppc_64(-)?,abi_s390_32(-)?,abi_s390_64(-)?,abi_arm_32(-)?,abi_arm_64(-)?] >=sys-devel/binutils-config-5
 RESTRICT=!test? ( test )
 SLOT=0/2.44
 SRC_URI=mirror://gnu/binutils/binutils-2.44.tar.xz https://dev.gentoo.org/~dilfridge/distfiles/binutils-2.44.tar.xz https://dev.gentoo.org/~dilfridge/distfiles/binutils-2.44-patches-4.tar.xz
-_eclasses_=dot-a	b9b773c9064bf227063561f9c72db470	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
+_eclasses_=dot-a	b9b773c9064bf227063561f9c72db470	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multilib-build	1979aa0ff4d356d32507ca4650d9f37d	multilib-minimal	8bddda43703ba94d8341f4e247f97566	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
 _md5_=95538dc81c8dae30594a0a92942e45f4

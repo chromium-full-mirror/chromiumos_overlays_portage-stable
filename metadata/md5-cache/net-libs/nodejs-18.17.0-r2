@@ -4,7 +4,7 @@ DEPEND=>=app-arch/brotli-1.0.9:= >=dev-libs/libuv-1.44.0:= >=net-dns/c-ares-1.18
 DESCRIPTION=A JavaScript runtime built on Chrome's V8 JavaScript engine
 EAPI=7
 HOMEPAGE=https://nodejs.org/
-IUSE=corepack cpu_flags_x86_sse2 debug doc +icu inspector lto +npm pax-kernel +snapshot +ssl +system-icu +system-ssl systemtap test split-usr kernel_linux
+IUSE=corepack cpu_flags_x86_sse2 debug doc +icu inspector lto +npm pax-kernel +snapshot +ssl +system-icu +system-ssl systemtap test kernel_linux
 KEYWORDS=*
 LICENSE=Apache-1.1 Apache-2.0 BSD BSD-2 MIT
 RDEPEND=>=app-arch/brotli-1.0.9:= >=dev-libs/libuv-1.44.0:= >=net-dns/c-ares-1.18.1:= >=net-libs/nghttp2-1.41.0:= sys-libs/zlib corepack? ( !sys-apps/yarn ) system-icu? ( >=dev-libs/icu-67:= ) system-ssl? ( >=dev-libs/openssl-1.1.1:0= ) sys-devel/gcc:*
@@ -12,5 +12,5 @@ REQUIRED_USE=corepack? ( !npm ) inspector? ( icu ssl ) npm? ( ssl ) system-icu? 
 RESTRICT=!test? ( test )
 SLOT=0/18
 SRC_URI=https://nodejs.org/dist/v18.17.0/node-v18.17.0.tar.xz
-_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	check-reqs	74c98e9a7b34b32be3548357852e9ec3	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	linux-info	327865b9921771330775d971263dc234	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	pax-utils	3551398d6ede2b572568832730cc2a45	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	check-reqs	74c98e9a7b34b32be3548357852e9ec3	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	linux-info	327865b9921771330775d971263dc234	multiprocessing	e5d48c933105327e0f826ce5108afc55	pax-utils	3551398d6ede2b572568832730cc2a45	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
 _md5_=2579413cf25f8a50f3ff721ce4ed5126

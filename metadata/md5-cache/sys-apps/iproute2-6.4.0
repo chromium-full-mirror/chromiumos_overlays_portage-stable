@@ -4,12 +4,12 @@ DEPEND=!net-misc/arpd !minimal? ( net-libs/libmnl:= ) atm? ( net-dialup/linux-at
 DESCRIPTION=kernel routing and traffic control utilities
 EAPI=7
 HOMEPAGE=https://wiki.linuxfoundation.org/networking/iproute2
-IUSE=atm berkdb bpf caps elf +iptables libbsd minimal nfs selinux split-usr split-usr
+IUSE=atm berkdb bpf caps elf +iptables libbsd minimal nfs selinux split-usr
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=!net-misc/arpd !minimal? ( net-libs/libmnl:= ) atm? ( net-dialup/linux-atm ) berkdb? ( sys-libs/db:= ) bpf? ( dev-libs/libbpf:= ) caps? ( sys-libs/libcap ) elf? ( virtual/libelf:= ) iptables? ( >=net-firewall/iptables-1.4.20:= ) libbsd? ( dev-libs/libbsd ) nfs? ( net-libs/libtirpc:= ) selinux? ( sys-libs/libselinux )
 RESTRICT=test
 SLOT=0
 SRC_URI=https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.4.0.tar.xz
-_eclasses_=edo	c0eb9cbe6b0bd01fcb4918f12598a4d3	multilib	2477ebe553d3e4d2c606191fe6c33602	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
+_eclasses_=edo	c0eb9cbe6b0bd01fcb4918f12598a4d3	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
 _md5_=f30e0b44816e096609bec746b066674b

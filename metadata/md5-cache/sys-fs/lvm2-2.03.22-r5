@@ -4,12 +4,12 @@ DEPEND=udev? ( virtual/libudev:= ) lvm? ( dev-libs/libaio sys-apps/util-linux re
 DESCRIPTION=User-land utilities for LVM2 (device-mapper) software
 EAPI=7
 HOMEPAGE=https://sourceware.org/lvm2/
-IUSE=lvm readline sanlock selinux static static-libs systemd thin +udev valgrind split-usr kernel_linux
+IUSE=lvm readline sanlock selinux static static-libs systemd thin +udev valgrind kernel_linux
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=udev? ( virtual/libudev:= ) lvm? ( dev-libs/libaio sys-apps/util-linux readline? ( sys-libs/readline:= ) sanlock? ( sys-cluster/sanlock ) systemd? ( sys-apps/systemd:= ) ) >=sys-apps/baselayout-2.2 lvm? ( virtual/tmpfiles thin? ( >=sys-block/thin-provisioning-tools-1.0.6 ) )
 REQUIRED_USE=static? ( !systemd !udev ) static-libs? ( static !udev ) systemd? ( udev ) thin? ( lvm )
 SLOT=0
 SRC_URI=https://sourceware.org/ftp/lvm2/LVM2.2.03.22.tgz
-_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	linux-info	327865b9921771330775d971263dc234	multilib	2477ebe553d3e4d2c606191fe6c33602	systemd	5f4bb0758df2e483babf68cd517078ca	tmpfiles	216aa76c3a6fcb5d893c23a0de86048f	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	udev	eec0bbab06977f1cfc5597269c1fa152	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
+_eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	linux-info	327865b9921771330775d971263dc234	systemd	5f4bb0758df2e483babf68cd517078ca	tmpfiles	216aa76c3a6fcb5d893c23a0de86048f	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a	udev	eec0bbab06977f1cfc5597269c1fa152
 _md5_=9db0307ddfd929b760b7c31378325112

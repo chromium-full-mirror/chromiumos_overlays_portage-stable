@@ -4,7 +4,7 @@ DEPEND=test? ( sys-apps/portage[python_targets_python3_11(-)?,python_targets_pyt
 DESCRIPTION=Java environment configuration query tool
 EAPI=7
 HOMEPAGE=https://wiki.gentoo.org/wiki/Project:Java
-IUSE=test split-usr python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8
+IUSE=test python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8
 KEYWORDS=*
 LICENSE=GPL-2
 RDEPEND=sys-apps/baselayout-java sys-apps/portage[python_targets_python3_11(-)?,python_targets_python3_10(-)?,python_targets_python3_9(-)?,python_targets_python3_8(-)?] python_targets_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11 ) python_targets_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10 ) python_targets_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9 ) python_targets_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8 )
@@ -12,5 +12,5 @@ REQUIRED_USE=|| ( python_targets_python3_11 python_targets_python3_10 python_tar
 RESTRICT=!test? ( test )
 SLOT=2
 SRC_URI=https://gitweb.gentoo.org/proj/java-config.git/snapshot/java-config-2.3.1.tar.gz
-_eclasses_=distutils-r1	fc8d51ffaf532da88283691b0ed10932	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	prefix	e51c7882b7b721e54e684f7eb143cbfe	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1
+_eclasses_=distutils-r1	fc8d51ffaf532da88283691b0ed10932	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	prefix	e51c7882b7b721e54e684f7eb143cbfe	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
 _md5_=aa5f8dafa97f75b10026938a0ecebf19

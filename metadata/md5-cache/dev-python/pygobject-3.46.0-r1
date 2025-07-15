@@ -4,7 +4,7 @@ DEPEND=>=dev-libs/glib-2.64:2 >=dev-libs/gobject-introspection-1.64:= dev-libs/l
 DESCRIPTION=Python bindings for GObject Introspection
 EAPI=7
 HOMEPAGE=https://pygobject.readthedocs.io/ https://gitlab.gnome.org/GNOME/pygobject/
-IUSE=+cairo examples test split-usr cros_host test test python_targets_python3_12 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8 debug
+IUSE=+cairo examples test cros_host test test python_targets_python3_12 python_targets_python3_11 python_targets_python3_10 python_targets_python3_9 python_targets_python3_8 debug
 KEYWORDS=*
 LICENSE=LGPL-2.1+
 RDEPEND=>=dev-libs/glib-2.64:2 >=dev-libs/gobject-introspection-1.64:= dev-libs/libffi:= cairo? ( >=dev-python/pycairo-1.16.0[python_targets_python3_12(-)?,python_targets_python3_11(-)?,python_targets_python3_10(-)?,python_targets_python3_9(-)?,python_targets_python3_8(-)?] x11-libs/cairo[glib] ) python_targets_python3_12? ( dev-lang/python:3.12 ) python_targets_python3_11? ( >=dev-lang/python-3.11.0_p2:3.11 ) python_targets_python3_10? ( >=dev-lang/python-3.10.8_p3:3.10 ) python_targets_python3_9? ( >=dev-lang/python-3.9.15_p3:3.9 ) python_targets_python3_8? ( >=dev-lang/python-3.8.15_p3:3.8 )
@@ -12,5 +12,5 @@ REQUIRED_USE=|| ( python_targets_python3_12 python_targets_python3_11 python_tar
 RESTRICT=!test? ( test )
 SLOT=3
 SRC_URI=mirror://gnome/sources/pygobject/3.46/pygobject-3.46.0.tar.xz
-_eclasses_=distutils-r1	fc8d51ffaf532da88283691b0ed10932	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	gnome.org	532d56d07b9eace4831aaa817d2b756a	meson	e785a2770f8840637cc0341468f8e565	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5b7b0dd08d72315fbf99b2b0ee7f37dc	usr-ldscript	766f0a506b45f02361ad1b8ca205b7e1	virtualx	e9162f65645513120b4e12863a5fa972	xdg	c7ba313ea1eaf266f95cc6235f7d6a07	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
+_eclasses_=distutils-r1	fc8d51ffaf532da88283691b0ed10932	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	gnome.org	532d56d07b9eace4831aaa817d2b756a	meson	e785a2770f8840637cc0341468f8e565	multibuild	40fe59465edacd730c644ec2bc197809	multilib	2477ebe553d3e4d2c606191fe6c33602	multiprocessing	e5d48c933105327e0f826ce5108afc55	ninja-utils	2453739f250643fb6f84ecea4342fd5d	platform2-test	4fa59301b430c37fb33ee24042ca7ebe	python-r1	2d51fd03931e743811ce30d198e4dcfd	python-utils-r1	27286775f89db2dee6e810617d879ad9	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a	virtualx	e9162f65645513120b4e12863a5fa972	xdg	c7ba313ea1eaf266f95cc6235f7d6a07	xdg-utils	ff2ff954e6b17929574eee4efc5152ba
 _md5_=416513ad0edd27184b7e0592169060e3
