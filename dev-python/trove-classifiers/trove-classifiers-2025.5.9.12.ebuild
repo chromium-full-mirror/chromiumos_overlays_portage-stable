@@ -1,10 +1,10 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 DISTUTILS_USE_PEP517=flit
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( pypy3_11 python3_{11..14} python3_{13,14}t )
 
 inherit distutils-r1 pypi
 
@@ -33,6 +33,9 @@ src_configure() {
 		name = "trove-classifiers"
 		version = "${PV}"
 		description = "Canonical source for classifiers on PyPI (pypi.org)."
+
+		[project.scripts]
+		trove-classifiers = "trove_classifiers.__main__:cli"
 	EOF
 }
 
