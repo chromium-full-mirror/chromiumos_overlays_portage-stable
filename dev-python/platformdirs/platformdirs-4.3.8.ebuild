@@ -1,17 +1,17 @@
-# Copyright 2021-2023 Gentoo Authors
+# Copyright 2021-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 DISTUTILS_USE_PEP517=flit
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_{11..14} python3_{13,14}t pypy3_11 )
 
 inherit distutils-r1 pypi
 
 DESCRIPTION="A small Python module for determining appropriate platform-specific dirs"
 HOMEPAGE="
 	https://pypi.org/project/platformdirs/
-	https://github.com/platformdirs/platformdirs/
+	https://github.com/tox-dev/platformdirs/
 "
 
 LICENSE="MIT"
@@ -46,4 +46,9 @@ src_configure() {
 		__version__ = version = '${PV}'
 		__version_tuple__ = version_tuple = (${PV//./, })
 	EOF
+}
+
+python_test() {
+	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+	epytest -p pytest_mock
 }
