@@ -11,6 +11,6 @@ RDEPEND=!static? ( unwind? ( sys-libs/libunwind ) elfutils? ( dev-libs/elfutils 
 REQUIRED_USE=?? ( unwind elfutils )
 RESTRICT=!test? ( test )
 SLOT=0
-SRC_URI=https://github.com/strace/strace/releases/download/v6.14/strace-6.14.tar.xz verify-sig? ( https://github.com/strace/strace/releases/download/v6.14/strace-6.14.tar.xz.asc )
+SRC_URI=https://github.com/strace/strace/releases/download/v6.15/strace-6.15.tar.xz verify-sig? ( https://github.com/strace/strace/releases/download/v6.15/strace-6.15.tar.xz.asc )
 _eclasses_=autotools	4efb7fe6eb4ad7fa00f3b26b7efc3c47	edo	c0eb9cbe6b0bd01fcb4918f12598a4d3	flag-o-matic	ad475baa777c9978fa035216c8264a10	libtool	f143db5a74ccd9ca28c1234deffede96	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
 _md5_=4def964ec7b92a74c857f371b7e0a0cf
