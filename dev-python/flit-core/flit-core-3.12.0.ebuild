@@ -1,42 +1,40 @@
-# Copyright 2019-2022 Gentoo Authors
+# Copyright 2019-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# please keep this ebuild at EAPI 7 -- sys-apps/portage dep
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=7
 
 DISTUTILS_USE_PEP517=standalone
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_{11..14} python3_{13,14}t pypy3_11 )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="Simplified packaging of Python modules (core module)"
 HOMEPAGE="
 	https://pypi.org/project/flit-core/
 	https://github.com/pypa/flit/
 "
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/flit_core-${PV}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
 
-RDEPEND="
-	!dev-python/flit_core
-	dev-python/tomli[${PYTHON_USEDEP}]
-"
 BDEPEND="
 	test? ( dev-python/testpath[${PYTHON_USEDEP}] )
 "
 
 distutils_enable_tests pytest
 
-src_unpack() {
-	default_src_unpack
-	mv flit_core-${PV} flit-core-${PV}
-}
-
 src_prepare() {
+	distutils-r1_src_prepare
+
+	# unbundle deps
 	rm -r flit_core/vendor || die
 	sed -i -e 's:from \.vendor ::' flit_core/*.py || die
-	distutils-r1_src_prepare
+	sed -i -e '/license-files/d' pyproject.toml || die
+}
+
+python_test() {
+	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+	epytest
 }
