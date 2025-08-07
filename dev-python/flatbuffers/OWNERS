@@ -1,1 +1,1 @@
-include chromiumos/overlays/chromiumos-overlay:/sci-libs/tensorflow/OWNERS
+include /dev-libs/flatbuffers/OWNERS
