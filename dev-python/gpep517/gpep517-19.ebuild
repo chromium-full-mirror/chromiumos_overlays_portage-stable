@@ -1,11 +1,11 @@
-# Copyright 2022 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# please keep this ebuild at EAPI 7 -- sys-apps/portage dep
+# please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=7
 
 DISTUTILS_USE_PEP517=no
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( pypy3_11 python3_{11..14} python3_{13,14}t )
 
 inherit distutils-r1
 
@@ -19,16 +19,20 @@ SRC_URI="
 		-> ${P}.gh.tar.gz
 "
 
-LICENSE="MIT"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="
 	>=dev-python/installer-0.5.0[${PYTHON_USEDEP}]
-	>=dev-python/tomli-1.2.3[${PYTHON_USEDEP}]
 "
 
 distutils_enable_tests pytest
+
+python_test() {
+	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+	epytest -o tmp_path_retention_policy=all
+}
 
 python_install() {
 	python_domodule gpep517
