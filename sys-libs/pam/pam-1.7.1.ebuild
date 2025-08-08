@@ -9,7 +9,7 @@ MY_P="Linux-${PN^^}-${PV}"
 # Can reconsider w/ EAPI 8 and IDEPEND, bug #810979
 TMPFILES_OPTIONAL=1
 
-inherit db-use fcaps flag-o-matic meson-multilib toolchain-funcs
+inherit db-use fcaps flag-o-matic meson-multilib
 
 DESCRIPTION="Linux-PAM (Pluggable Authentication Modules)"
 HOMEPAGE="https://github.com/linux-pam/linux-pam"
@@ -66,6 +66,11 @@ DEPEND="
 RDEPEND="${DEPEND}"
 PDEPEND=">=sys-auth/pambase-20200616"
 
+PATCHES=(
+	"${FILESDIR}"/${P}-32-bit-lastlog.patch
+	"${FILESDIR}"/${P}-32-bit-timestamp.patch
+)
+
 src_configure() {
 	# meson.build sets -Wl,--fatal-warnings and with e.g. mold, we get:
 	#  cannot assign version `global` to symbol `pam_sm_open_session`: symbol not found
@@ -90,15 +95,9 @@ multilib_src_configure() {
 	w3m='true'
 	EOF
 
-	local emesonargs=()
+	local emesonargs=(
+		--native-file "${machine_file}"
 
-	if tc-is-cross-compiler; then
-		emesonargs+=( --cross-file "${machine_file}" )
-	else
-		emesonargs+=( --native-file "${machine_file}" )
-	fi
-
-	emesonargs+=(
 		$(meson_feature audit)
 		$(meson_native_use_bool examples)
 		$(meson_use debug pam-debug)
