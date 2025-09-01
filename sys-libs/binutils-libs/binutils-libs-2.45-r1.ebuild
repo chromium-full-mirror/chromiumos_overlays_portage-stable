@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit dot-a libtool toolchain-funcs multilib-minimal
+inherit flag-o-matic libtool toolchain-funcs multilib-minimal
 
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
@@ -19,7 +19,7 @@ IUSE="64-bit-bfd cet multitarget nls static-libs test"
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=4
+PATCH_VER=3
 PATCH_DEV=dilfridge
 
 MY_PN=binutils
@@ -44,7 +44,6 @@ fi
 BDEPEND="
 	nls? ( sys-devel/gettext )
 	test? ( dev-util/dejagnu )
-	sys-apps/texinfo
 "
 DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
 # Need a newer binutils-config that'll reset include/lib symlinks for us.
@@ -127,7 +126,9 @@ pkgversion() {
 }
 
 src_configure() {
-	lto-guarantee-fat
+	# ChromiumOS: Gentoo has lto-guarantee-fat here. This requires EAPI 8,
+	# so we instead use filter-lto which works with EAPI 7.
+	filter-lto
 	multilib-minimal_src_configure
 }
 
@@ -199,6 +200,13 @@ multilib_src_configure() {
 			"${S}"/opcodes/Makefile.in || die
 	fi
 
+	# ChromiumOS: We don't generate documentation, so we don't need
+	# and shouldn't try to run makeinfo.  Setting MAKEINFO=true
+	# skips the configure check for makeinfo, which otherwise logs a
+	# "command not found" message which causes ChromiumOS (but not
+	# Gentoo) to fail the build.
+	export MAKEINFO=true
+
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 
 	# Prevent makeinfo from running as we don't build docs here.
@@ -209,9 +217,37 @@ multilib_src_configure() {
 }
 
 multilib_src_test() {
-	# Without this, the default `src_test` check for the 'check' target
-	# with `-n` may fail with parallel make and silently skip tests (bug #955595)
-	emake check
+	(
+		# Tests don't expect LTO
+		filter-lto
+
+		# If we have e.g. -mfpmath=sse -march=pentium4 in CFLAGS,
+		# we'll get lto1 warnings for some tests which cause
+		# spurious failures because -mfpmath isn't passed at
+		# link-time. Filter accordingly.
+		#
+		# Alternatively, we could pass C{C,XX}_FOR_TARGET with
+		# some (ideally not all, surely would break some tests)
+		# stuffed in.
+		filter-flags '-mfpmath=*'
+
+		# lto-wrapper warnings which confuse tests
+		filter-flags '-Wa,*'
+
+		# bug #637066
+		filter-flags -Wall -Wreturn-type
+
+		# Note that we need 'check' explicitly if ever cleaning this
+		# up: the default `src_test` check for the 'check' target
+		# with `-n` may fail with parallel make and silently skip tests (bug #955595)
+		emake -k check \
+			CFLAGS_FOR_TARGET="${CFLAGS_FOR_TARGET:-${CFLAGS}}" \
+			CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET:-${CXXFLAGS}}" \
+			LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET:-${LDFLAGS}}" \
+			CFLAGS="${CFLAGS}" \
+			CXXFLAGS="${CXXFLAGS}" \
+			LDFLAGS="${LDFLAGS}"
+	)
 }
 
 multilib_src_install() {
@@ -228,6 +264,4 @@ multilib_src_install() {
 
 multilib_src_install_all() {
 	use static-libs || find "${ED}"/usr -name '*.la' -delete
-	# Explicit "${ED}" as we need it to do things even w/ USE=-static-libs
-	strip-lto-bytecode "${ED}"
 }
