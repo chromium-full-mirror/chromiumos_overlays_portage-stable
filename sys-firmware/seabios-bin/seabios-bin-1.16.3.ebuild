@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -7,7 +7,7 @@ BINPKG="${P/-bin/}-1"
 
 DESCRIPTION="Open Source implementation of a 16-bit x86 BIOS"
 HOMEPAGE="https://www.seabios.org/"
-SRC_URI="https://dev.gentoo.org/~ajak/distfiles/${BINPKG}.xpak"
+SRC_URI="https://dev.gentoo.org/~chewi/distfiles/${BINPKG}.xpak"
 S="${WORKDIR}"
 
 LICENSE="LGPL-3 GPL-3"

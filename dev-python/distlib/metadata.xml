@@ -2,10 +2,11 @@
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="project">
-		<email>virtualization@gentoo.org</email>
-		<name>Gentoo Virtualization Project</name>
+		<email>python@gentoo.org</email>
 	</maintainer>
+	<stabilize-allarches/>
 	<upstream>
-		<remote-id type="cpe">cpe:/a:tianocore:edk2</remote-id>
+		<remote-id type="pypi">distlib</remote-id>
+		<remote-id type="github">pypa/distlib</remote-id>
 	</upstream>
 </pkgmetadata>
