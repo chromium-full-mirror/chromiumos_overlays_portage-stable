@@ -1,3 +1,5 @@
-# Ad-hoc owners group based on a few packages that dep on sqlite:
-amoylan@chromium.org    # platform2/federated
+# Ad-hoc owners group based on packages that dep on sqlite:
 byronlee@chromium.org   # platform2/heartd
+
+# Legacy OWNERS, prefer the owners above first:
+amoylan@chromium.org
