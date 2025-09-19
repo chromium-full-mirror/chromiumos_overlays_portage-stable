@@ -6,10 +6,17 @@
 # patched in.
 #
 # For more information, see:
-#     http://go/third-party-package-remediation-playbook#special-case-back-ported-patches
+# http://go/third-party-package-remediation-playbook#special-case-back-ported-patches
+
 third_party {
   version: "5-1.21.3"
   security {
+    # Silencing the vulnerabilities below because they do not affect ChromeOS,
+    # as described in crbug.com/443541220. Those vulnerabilities have been
+    # disputed/deferred for a long time already.
+    mitigated_security_patch: "CVE-2007-5894"
+    mitigated_security_patch: "CVE-2007-5902"
+
     # ChromeOS > Software > Commercial (Enterprise) > Identity > Active Directory
     tag: "vuln_reporting:buganizer_component:1253670"
   }
