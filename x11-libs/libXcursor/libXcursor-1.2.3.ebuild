@@ -8,6 +8,7 @@ XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3
 
 DESCRIPTION="X.Org Xcursor library"
+LICENSE="HPND"
 
 KEYWORDS="*"
 IUSE="doc"

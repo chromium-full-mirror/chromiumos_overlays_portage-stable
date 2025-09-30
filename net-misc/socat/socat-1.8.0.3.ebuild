@@ -15,6 +15,9 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
 IUSE="ipv6 readline ssl tcpd"
+# bug #946404 (and many others), whack-a-mole with timeouts and friends
+# Try again in the future.
+RESTRICT="test"
 
 DEPEND="
 	ssl? ( >=dev-libs/openssl-3:= )
