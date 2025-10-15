@@ -12,15 +12,11 @@
 # prometheus_args.
 # 
 # The new behavior is that prometheus_args will be appended to these
-# defaults allowing anything you add to override them.
+# defaults.
 #
 #The default settings are:
 #
-# --web.enable-lifecycle
 # --config.file=/etc/prometheus/prometheus.yml
 # --storage.tsdb.path=/var/lib/prometheus/data
-# --web.console.templates=/etc/prometheus/consoles
-# --web.console.libraries=/etc/prometheus/console_libraries
-# --web.enable-admin-api 
 #
 prometheus_args=""
