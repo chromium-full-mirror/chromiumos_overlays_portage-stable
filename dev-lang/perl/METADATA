@@ -9,6 +9,9 @@ third_party {
     # http-tiny fixed by files/perl-5.36.1-http-tiny.patch
     mitigated_security_patch: "CVE-2023-31486"
 
+    # CVE-2024-56406 fixed by files/perl-5.38.2-CVE-2024-56406.patch
+    mitigated_security_patch: "CVE-2024-56406"
+
     # ChromeOS > Infra > Build
     tag: "vuln_reporting:buganizer_component:1027774"
   }

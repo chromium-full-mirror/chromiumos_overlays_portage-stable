@@ -129,12 +129,12 @@ check_rebuild() {
 
 	# Reinstall w/ USE Change
 	elif
-		 (   use ithreads && ! has_version dev-lang/perl[ithreads] ) || \
-		 ( ! use ithreads &&   has_version dev-lang/perl[ithreads] ) || \
-		 (   use quadmath && ! has_version dev-lang/perl[quadmath] ) || \
-		 ( ! use quadmath &&   has_version dev-lang/perl[quadmath] ) || \
-		 (   use debug    && ! has_version dev-lang/perl[debug]    ) || \
-		 ( ! use debug    &&   has_version dev-lang/perl[debug]    ) ; then
+		(   use ithreads && ! has_version dev-lang/perl[ithreads] ) || \
+		( ! use ithreads &&   has_version dev-lang/perl[ithreads] ) || \
+		(   use quadmath && ! has_version dev-lang/perl[quadmath] ) || \
+		( ! use quadmath &&   has_version dev-lang/perl[quadmath] ) || \
+		(   use debug    && ! has_version dev-lang/perl[debug]    ) || \
+		( ! use debug    &&   has_version dev-lang/perl[debug]    ) ; then
 		echo ""
 		ewarn "TOGGLED USE-FLAGS WARNING:"
 		ewarn "You changed one of the use-flags ithreads, quadmath, or debug."
@@ -407,6 +407,11 @@ src_prepare() {
 		"100-5.36.0-fix-configure-for-clang.patch" \
 		"Fix clang check in configure" \
 		"https://github.com/Perl/perl5/issues/21099"
+
+	add_patch "${FILESDIR}/${PN}-5.38.2-CVE-2024-56406.patch" \
+		"101-5.38.2-CVE-2024-56406.patch" \
+		"CVE-2024-56406: Heap-buffer-overflow with tr//" \
+		"https://nvd.nist.gov/vuln/detail/CVE-2024-56406"
 
 	apply_patchdir
 
