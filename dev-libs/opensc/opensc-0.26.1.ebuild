@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -16,23 +16,28 @@ else
 	KEYWORDS="*"
 fi
 
-LICENSE="LGPL-2.1"
-SLOT="0"
+LICENSE="LGPL-2.1+ BSD"
+SLOT="0/11"
 IUSE="ctapi doc openct notify pace +pcsc-lite readline secure-messaging ssl test zlib"
 RESTRICT="!test? ( test )"
 
-RDEPEND="zlib? ( sys-libs/zlib )
+RDEPEND="zlib? ( sys-libs/zlib:= )
 	readline? ( sys-libs/readline:0= )
 	ssl? ( dev-libs/openssl:0= )
 	openct? ( >=dev-libs/openct-0.5.0 )
 	pace? ( dev-libs/openpace:= )
 	pcsc-lite? ( >=sys-apps/pcsc-lite-1.3.0 )
 	notify? ( dev-libs/glib:2 )"
+# vim-core needed for xxd in tests
 DEPEND="${RDEPEND}
+	test? (
+		app-editors/vim-core
+		dev-util/cmocka
+		dev-libs/softhsm
+	)"
+BDEPEND="virtual/pkgconfig
 	app-text/docbook-xsl-stylesheets
-	dev-libs/libxslt
-	test? ( dev-util/cmocka )"
-BDEPEND="virtual/pkgconfig"
+	dev-libs/libxslt"
 
 REQUIRED_USE="
 	pcsc-lite? ( !openct !ctapi )
@@ -41,11 +46,14 @@ REQUIRED_USE="
 	|| ( pcsc-lite openct ctapi )"
 
 PATCHES=(
-	"${FILESDIR}"/${P}-CVE-2023-2977.patch
-	"${FILESDIR}"/${P}-backport-pr2656.patch
+	"${FILESDIR}"/${PN}-0.26.1-c23-tests.patch
 )
 
 src_prepare() {
+	# This test is known to fail, for a long time upstream has carried
+	# version-specific patches which they would update on every version bump.
+	# There doesn't appear to be a permanent solution yet.
+	sed -i "/test-pkcs11-tool-unwrap-wrap-test.sh/d" "tests/Makefile.am" || die
 	default
 	eautoreconf
 }
@@ -71,6 +79,10 @@ src_configure() {
 		$(use_enable ssl openssl) \
 		$(use_enable test cmocka) \
 		$(use_enable zlib)
+}
+
+src_test() {
+	P11LIB="${ESYSROOT}/usr/$(get_libdir)/softhsm/libsofthsm2.so" default
 }
 
 src_install() {
