@@ -19,8 +19,8 @@ IUSE="64-bit-bfd cet multitarget nls static-libs test"
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=3
-PATCH_DEV=dilfridge
+PATCH_VER=1
+PATCH_DEV=sam
 
 MY_PN=binutils
 MY_P=${MY_PN}-${PV}
