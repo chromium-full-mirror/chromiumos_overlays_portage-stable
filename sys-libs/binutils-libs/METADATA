@@ -16,5 +16,13 @@ third_party {
     # Our 2.45 sources contain fixes for these CVEs.
     mitigated_security_patch: "CVE-2025-7545"
     mitigated_security_patch: "CVE-2025-7546"
+
+    # We have a patch locally for this CVE
+    # at files/binutils-libs_elf-eh-frame.patch
+    mitigated_security_patch: "CVE-2025-11082"
+
+    # We have a patch locally for this CVE
+    # at files/binutils-libs_elf-elfcode.patch
+    mitigated_security_patch: "CVE-2025-11083"
   }
 }

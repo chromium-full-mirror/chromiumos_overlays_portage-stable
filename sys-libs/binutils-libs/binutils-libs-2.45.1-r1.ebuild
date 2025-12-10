@@ -57,6 +57,15 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/bfd.h
 )
 
+PATCHES=(
+	# ChromiumOS: Patch vulnerability in elf/* header files. Can be dropped when upgrading to 2.46.
+	# The parent pathing is due to the fact that by the time we get to the end of src_prepare,
+	# we are already in inside the workdir.
+	# See: b/460583072.
+	../../files/binutils-libs_elf-elfcode.patch
+	../../files/binutils-libs_elf-eh-frame.patch
+)
+
 src_unpack() {
 	if [[ ${PV} == *9999 ]] ; then
 		EGIT_REPO_URI="
