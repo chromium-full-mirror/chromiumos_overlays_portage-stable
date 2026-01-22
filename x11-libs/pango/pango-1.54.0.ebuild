@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,14 +6,14 @@ EAPI=7
 inherit flag-o-matic gnome2-utils meson-multilib xdg
 
 DESCRIPTION="Internationalized text layout and rendering library"
-HOMEPAGE="https://www.pango.org/ https://gitlab.gnome.org/GNOME/pango"
-SRC_URI="http://ftp.gnome.org/pub/GNOME/sources/pango/$(ver_cut 1-2)/${P}.tar.xz"
+HOMEPAGE="https://www.gtk.org/docs/architecture/pango https://gitlab.gnome.org/GNOME/pango"
+SRC_URI="https://download.gnome.org/sources/pango/$(ver_cut 1-2)/${P}.tar.xz"
 
 LICENSE="LGPL-2+"
 SLOT="0"
 KEYWORDS="*"
 
-IUSE="debug +introspection sysprof test X"
+IUSE="debug examples +introspection sysprof test X"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
@@ -23,7 +23,7 @@ RDEPEND="
 	>=media-libs/fontconfig-2.13.0:1.0[${MULTILIB_USEDEP}]
 	>=x11-libs/cairo-1.12.10[X?,${MULTILIB_USEDEP}]
 	>=media-libs/freetype-2.5.0.1:2[${MULTILIB_USEDEP}]
-	introspection? ( >=dev-libs/gobject-introspection-0.9.5:= )
+	introspection? ( >=dev-libs/gobject-introspection-1.82.0-r2:= )
 	X? (
 		>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]
 		>=x11-libs/libXft-2.3.1-r1[${MULTILIB_USEDEP}]
@@ -45,6 +45,9 @@ src_prepare() {
 	default
 	xdg_environment_reset
 	gnome2_environment_reset
+
+	# get rid of a win32 example
+	rm examples/pangowin32tobmp.c || die
 }
 
 multilib_src_configure() {
@@ -58,9 +61,10 @@ multilib_src_configure() {
 		# Never use gi-docgen subproject
 		--wrap-mode nofallback
 
-		-Dgtk_doc=false # we ship pregenerated docs
+		-Ddocumentation=false # we ship pregenerated docs
 		$(meson_native_use_feature introspection)
-		-Dinstall-tests=false
+		$(meson_use test build-testsuite)
+		-Dbuild-examples=false
 		-Dfontconfig=enabled
 		$(meson_feature sysprof)
 		-Dlibthai=disabled
@@ -72,6 +76,10 @@ multilib_src_configure() {
 }
 
 multilib_src_install_all() {
+	if use examples; then
+		dodoc -r examples
+	fi
+
 	insinto /usr/share/gtk-doc/html
 	# This will install PangoXft API docs regardless of USE=-X, but this is intentional
 	doins -r "${S}"/docs/Pango*
