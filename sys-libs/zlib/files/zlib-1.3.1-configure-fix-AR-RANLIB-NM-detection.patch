@@ -1,7 +1,7 @@
-From 4232e67ee1440634af8209c7022dfc64cf862819 Mon Sep 17 00:00:00 2001
+From 7d7c0b3ede7d5c30e3cdc7c6fbb33c9d4499516a Mon Sep 17 00:00:00 2001
 From: Adrian Ratiu <adrian.ratiu@collabora.com>
 Date: Mon, 17 Jan 2022 10:49:58 +0200
-Subject: [PATCH v3] configure: fix AR/RANLIB/NM detection
+Subject: [PATCH] configure: fix AR/RANLIB/NM detection
 
 Taken from zlib-devel ML:
 https://madler.net/pipermail/zlib-devel_madler.net/2022-January/003322.html
@@ -19,24 +19,15 @@ tools so they can be set to llvm-ar/ranlib/nm.
 Suggested-by: Manoj Gupta <manojgupta@chromium.org>
 Signed-off-by: Adrian Ratiu <adrian.ratiu@collabora.com>
 ---
-
-Changes in v3:
-  * Whitespace style fixes
-  * Fixed top level variable tests (eg -z AR -> -z $AR)
-  * Review and testing as part of Gentoo PR:
-    https://github.com/gentoo/gentoo/pull/23888
-Changes in v2:
-  * Fixed a typo in the "unset NM" case
----
  configure | 38 ++++++++++++++++++++++----------------
  1 file changed, 22 insertions(+), 16 deletions(-)
 
 diff --git a/configure b/configure
-index e974d1f..045c616 100755
+index c55098a..2535e04 100755
 --- a/configure
 +++ b/configure
-@@ -46,25 +46,31 @@ VER2=`sed -n -e '/VERSION "/s/.*"\([0-9]*\\.[0-9]*\)\\..*/\1/p' < ${SRCDIR}zlib.
- VER1=`sed -n -e '/VERSION "/s/.*"\([0-9]*\)\\..*/\1/p' < ${SRCDIR}zlib.h`
+@@ -48,25 +48,31 @@ VER3=`echo ${VER}|sed -n -e 's/\([0-9]\{1,\}\(\\.[0-9]\{1,\}\)\{1,2\}\).*/\1/p'`
+ VER1=`echo ${VER}|sed -n -e 's/\([0-9]\{1,\}\)\\..*/\1/p'`
  
  # establish commands for library building
 -if "${CROSS_PREFIX}ar" --version >/dev/null 2>/dev/null || test $? -lt 126; then
@@ -84,5 +75,5 @@ index e974d1f..045c616 100755
  
  # set defaults before processing command line options
 -- 
-2.35.0
+2.43.0
 

@@ -13,19 +13,21 @@ using LDFLAGS on compiler commandline along with CFLAGS to ensure the
 tests perform correctly. Without this some tests may fail resulting in
 wrong confgure result, ending in miscompiling the package
 
-Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Khem Raj <raj.khem@gmail.com>k
 --- a/configure
 +++ b/configure
-@@ -436,7 +436,7 @@ if test $shared -eq 1; then
+@@ -448,8 +448,8 @@ EOF
+ if test $shared -eq 1; then
    echo Checking for shared library support... | tee -a configure.log
    # we must test in two steps (cc then ld), required at least on SunOS 4.x
-   if try $CC -w -c $SFLAGS $test.c &&
+-  if try $CC -c $SFLAGS $test.c &&
 -     try $LDSHARED $SFLAGS -o $test$shared_ext $test.o; then
++  if try $CC -c $SFLAGS $LDFLAGS $test.c &&
 +     try $LDSHARED $SFLAGS $LDFLAGS -o $test$shared_ext $test.o; then
      echo Building shared library $SHAREDLIBV with $CC. | tee -a configure.log
    elif test -z "$old_cc" -a -z "$old_cflags"; then
      echo No shared library support. | tee -a configure.log
-@@ -498,7 +498,7 @@ int main(void) {
+@@ -511,7 +511,7 @@ int main(void) {
  }
  EOF
    fi
@@ -34,7 +36,7 @@ Signed-off-by: Khem Raj <raj.khem@gmail.com>
      sizet=`./$test`
      echo "Checking for a pointer-size integer type..." $sizet"." | tee -a configure.log
      CFLAGS="${CFLAGS} -DNO_SIZE_T=${sizet}"
-@@ -532,7 +532,7 @@ int main(void) {
+@@ -545,7 +545,7 @@ int main(void) {
    return 0;
  }
  EOF
@@ -43,7 +45,7 @@ Signed-off-by: Khem Raj <raj.khem@gmail.com>
      echo "Checking for fseeko... Yes." | tee -a configure.log
    else
      CFLAGS="${CFLAGS} -DNO_FSEEKO"
-@@ -549,7 +549,7 @@ cat > $test.c <<EOF
+@@ -562,7 +562,7 @@ cat > $test.c <<EOF
  #include <errno.h>
  int main() { return strlen(strerror(errno)); }
  EOF
@@ -52,7 +54,7 @@ Signed-off-by: Khem Raj <raj.khem@gmail.com>
    echo "Checking for strerror... Yes." | tee -a configure.log
  else
    CFLAGS="${CFLAGS} -DNO_STRERROR"
-@@ -656,7 +656,7 @@ int main()
+@@ -669,7 +669,7 @@ int main()
    return (mytest("Hello%d\n", 1));
  }
  EOF
@@ -61,7 +63,7 @@ Signed-off-by: Khem Raj <raj.khem@gmail.com>
      echo "Checking for vsnprintf() in stdio.h... Yes." | tee -a configure.log
  
      echo >> configure.log
-@@ -746,7 +746,7 @@ int main()
+@@ -759,7 +759,7 @@ int main()
  }
  EOF
  
