@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,7 +9,7 @@ EAPI=7
 # (find the one for the current release then subscribe to it +
 # any subsequent ones linked within so you're covered for a while.)
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/gnupg.asc
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnupg.asc
 # in-source builds are not supported: https://dev.gnupg.org/T6313#166339
 inherit flag-o-matic out-of-source multiprocessing systemd toolchain-funcs verify-sig
 
@@ -24,19 +24,18 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="*"
-IUSE="bzip2 doc ldap nls readline selinux +smartcard ssl test +tofu tpm tools usb user-socket wks-server"
+IUSE="-alternatives bzip2 doc ldap nls readline selinux +smartcard ssl test +tofu tpm tools usb user-socket wks-server"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="test? ( tofu )"
 
 # Existence of executables is checked during configuration.
 # Note: On each bump, update dep bounds on each version from configure.ac!
 DEPEND="
-	>=dev-libs/libassuan-2.5.0
-	>=dev-libs/libgcrypt-1.9.1:=
-	>=dev-libs/libgpg-error-1.46
+	>=dev-libs/libassuan-3.0.0-r1:=
+	>=dev-libs/libgcrypt-1.11.0:=
+	>=dev-libs/libgpg-error-1.56
 	>=dev-libs/libksba-1.6.3
 	>=dev-libs/npth-1.2
-	>=net-misc/curl-7.10
 	sys-libs/zlib
 	bzip2? ( app-arch/bzip2 )
 	ldap? ( net-nds/openldap:= )
@@ -44,14 +43,16 @@ DEPEND="
 	smartcard? ( usb? ( virtual/libusb:1 ) )
 	tofu? ( >=dev-db/sqlite-3.27 )
 	tpm? ( >=app-crypt/tpm2-tss-2.4.0:= )
-	ssl? ( >=net-libs/gnutls-3.0:0= )
+	ssl? ( >=net-libs/gnutls-3.2:0= )
 "
 RDEPEND="
 	${DEPEND}
-	app-crypt/pinentry
 	nls? ( virtual/libintl )
 	selinux? ( sec-policy/selinux-gpg )
 	wks-server? ( virtual/mta )
+"
+PDEPEND="
+	app-crypt/pinentry
 "
 BDEPEND="
 	virtual/pkgconfig
@@ -72,17 +73,36 @@ PATCHES=(
 src_prepare() {
 	default
 
+	GNUPG_SYSTEMD_UNITS=(
+		dirmngr.service
+		dirmngr.socket
+		gpg-agent-browser.socket
+		gpg-agent-extra.socket
+		gpg-agent.service
+		gpg-agent.socket
+		gpg-agent-ssh.socket
+	)
+
+	cp "${GNUPG_SYSTEMD_UNITS[@]/#/${FILESDIR}/}" "${T}" || die
+
 	# Inject SSH_AUTH_SOCK into user's sessions after enabling gpg-agent-ssh.socket in systemctl --user mode,
 	# idea borrowed from libdbus, see
-	#   https://gitlab.freedesktop.org/dbus/dbus/-/blob/master/bus/systemd-user/dbus.socket.in#L6
+	#   https://gitlab.freedesktop.org/dbus/dbus/-/blob/main/bus/systemd-user/dbus.socket.in#L6
 	#
 	# This cannot be upstreamed, as it requires determining the exact prefix of 'systemctl',
 	# which in turn requires discovery in Autoconf, something that upstream deeply resents.
 	sed -e "/DirectoryMode=/a ExecStartPost=-${EPREFIX}/bin/systemctl --user set-environment SSH_AUTH_SOCK=%t/gnupg/S.gpg-agent.ssh" \
-		-i doc/examples/systemd-user/gpg-agent-ssh.socket || die
+		-i "${T}"/gpg-agent-ssh.socket || die
+
+	# Since 2.5.3, --supervised is called --deprecated-supervised.  See
+	# https://dev.gnupg.org/rGa019a0fcd8dfb9d1eae5bc991fdd54b7cf55641e
+	sed -i "s/--supervised/--deprecated-supervised/g" "${T}"/*.service || die
 }
 
 my_src_configure() {
+	# Upstream don't support LTO, bug #854222.
+	filter-lto
+
 	local myconf=(
 		$(use_enable bzip2)
 		$(use_enable nls)
@@ -112,6 +132,7 @@ my_src_configure() {
 		--disable-ntbtls
 		--enable-gpgsm
 		--enable-large-secmem
+		--disable-doc
 
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
 		GPGRT_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-gpgrt-config"
@@ -133,6 +154,13 @@ my_src_configure() {
 	if use prefix && use usb; then
 		# bug #649598
 		append-cppflags -I"${ESYSROOT}/usr/include/libusb-1.0"
+	fi
+
+	if [[ ${CHOST} == *-solaris* ]] ; then
+		# these somehow are treated as fatal, but Solaris has different
+		# types for getpeername with socket_t
+		append-flags -Wno-incompatible-pointer-types
+		append-flags -Wno-unused-label
 	fi
 
 	# bug #663142
@@ -163,13 +191,20 @@ my_src_install() {
 
 	use tools && dobin tools/{gpgconf,gpgsplit,gpg-check-pattern} tools/make-dns-cert
 
-	dosym gpg /usr/bin/gpg2
-	dosym gpgv /usr/bin/gpgv2
-	echo ".so man1/gpg.1" > "${ED}"/usr/share/man/man1/gpg2.1 || die
-	echo ".so man1/gpgv.1" > "${ED}"/usr/share/man/man1/gpgv2.1 || die
-
-	dodir /etc/env.d
-	echo "CONFIG_PROTECT=/usr/share/gnupg/qualified.txt" >> "${ED}"/etc/env.d/30gnupg || die
+	if use alternatives; then
+		# rename for app-alternatives/gpg
+		mv "${ED}"/usr/bin/gpg{,-reference} || die
+		mv "${ED}"/usr/bin/gpgv{,-reference} || die
+		mv "${ED}"/usr/share/man/man1/gpg{,-reference}.1 || die
+		mv "${ED}"/usr/share/man/man1/gpgv{,-reference}.1 || die
+	else
+		dosym gpg /usr/bin/gpg2
+		dosym gpgv /usr/bin/gpgv2
+		if [[ -d "${ED}/usr/share/man/man1" ]]; then
+			echo ".so man1/gpg.1" > "${ED}/usr/share/man/man1/gpg2.1" || die
+			echo ".so man1/gpgv.1" > "${ED}/usr/share/man/man1/gpgv2.1" || die
+		fi
+	fi
 
 	use doc && dodoc doc/gnupg.html/*
 }
@@ -178,8 +213,20 @@ my_src_install_all() {
 	einstalldocs
 
 	use tools && dobin tools/{convert-from-106,mail-signed-keys,lspgpot}
-
 	use doc && dodoc doc/*.png
 
-	systemd_douserunit doc/examples/systemd-user/*.{service,socket}
+	# Dropped upstream in https://git.gnupg.org/cgi-bin/gitweb.cgi?p=gnupg.git;a=commitdiff;h=eae28f1bd4a5632e8f8e85b7248d1c4d4a10a5ed.
+	dodoc "${FILESDIR}"/README-systemd
+	systemd_douserunit "${GNUPG_SYSTEMD_UNITS[@]/#/${T}/}"
+}
+
+pkg_postinst() {
+	# If /usr/bin/gpg and /usr/bin/gpgv do not exist, provide them.
+	if [[ ! -e ${EROOT}/usr/bin/gpg ]]; then
+		ln -sf -- gpg-reference "${EROOT}"/usr/bin/gpg || die
+	fi
+
+	if [[ ! -e ${EROOT}/usr/bin/gpgv ]]; then
+		ln -sf -- gpgv-reference "${EROOT}"/usr/bin/gpgv || die
+	fi
 }

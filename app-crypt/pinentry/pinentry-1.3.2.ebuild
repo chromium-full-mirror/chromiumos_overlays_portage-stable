@@ -1,61 +1,60 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/gnupg.asc
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnupg.asc
 inherit autotools flag-o-matic qmake-utils verify-sig
 
 DESCRIPTION="Simple passphrase entry dialogs which utilize the Assuan protocol"
-HOMEPAGE="https://gnupg.org/aegypten2"
+HOMEPAGE="https://gnupg.org/related_software/pinentry/"
 SRC_URI="mirror://gnupg/${PN}/${P}.tar.bz2"
 SRC_URI+=" verify-sig? ( mirror://gnupg/${PN}/${P}.tar.bz2.sig )"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="caps efl emacs gtk keyring ncurses qt5 wayland X"
+IUSE="caps efl emacs gtk keyring ncurses qt6 wayland X"
 
 DEPEND="
-	>=dev-libs/libassuan-2.1
+	>=dev-libs/libassuan-2.1:=
 	>=dev-libs/libgcrypt-1.6.3
 	>=dev-libs/libgpg-error-1.17
 	efl? ( dev-libs/efl[X] )
 	keyring? ( app-crypt/libsecret )
 	ncurses? ( sys-libs/ncurses:= )
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtgui:5
-		dev-qt/qtwidgets:5
-		wayland? ( kde-frameworks/kwayland:5 )
-		X? (
-			dev-qt/qtx11extras:5
-			x11-libs/libX11
+	qt6? (
+		dev-qt/qtbase:6[gui,widgets]
+		wayland? (
+			kde-frameworks/kguiaddons:6
+			kde-frameworks/kwindowsystem:6
 		)
 	)
 "
 RDEPEND="
 	${DEPEND}
-	gtk? ( app-crypt/gcr:0[gtk] )
+	gtk? (
+		app-crypt/gcr:4[gtk]
+		gnome-base/gnome-keyring
+	)
 "
 BDEPEND="
 	sys-devel/gettext
 	virtual/pkgconfig
 	verify-sig? ( sec-keys/openpgp-keys-gnupg )
 "
-IDEPEND=">=app-eselect/eselect-pinentry-0.7.2"
+PDEPEND="emacs? ( app-emacs/pinentry )"
+IDEPEND=">=app-eselect/eselect-pinentry-0.7.4"
 
 DOCS=( AUTHORS ChangeLog NEWS README THANKS TODO )
 
 PATCHES=(
 	"${FILESDIR}/${PN}-1.0.0-AR.patch"
-	"${FILESDIR}/${PN}-1.2.1-automagic-capslock.patch" # bug #819939, bug #837719
+	"${FILESDIR}/${PN}-1.3.0-automagic.patch" # bug #819939, bug #837719
 )
 
 src_prepare() {
 	default
-
-	unset FLTK_CONFIG
 
 	# ChromeOS: Fix cross compilation (https://bugs.gentoo.org/914708).
 	sed -i 's/-I$inetutils_cv_includedir_ncurses/-I$SYSROOT$inetutils_cv_includedir_ncurses/' \
@@ -70,8 +69,7 @@ src_configure() {
 	# ChromeOS: add large file support
 	append-lfs-flags
 
-	export PATH="$(qt5_get_bindir):${PATH}"
-	export QTLIB="$(qt5_get_libdir)"
+	unset FLTK_CONFIG
 
 	local myeconfargs=(
 		$(use_enable efl pinentry-efl)
@@ -80,21 +78,34 @@ src_configure() {
 		$(use_enable gtk pinentry-gnome3)
 		$(use_enable ncurses fallback-curses)
 		$(use_enable ncurses pinentry-curses)
-		$(use_enable qt5 pinentry-qt)
-		$(use_enable wayland kf5-wayland)
-		$(use_enable X qtx11extras)
+		$(use_enable qt6 pinentry-qt)
 		$(use_with X x)
 
 		--enable-pinentry-tty
+		--disable-kf5-wayland
 		--disable-pinentry-fltk
 		--disable-pinentry-gtk2
+		--disable-pinentry-qt5
+		--disable-qtx11extras
 
-		MOC="$(qt5_get_bindir)"/moc
-		GPG_ERROR_CONFIG="${ESYSROOT}"/usr/bin/${CHOST}-gpg-error-config
-		LIBASSUAN_CONFIG="${ESYSROOT}"/usr/bin/libassuan-config
+		ac_cv_path_GPGRT_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-gpgrt-config"
 
 		$("${S}/configure" --help | grep -- '--without-.*-prefix' | sed -e 's/^ *\([^ ]*\) .*/\1/g')
 	)
+
+	if use qt6 ; then
+		export PATH="$(qt6_get_bindir):${PATH}"
+		export QTLIB="$(qt6_get_libdir):${QTLIB}"
+		export MOC="$(qt6_get_libexecdir)/moc"
+
+		myeconfargs+=(
+			$(use_enable wayland kf6-wayland)
+		)
+	else
+		myeconfargs+=(
+			--disable-kf6-wayland
+		)
+	fi
 
 	econf "${myeconfargs[@]}"
 }
@@ -104,7 +115,11 @@ src_install() {
 
 	rm "${ED}"/usr/bin/pinentry || die
 
-	use qt5 && dosym pinentry-qt /usr/bin/pinentry-qt5
+	# The preferred Qt implementation upstream gets installed as just 'qt'.
+	# Make a symlink for eselect-pinentry and friends.
+	if use qt6 ; then
+		dosym pinentry-qt /usr/bin/pinentry-qt6
+	fi
 }
 
 pkg_postinst() {
