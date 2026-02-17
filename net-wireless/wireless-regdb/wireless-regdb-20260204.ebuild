@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -7,7 +7,7 @@ inherit linux-info
 
 MY_P="wireless-regdb-${PV:0:4}.${PV:4:2}.${PV:6:2}"
 DESCRIPTION="Wireless Regulatory database for Linux"
-HOMEPAGE="https://wireless.wiki.kernel.org/en/developers/regulatory/wireless-regdb"
+HOMEPAGE="https://wireless.docs.kernel.org/en/latest/en/developers/regulatory/wireless-regdb.html"
 SRC_URI="https://mirrors.edge.kernel.org/pub/software/network/${PN}/${MY_P}.tar.xz"
 S="${WORKDIR}/${MY_P}"
 
