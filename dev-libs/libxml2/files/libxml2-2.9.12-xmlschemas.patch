@@ -1,0 +1,22 @@
+diff --git a/xmlschemas.c b/xmlschemas.c
+index 1efd096..5f8ad27 100644
+--- a/xmlschemas.c
++++ b/xmlschemas.c
+@@ -23601,7 +23601,7 @@ xmlSchemaIDCFillNodeTables(xmlSchemaValidCtxtPtr vctxt,
+ 			j++;
+ 		    } while (j < nbDupls);
+ 		}
+-		if (nbNodeTable) {
++		if (bind->nbNodes) {
+ 		    j = 0;
+ 		    do {
+ 			if (nbFields == 1) {
+@@ -23651,7 +23651,7 @@ xmlSchemaIDCFillNodeTables(xmlSchemaValidCtxtPtr vctxt,
+ 
+ next_node_table_entry:
+ 			j++;
+-		    } while (j < nbNodeTable);
++		    } while (j < bind->nbNodes);
+ 		}
+ 		/*
+ 		* If everything is fine, then add the IDC target-node to
