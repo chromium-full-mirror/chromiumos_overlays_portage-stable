@@ -308,6 +308,7 @@ S=${WORKDIR}/${P/_/-}
 
 PATCHES=(
 	"${FILESDIR}"/chromium-r1.patch
+	"${FILESDIR}"/cve-2025-1594-clamp-filter-direction-energy-measurement.patch
 )
 
 MULTILIB_WRAPPED_HEADERS=(
