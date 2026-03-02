@@ -72,6 +72,10 @@ PATCHES=(
 
 	# Avoid failure on missing fuzz.h when running tests
 	"${FILESDIR}"/${PN}-2.9.11-disable-fuzz-tests.patch
+
+	"${FILESDIR}"/${PN}-2.9.12-libxml.patch
+
+	"${FILESDIR}"/${PN}-2.9.12-xmlschemas.patch
 )
 
 src_unpack() {
