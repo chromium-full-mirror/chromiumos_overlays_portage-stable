@@ -36,6 +36,7 @@ src_prepare() {
 		multilib_copy_sources
 		;;
 	esac
+	epatch "${FILESDIR}"/${P}-minizip.patch
 }
 
 echoit() { echo "$@"; "$@"; }
