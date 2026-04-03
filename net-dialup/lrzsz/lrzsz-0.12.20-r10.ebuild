@@ -1,13 +1,16 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools toolchain-funcs
+inherit autotools flag-o-matic toolchain-funcs
 
 DESCRIPTION="Communication package providing the X, Y, and ZMODEM file transfer protocols"
 HOMEPAGE="https://www.ohse.de/uwe/software/lrzsz.html"
-SRC_URI="https://www.ohse.de/uwe/releases/${P}.tar.gz"
+SRC_URI="
+	https://www.ohse.de/uwe/releases/${P}.tar.gz
+	https://dev.gentoo.org/~ceamac/${CATEGORY}/${PN}/gettext-0.19.8-runtime-m4.tar.xz
+"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -15,8 +18,7 @@ KEYWORDS="*"
 IUSE="nls"
 
 DEPEND="nls? ( virtual/libintl )"
-
-BDEPEND="sys-devel/gettext"
+BDEPEND="nls? ( sys-devel/gettext )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-autotools.patch
@@ -27,6 +29,10 @@ PATCHES=(
 	"${FILESDIR}"/${P}-AR.patch
 	"${FILESDIR}"/${P}-configure-clang16.patch
 	"${FILESDIR}"/${P}-gettext-0.22.patch
+	"${FILESDIR}"/${P}-disable-nls.patch
+	"${FILESDIR}"/${P}-c99.patch
+	"${FILESDIR}"/${P}-fix-integer-overflow.patch
+	"${FILESDIR}"/${P}-c23.patch
 )
 
 DOCS=( AUTHORS COMPATABILITY ChangeLog NEWS \
@@ -41,12 +47,17 @@ src_prepare() {
 	rm missing || die
 	# Autoheader does not like seeing this file.
 	rm acconfig.h || die
+	# embed default m4 files in case gettext is not installed
+	mv "${WORKDIR}"/m4 . || die
 
 	eautoreconf
 }
 
 src_configure() {
 	tc-export CC
+
+	# bug #943880, bug #969297
+	append-cppflags -DSTRICT_PROTOTYPES
 
 	econf $(use_enable nls)
 }
