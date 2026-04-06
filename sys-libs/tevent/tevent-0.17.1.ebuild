@@ -1,11 +1,11 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_{11..14} )
 PYTHON_REQ_USE="threads(+)"
-inherit waf-utils multilib-minimal python-single-r1
+inherit flag-o-matic waf-utils multilib-minimal python-single-r1
 
 DESCRIPTION="Samba tevent library"
 HOMEPAGE="https://tevent.samba.org/"
@@ -18,7 +18,7 @@ IUSE="python test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
-TALLOC_VERSION="2.4.1"
+TALLOC_VERSION="2.4.3"
 
 RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
@@ -77,6 +77,8 @@ multilib_src_configure() {
 	if ! use test ; then
 		bundled_libs="cmocka,${bundled_libs}"
 	fi
+
+	append-ldflags $(test-flags-CCLD -Wl,--undefined-version) # bug 915198
 
 	waf-utils_src_configure \
 		--libdir="${EPREFIX}/usr/$(get_libdir)" \
