@@ -1,11 +1,11 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_{11..14} )
 PYTHON_REQ_USE="threads(+)"
-inherit waf-utils python-single-r1 multilib-minimal
+inherit waf-utils python-single-r1 multilib-minimal flag-o-matic
 
 DESCRIPTION="Samba talloc library"
 HOMEPAGE="https://talloc.samba.org/"
@@ -30,7 +30,7 @@ RDEPEND="
 # Valgrind is automagic here but it's a build-only dep so it's not so bad.
 DEPEND="
 	${RDEPEND}
-	valgrind? ( dev-util/valgrind )
+	valgrind? ( dev-debug/valgrind )
 "
 BDEPEND="
 	${PYTHON_DEPS}
@@ -82,6 +82,8 @@ multilib_src_configure() {
 		$(multilib_native_usex python '' --disable-python)
 		$([[ ${CHOST} == *-solaris* ]] && echo '--disable-symbol-versions')
 	)
+
+	append-ldflags $(test-flags-CCLD -Wl,--undefined-version) # bug 914712
 
 	waf-utils_src_configure "${extra_opts[@]}"
 }
