@@ -21,6 +21,11 @@ RESTRICT="!test? ( test )"
 
 S="${WORKDIR}"/${MY_P}
 
+PATCHES=(
+	"${FILESDIR}/opencl-headers-00-5d52989.patch"
+	"${FILESDIR}/opencl-headers-01-0c54eeb.patch"
+)
+
 src_configure() {
 	local mycmakeargs=(
 		-DBUILD_TESTING=$(usex test)
