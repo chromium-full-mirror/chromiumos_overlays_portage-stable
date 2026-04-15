@@ -17,6 +17,7 @@ IUSE="doc static-libs"
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.2.1-fix-missing-quantize-API-symbols.patch
 	"${FILESDIR}"/${PN}-5.2.2-fortify.patch
+	"${FILESDIR}"/${PN}-5.2.2-savedextension-oob-write.patch
 	"${FILESDIR}"/${PN}-5.2.2-verbose-tests.patch
 )
 
