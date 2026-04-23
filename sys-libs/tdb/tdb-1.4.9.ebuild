@@ -34,6 +34,10 @@ BDEPEND="
 
 WAF_BINARY="${S}/buildtools/bin/waf"
 
+PATCHES+=(
+	"${FILESDIR}/${PN}-1.4.9-lib-replace-memset_explicit-only-takes-three-argumen.patch"
+)
+
 src_prepare() {
 	default
 
