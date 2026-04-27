@@ -8,6 +8,8 @@
 #     http://go/third-party-package-remediation-playbook#special-case-back-ported-patches
 third_party {
   security {
+    mitigated_security_patch: "CVE-2026-26740"  # Fixed in files/giflib-5.2.2-savedextension-oob-write.patch
+
     # ChromeOS > Software > Consumer > Machine Intelligence
     tag: "vuln_reporting:buganizer_component:1257105"
     # Fallback: Component ID 1140118
