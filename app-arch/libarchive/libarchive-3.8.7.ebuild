@@ -24,7 +24,7 @@ IUSE="
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	sys-libs/zlib:=[${MULTILIB_USEDEP}]
+	virtual/zlib:=[${MULTILIB_USEDEP}]
 	acl? ( virtual/acl:=[${MULTILIB_USEDEP}] )
 	blake2? ( app-crypt/libb2:=[${MULTILIB_USEDEP}] )
 	bzip2? ( app-arch/bzip2:=[${MULTILIB_USEDEP}] )
@@ -38,12 +38,11 @@ RDEPEND="
 	nettle? ( dev-libs/nettle:=[${MULTILIB_USEDEP}] )
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
 "
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
+	virtual/os-headers
 	elibc_musl? ( sys-libs/queue-standalone )
-	kernel_linux? (
-		virtual/os-headers
-		e2fsprogs? ( sys-fs/e2fsprogs[${MULTILIB_USEDEP}] )
-	)
+	e2fsprogs? ( sys-fs/e2fsprogs[${MULTILIB_USEDEP}] )
 	test? (
 		app-arch/lrzip
 		app-arch/lz4
@@ -72,6 +71,7 @@ PATCHES=(
 	# https://github.com/libarchive/libarchive/issues/2069
 	# (we can simply update the command since we don't support old lrzip)
 	"${FILESDIR}/${PN}-3.7.2-lrzip.patch"
+	"${FILESDIR}/${PN}-3.8.7-compress.patch"
 )
 
 src_prepare() {
