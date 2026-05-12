@@ -85,10 +85,6 @@ multilib_src_install_all() {
 
 	doman doc/xmlwf.1
 
-	# Note: Use of HTML_DOCS would add unwanted "doc" subfolder
-	docinto html
-	dodoc doc/*.{css,html,png}
-
 	if use examples; then
 		docinto examples
 		dodoc examples/*.c
