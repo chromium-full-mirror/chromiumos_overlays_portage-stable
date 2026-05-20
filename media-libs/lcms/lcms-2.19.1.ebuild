@@ -3,7 +3,7 @@
 
 EAPI=6
 
-inherit libtool multilib-minimal
+inherit libtool multilib-minimal flag-o-matic
 
 DESCRIPTION="A lightweight, speed optimized color management engine"
 HOMEPAGE="http://www.littlecms.com/"
@@ -28,6 +28,7 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	append-cppflags -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
 	local myeconfargs=(
 		$(use_with jpeg)
 		$(use_enable static-libs static)
@@ -40,6 +41,7 @@ multilib_src_configure() {
 }
 
 multilib_src_install_all() {
+	append-lfs-flags
 	find "${ED}" -name "*.la" -delete || die
 
 	if use doc; then
