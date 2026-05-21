@@ -102,6 +102,9 @@ QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"
 src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}/251-gpt-auto-no-cryptsetup.patch"
+		# Backport of systemd commit 0bac1ed242 to fix the build
+		# against glibc 2.43. Drop on the next uprev.
+		"${FILESDIR}/251-glibc-2.43-constness.patch"
 	)
 
 	if use elibc_musl; then
