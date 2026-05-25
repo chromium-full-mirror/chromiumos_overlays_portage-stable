@@ -1,0 +1,29 @@
+From 3275bd29f3a916b6a291084cd02a987bcceb5009 Mon Sep 17 00:00:00 2001
+From: Ashwin Naik <ashwinnaik@google.com>
+Date: Mon, 3 Aug 2026 05:20:07 +0000
+Subject: [PATCH] Fix memory leak in readspecs() during error handling.
+
+The line buffer `l` allocated by `getln()` was not being freed when
+the code jumps to the `err` label leading to an ASAN memory leak.
+This patch adds the missing `free(l)` call to ensure proper memory cleanup.
+
+Bug: b/510970516
+---
+ lib/libpaper.c.in.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/libpaper.c.in.in b/lib/libpaper.c.in.in
+index 02af84a..46f9d34 100644
+--- a/lib/libpaper.c.in.in
++++ b/lib/libpaper.c.in.in
+@@ -267,6 +267,7 @@ static int readspecs(struct paper **papers_list, const char *specsfile, struct p
+             } else
+                 ret = PAPER_MISSING_FIELD;
+         err:
++            free(l);
+             free(wstr);
+             free(hstr);
+             free(ustr);
+--
+2.55.0.508.g3f0d502094-goog
+
