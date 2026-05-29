@@ -25,6 +25,7 @@ RDEPEND="abi_x86_32? (
 	!<dev-libs/libxml2-2.7.7" #309623
 
 src_prepare() {
+	epatch "${FILESDIR}"/${P}-minizip.patch
 	if use minizip ; then
 		cd contrib/minizip || die
 		eautoreconf
@@ -36,7 +37,6 @@ src_prepare() {
 		multilib_copy_sources
 		;;
 	esac
-	epatch "${FILESDIR}"/${P}-minizip.patch
 }
 
 echoit() { echo "$@"; "$@"; }
