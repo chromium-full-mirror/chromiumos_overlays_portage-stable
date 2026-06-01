@@ -5,5 +5,5 @@ HOMEPAGE=https://github.com/rrthomas/libpaper
 KEYWORDS=*
 LICENSE=LGPL-2.1+ GPL-3+ public-domain
 SLOT=0/2
-SRC_URI=https://github.com/rrthomas/libpaper/releases/download/v2.2.8/libpaper-2.2.8.tar.gz
+SRC_URI=https://github.com/rrthomas/libpaper/releases/download/v2.0.10/libpaper-2.0.10.tar.gz
 _md5_=d6684a2b7a9cfb58838b4ac7aeab3c01
