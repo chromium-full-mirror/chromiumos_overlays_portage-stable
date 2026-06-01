@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -8,7 +8,7 @@ SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="
-	|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* =dev-lang/perl-5.36* =dev-lang/perl-5.34* ~perl-core/${PN#perl-}-${PV} )
+	|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.40* ~perl-core/${PN#perl-}-${PV} )
 	dev-lang/perl:=
 	!<perl-core/${PN#perl-}-${PV}
 	!>perl-core/${PN#perl-}-${PV}-r999
