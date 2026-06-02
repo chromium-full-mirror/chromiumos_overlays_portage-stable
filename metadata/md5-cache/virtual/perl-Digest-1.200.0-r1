@@ -2,6 +2,6 @@ DEFINED_PHASES=-
 DESCRIPTION=Virtual for Digest
 EAPI=7
 KEYWORDS=*
-RDEPEND=|| ( =dev-lang/perl-5.38* =dev-lang/perl-5.36* ~perl-core/Digest-1.200.0 ) dev-lang/perl:= !<perl-core/Digest-1.200.0 !>perl-core/Digest-1.200.0-r999
+RDEPEND=|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* =dev-lang/perl-5.36* ~perl-core/Digest-1.200.0 ) dev-lang/perl:= !<perl-core/Digest-1.200.0 !>perl-core/Digest-1.200.0-r999
 SLOT=0
-_md5_=8431657970c2b4ac94d53e6a67d3c706
+_md5_=8898690d3ba6e6db6281803c6ba42bf3

@@ -2,6 +2,6 @@ DEFINED_PHASES=-
 DESCRIPTION=Virtual for Compress-Raw-Bzip2
 EAPI=7
 KEYWORDS=*
-RDEPEND=|| ( =dev-lang/perl-5.38* ~perl-core/Compress-Raw-Bzip2-2.204.1_rc ) dev-lang/perl:= !<perl-core/Compress-Raw-Bzip2-2.204.1_rc !>perl-core/Compress-Raw-Bzip2-2.204.1_rc-r999
+RDEPEND=|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* ~perl-core/Compress-Raw-Bzip2-2.204.1_rc ) dev-lang/perl:= !<perl-core/Compress-Raw-Bzip2-2.204.1_rc !>perl-core/Compress-Raw-Bzip2-2.204.1_rc-r999
 SLOT=0
-_md5_=d40c4c324fee183f692cf20cec11e691
+_md5_=e70b24c48041042d050d4cfa7c4fb3aa

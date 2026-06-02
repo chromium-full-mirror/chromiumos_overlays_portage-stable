@@ -2,6 +2,6 @@ DEFINED_PHASES=-
 DESCRIPTION=Virtual for Module-Metadata
 EAPI=7
 KEYWORDS=*
-RDEPEND=|| ( =dev-lang/perl-5.38* =dev-lang/perl-5.36* =dev-lang/perl-5.34* ~perl-core/Module-Metadata-1.0.37 ) dev-lang/perl:= !<perl-core/Module-Metadata-1.0.37 !>perl-core/Module-Metadata-1.0.37-r999
+RDEPEND=|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* =dev-lang/perl-5.36* =dev-lang/perl-5.34* ~perl-core/Module-Metadata-1.0.37 ) dev-lang/perl:= !<perl-core/Module-Metadata-1.0.37 !>perl-core/Module-Metadata-1.0.37-r999
 SLOT=0
-_md5_=ffd65ec5c316a1390df29cd23f6bf0aa
+_md5_=9aa9490a7b9303df5c618b2d57697005

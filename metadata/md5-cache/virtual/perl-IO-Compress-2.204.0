@@ -2,6 +2,6 @@ DEFINED_PHASES=-
 DESCRIPTION=Virtual for IO-Compress
 EAPI=7
 KEYWORDS=*
-RDEPEND=|| ( =dev-lang/perl-5.38* ~perl-core/IO-Compress-2.204.0 ) dev-lang/perl:= !<perl-core/IO-Compress-2.204.0 !>perl-core/IO-Compress-2.204.0-r999 >=virtual/perl-Compress-Raw-Bzip2-2.204.1_rc >=virtual/perl-Compress-Raw-Zlib-2.204.1_rc
+RDEPEND=|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* ~perl-core/IO-Compress-2.204.0 ) dev-lang/perl:= !<perl-core/IO-Compress-2.204.0 !>perl-core/IO-Compress-2.204.0-r999 >=virtual/perl-Compress-Raw-Bzip2-2.204.1_rc >=virtual/perl-Compress-Raw-Zlib-2.204.1_rc
 SLOT=0
-_md5_=b942ae185dab9bfc639e554fb6327a3f
+_md5_=52c469e606823071b0c83f21cfdc1df5
