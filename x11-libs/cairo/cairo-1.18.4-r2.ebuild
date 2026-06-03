@@ -19,15 +19,13 @@ HOMEPAGE="https://www.cairographics.org/ https://gitlab.freedesktop.org/cairo/ca
 LICENSE="|| ( LGPL-2.1 MPL-1.1 )"
 SLOT="0"
 IUSE="X aqua debug +glib gtk-doc lzo test"
-# Tests need more wiring up like e.g. https://gitlab.freedesktop.org/cairo/cairo/-/blob/master/.gitlab-ci.yml
-# any2ppm tests seem to hang for now.
 RESTRICT="test !test? ( test )"
 
 RDEPEND="
 	>=media-libs/fontconfig-2.13.92[${MULTILIB_USEDEP}]
 	>=media-libs/freetype-2.13:2[png,${MULTILIB_USEDEP}]
 	>=media-libs/libpng-1.6.10:0=[${MULTILIB_USEDEP}]
-	>=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]
+	>=virtual/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
 	>=x11-libs/pixman-0.42.3[${MULTILIB_USEDEP}]
 	debug? ( sys-libs/binutils-libs:0=[${MULTILIB_USEDEP}] )
 	glib? ( >=dev-libs/glib-2.34.3:2[${MULTILIB_USEDEP}] )
