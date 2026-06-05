@@ -9,7 +9,6 @@ KEYWORDS="*"
 
 RDEPEND="
 	|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* =dev-lang/perl-5.36* =dev-lang/perl-5.34* ~perl-core/${PN#perl-}-${PV} )
-	dev-lang/perl:=
 	!<perl-core/${PN#perl-}-${PV}
 	!>perl-core/${PN#perl-}-${PV}-r999
 "

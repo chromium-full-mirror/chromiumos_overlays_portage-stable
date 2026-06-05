@@ -9,7 +9,7 @@ KEYWORDS="*"
 
 RDEPEND="
 	~perl-core/${PN#perl-}-${PV}
-	dev-lang/perl:=
+	|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* )
 "
 
 # this is the dev-lang/perl-5.34 and dev-lang/perl-5.36 version but we need the security patch
