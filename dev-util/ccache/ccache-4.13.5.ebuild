@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,7 +9,7 @@ EAPI=7
 # Generate using https://github.com/thesamesam/sam-gentoo-scripts/blob/main/niche/generate-ccache-docs
 # Set to 1 if prebuilt, 0 if not
 # (the construct below is to allow overriding from env for script)
-: ${MY_DOCS_PREBUILT:=1}
+: "${MY_DOCS_PREBUILT:=1}"
 
 MY_DOCS_PREBUILT_DEV=sam
 MY_DOCS_VERSION=$(ver_cut 1-2)
@@ -17,75 +17,94 @@ MY_DOCS_VERSION=$(ver_cut 1-2)
 # See bug #784815
 MY_DOCS_USEFLAG="+doc"
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/joelrosdahl.asc
-inherit cmake toolchain-funcs flag-o-matic verify-sig
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/ccache.minisig
+# shellcheck disable=SC2034
+VERIFY_SIG_METHOD=minisig
+inherit cmake toolchain-funcs flag-o-matic prefix verify-sig
 
 DESCRIPTION="Fast compiler cache"
 HOMEPAGE="https://ccache.dev/"
 SRC_URI="https://github.com/ccache/ccache/releases/download/v${PV}/${P}.tar.xz"
-SRC_URI+=" verify-sig? ( https://github.com/ccache/ccache/releases/download/v${PV}/${P}.tar.xz.asc )"
+SRC_URI+=" verify-sig? ( https://github.com/ccache/ccache/releases/download/v${PV}/${P}.tar.xz.minisig )"
 if [[ ${MY_DOCS_PREBUILT} == 1 ]] ; then
 	SRC_URI+=" !doc? ( https://dev.gentoo.org/~${MY_DOCS_PREBUILT_DEV}/distfiles/${CATEGORY}/${PN}/${PN}-${MY_DOCS_VERSION}-docs.tar.xz )"
 	MY_DOCS_USEFLAG="doc"
 fi
 
-LICENSE="GPL-3 LGPL-3"
+# https://ccache.dev/license.html
+# ccache, blake3
+LICENSE="GPL-3+ || ( CC0-1.0 Apache-2.0 )"
+LICENSE+=" elibc_mingw? ( LGPL-3 ISC PSF-2 )"
 SLOT="0"
 KEYWORDS="*"
 # Enable 'static-c++' by default to make 'gcc' ebuild Just Work: bug #761220
-IUSE="${MY_DOCS_USEFLAG} redis +static-c++ test"
+IUSE="${MY_DOCS_USEFLAG} http redis +static-c++ test"
 RESTRICT="!test? ( test )"
 
 DEPEND="
-	app-arch/zstd:=
-	redis? ( dev-libs/hiredis:= )
+	>=app-arch/zstd-1.3.4:=
+	!static-c++? (
+		>=dev-libs/libfmt-8.0.0:=
+		http? ( >=dev-cpp/cpp-httplib-0.20.0:= )
+	)
+	>=dev-libs/blake3-1.8.2:=
+	>=dev-libs/xxhash-0.8.3
+	redis? ( >=dev-libs/hiredis-1.3.0:= )
 "
 RDEPEND="
 	${DEPEND}
 	dev-util/shadowman
 	sys-apps/gentoo-functions
 "
-# Needed for eselect calls in pkg_*
-IDEPEND="dev-util/shadowman"
+DEPEND+=" dev-cpp/expected"
+# Needed for eselect calls in pkg_* (removed IDEPEND for EAPI 7)
 
 # clang-specific tests use dev-libs/elfutils to compare objects for equality.
 # Let's pull in the dependency unconditionally.
-DEPEND+=" test? ( dev-libs/elfutils )"
 BDEPEND="
 	doc? ( dev-ruby/asciidoctor )
-	verify-sig? ( sec-keys/openpgp-keys-joelrosdahl )
+	test? (
+		>=dev-cpp/doctest-2.4.12
+		dev-libs/elfutils
+	)
+	verify-sig? ( sec-keys/minisig-keys-ccache )
 "
 
-DOCS=( doc/{AUTHORS,MANUAL,NEWS}.adoc CONTRIBUTING.md README.md )
+DOCS=( doc/{authors,manual,news}.adoc CONTRIBUTING.md README.md )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.5-nvcc-test.patch
 	"${FILESDIR}"/${PN}-4.0-objdump.patch
-	"${FILESDIR}"/${PN}-4.8-avoid-run-user.patch
-	"${FILESDIR}"/${P}-gcc-ice-workaround.patch
+	"${FILESDIR}"/${PN}-4.13-avoid-run-user.patch
 )
 
 src_unpack() {
 	# Avoid aborting on the doc tarball
 	if use verify-sig ; then
-		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.xz{,.asc}
+		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.xz{,.minisig}
 	fi
 
 	default
 }
 
 src_prepare() {
-	cros_enable_cxx_exceptions
 	cmake_src_prepare
 
-	sed \
-		-e "/^EPREFIX=/s:'':'${EPREFIX}':" \
-		"${FILESDIR}"/ccache-config-3 > ccache-config || die
+	cp "${FILESDIR}"/ccache-config-3 ccache-config || die
+	eprefixify ccache-config
 }
 
 src_configure() {
 	# Mainly used in tests
 	tc-export CC OBJDUMP
+
+	local mycmakeargs=(
+		-DENABLE_DOCUMENTATION=$(usex doc)
+		-DENABLE_TESTING=$(usex test)
+		-DDEPS=LOCAL
+		-DHTTP_STORAGE_BACKEND=$(usex http)
+		-DREDIS_STORAGE_BACKEND=$(usex redis)
+	)
 
 	# Avoid dependency on libstdc++.so. Useful for cases when
 	# we would like to use ccache to build older gcc which injects
@@ -93,15 +112,12 @@ src_configure() {
 	# See bug #761220 for examples.
 	#
 	# Ideally gcc should not use LD_PRELOAD to avoid this type of failure.
-	use static-c++ && append-ldflags -static-libstdc++
+	if use static-c++ ; then
+		append-ldflags -static-libstdc++
 
-	local mycmakeargs=(
-		-DENABLE_DOCUMENTATION=$(usex doc)
-		-DENABLE_TESTING=$(usex test)
-		-DZSTD_FROM_INTERNET=OFF
-		-DHIREDIS_FROM_INTERNET=OFF
-		-DREDIS_STORAGE_BACKEND=$(usex redis)
-	)
+		mycmakeargs+=( -DDEP_FMT=BUNDLED )
+		use http && mycmakeargs+=( -DDEP_CPPHTTPLIB=BUNDLED )
+	fi
 
 	cmake_src_configure
 }
@@ -115,7 +131,7 @@ src_install() {
 
 	# If USE=doc, there'll be newly generated docs which we install instead.
 	if ! use doc && [[ ${MY_DOCS_PREBUILT} == 1 ]] ; then
-		doman "${WORKDIR}"/${PN}-${MY_DOCS_VERSION}-docs/doc/*.[0-8]
+		doman "${WORKDIR}/${PN}-${MY_DOCS_VERSION}-docs/doc/"*.[0-8]
 	fi
 }
 
