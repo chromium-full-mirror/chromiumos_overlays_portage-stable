@@ -126,12 +126,12 @@ check_rebuild() {
 
 	# Reinstall w/ USE Change
 	if
-		 (   use perl_features_ithreads && ( has_version '<dev-lang/perl-5.38.2-r3[-ithreads]' || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_ithreads]' ) ) || \
-		 ( ! use perl_features_ithreads && ( has_version '<dev-lang/perl-5.38.2-r3[ithreads]'  || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_ithreads]'  ) ) || \
-		 (   use perl_features_quadmath && ( has_version '<dev-lang/perl-5.38.2-r3[-quadmath]' || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_quadmath]' ) ) || \
-		 ( ! use perl_features_quadmath && ( has_version '<dev-lang/perl-5.38.2-r3[quadmath]'  || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_quadmath]'  ) ) || \
-		 (   use perl_features_debug    && ( has_version '<dev-lang/perl-5.38.2-r3[-debug]'    || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_debug]'    ) ) || \
-		 ( ! use perl_features_debug    && ( has_version '<dev-lang/perl-5.38.2-r3[debug]'     || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_debug]'     ) ) ; then
+		(   use perl_features_ithreads && ( has_version '<dev-lang/perl-5.38.2-r3[-ithreads]' || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_ithreads]' ) ) || \
+		( ! use perl_features_ithreads && ( has_version '<dev-lang/perl-5.38.2-r3[ithreads]'  || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_ithreads]'  ) ) || \
+		(   use perl_features_quadmath && ( has_version '<dev-lang/perl-5.38.2-r3[-quadmath]' || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_quadmath]' ) ) || \
+		( ! use perl_features_quadmath && ( has_version '<dev-lang/perl-5.38.2-r3[quadmath]'  || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_quadmath]'  ) ) || \
+		(   use perl_features_debug    && ( has_version '<dev-lang/perl-5.38.2-r3[-debug]'    || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_debug]'    ) ) || \
+		( ! use perl_features_debug    && ( has_version '<dev-lang/perl-5.38.2-r3[debug]'     || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_debug]'     ) ) ; then
 		echo ""
 		ewarn "TOGGLED PERL FEATURES WARNING:"
 		ewarn "You changed one of the PERL_FEATURES flags ithreads, quadmath, or debug."
@@ -148,12 +148,12 @@ check_rebuild() {
 
 pkg_pretend() {
 	if \
-		 (   use perl_features_ithreads && has_version '<dev-lang/perl-5.38.2-r3[-ithreads]' ) || \
-		 ( ! use perl_features_ithreads && has_version '<dev-lang/perl-5.38.2-r3[ithreads]'  ) || \
-		 (   use perl_features_quadmath && has_version '<dev-lang/perl-5.38.2-r3[-quadmath]' ) || \
-		 ( ! use perl_features_quadmath && has_version '<dev-lang/perl-5.38.2-r3[quadmath]'  ) || \
-		 (   use perl_features_debug    && has_version '<dev-lang/perl-5.38.2-r3[-debug]'    ) || \
-		 ( ! use perl_features_debug    && has_version '<dev-lang/perl-5.38.2-r3[debug]'     ) ;  \
+		(   use perl_features_ithreads && has_version '<dev-lang/perl-5.38.2-r3[-ithreads]' ) || \
+		( ! use perl_features_ithreads && has_version '<dev-lang/perl-5.38.2-r3[ithreads]'  ) || \
+		(   use perl_features_quadmath && has_version '<dev-lang/perl-5.38.2-r3[-quadmath]' ) || \
+		( ! use perl_features_quadmath && has_version '<dev-lang/perl-5.38.2-r3[quadmath]'  ) || \
+		(   use perl_features_debug    && has_version '<dev-lang/perl-5.38.2-r3[-debug]'    ) || \
+		( ! use perl_features_debug    && has_version '<dev-lang/perl-5.38.2-r3[debug]'     ) ;  \
 	then
 		echo ""
 		ewarn "As of dev-lang/perl-5.38.2-r3, the useflags debug, ithreads, quadmath move into"
@@ -425,23 +425,6 @@ src_prepare() {
 	#		"Fix broken miniperl on hppa"\
 	#		"https://bugs.debian.org/869122" "https://bugs.gentoo.org/634162"
 
-	# Backports from 5.42.0-votes.xml as of 2025-11-22
-	add_patch "${FILESDIR}/5.42.0/0001-newFOROP-fix-crash-when-optimizing-2-var-for-over-bu.patch" \
-		"100-newFOROP-fix-crash-when-optimizing-2-var-for-over-bu.patch" \
-		"Fix for keyword segfaulting when iterating over multiple values at a time" \
-		"https://bugs.gentoo.org/964379" "https://github.com/Perl/perl5/issues/23405"
-	add_patch "${FILESDIR}/5.42.0/0002-class.c-gracefully-handle-reader-writer-after-strict.patch" \
-		"101-class.c-gracefully-handle-reader-writer-after-strict.patch" \
-		"Gracefully handle reader definition after strict error" \
-		"https://github.com/Perl/perl5/issues/23511"
-	add_patch "${FILESDIR}/5.42.0/0003-use-5.41-affects-current-line-source-encoding.patch" \
-		"102-use-5.41-affects-current-line-source-encoding.patch" \
-		"5.41 use affects current line source::encoding" \
-		"https://github.com/Perl/perl5/issues/23881"
-	add_patch "${FILESDIR}/5.42.0/0004-Turn-off-POSIX-2008-locales-on-AIX.patch" \
-		"103-Turn-off-POSIX-2008-locales-on-AIX.patch" \
-		"Turn off POSIX 2008 locales on AIX" \
-		"https://github.com/Perl/perl5/issues/23825"
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# do NOT mess with nsl, on Solaris this is always necessary,
