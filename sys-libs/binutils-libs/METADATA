@@ -24,5 +24,12 @@ third_party {
     # We have a patch locally for this CVE
     # at files/binutils-libs_elf-elfcode.patch
     mitigated_security_patch: "CVE-2025-11083"
+
+    # These two CVEs are readelf-specific and only result in readelf crashes
+    # when trying to read a malformed object file. binutils-libs doesn't ship
+    # readelf, so ignore them. Advisory data indicates >= 2.47 is unimpacted,
+    # so it's safe to remove this when we're at that version.
+    mitigated_security_patch: "CVE-2025-69649"
+    mitigated_security_patch: "CVE-2025-69650"
   }
 }
