@@ -1,36 +1,50 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
+GENTOO_DEPEND_ON_PERL="no"
 QA_PKGCONFIG_VERSION=$(ver_cut 1-3)
-inherit autotools flag-o-matic perl-functions toolchain-funcs
+inherit autotools flag-o-matic perl-module toolchain-funcs
+
+DESCRIPTION="A collection of tools and libraries for many image formats"
+HOMEPAGE="https://imagemagick.org"
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/ImageMagick/ImageMagick.git"
 	inherit git-r3
 	MY_P="imagemagick-9999"
 else
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/imagemagick.asc
+	inherit verify-sig
+
 	MY_PV="$(ver_rs 3 '-')"
 	MY_P="ImageMagick-${MY_PV}"
-	SRC_URI="mirror://imagemagick/${MY_P}.tar.xz"
+	SRC_URI="
+		mirror://imagemagick/${MY_P}.tar.xz
+		verify-sig? ( mirror://imagemagick/${MY_P}.tar.xz.asc )
+	"
+
 	KEYWORDS="*"
+	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-imagemagick )"
 fi
 
 S="${WORKDIR}/${MY_P}"
 
-DESCRIPTION="A collection of tools and libraries for many image formats"
-HOMEPAGE="https://www.imagemagick.org/"
-
 LICENSE="imagemagick"
 # Please check this on bumps, SONAME is often not updated! Use abidiff on old/new.
 # If ABI is broken, change the bit after the '-'.
-SLOT="0/$(ver_cut 1-3)-43"
-IUSE="bzip2 corefonts +cxx djvu fftw fontconfig fpx graphviz hdri heif jbig jpeg jpeg2k jpegxl lcms lqr lzma opencl openexr openmp pango perl +png postscript q32 q8 raw static-libs svg test tiff truetype webp wmf X xml zip zlib"
+SLOT="0/$(ver_cut 1-3)-18"
+IUSE="bzip2 corefonts +cxx djvu fftw fontconfig fpx graphviz hardened hdri heif"
+IUSE+=" jbig jpeg jpeg2k jpegxl lcms lqr lzma opencl openexr openmp pango perl ${GENTOO_PERL_USESTRING}"
+IUSE+=" +png postscript q32 q8 raw static-libs svg test tiff truetype webp wmf"
+IUSE+=" X xml zip zlib"
 
-REQUIRED_USE="corefonts? ( truetype )
+REQUIRED_USE="
+	corefonts? ( truetype )
 	svg? ( xml )
-	test? ( corefonts )"
+	test? ( corefonts )
+"
 
 RESTRICT="!test? ( test )"
 
@@ -48,13 +62,16 @@ RDEPEND="
 	jbig? ( >=media-libs/jbigkit-2:= )
 	jpeg? ( media-libs/libjpeg-turbo:= )
 	jpeg2k? ( >=media-libs/openjpeg-2.1.0:2 )
-	jpegxl? ( >=media-libs/libjxl-0.6 )
+	jpegxl? ( >=media-libs/libjxl-0.6:= )
 	lcms? ( media-libs/lcms:2= )
 	lqr? ( media-libs/liblqr )
 	opencl? ( virtual/opencl )
 	openexr? ( media-libs/openexr:0= )
 	pango? ( x11-libs/pango )
-	perl? ( >=dev-lang/perl-5.8.8:= )
+	perl? (
+		${GENTOO_PERL_DEPSTRING}
+		>=dev-lang/perl-5.8.8:=
+	)
 	png? ( media-libs/libpng:= )
 	postscript? ( app-text/ghostscript-gpl:= )
 	raw? ( media-libs/libraw:= )
@@ -75,13 +92,16 @@ RDEPEND="
 		x11-libs/libXext
 		x11-libs/libXt
 	)
-	xml? ( dev-libs/libxml2 )
+	xml? ( dev-libs/libxml2:= )
 	lzma? ( app-arch/xz-utils )
 	zip? ( dev-libs/libzip:= )
-	zlib? ( sys-libs/zlib:= )"
-DEPEND="${RDEPEND}
-	X? ( x11-base/xorg-proto )"
-BDEPEND="virtual/pkgconfig"
+	zlib? ( virtual/zlib:= )
+"
+DEPEND="
+	${RDEPEND}
+	X? ( x11-base/xorg-proto )
+"
+BDEPEND+=" virtual/pkgconfig"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-9999-nocputuning.patch"
@@ -101,27 +121,18 @@ src_prepare() {
 	#elibtoolize # for Darwin modules
 	eautoreconf
 
-	# For testsuite, see https://bugs.gentoo.org/show_bug.cgi?id=500580#c3
-	local ati_cards mesa_cards nvidia_cards render_cards
+	# For testsuite, see bug #500580#c3
 	shopt -s nullglob
-	ati_cards=$(echo -n /dev/ati/card* | sed 's/ /:/g')
-	if test -n "${ati_cards}"; then
-		addpredict "${ati_cards}"
-	fi
-	mesa_cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
-	if test -n "${mesa_cards}"; then
-		addpredict "${mesa_cards}"
-	fi
-	nvidia_cards=$(echo -n /dev/nvidia* | sed 's/ /:/g')
-	if test -n "${nvidia_cards}"; then
-		addpredict "${nvidia_cards}"
-	fi
-	render_cards=$(echo -n /dev/dri/renderD128* | sed 's/ /:/g')
-	if test -n "${render_cards}"; then
-		addpredict "${render_cards}"
-	fi
+	for card in /dev/{{ati,dri}/card,nvidia,dri/renderD128}*; do
+		addpredict "${card}"
+	done
 	shopt -u nullglob
 	addpredict /dev/nvidiactl
+
+	if use hardened ; then
+		# https://github.com/ImageMagick/ImageMagick/issues/8646 (bug #971784)
+		sed -i -e 's:not ok:ok:' tests/cli-svg.tap || die
+	fi
 }
 
 src_configure() {
@@ -132,6 +143,9 @@ src_configure() {
 	use perl && perl_check_env
 
 	[[ ${CHOST} == *-solaris* ]] && append-ldflags -lnsl -lsocket
+
+	# Workaround for bug #941208 (gcc PR117100)
+	tc-is-gcc && [[ $(gcc-major-version) == 13 ]] && append-flags -fno-unswitch-loops
 
 	local myeconfargs=(
 		$(use_enable static-libs static)
@@ -150,6 +164,7 @@ src_configure() {
 		$(use_with zip)
 		$(use_with zlib)
 		--without-autotrace
+		--with-uhdr
 		$(use_with postscript dps)
 		$(use_with djvu)
 		--with-dejavu-font-dir="${EPREFIX}"/usr/share/fonts/dejavu
@@ -177,9 +192,22 @@ src_configure() {
 		$(use_with corefonts windows-font-dir "${EPREFIX}"/usr/share/fonts/corefonts)
 		$(use_with wmf)
 		$(use_with xml)
+
+		# Default upstream (as of 6.9.12.96/7.1.1.18 anyway) is open
+		# For now, let's make USE=hardened do 'limited', and have USE=-hardened
+		# reflect the upstream default of 'open'.
+		#
+		# We might change it to 'secure' and 'limited' at some point.
+		# See also bug #716674.
+		--with-security-policy=$(usex hardened limited open)
 	)
 
 	CONFIG_SHELL="${BROOT}"/bin/bash econf "${myeconfargs[@]}"
+}
+
+src_compile() {
+	# Avoid perl-module_src_compile
+	default
 }
 
 src_test() {
@@ -213,17 +241,18 @@ src_install() {
 		DOCUMENTATION_PATH="${EPREFIX}"/usr/share/doc/${PF}/html \
 		install
 
-	rm -f "${ED}"/usr/share/doc/${PF}/html/{ChangeLog,LICENSE,NEWS.txt}
-	dodoc {AUTHORS,README}.txt
+	einstalldocs
 
 	if use perl; then
-		find "${ED}" -type f -name perllocal.pod -exec rm -f {} +
-		find "${ED}" -depth -mindepth 1 -type d -empty -exec rm -rf {} +
+		find "${ED}" -type f -name perllocal.pod -exec rm -f {} + || die
+		find "${ED}" -depth -mindepth 1 -type d -empty -exec rm -rf {} + || die
 	fi
 
-	find "${ED}" -name '*.la' -exec sed -i -e "/^dependency_libs/s:=.*:='':" {} +
 	# .la files in parent are not needed, keep plugin .la files
 	find "${ED}"/usr/$(get_libdir)/ -maxdepth 1 -name "*.la" -delete || die
+
+	# https://github.com/gentoo/gentoo/pull/37716#discussion_r1696713348
+	find "${ED}" -name '*.la' -exec sed -i -e "/^dependency_libs/s:=.*:='':" {} + || die
 
 	if use opencl; then
 		cat <<-EOF > "${T}"/99${PN}
