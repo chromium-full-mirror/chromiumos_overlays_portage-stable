@@ -1,1 +1,2 @@
-include chromiumos/overlays/chromiumos-overlay:/sys-apps/dbus/OWNERS
+# TODO: Add per-package OWNERS and delete this when done.
+*
