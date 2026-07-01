@@ -1,10 +1,10 @@
-# Copyright 1999-2026 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-
 AUTOTOOLS_AUTO_DEPEND=no
-inherit autotools flag-o-matic multilib-minimal
+AT_NOEAUTOHEADER=yes  # because expat_config.h.in would need post-processing
+inherit autotools multilib-minimal
 
 DESCRIPTION="Stream-oriented XML parser library"
 HOMEPAGE="https://libexpat.github.io/"
@@ -13,17 +13,10 @@ SRC_URI="https://github.com/libexpat/libexpat/releases/download/R_${PV//\./_}/ex
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
-IUSE="examples static-libs test unicode"
-RESTRICT="!test? ( test )"
+IUSE="examples static-libs unicode"
 BDEPEND="unicode? ( ${AUTOTOOLS_DEPEND} )"
 
 DOCS=( README.md )
-
-QA_CONFIG_IMPL_DECL_SKIP=(
-	# https://bugs.gentoo.org/906384
-	arc4random
-	arc4random_buf
-)
 
 src_prepare() {
 	default
@@ -44,8 +37,7 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	append-lfs-flags
-	local myconf="$(use_with test tests) $(use_enable static-libs static) --without-docbook"
+	local myconf="$(use_enable static-libs static) --without-docbook"
 
 	mkdir -p "${BUILD_DIR}"w || die
 
