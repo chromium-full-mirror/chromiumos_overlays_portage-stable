@@ -1,7 +1,7 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
 inherit eutils flag-o-matic libtool multilib-minimal toolchain-funcs
 
@@ -17,7 +17,7 @@ RESTRICT="!test? ( test )"
 
 # We want bison explicitly and not yacc in general #381273
 RDEPEND="sys-devel/m4"
-DEPEND="${RDEPEND}
+BDEPEND="${RDEPEND}
 	app-arch/xz-utils
 	nls? ( sys-devel/gettext )
 	test? ( sys-devel/bison )"
@@ -79,9 +79,7 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	einstalldocs
 	dodoc ONEWS
-	prune_libtool_files --all
-	rm "${ED}"/usr/share/doc/${PF}/COPYING || die
+	find "${ED}" -type f -name "*.la" -delete || die
 	dosym flex /usr/bin/lex
 }
