@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
 inherit autotools
 
@@ -36,5 +36,5 @@ src_install() {
 	local DOCS=( AUTHORS ChangeLog )
 	default
 
-	find "${ED}"usr/lib* -name '*.la' -delete || die
+	find "${ED}"/usr/ -name '*.la' -delete || die
 }
