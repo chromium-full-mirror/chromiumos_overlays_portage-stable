@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
 inherit autotools flag-o-matic multilib multilib-minimal
 
 DESCRIPTION="ALSA extra plugins"
@@ -27,8 +27,8 @@ RDEPEND="
 		media-libs/speexdsp[${MULTILIB_USEDEP}]
 	)
 "
-DEPEND="${RDEPEND}
-	virtual/pkgconfig"
+DEPEND="${RDEPEND}"
+BDEPEND="virtual/pkgconfig"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-1.1.5-optional_plugins.patch"
@@ -66,8 +66,6 @@ multilib_src_configure() {
 }
 
 multilib_src_install_all() {
-	einstalldocs
-
 	cd doc || die
 	dodoc upmix.txt vdownmix.txt README-pcm-oss
 	use jack && dodoc README-jack
