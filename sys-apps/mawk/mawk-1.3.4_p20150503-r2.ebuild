@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI="7"
 
 inherit toolchain-funcs
 
@@ -20,6 +20,7 @@ S=${WORKDIR}/${MY_P}
 DOCS=( ACKNOWLEDGMENT CHANGES README )
 
 src_prepare() {
+	default
 	tc-export BUILD_CC
 }
 
