@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/media-libs/sbc/sbc-1.3.ebuild,v 1.1 2014/11/03 16:03:53 pacho Exp $
 
-EAPI=5
-inherit eutils multilib multilib-minimal
+EAPI="7"
+inherit multilib multilib-minimal
 
 DESCRIPTION="An audio codec to connect bluetooth high quality audio devices like headphones or loudspeakers"
 HOMEPAGE="http://git.kernel.org/?p=bluetooth/sbc.git http://www.bluez.org/sbc-10/"
@@ -18,8 +18,7 @@ IUSE="static-libs"
 # .wav file to execute it
 RESTRICT="test"
 
-RDEPEND=""
-DEPEND="virtual/pkgconfig"
+BDEPEND="virtual/pkgconfig"
 
 multilib_src_configure() {
 	ECONF_SOURCE=${S} \
@@ -29,6 +28,5 @@ multilib_src_configure() {
 }
 
 multilib_src_install_all() {
-	einstalldocs
-	prune_libtool_files
+	find "${ED}" -name '*.la' -delete || die
 }
