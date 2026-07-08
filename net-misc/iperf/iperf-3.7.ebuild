@@ -1,7 +1,7 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
 inherit autotools eutils
 
 DESCRIPTION="A TCP, UDP, and SCTP network bandwidth measurement tool"
@@ -32,5 +32,5 @@ src_install() {
 	default
 	newconfd "${FILESDIR}"/iperf.confd iperf3
 	newinitd "${FILESDIR}"/iperf3.initd iperf3
-	prune_libtool_files
+	find "${ED}" -name '*.la' -delete || die
 }
