@@ -2,8 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
-inherit linux-info autotools-utils
+EAPI="7"
 
 DESCRIPTION="netlink interface to the connection tracking timeout infrastructure in the kernel packet filter"
 HOMEPAGE="http://www.netfilter.org/projects/libnetfilter_cttimeout"
@@ -15,16 +14,9 @@ KEYWORDS="*"
 IUSE="static-libs"
 
 RDEPEND="net-libs/libmnl"
-DEPEND="${RDEPEND}
-	virtual/pkgconfig"
+DEPEND="${RDEPEND}"
+BDEPEND="virtual/pkgconfig"
 
-CONFIG_CHECK="~NF_CT_NETLINK_TIMEOUT"
-
-pkg_setup() {
-	linux-info_pkg_setup
-	kernel_is lt 3 4 0 && ewarn "requires at least 3.4.0 kernel version"
-}
-
-src_prepare() {
-	epatch "${FILESDIR}"/${P}-attribute-order.patch
-}
+PATCHES=(
+	"${FILESDIR}"/${P}-attribute-order.patch
+)
