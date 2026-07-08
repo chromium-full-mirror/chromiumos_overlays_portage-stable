@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
 
 inherit systemd user eutils readme.gentoo-r1
 
@@ -14,11 +14,12 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="kernel_FreeBSD selinux test"
 
-CDEPEND="dev-libs/libdaemon"
-DEPEND="${CDEPEND}
+BDEPEND="
 	sys-devel/bison
 	sys-devel/flex
-	virtual/pkgconfig
+	virtual/pkgconfig"
+CDEPEND="dev-libs/libdaemon"
+DEPEND="${CDEPEND}
 	test? ( dev-libs/check )"
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-radvd )
