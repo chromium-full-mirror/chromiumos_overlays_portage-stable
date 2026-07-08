@@ -1,1 +1,0 @@
-intltool-0.50.2-r1.ebuild
