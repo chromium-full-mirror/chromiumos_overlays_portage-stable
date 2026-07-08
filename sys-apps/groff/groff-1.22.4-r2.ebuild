@@ -1,7 +1,7 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
 
 inherit toolchain-funcs
 
@@ -27,9 +27,12 @@ RDEPEND="
 		x11-libs/libSM
 		x11-libs/libICE
 	)"
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	dev-lang/perl
-	sys-apps/texinfo"
+	sys-apps/texinfo
+	sys-devel/m4
+"
 
 DOCS=( BUG-REPORT ChangeLog MORE.STUFF NEWS PROBLEMS PROJECTS README TODO )
 
