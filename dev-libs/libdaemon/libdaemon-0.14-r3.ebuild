@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
 
 inherit multilib-minimal
 
@@ -47,7 +47,7 @@ multilib_src_compile() {
 }
 
 multilib_src_install() {
-	emake DESTDIR="${D}" install
+	emake DESTDIR="${ED}" install
 
 	if multilib_is_native_abi && use doc; then
 		docinto html
@@ -57,8 +57,7 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	einstalldocs
-	find "${D}" -name '*.la' -delete || die
+	find "${ED}" -name '*.la' -delete || die
 
 	if use examples; then
 		docinto examples
