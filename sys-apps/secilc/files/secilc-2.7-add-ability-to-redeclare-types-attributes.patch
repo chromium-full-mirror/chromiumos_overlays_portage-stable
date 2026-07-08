@@ -21,8 +21,8 @@ Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
 diff --git a/secilc/secilc.c b/secilc/secilc.c
 index f2232e72..0be6975b 100644
---- a/secilc/secilc.c
-+++ b/secilc/secilc.c
+--- a/secilc.c
++++ b/secilc.c
 @@ -63,6 +63,7 @@ static __attribute__((__noreturn__)) void usage(const char *prog)
  	printf("                                 statement if present in the policy\n");
  	printf("  -D, --disable-dontaudit        do not add dontaudit rules to the binary policy\n");

@@ -1,8 +1,9 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
-inherit eutils
+EAPI="7"
+
+inherit toolchain-funcs
 
 MY_P="${P//_/-}"
 MY_RELEASEDATE="20170804"
@@ -27,22 +28,21 @@ SLOT="0"
 IUSE=""
 
 DEPEND="
-	app-text/xmlto
 	>=sys-libs/libsepol-${SEPOL_VER}
 	"
 RDEPEND="
 	>=sys-libs/libsepol-${SEPOL_VER}
 	"
+BDEPEND="app-text/xmlto"
 
 # tests are not meant to be run outside of the
 # full SELinux userland repo
 RESTRICT="test"
 
-src_prepare() {
-	epatch "${FILESDIR}/secilc-2.7-add-ability-to-redeclare-types-attributes.patch"
-}
+PATCHES=(
+	"${FILESDIR}/secilc-2.7-add-ability-to-redeclare-types-attributes.patch"
+)
 
-src_compile() {
+src_configure() {
 	tc-export CC
-	default
 }
