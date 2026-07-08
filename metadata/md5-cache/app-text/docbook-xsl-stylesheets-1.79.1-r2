@@ -1,6 +1,6 @@
 DEFINED_PHASES=compile install postinst postrm prepare test
 DESCRIPTION=XSL Stylesheets for Docbook
-EAPI=6
+EAPI=7
 HOMEPAGE=https://github.com/docbook/wiki/wiki
 IUSE=ruby
 KEYWORDS=*
@@ -10,4 +10,4 @@ RESTRICT=test
 SLOT=0
 SRC_URI=mirror://sourceforge/docbook/docbook-xsl-1.79.1.tar.bz2
 _eclasses_=ruby-single	e6530f43a549f120f9396ccb852288f5	ruby-utils	cdb4c1e4283adb7707b7dd48ccaa7ad2
-_md5_=9da2ba16b2a1bb1b1005aeadd13b2c48
+_md5_=d84ed10ff131e8d597f8792ca1871612
