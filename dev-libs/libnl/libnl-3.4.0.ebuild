@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="7"
 PYTHON_COMPAT=( python3_{8..11} )
 DISTUTILS_OPTIONAL=1
 inherit distutils-r1 eutils libtool multilib multilib-minimal
@@ -23,7 +23,8 @@ IUSE="+debug static-libs python +threads utils"
 RDEPEND="
 	python? ( ${PYTHON_DEPS} )
 "
-DEPEND="
+DEPEND="${RDEPEND}"
+BDEPEND="
 	${RDEPEND}
 	python? ( dev-lang/swig )
 	sys-devel/bison
@@ -99,6 +100,5 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	einstalldocs
-	prune_libtool_files --modules
+	find "${ED}" -name '*.la' -delete || die
 }
