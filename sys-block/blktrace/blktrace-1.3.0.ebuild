@@ -1,7 +1,7 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
 inherit toolchain-funcs flag-o-matic linux-info
 
@@ -39,12 +39,6 @@ DEPEND="${RDEPEND}
 CONFIG_CHECK="~BLK_DEV_IO_TRACE"
 WARNING_BLK_DEV_IO_TRACE="you need to enable BLK_DEV_IO_TRACE kernel option if you want to gather traces from this machine"
 
-PATCHES=(
-	#"${FILESDIR}"/${P}-overlapping-io-stats.patch
-	#"${FILESDIR}"/${PN}-1.2.0-ldflags.patch #335741
-	#"${FILESDIR}"/${PN}-1.2.0-parallel-build.patch #335741
-)
-
 src_compile() {
 	append-cppflags -DLVM_REMAP_WORKAROUND -W -I"${S}"
 	emake CC="$(tc-getCC)" CFLAGS="${CFLAGS} ${CPPFLAGS}"
@@ -56,6 +50,5 @@ src_compile() {
 
 src_install() {
 	emake install CC="$(tc-getCC)" CFLAGS="${CFLAGS} ${CPPFLAGS}" DESTDIR="${ED}" prefix="/usr" mandir="/usr/share/man"
-	einstalldocs
 	use doc && dodoc doc/blktrace.pdf btt/doc/btt.pdf
 }
