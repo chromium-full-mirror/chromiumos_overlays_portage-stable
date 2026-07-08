@@ -1,9 +1,9 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
-inherit linux-info systemd toolchain-funcs multilib-minimal eapi7-ver
+inherit linux-info systemd toolchain-funcs multilib-minimal
 
 DESCRIPTION="Hardware Monitoring user-space utilities"
 HOMEPAGE="https://hwmon.wiki.kernel.org/ https://github.com/lm-sensors/lm-sensors"
@@ -34,10 +34,11 @@ COMMON_DEPS="
 	)"
 
 RDEPEND="${COMMON_DEPS}
-	dev-lang/perl
 	!<sys-apps/openrc-0.21.7"
 
-DEPEND="${COMMON_DEPS}
+DEPEND="${COMMON_DEPS}"
+BDEPEND="
+	dev-lang/perl
 	sys-devel/bison
 	sys-devel/flex"
 
@@ -159,8 +160,6 @@ multilib_src_install_all() {
 		newinitd "${FILESDIR}"/sensord.initd sensord
 		systemd_newunit "${FILESDIR}"/sensord.service-r1 sensord.service
 	fi
-
-	einstalldocs
 
 	docinto developers
 	dodoc doc/developers/applications

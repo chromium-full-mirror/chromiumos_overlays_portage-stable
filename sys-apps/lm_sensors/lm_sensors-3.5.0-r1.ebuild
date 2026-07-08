@@ -1,0 +1,1 @@
+lm_sensors-3.5.0.ebuild
