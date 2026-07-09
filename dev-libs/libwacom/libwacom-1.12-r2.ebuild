@@ -1,1 +1,0 @@
-libwacom-1.12.ebuild

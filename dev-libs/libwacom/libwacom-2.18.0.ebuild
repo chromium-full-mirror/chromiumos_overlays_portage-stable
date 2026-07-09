@@ -1,33 +1,34 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_11 )
-inherit meson python-any-r1 toolchain-funcs udev
+PYTHON_COMPAT=( python3_{11..14} )
+inherit meson python-any-r1 udev
 
 DESCRIPTION="Library for identifying Wacom tablets and their model-specific features"
 HOMEPAGE="https://github.com/linuxwacom/libwacom"
-SRC_URI="https://github.com/linuxwacom/${PN}/releases/download/${P}/${P}.tar.bz2"
+SRC_URI="https://github.com/linuxwacom/${PN}/releases/download/${P}/${P}.tar.xz"
 
 LICENSE="MIT"
-SLOT="0"
+SLOT="0/9" # libwacom SONAME
 KEYWORDS="*"
 IUSE="doc test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-libs/glib:2
+	dev-libs/libevdev
 	dev-libs/libgudev:=
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
+	${PYTHON_DEPS}
 	virtual/pkgconfig
-	doc? ( app-doc/doxygen )
+	doc? ( app-text/doxygen )
 	test? (
-		${PYTHON_DEPS}
 		$(python_gen_any_dep '
-			dev-python/python-libevdev[${PYTHON_USEDEP}]
+			dev-python/libevdev[${PYTHON_USEDEP}]
 			dev-python/pyudev[${PYTHON_USEDEP}]
 			dev-python/pytest[${PYTHON_USEDEP}]
 		')
@@ -35,17 +36,11 @@ BDEPEND="
 "
 
 python_check_deps() {
-	has_version -b "dev-python/python-libevdev[${PYTHON_USEDEP}]" &&
-	has_version -b "dev-python/pyudev[${PYTHON_USEDEP}]" &&
-	has_version -b "dev-python/pytest[${PYTHON_USEDEP}]"
-}
-
-pkg_setup() {
-	tc-ld-disable-gold # bug https://github.com/linuxwacom/libwacom/issues/170
-
-	if use test; then
-		python-any-r1_pkg_setup
-	fi
+	use test || return 0
+	python_has_version \
+		"dev-python/libevdev[${PYTHON_USEDEP}]" \
+		"dev-python/pyudev[${PYTHON_USEDEP}]" \
+		"dev-python/pytest[${PYTHON_USEDEP}]"
 }
 
 src_configure() {
@@ -58,5 +53,9 @@ src_configure() {
 }
 
 pkg_postinst() {
+	udev_reload
+}
+
+pkg_postrm() {
 	udev_reload
 }
