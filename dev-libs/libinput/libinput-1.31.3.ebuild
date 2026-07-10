@@ -1,10 +1,11 @@
-# Copyright 2014-2023 Gentoo Authors
+# Copyright 2014-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_11 )
-inherit meson optfeature python-any-r1 udev
+LUA_COMPAT=( lua5-4 )
+PYTHON_COMPAT=( python3_{11..14} )
+inherit lua-single meson optfeature python-any-r1 udev
 
 DESCRIPTION="Library to handle input devices in Wayland"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/libinput/ https://gitlab.freedesktop.org/libinput/libinput"
@@ -15,11 +16,13 @@ SLOT="0/10"
 if [[ $(ver_cut 3) -lt 900 ]] ; then
 	KEYWORDS="*"
 fi
-IUSE="doc input_devices_wacom test"
+IUSE="doc input_devices_wacom lua test"
 RESTRICT="!test? ( test )"
+REQUIRED_USE="lua? ( ${LUA_REQUIRED_USE} )"
 
 RDEPEND="
-	input_devices_wacom? ( >=dev-libs/libwacom-0.27:= )
+	lua? ( ${LUA_DEPS} )
+	input_devices_wacom? ( >=dev-libs/libwacom-2.15:= )
 	>=dev-libs/libevdev-1.9.902
 	>=sys-libs/mtdev-1.1
 	virtual/libudev:=
@@ -38,16 +41,17 @@ BDEPEND="
 			dev-python/sphinx[${PYTHON_USEDEP}]
 			>=dev-python/sphinx-rtd-theme-0.2.4[${PYTHON_USEDEP}]
 		')
-		>=app-doc/doxygen-1.8.3
+		>=app-text/doxygen-1.8.3
 		>=media-gfx/graphviz-2.38.0
 	)
 	test? (
 		$(python_gen_any_dep '
 			dev-python/pytest[${PYTHON_USEDEP}]
+			dev-python/pytest-xdist[${PYTHON_USEDEP}]
 		')
 	)
 "
-#	test? ( dev-util/valgrind )
+#	test? ( dev-debug/valgrind )
 
 python_check_deps() {
 	if use doc; then
@@ -61,8 +65,14 @@ python_check_deps() {
 	if use test; then
 		python_has_version \
 			"dev-python/pytest[${PYTHON_USEDEP}]" \
+			"dev-python/pytest-xdist[${PYTHON_USEDEP}]" \
 		|| return
 	fi
+}
+
+pkg_setup() {
+	use lua && lua-single_pkg_setup
+	python-any-r1_pkg_setup
 }
 
 src_prepare() {
@@ -77,6 +87,7 @@ src_configure() {
 		$(meson_use doc documentation)
 		$(meson_use input_devices_wacom libwacom)
 		$(meson_use test tests)
+		$(meson_feature lua lua-plugins)
 		-Dudev-dir="${EPREFIX}$(get_udevdir)"
 	)
 	meson_src_configure
