@@ -1,2 +1,5 @@
 # Set of domain experts available for consultation as a fallback.
 include OWNERS.general
+
+per-file .../METADATA = file:chromiumos/owners:v1:/security/OWNERS.cpe
+per-file .../metadata.xml = file:chromiumos/owners:v1:/security/OWNERS.cpe
