@@ -12,5 +12,10 @@ third_party {
     # vuln not applicable for OpenSSL (ChromeOS SSL backend)
     mitigated_security_patch: "CVE-2024-6197"
     mitigated_security_patch: "CVE-2024-7264"
+
+    # Vulnerable code not used: cookie engine not used in ChromeOS platform2/
+    # and handles are not reused across requests.
+    mitigated_security_patch: "CVE-2026-8924"
+    mitigated_security_patch: "CVE-2026-8927"
   }
 }
