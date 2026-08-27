@@ -1,14 +1,14 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_11 )
+PYTHON_COMPAT=( python3_{11..14} )
 
 inherit flag-o-matic meson-multilib python-any-r1 xdg-utils
 
 DESCRIPTION="An OpenType text shaping engine"
-HOMEPAGE="https://www.freedesktop.org/wiki/Software/HarfBuzz"
+HOMEPAGE="https://harfbuzz.github.io/"
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/harfbuzz/harfbuzz.git"
@@ -33,12 +33,13 @@ RDEPEND="
 	glib? ( >=dev-libs/glib-2.38:2[${MULTILIB_USEDEP}] )
 	graphite? ( >=media-gfx/graphite2-1.2.1:=[${MULTILIB_USEDEP}] )
 	icu? ( >=dev-libs/icu-51.2-r1:=[${MULTILIB_USEDEP}] )
-	introspection? ( >=dev-libs/gobject-introspection-1.34:= )
+	introspection? ( >=dev-libs/gobject-introspection-1.82.0-r2:= )
 	truetype? ( >=media-libs/freetype-2.5.0.1:2=[${MULTILIB_USEDEP}] )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
 	${PYTHON_DEPS}
+	sys-apps/help2man
 	virtual/pkgconfig
 	doc? ( dev-util/gtk-doc )
 	introspection? ( dev-util/glib-utils )
@@ -49,34 +50,20 @@ src_prepare() {
 
 	xdg_environment_reset
 
-	# bug #726120
-	sed -i \
-		-e '/tests\/macos\.tests/d' \
-		test/shape/data/in-house/Makefile.sources \
-		|| die
-
 	# bug #790359
 	filter-flags -fexceptions -fthreadsafe-statics
 
 	if ! use debug ; then
 		append-cppflags -DHB_NDEBUG
 	fi
-
-	# bug #762415
-	local pyscript
-	for pyscript in $(find -type f -name "*.py") ; do
-		python_fix_shebang -q "${pyscript}"
-	done
 }
 
 multilib_src_configure() {
 	# harfbuzz-gobject only used for introspection, bug #535852
 	local emesonargs=(
-		# ICU 75 needs C++17 (bug #931090)
-		-Dcpp_std=c++17
-
 		-Dcoretext=disabled
 		-Dchafa=disabled
+		-Dfontations=disabled
 		-Dwasm=disabled
 
 		$(meson_feature cairo)
