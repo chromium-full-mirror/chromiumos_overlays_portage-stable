@@ -1,0 +1,45 @@
+Backport of upstream libfastjson commit 2e7330e3c178106c16f90966265d785d7102b54e
+(PR https://github.com/rsyslog/libfastjson/pull/171, merged 2025-12-05).
+
+From 2e7330e3c178106c16f90966265d785d7102b54e Mon Sep 17 00:00:00 2001
+From: Thomas Deutschmann <whissi@whissi.de>
+Date: Fri, 5 Dec 2025 18:18:33 +0100
+Subject: [PATCH] build: Use AC_CHECK_LIB to ensure libfastjson links against
+ libm
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+glibc ≥ 2.42 no longer provides modf() through implicit linkage, so any
+library using modf() must explicitly link libm. The previous approach
+conditionally added -lm only if isnan() failed to link, which is no
+longer sufficient and did not guarantee that libfastjson itself linked
+against libm.
+
+Replace the isnan-based conditional check with an explicit
+AC_CHECK_LIB([m], [modf]) so that -lm is always added when required.
+This ensures libfastjson links directly against libm, allowing dependent
+applications to link only against libfastjson without needing to add -lm
+themselves.
+
+Fixes: https://github.com/rsyslog/libfastjson/pull/167
+---
+ configure.ac | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 7853ca3..feec679 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -105,9 +105,8 @@ AC_FUNC_VPRINTF
+ AC_FUNC_MEMCMP
+ AC_CHECK_FUNCS(strcasecmp strdup strerror snprintf vsnprintf vasprintf open vsyslog strncasecmp setlocale)
+ 
+-if test "$ac_cv_have_decl_isnan" = "yes" ; then
+-   AC_TRY_LINK([#include <math.h>], [float f = 0.0; return isnan(f)], [], [LIBS="$LIBS -lm"])
+-fi
++# Force linking against libm (needed for modf on glibc >= 2.42)
++AC_CHECK_LIB([m], [modf], [LIBS="$LIBS -lm"],[AC_MSG_ERROR([libm (math library) is required for modf()])])
+ 
+ #check if .section.gnu.warning accepts long strings (for __warn_references)
+ AC_LANG_PUSH([C])

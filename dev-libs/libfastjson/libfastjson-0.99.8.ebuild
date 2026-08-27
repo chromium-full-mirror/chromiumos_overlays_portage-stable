@@ -16,6 +16,10 @@ IUSE="static-libs"
 DEPEND=">=sys-devel/autoconf-archive-2015.02.04"
 RDEPEND=""
 
+PATCHES=(
+	"${FILESDIR}"/${P}-link-libm.patch
+)
+
 src_prepare() {
 	default
 
