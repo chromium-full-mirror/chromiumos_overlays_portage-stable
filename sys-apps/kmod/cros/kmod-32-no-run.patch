@@ -1,0 +1,28 @@
+We never generate fragments in /run for modutils to utilize, so disable that
+logic entirely.  This avoids random exploits where tools can write to the /run
+path and then trigger module loading via other means (which runs as root).
+
+https://crbug.com/780039
+
+diff --git a/libkmod/libkmod.c b/libkmod/libkmod.c
+--- a/libkmod/libkmod.c
++++ b/libkmod/libkmod.c
+@@ -63,7 +63,6 @@
+ 
+ static const char *default_config_paths[] = {
+ 	SYSCONFDIR "/modprobe.d",
+-	"/run/modprobe.d",
+ 	"/usr/local/lib/modprobe.d",
+ 	"/lib/modprobe.d",
+ 	NULL
+diff --git a/tools/depmod.c b/tools/depmod.c
+--- a/tools/depmod.c
++++ b/tools/depmod.c
+@@ -52,7 +52,6 @@
+ static const char CFG_EXTERNAL_KEY[] = "external";
+ static const char *default_cfg_paths[] = {
+ 	SYSCONFDIR "/depmod.d",
+-	"/run/depmod.d",
+ 	"/usr/local/lib/depmod.d",
+ 	"/lib/depmod.d",
+ 	NULL
