@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -16,11 +16,8 @@ IUSE="64-bit-bfd cet multitarget nls static-libs test"
 #                      Default: empty, no patching
 # PATCH_BINUTILS_VER - the binutils version in the patchset name
 #                    - Default: PV
-# PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
-#                      for the patchsets
 
 PATCH_VER=1
-PATCH_DEV=sam
 
 MY_PN=binutils
 MY_P=${MY_PN}-${PV}
@@ -33,10 +30,8 @@ elif [[ ${PV} == *9999 ]]; then
 	SLOT="0/$(ver_cut 1-2)"
 else
 	PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
-	PATCH_DEV=${PATCH_DEV:-dilfridge}
-	SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_P}.tar.xz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
+	SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz"
+	[[ -z ${PATCH_VER} ]] || SRC_URI+=" https://distfiles.gentoo.org/pub/proj/toolchain/${MY_PN}/patches/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 	SLOT="0/${PV}"
 	KEYWORDS="*"
 fi
@@ -57,15 +52,6 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/bfd.h
 )
 
-PATCHES=(
-	# ChromiumOS: Patch vulnerability in elf/* header files. Can be dropped when upgrading to 2.46.
-	# The parent pathing is due to the fact that by the time we get to the end of src_prepare,
-	# we are already in inside the workdir.
-	# See: b/460583072.
-	../../files/binutils-libs_elf-elfcode.patch
-	../../files/binutils-libs_elf-eh-frame.patch
-)
-
 src_unpack() {
 	if [[ ${PV} == *9999 ]] ; then
 		EGIT_REPO_URI="
@@ -74,7 +60,7 @@ src_unpack() {
 		"
 		EGIT_CHECKOUT_DIR=${WORKDIR}/patches-git
 		git-r3_src_unpack
-		mv patches-git/9999 patch || die
+		mv patches-git/9999 patches || die
 
 		if [[ ${PV} != 9999 ]] ; then
 			EGIT_BRANCH=binutils-$(ver_cut 1)_$(ver_cut 2)-branch
@@ -106,7 +92,7 @@ src_unpack() {
 src_prepare() {
 	if [[ -n ${PATCH_VER} ]] ; then
 		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
-		eapply "${WORKDIR}/patch"/*.patch
+		eapply "${WORKDIR}/patches"
 	fi
 
 	# Fix cross-compile relinking issue, bug #626402
