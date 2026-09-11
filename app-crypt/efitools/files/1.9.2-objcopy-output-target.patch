@@ -1,0 +1,23 @@
+Use objcopy's --output-target when converting the ELF shared object to an
+EFI application. --target sets both the input and output format, so the
+ELF input is claimed to be efi-app-*. binutils 2.46 and newer check the
+input target strictly and reject it:
+
+  objcopy: HelloWorld.so: file format not recognized
+
+Gentoo and Debian carry the same one-line fix:
+https://bugs.gentoo.org/970040
+https://bugs.debian.org/1122408
+
+Context is kept to one line because src_prepare rewrites the adjacent
+LDFLAGS line before PATCHES are applied.
+
+BUG=b:553084273
+
+--- a/Make.rules
++++ b/Make.rules
+@@ -28,3 +28,3 @@
+ LOADLIBES	= -lefi -lgnuefi $(shell $(CC) $(ARCH3264) -print-libgcc-file-name)
+-FORMAT		= --target=efi-app-$(ARCH)
++FORMAT		= --output-target=efi-app-$(ARCH)
+ OBJCOPY		= objcopy

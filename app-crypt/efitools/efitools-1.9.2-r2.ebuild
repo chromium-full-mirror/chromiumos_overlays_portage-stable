@@ -29,6 +29,7 @@ DEPEND="${RDEPEND}
 
 PATCHES=(
 	"${FILESDIR}/1.7.0-Make.rules.patch"
+	"${FILESDIR}/1.9.2-objcopy-output-target.patch"
 )
 
 src_prepare() {
