@@ -10,4 +10,4 @@ RDEPEND=!static? ( dev-libs/openssl:0= ) sys-apps/util-linux
 SLOT=0
 SRC_URI=https://git.kernel.org/pub/scm/linux/kernel/git/jejb/efitools.git/snapshot/efitools-1.9.2.tar.gz
 _eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
-_md5_=070f4449e56a1628f6c0e2f964f7c40a
+_md5_=7c0bd3bc1d5ba413792c3e9af39aa6b1
