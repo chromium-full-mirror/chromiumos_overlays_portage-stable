@@ -1,0 +1,105 @@
+From: Raul E Rangel <rrangel@chromium.org>
+Subject: [PATCH] meson: report compiler sanity check errors
+
+Meson currently discards stdout and stderr of compiler sanity check
+executables to DEVNULL to silence Fortran's "Fortran compilation is working."
+banner. When a sanity check executable or exe_wrapper fails, this suppresses
+all error tracebacks and diagnostics, producing an uninformative error.
+
+Capture stdout and stderr using Popen_safe(cmdlist, cwd=work_dir).
+On success, remain quiet. On failure, include the command, exit code,
+and tail of stderr/stdout in EnvironmentException.
+
+BUG=b:320482846
+TEST=CQ
+---
+ mesonbuild/compilers/mixins/clike.py | 26 ++++++++++++++++++++++----
+ mesonbuild/compilers/rust.py         | 30 ++++++++++++++++++++++++++----
+ 2 files changed, 48 insertions(+), 8 deletions(-)
+
+diff --git a/mesonbuild/compilers/mixins/clike.py b/mesonbuild/compilers/mixins/clike.py
+index 1fddb0f..185dadd 100644
+--- a/mesonbuild/compilers/mixins/clike.py
++++ b/mesonbuild/compilers/mixins/clike.py
+@@ -317,12 +317,30 @@ class CLikeCompiler(Compiler):
+             cmdlist = [binary_name]
+         mlog.debug('Running test binary command: ', mesonlib.join_args(cmdlist))
+         try:
+-            # fortran code writes to stdout
+-            pe = subprocess.run(cmdlist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
++            pe, stdo, stde = mesonlib.Popen_safe(cmdlist, cwd=work_dir)
+         except Exception as e:
+             raise mesonlib.EnvironmentException(f'Could not invoke sanity test executable: {e!s}.')
++
++        mlog.debug('Sanity check test binary stdout:')
++        mlog.debug(stdo)
++        mlog.debug('-----\nSanity check test binary stderr:')
++        mlog.debug(stde)
++        mlog.debug('-----')
++
+         if pe.returncode != 0:
+-            raise mesonlib.EnvironmentException(f'Executables created by {self.language} compiler {self.name_string()} are not runnable.')
++            extra = ''
++            if stde:
++                stde_tail = '\n'.join(stde.strip().splitlines()[-40:])
++                extra += f'\nstderr:\n{stde_tail}'
++            if stdo:
++                stdo_tail = '\n'.join(stdo.strip().splitlines()[-40:])
++                extra += f'\nstdout:\n{stdo_tail}'
++            cmd_str = mesonlib.join_args(cmdlist)
++            raise mesonlib.EnvironmentException(
++                f'Executables created by {self.language} compiler {self.name_string()} are not runnable.\n'
++                f'Command: {cmd_str}\n'
++                f'Exit code: {pe.returncode}{extra}'
++            )
+ 
+     def sanity_check(self, work_dir: str, environment: 'Environment') -> None:
+         code = 'int main(void) { int class=0; return class; }\n'
+diff --git a/mesonbuild/compilers/rust.py b/mesonbuild/compilers/rust.py
+index 0ac07a8..ea24473 100644
+--- a/mesonbuild/compilers/rust.py
++++ b/mesonbuild/compilers/rust.py
+@@ -10,6 +10,7 @@ import re
+ import typing as T
+ 
+ from .. import options
++from .. import mesonlib, mlog
+ from ..mesonlib import EnvironmentException, MesonException, Popen_safe_logged, OptionKey
+ from .compilers import Compiler, clike_debug_args
+ 
+@@ -93,10 +94,31 @@ class RustCompiler(Compiler):
+             cmdlist = environment.exe_wrapper.get_command() + [output_name]
+         else:
+             cmdlist = [output_name]
+-        pe = subprocess.Popen(cmdlist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+-        pe.wait()
++        try:
++            pe, stdo, stde = mesonlib.Popen_safe(cmdlist, cwd=work_dir)
++        except Exception as e:
++            raise EnvironmentException(f'Could not invoke sanity test executable: {e!s}.')
++
++        mlog.debug('Sanity check test binary stdout:')
++        mlog.debug(stdo)
++        mlog.debug('-----\nSanity check test binary stderr:')
++        mlog.debug(stde)
++        mlog.debug('-----')
++
+         if pe.returncode != 0:
+-            raise EnvironmentException(f'Executables created by Rust compiler {self.name_string()} are not runnable.')
++            extra = ''
++            if stde:
++                stde_tail = '\n'.join(stde.strip().splitlines()[-40:])
++                extra += f'\nstderr:\n{stde_tail}'
++            if stdo:
++                stdo_tail = '\n'.join(stdo.strip().splitlines()[-40:])
++                extra += f'\nstdout:\n{stdo_tail}'
++            cmd_str = mesonlib.join_args(cmdlist)
++            raise EnvironmentException(
++                f'Executables created by Rust compiler {self.name_string()} are not runnable.\n'
++                f'Command: {cmd_str}\n'
++                f'Exit code: {pe.returncode}{extra}'
++            )
+ 
+     def _native_static_libs(self, work_dir: str, source_name: str) -> None:
+         # Get libraries needed to link with a Rust staticlib
+-- 
