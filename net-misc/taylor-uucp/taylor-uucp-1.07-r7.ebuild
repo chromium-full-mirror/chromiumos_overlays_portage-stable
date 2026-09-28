@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,11 +13,15 @@ S="${WORKDIR}/uucp-${PV}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
+IUSE="selinux"
+
+RDEPEND="selinux? ( sec-policy/selinux-uucp )"
 
 PATCHES=(
 	"${FILESDIR}"/${P}-gentoo.patch
 	"${FILESDIR}"/${P}-fprintf.patch
 	"${FILESDIR}"/${P}-remove-extern.patch
+	"${FILESDIR}"/${P}-modernc.patch
 )
 
 src_prepare() {
