@@ -1,18 +1,18 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit toolchain-funcs flag-o-matic
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/pauleggert.asc
+inherit toolchain-funcs flag-o-matic unpacker verify-sig
 
-MY_CODE_VER=${PV}
-MY_DATA_VER=${PV}
 DESCRIPTION="Timezone data (/usr/share/zoneinfo) and utilities (tzselect/zic/zdump)"
 HOMEPAGE="https://www.iana.org/time-zones"
 SRC_URI="
-	https://www.iana.org/time-zones/repository/releases/tzdata${MY_DATA_VER}.tar.gz
-	https://www.iana.org/time-zones/repository/releases/tzcode${MY_CODE_VER}.tar.gz
+	https://data.iana.org/time-zones/releases/tzdb-${PV}.tar.lz
+	verify-sig? ( https://data.iana.org/time-zones/releases/tzdb-${PV}.tar.lz.asc )
 "
+S="${WORKDIR}"/tzdb-${PV}
 
 LICENSE="BSD public-domain"
 SLOT="0"
@@ -24,22 +24,18 @@ RDEPEND="
 	${DEPEND}
 	!sys-libs/glibc[vanilla(+)]
 "
-
-PATCHES=(
-	"${FILESDIR}"/${P}-AsiaAlmaty.patch
-)
+BDEPEND="
+	$(unpacker_src_uri_depends)
+	verify-sig? ( sec-keys/openpgp-keys-pauleggert )
+"
 
 src_unpack() {
-	mkdir "${S}" && cd "${S}" || die
-	default
+	use verify-sig && verify-sig_src_unpack
+	unpacker tzdb-${PV}.tar.lz
 }
 
 src_prepare() {
 	default
-
-	# check_web contacts validator.w3.org
-	sed -i -e 's/check_tables check_web/check_tables/g' \
-		Makefile || die "Failed to disable check_web"
 
 	if tc-is-cross-compiler ; then
 		cp -pR "${S}" "${S}"-native || die
@@ -59,7 +55,7 @@ src_configure() {
 
 	append-cppflags -DHAVE_GETTEXT=$(usex nls 1 0) -DTZ_DOMAIN='\"libc\"'
 
-	# Upstream default is 'slim', but it breaks quite a few programs
+	# Upstream default is 'slim', but it breaks quite a few programs,
 	# that parse /etc/localtime directly: bug #747538.
 	append-cppflags -DZIC_BLOAT_DEFAULT='\"'$(usex zic-slim slim fat)'\"'
 
@@ -103,8 +99,8 @@ src_compile() {
 }
 
 src_test() {
-	# VALIDATE_ENV is used for extended/web based tests. Punt on them.
-	emake check VALIDATE_ENV=true
+	# CURL is used for extended/web based tests. Punt on them.
+	emake check CURL=:
 }
 
 src_install() {
@@ -121,31 +117,6 @@ src_install() {
 	dodoc CONTRIBUTING README NEWS *.html
 }
 
-get_TIMEZONE() {
-	local tz src="${EROOT}/etc/timezone"
-	if [[ -e ${src} ]] ; then
-		tz=$(sed -e 's:#.*::' -e 's:[[:space:]]*::g' -e '/^$/d' "${src}")
-	else
-		tz="FOOKABLOIE"
-	fi
-
-	[[ -z ${tz} ]] && return 1 || echo "${tz}"
-}
-
-pkg_preinst() {
-	local tz=$(get_TIMEZONE)
-	if [[ ${tz} == right/* || ${tz} == posix/* ]] ; then
-		eerror "The right & posix subdirs are no longer installed as subdirs -- they have been"
-		eerror "relocated to match upstream paths as sibling paths.  Further, posix/xxx is the"
-		eerror "same as xxx, so you should simply drop the posix/ prefix.  You also should not"
-		eerror "be using right/xxx for the system timezone as it breaks programs."
-		die "Please fix your timezone setting"
-	fi
-
-	# Trim the symlink by hand to avoid portage's automatic protection checks.
-	rm -f "${EROOT}"/usr/share/zoneinfo/posix
-}
-
 configure_tz_data() {
 	# Make sure the /etc/localtime file does not get stale, bug #127899
 	local tz src="${EROOT}/etc/timezone" etc_lt="${EROOT}/etc/localtime"
@@ -153,17 +124,23 @@ configure_tz_data() {
 	# If it's a symlink, assume the user knows what they're doing and
 	# they're managing it themselves, bug #511474
 	if [[ -L "${etc_lt}" ]] ; then
-		einfo "Assuming your ${etc_lt} symlink is what you want; skipping update."
+		einfo "Skipping update: ${etc_lt} is a symlink."
+		if [[ -e ${src} ]]; then
+			einfo "Removing ${src}."
+			rm "${src}"
+		fi
 		return 0
 	fi
 
-	if ! tz=$(get_TIMEZONE) ; then
-		einfo "Assuming your empty ${src} file is what you want; skipping update."
+	if [[ ! -e ${src} ]] ; then
+		einfo "Skipping update: ${src} does not exist."
 		return 0
 	fi
 
-	if [[ "${tz}" == "FOOKABLOIE" ]] ; then
-		einfo "You do not have a timezone set in ${src}; skipping update."
+	tz=$(sed -e 's:#.*::' -e 's:[[:space:]]*::g' -e '/^$/d' "${src}")
+
+	if [[ -z ${tz} ]]; then
+		einfo "Skipping update: ${src} is empty."
 		return 0
 	fi
 
@@ -178,7 +155,7 @@ configure_tz_data() {
 		# If a regular file already exists, copy over it.
 		ewarn "Found a regular file at ${etc_lt}."
 		ewarn "Some software may expect a symlink instead."
-		ewarn "You may convert it to a symlink by removing the file and running:"
+		ewarn "Convert it to a symlink by removing the file and running:"
 		ewarn "  emerge --config sys-libs/timezone-data"
 		einfo "Copying ${tzpath} to ${etc_lt}."
 		cp -f "${tzpath}" "${etc_lt}"
