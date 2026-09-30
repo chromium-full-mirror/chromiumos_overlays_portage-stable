@@ -9,6 +9,6 @@ KEYWORDS=*
 LICENSE=BSD public-domain
 RDEPEND=nls? ( virtual/libintl ) !sys-libs/glibc[vanilla(+)]
 SLOT=0
-SRC_URI=https://data.iana.org/time-zones/releases/tzdb-2026d.tar.lz verify-sig? ( https://data.iana.org/time-zones/releases/tzdb-2026d.tar.lz.asc )
+SRC_URI=https://data.iana.org/time-zones/releases/tzdb-2026e.tar.lz verify-sig? ( https://data.iana.org/time-zones/releases/tzdb-2026e.tar.lz.asc )
 _eclasses_=flag-o-matic	ad475baa777c9978fa035216c8264a10	multiprocessing	e5d48c933105327e0f826ce5108afc55	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a	unpacker	aa6a4e924009232d8b78b31e932c30b5	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
 _md5_=f4c3097e29bfd543fa93a4d546e76666
