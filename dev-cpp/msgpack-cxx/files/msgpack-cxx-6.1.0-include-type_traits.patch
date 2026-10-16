@@ -1,0 +1,19 @@
+Backport of upstream msgpack-c commit cbeb5805ccc835168cc7e175956de2622b91a4c5
+(PR https://github.com/msgpack/msgpack-c/pull/1162).
+
+msgpack-cxx: include <type_traits> in cpp_config_decl.hpp
+
+cpp_config_decl.hpp imports std::remove_volatile, std::remove_const,
+and other traits without including <type_traits>. With libc++ header
+modularization in LLVM 22+, these are no longer transitively included
+via <memory> or <tuple>.
+
+--- a/include/msgpack/v1/cpp_config_decl.hpp
++++ b/include/msgpack/v1/cpp_config_decl.hpp
+@@ -88,6 +88,7 @@
+ #include <memory>
+ #include <tuple>
++#include <type_traits>
+ 
+ namespace msgpack {
+ /// @cond

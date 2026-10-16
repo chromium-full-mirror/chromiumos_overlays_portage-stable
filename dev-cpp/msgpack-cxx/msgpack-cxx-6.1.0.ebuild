@@ -24,6 +24,10 @@ DEPEND="${RDEPEND}"
 BDEPEND="doc? ( app-doc/doxygen[dot] )
 	test? ( sys-libs/zlib )"
 
+PATCHES=(
+	"${FILESDIR}"/${P}-include-type_traits.patch
+)
+
 src_configure() {
 	local mycmakeargs=(
 		-DMSGPACK_BUILD_EXAMPLES=OFF
