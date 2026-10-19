@@ -1,2 +1,2 @@
-include chromiumos/overlays/chromiumos-overlay:/OWNERS.security
+include chromiumos/owners:v1:/security/OWNERS.packages
 include chromiumos/third_party/toolchain-utils:/OWNERS.toolchain
