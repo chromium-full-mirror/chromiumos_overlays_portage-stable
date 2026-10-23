@@ -126,6 +126,15 @@ src_compile() {
 	if ! ${PRECOMPILED} ; then
 		python_setup
 		local d="${S}/${PN}-${DEB_VER}/mozilla" c="usr/share/${PN}"
+		cat <<-EOF >> "${d}"/blacklist.txt || die
+		# https://bugs.gentoo.org/984601
+		"AAA Certificate Services"
+		"emSign Root TLS CA - G3"
+		"emSign ECC Root CA - G3"
+		# NSS CKA_LABEL as matched by certdata2pem.py (b/576474732)
+		"Comodo AAA Services root"
+		EOF
+
 		# Grab the database from the nss sources.
 		cp "${S}"/nss-${NSS_VER}/nss/lib/ckfw/builtins/{certdata.txt,nssckbi.h} "${d}" || die
 		emake -C "${d}"
