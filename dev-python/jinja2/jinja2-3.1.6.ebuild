@@ -1,13 +1,13 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-DISTUTILS_USE_PEP517=setuptools
+DISTUTILS_USE_PEP517=flit
 PYTHON_COMPAT=( python3_{8..12} )
 PYTHON_REQ_USE="threads(+)"
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="A full-featured template engine for Python"
 HOMEPAGE="
@@ -15,12 +15,6 @@ HOMEPAGE="
 	https://github.com/pallets/jinja/
 	https://pypi.org/project/Jinja2/
 "
-SRC_URI="
-	https://github.com/pallets/jinja/archive/${PV}.tar.gz
-		-> jinja-${PV}.gh.tar.gz
-"
-
-S="${WORKDIR}/jinja-${PV}"
 
 LICENSE="BSD"
 SLOT="0"
@@ -56,7 +50,7 @@ python_install_all() {
 }
 
 pkg_postinst() {
-	if ! has_version dev-python/Babel; then
-		elog "For i18n support, please emerge dev-python/Babel."
+	if ! has_version dev-python/babel; then
+		elog "For i18n support, please emerge dev-python/babel."
 	fi
 }

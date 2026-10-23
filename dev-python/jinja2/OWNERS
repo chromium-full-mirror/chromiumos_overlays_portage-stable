@@ -1,2 +1,1 @@
-# TODO: Add per-package OWNERS and delete this when done.
-*
+include chromiumos/owners:v1:/infra/OWNERS.build
