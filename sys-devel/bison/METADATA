@@ -1,0 +1,12 @@
+# Copyright 2026 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+third_party {
+  security {
+    # Not applicable to ChromeOS. Bison is a build-time dependency and is not
+    # shipped on the final production device (rootfs), so it does not expose
+    # users to any runtime risk.
+    mitigated_security_patch: "CVE-2026-56389"
+  }
+}
