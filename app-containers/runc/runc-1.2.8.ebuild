@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,7 +6,7 @@ inherit go-module linux-info
 
 # update on bump, look for https://github.com/docker\
 # docker-ce/blob/<docker ver OR branch>/components/engine/hack/dockerfile/install/runc.installer
-RUNC_COMMIT=51d5e94601ceffbbd85688df1c928ecccbfa4685
+RUNC_COMMIT=eeb7e6024f9ee43876301b1d23c353384fa6dcdd
 CONFIG_CHECK="~USER_NS"
 
 DESCRIPTION="runc container cli tools"
@@ -30,7 +30,7 @@ RDEPEND="
 
 BDEPEND="
 	dev-go/go-md2man
-	test? ( "${RDEPEND}" )
+	test? ( ${RDEPEND} )
 "
 
 # tests need busybox binary, and portage namespace
