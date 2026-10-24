@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # See `man savedconfig.eclass` for info on how to use USE=savedconfig.
@@ -22,7 +22,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2" # GPL-2 only
 SLOT="0"
-IUSE="debug livecd make-symlinks math mdev pam selinux sep-usr static syslog systemd"
+IUSE="debug livecd make-symlinks math mdev pam selinux sep-usr static syslog"
 REQUIRED_USE="pam? ( !static )"
 RESTRICT="test"
 
@@ -42,7 +42,6 @@ DEPEND="${RDEPEND}
 	)
 	sys-kernel/linux-headers"
 BDEPEND="virtual/pkgconfig"
-
 
 busybox_config_option() {
 	local flag=$1 ; shift
@@ -77,48 +76,68 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.26.2-bb.patch
 	"${FILESDIR}"/${PN}-1.34.1-skip-selinux-search.patch
 
-	"${FILESDIR}"/${PN}-1.36.0-fortify-source-3-fixdep.patch
+	"${FILESDIR}"/${PN}-1.36.1-kernel-6.8.patch
 
-	# "${FILESDIR}"/${P}-*.patch
+	"${FILESDIR}"/${PN}-1.37.0-skip-dynamic-relocations.patch
+
+	"${FILESDIR}"/${PN}-1.37.0-sha-ni-fix.patch
 )
 
 src_prepare() {
 	default
-	unset KBUILD_OUTPUT #88088
-	append-flags -fno-strict-aliasing #310413
-	use ppc64 && append-flags -mminimal-toc #130943
 
 	cp "${FILESDIR}"/ginit.c init/ || die
 
 	# flag cleanup
 	sed -i -r \
-		-e 's:[[:space:]]?-(Werror|Os|falign-(functions|jumps|loops|labels)=1|fomit-frame-pointer)\>::g' \
+		-e 's:[[:space:]]?-(Werror|Os|Oz|falign-(functions|jumps|loops|labels)=1|fomit-frame-pointer)\>::g' \
 		Makefile.flags || die
-	#sed -i '/bbsh/s:^//::' include/applets.h
-	sed -i '/^#error Aborting compilation./d' applets/applets.c || die
-	use elibc_glibc && sed -i 's:-Wl,--gc-sections::' Makefile
-	sed -i \
-		-e "/^CROSS_COMPILE/s:=.*:= ${CHOST}-:" \
-		-e "/^AR\>/s:=.*:= $(tc-getAR):" \
-		-e "/^CC\>/s:=.*:= $(tc-getCC):" \
-		-e "/^HOSTCC/s:=.*:= $(tc-getBUILD_CC):" \
-		-e "/^PKG_CONFIG\>/s:=.*:= $(tc-getPKG_CONFIG):" \
-		Makefile || die
 	sed -i \
 		-e 's:-static-libgcc::' \
 		Makefile.flags || die
 
 	# Print all link lines too
 	sed -i -e 's:debug=false:debug=true:' scripts/trylink || die
+
+	# Stub out optional doc generators if missing to prevent QA command-not-found failures.
+	local tool
+	for tool in pod2text pod2man pod2html; do
+		if ! type -P ${tool} >/dev/null; then
+			sed -i -e "s:${tool}.*:"'touch $@:' Makefile.custom || die
+		fi
+	done
+}
+
+bbmake() {
+	local args=(
+		V=1
+		CROSS_COMPILE="${CHOST}-"
+		AR="${AR}"
+		CC="${CC}"
+		HOSTCC="${BUILD_CC}"
+		HOSTCFLAGS="${BUILD_CFLAGS}"
+		PKG_CONFIG="${PKG_CONFIG}"
+	)
+	emake "${args[@]}" "$@"
 }
 
 src_configure() {
+	unset KBUILD_OUTPUT #88088
+	export SKIP_STRIP=y
+
+	tc-export AR CC BUILD_CC PKG_CONFIG
+
+	tc-is-cross-compiler || BUILD_CFLAGS=${CFLAGS}
+	BUILD_CFLAGS+=" -D_FILE_OFFSET_BITS=64" #930513
+
+	append-flags -fno-strict-aliasing #310413
+	use ppc64 && append-flags -mminimal-toc #130943
+
 	# check for a busybox config before making one of our own.
 	# if one exist lets return and use it.
-
 	restore_config .config
 	if [ -f .config ]; then
-		yes "" | emake -j1 -s oldconfig >/dev/null
+		yes "" | bbmake -j1 oldconfig
 		return 0
 	else
 		ewarn "Could not locate user configfile, so we will save a default one"
@@ -127,11 +146,11 @@ src_configure() {
 	# setting SKIP_SELINUX skips searching for selinux at this stage. We don't
 	# need to search now in case we end up not needing it after all.
 	# setup the config file
-	emake -j1 -s allyesconfig SKIP_SELINUX=$(usex selinux n y) >/dev/null #620918
-	# nommu forces a bunch of things off which we want on #387555
+	bbmake -j1 allyesconfig SKIP_SELINUX=$(usex selinux n y) # bug #620918
+	# nommu forces a bunch of things off which we want on bug #387555
 	busybox_config_option n NOMMU
 	sed -i '/^#/d' .config
-	yes "" | emake -j1 -s oldconfig SKIP_SELINUX=$(usex selinux n y) >/dev/null #620918
+	yes "" | bbmake -j1 oldconfig SKIP_SELINUX=$(usex selinux n y) #620918
 
 	# now turn off stuff we really don't want
 	busybox_config_option n DMALLOC
@@ -146,7 +165,7 @@ src_configure() {
 	# CONFIG_MODPROBE_SMALL=y disables depmod.c and uses a smaller one that
 	# does not support -b. Setting this to no creates slightly larger and
 	# slightly more useful modutils
-	busybox_config_option n MODPROBE_SMALL #472464
+	busybox_config_option n MODPROBE_SMALL # bug #472464
 	# triming the BSS size may be dangerous
 	busybox_config_option n FEATURE_USE_BSS_TAIL
 
@@ -178,7 +197,6 @@ src_configure() {
 	busybox_config_option pam PAM
 	busybox_config_option static STATIC
 	busybox_config_option syslog {K,SYS}LOGD LOGGER
-	busybox_config_option systemd FEATURE_SYSTEMD
 	busybox_config_option math FEATURE_AWK_LIBM
 
 	# all the debug options are compiler related, so punt them
@@ -221,21 +239,18 @@ src_configure() {
 		busybox_config_option n ${opt}
 	done
 
-	emake -j1 oldconfig > /dev/null
+	bbmake -j1 oldconfig
 }
 
 src_compile() {
-	unset KBUILD_OUTPUT #88088
-	export SKIP_STRIP=y
-
-	emake V=1 busybox
+	bbmake busybox
 
 	# bug #701512
-	emake V=1 doc
+	bbmake doc
 }
 
 src_install() {
-	unset KBUILD_OUTPUT #88088
+	unset KBUILD_OUTPUT # bug #88088
 	save_config .config
 
 	into /
@@ -255,7 +270,7 @@ src_install() {
 		use make-symlinks || dosym /bin/bb /sbin/mdev
 		cp "${S}"/examples/mdev_fat.conf "${ED}"/etc/mdev.conf || die
 		if [[ ! "$(get_libdir)" == "lib" ]]; then
-			#831251 - replace lib with lib64 where appropriate
+			# bug #831251 - replace lib with lib64 where appropriate
 			sed -i -e "s:/lib/:/$(get_libdir)/:g" "${ED}"/etc/mdev.conf || die
 		fi
 
@@ -304,7 +319,7 @@ src_install() {
 	fi
 
 	# bundle up the symlink files for use later
-	emake DESTDIR="${ED}" install
+	bbmake DESTDIR="${ED}" install
 	# for compatibility, provide /usr/bin/env
 	mkdir -p _install/usr/bin || die
 	if [[ ! -e _install/usr/bin/env ]]; then
@@ -332,11 +347,13 @@ src_install() {
 
 	cd ../networking || die
 	dodoc httpd_indexcgi.c httpd_post_upload.cgi
+
 }
 
 pkg_preinst() {
 	if use make-symlinks ; then
 		mv "${ED}"/usr/share/${PN}/busybox-links.tar "${T}"/ || die
+		rmdir "${ED}"/usr/share/${PN} || die
 	fi
 }
 
@@ -345,10 +362,9 @@ pkg_postinst() {
 
 	if use make-symlinks ; then
 		cd "${T}" || die
-		mkdir _install
+		mkdir -p _install || die
 		tar xf busybox-links.tar -C _install || die
 		# 907432: cp -n returns error if it skips any file, but that is expected here
-		# TODO: check if a new coreutils release has a replacement option
 		cp -nvpPR _install/* "${ROOT}"/
 	fi
 
@@ -361,4 +377,5 @@ pkg_postinst() {
 		elog "To get a rescue shell, you may boot with:"
 		elog "     init=/ginit bb"
 	fi
+
 }
