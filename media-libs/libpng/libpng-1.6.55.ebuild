@@ -1,19 +1,19 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 inherit libtool multilib-minimal flag-o-matic
 
-APNG_REPO=apng # sometimes libpng-apng is more up to date
-APNG_VERSION="1.6.43"
+APNG_REPO=libpng-apng # sometimes libpng-apng is more up to date
+APNG_VERSION="1.6.54"
 DESCRIPTION="Portable Network Graphics library"
-HOMEPAGE="http://www.libpng.org/"
+HOMEPAGE="https://www.libpng.org/"
 SRC_URI="
 	https://downloads.sourceforge.net/${PN}/${P}.tar.xz
 	apng? (
-		https://downloads.sourceforge.net/${APNG_REPO}/${PN}$(ver_rs 1-2 '' $(ver_cut 1-2 ${APNG_VERSION}))/${PV}/${PN}-${APNG_VERSION}-apng.patch.gz -> ${PN}-${APNG_VERSION}-${APNG_REPO}-apng.patch.gz
-		https://downloads.sourceforge.net/${APNG_REPO}/${PN}$(ver_rs 1-2 '' $(ver_cut 1-2 ${APNG_VERSION}))/${PN}-${APNG_VERSION}-apng.patch.gz -> ${PN}-${APNG_VERSION}-${APNG_REPO}-apng.patch.gz
+		https://downloads.sourceforge.net/${APNG_REPO}/${PN}$(ver_rs 1-2 '' "$(ver_cut 1-2 "${APNG_VERSION}")")/${PV}/${PN}-${APNG_VERSION}-apng.patch.gz -> ${PN}-${APNG_VERSION}-${APNG_REPO}-apng.patch.gz
+		https://downloads.sourceforge.net/${APNG_REPO}/${PN}$(ver_rs 1-2 '' "$(ver_cut 1-2 "${APNG_VERSION}")")/${PN}-${APNG_VERSION}-apng.patch.gz -> ${PN}-${APNG_VERSION}-${APNG_REPO}-apng.patch.gz
 	)
 "
 
