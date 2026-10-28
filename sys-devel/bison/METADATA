@@ -4,9 +4,10 @@
 
 third_party {
   security {
-    # Not applicable to ChromeOS. Bison is a build-time dependency and is not
-    # shipped on the final production device (rootfs), so it does not expose
-    # users to any runtime risk.
+    # CVE-2026-56389 is about exploiting HTML report generation (--html) when
+    # running bison on untrusted inputs. It does not affect the generated parser
+    # code shipped on ChromeOS devices, and bison itself is only run in the SDK
+    # on trusted source trees.
     mitigated_security_patch: "CVE-2026-56389"
   }
 }
