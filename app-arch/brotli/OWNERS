@@ -1,2 +1,2 @@
-# TODO: Add per-package OWNERS and delete this when done.
-*
+# Used by AU packages.
+include chromiumos/owners:v1:/platform/OWNERS.au
