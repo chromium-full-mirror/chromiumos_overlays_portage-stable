@@ -3,28 +3,31 @@
 
 EAPI=7
 
-inherit libtool multilib-minimal flag-o-matic
+inherit dot-a libtool multilib-minimal
 
 APNG_REPO=libpng-apng # sometimes libpng-apng is more up to date
-APNG_VERSION="1.6.54"
+APNG_VERSION="1.6.59"
 DESCRIPTION="Portable Network Graphics library"
 HOMEPAGE="https://www.libpng.org/"
 SRC_URI="
 	https://downloads.sourceforge.net/${PN}/${P}.tar.xz
 	apng? (
-		https://downloads.sourceforge.net/${APNG_REPO}/${PN}$(ver_rs 1-2 '' "$(ver_cut 1-2 "${APNG_VERSION}")")/${PV}/${PN}-${APNG_VERSION}-apng.patch.gz -> ${PN}-${APNG_VERSION}-${APNG_REPO}-apng.patch.gz
-		https://downloads.sourceforge.net/${APNG_REPO}/${PN}$(ver_rs 1-2 '' "$(ver_cut 1-2 "${APNG_VERSION}")")/${PN}-${APNG_VERSION}-apng.patch.gz -> ${PN}-${APNG_VERSION}-${APNG_REPO}-apng.patch.gz
+		https://downloads.sourceforge.net/${APNG_REPO}/${PN}$(ver_rs 1-2 '' $(ver_cut 1-2 ${APNG_VERSION}))/${APNG_VERSION}/${PN}-${APNG_VERSION}-apng.patch.gz -> ${PN}-${APNG_VERSION}-${APNG_REPO}-apng.patch.gz
+		https://downloads.sourceforge.net/${APNG_REPO}/${PN}$(ver_rs 1-2 '' $(ver_cut 1-2 ${APNG_VERSION}))/${PN}-${APNG_VERSION}-apng.patch.gz -> ${PN}-${APNG_VERSION}-${APNG_REPO}-apng.patch.gz
 	)
 "
 
 LICENSE="libpng2"
 SLOT="0/16"
 KEYWORDS="*"
-IUSE="apng cpu_flags_arm_neon cpu_flags_x86_sse static-libs test"
+IUSE="apng cpu_flags_x86_sse static-libs test"
 RESTRICT="!test? ( test )"
 
-RDEPEND=">=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]"
-DEPEND="${RDEPEND}"
+RDEPEND=">=virtual/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]"
+DEPEND="
+	${RDEPEND}
+	riscv? ( sys-kernel/linux-headers )
+"
 
 DOCS=( ANNOUNCE CHANGES libpng-manual.txt README TODO )
 
@@ -51,13 +54,15 @@ src_prepare() {
 	elibtoolize
 }
 
-multilib_src_configure() {
-	append-lfs-flags
+src_configure() {
+	lto-guarantee-fat
+	multilib-minimal_src_configure
+}
 
+multilib_src_configure() {
 	local myeconfargs=(
 		$(multilib_native_enable tools)
 		$(use_enable test tests)
-		$(use_enable cpu_flags_arm_neon arm-neon)
 		$(use_enable cpu_flags_x86_sse intel-sse)
 		$(use_enable static-libs static)
 	)
@@ -68,5 +73,6 @@ multilib_src_configure() {
 multilib_src_install_all() {
 	default
 
+	strip-lto-bytecode
 	find "${ED}" \( -type f -o -type l \) -name '*.la' -delete || die
 }
