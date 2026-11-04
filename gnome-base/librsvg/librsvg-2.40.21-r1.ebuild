@@ -1,11 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 GNOME2_EAUTORECONF="yes"
-VALA_USE_DEPEND="vapigen"
 
-inherit autotools gnome2 multilib-minimal vala
+inherit gnome2 multilib-minimal vala
 
 DESCRIPTION="Scalable Vector Graphics (SVG) rendering library"
 HOMEPAGE="https://wiki.gnome.org/Projects/LibRsvg"
@@ -20,11 +19,11 @@ REQUIRED_USE="vala? ( introspection )"
 RDEPEND="
 	>=dev-libs/glib-2.34.3:2[${MULTILIB_USEDEP}]
 	>=dev-libs/libcroco-0.6.8-r1[${MULTILIB_USEDEP}]
-	>=dev-libs/libxml2-2.9.1-r4:2[${MULTILIB_USEDEP}]
+	>=dev-libs/libxml2-2.9.1-r4:2=[${MULTILIB_USEDEP}]
 	>=x11-libs/cairo-1.12.14-r4[${MULTILIB_USEDEP}]
 	>=x11-libs/gdk-pixbuf-2.30.7:2[introspection?,${MULTILIB_USEDEP}]
 	>=x11-libs/pango-1.38.0[${MULTILIB_USEDEP}]
-	introspection? ( >=dev-libs/gobject-introspection-0.10.8:= )
+	introspection? ( >=dev-libs/gobject-introspection-1.82.0-r2:= )
 	tools? ( >=x11-libs/gtk+-3.10.0:3 )
 "
 DEPEND="${RDEPEND}"
@@ -49,6 +48,7 @@ RESTRICT="test" # Lots of issues due to freetype changes and more; ever since ne
 PATCHES=(
 	# https://bugzilla.gnome.org/show_bug.cgi?id=653323
 	"${FILESDIR}/${PN}-2.40.12-gtk-optional.patch"
+	"${FILESDIR}/${P}-libxml-2.14.6.patch"
 )
 
 src_prepare() {
