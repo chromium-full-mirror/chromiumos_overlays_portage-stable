@@ -1,11 +1,11 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 # Note: Please bump this in sync with dev-libs/libxml2.
 
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_{11..14} )
 inherit python-r1 multilib-minimal
 
 DESCRIPTION="XSLT libraries and tools"
@@ -15,21 +15,23 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit autotools git-r3
 else
 	inherit libtool gnome.org
+	SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-patches.tar.xz"
+
 	KEYWORDS="*"
 fi
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="crypt debug examples python static-libs"
+IUSE="crypt debug debugger examples python static-libs"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 BDEPEND=">=virtual/pkgconfig-1"
 RDEPEND="
-	>=dev-libs/libxml2-2.13:2[${MULTILIB_USEDEP}]
+	>=dev-libs/libxml2-2.13:2=[${MULTILIB_USEDEP}]
 	crypt? ( >=dev-libs/libgcrypt-1.5.3:=[${MULTILIB_USEDEP}] )
 	python? (
 		${PYTHON_DEPS}
-		>=dev-libs/libxml2-2.13:2[${MULTILIB_USEDEP},python,${PYTHON_USEDEP}]
+		>=dev-libs/libxml2-2.13:2=[${MULTILIB_USEDEP},python,${PYTHON_USEDEP}]
 	)
 "
 DEPEND="${RDEPEND}"
@@ -40,6 +42,10 @@ MULTILIB_CHOST_TOOLS=(
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/libxslt/xsltconfig.h
+)
+
+PATCHES=(
+	"${WORKDIR}"/${P}-patches/
 )
 
 src_prepare() {
@@ -59,6 +65,7 @@ multilib_src_configure() {
 			--without-python \
 			$(use_with crypt crypto) \
 			$(use_with debug) \
+			$(use_with debugger) \
 			$(use_enable static-libs static) \
 			"$@"
 	}
