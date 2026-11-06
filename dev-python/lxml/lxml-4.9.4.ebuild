@@ -1,11 +1,11 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{8..11} pypy3 )
+PYTHON_COMPAT=( python3_{10..12} pypy3 )
 
 inherit distutils-r1 optfeature toolchain-funcs
 
@@ -18,6 +18,7 @@ HOMEPAGE="
 SRC_URI="
 	https://github.com/lxml/lxml/archive/${P}.tar.gz
 		-> ${P}.gh.tar.gz
+	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-4.9.3-patches-2.tar.xz
 "
 S=${WORKDIR}/lxml-${P}
 
@@ -29,16 +30,15 @@ RESTRICT="!test? ( test )"
 
 # Note: lib{xml2,xslt} are used as C libraries, not Python modules.
 DEPEND="
-	${PYTHON_DEPS}
-	>=dev-libs/libxml2-2.9.12-r2
-	>=dev-libs/libxslt-1.1.28
+	>=dev-libs/libxml2-2.10.3:=
+	>=dev-libs/libxslt-1.1.38
 "
 RDEPEND="
 	${DEPEND}
 "
 BDEPEND="
 	virtual/pkgconfig
-	>=dev-python/cython-0.29.29[${PYTHON_USEDEP}]
+	>=dev-python/cython-0.29.35[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
 			dev-python/docutils[${PYTHON_USEDEP}]
@@ -53,7 +53,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-4.6.0-tests-pypy.patch
+	"${WORKDIR}"/${PN}-4.9.3-patches-2
 )
 
 python_check_deps() {
@@ -72,13 +72,14 @@ python_prepare_all() {
 	sed -i -e '/_ldflags =/s/=.*isysroot.*darwin.*None/= None/' \
 		setupinfo.py || die
 
-	# sys.argv[0] will be "gpep517"
-	sed -i -Ee 's/sys\.argv\[0\]/__file__/g' versioninfo.py
-
 	distutils-r1_python_prepare_all
 }
 
 python_compile() {
+	local DISTUTILS_ARGS=(
+		# by default it adds -w to CFLAGS
+		--warnings
+	)
 	tc-export PKG_CONFIG
 	distutils-r1_python_compile
 }
