@@ -1,0 +1,26 @@
+Backport of upstream lshw commit 48dcadf9150f752521756daafdc078f73fe93505
+(https://github.com/lyonel/lshw/commit/48dcadf9150f752521756daafdc078f73fe93505,
+https://ezix.org/project/ticket/841).
+
+From 48dcadf9150f752521756daafdc078f73fe93505 Mon Sep 17 00:00:00 2001
+From: Lyonel Vincent <lyonel@ezix.org>
+Date: Wed, 28 Oct 2026 23:42:39 +0100
+Subject: [PATCH] add explicit stdlib import
+
+cf. #841
+---
+ src/core/spd.cc | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/core/spd.cc b/src/core/spd.cc
+index babdf1bd..0d478382 100644
+--- a/src/core/spd.cc
++++ b/src/core/spd.cc
+@@ -5,6 +5,7 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <unistd.h>
++#include <stdlib.h>
+ #include <string.h>
+ #include <string>
+ #include <dirent.h>

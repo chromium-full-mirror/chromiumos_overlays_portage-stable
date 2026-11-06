@@ -32,7 +32,10 @@ S=${WORKDIR}/${PN}
 
 DOCS=( COPYING README.md docs/{Changelog,TODO,IODC.txt,lshw.xsd,proc_usb_info.txt} )
 
-PATCHES=( "${FILESDIR}"/lshw-02.19.2b-respect-LDFLAGS.patch )
+PATCHES=(
+	"${FILESDIR}"/lshw-02.19.2b-respect-LDFLAGS.patch
+	"${FILESDIR}"/lshw-02.19.2b-spd-include-stdlib.patch
+)
 
 src_prepare() {
 	default
