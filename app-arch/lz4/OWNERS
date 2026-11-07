@@ -1,2 +1,2 @@
-# TODO: Add per-package OWNERS and delete this when done.
-*
+# Build team covers usage in the SDK only.
+include chromiumos/owners:v1:/infra/OWNERS.build
