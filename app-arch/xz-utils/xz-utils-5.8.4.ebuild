@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Remember: we cannot leverage autotools in this ebuild in order
@@ -6,7 +6,7 @@
 
 EAPI=7
 
-inherit libtool multilib multilib-minimal preserve-libs toolchain-funcs
+inherit dot-a flag-o-matic libtool multilib multilib-minimal preserve-libs toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	# Per tukaani.org, git.tukaani.org is a mirror of github and
@@ -28,11 +28,9 @@ else
 		https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz
 		https://downloads.sourceforge.net/lzmautils/${MY_P}.tar.gz
 		https://tukaani.org/xz/${MY_P}.tar.gz
-		https://tukaani.org/xz/xz-cve-2025-31115.patch
 		verify-sig? (
 			https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz.sig
 			https://tukaani.org/xz/${MY_P}.tar.gz.sig
-			https://tukaani.org/xz/xz-cve-2025-31115.patch.sig
 		)
 	"
 
@@ -55,10 +53,6 @@ if [[ ${PV} != 9999 ]] ; then
 	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-lassecollin-20250313 )"
 fi
 
-PATCHES=(
-	"${DISTDIR}"/xz-cve-2025-31115.patch
-)
-
 src_prepare() {
 	default
 
@@ -69,6 +63,11 @@ src_prepare() {
 		# Allow building shared libs on Solaris/x64
 		elibtoolize
 	fi
+}
+
+src_configure() {
+	use static-libs && lto-guarantee-fat
+	multilib-minimal_src_configure
 }
 
 multilib_src_configure() {
@@ -113,8 +112,16 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	local pgo_generate_flags=$(usev pgo "-fprofile-update=atomic -fprofile-dir=${T}/${ABI}-pgo -fprofile-generate=${T}/${ABI}-pgo")
-	local pgo_use_flags=$(usev pgo "-fprofile-use=${T}/${ABI}-pgo -fprofile-dir=${T}/${ABI}-pgo")
+	# -fprofile-partial-training because upstream note the test suite isn't super comprehensive
+	# TODO: revisit that now we have the tar/xz loop below?
+	# See https://documentation.suse.com/sbp/all/html/SBP-GCC-10/index.html#sec-gcc10-pgo
+	local pgo_generate_flags=""
+	local pgo_use_flags=""
+	if use pgo ; then
+		local partial_training=$(test-flags-CC -fprofile-partial-training)
+		pgo_generate_flags="-fprofile-update=atomic -fprofile-dir=${T}/${ABI}-pgo -fprofile-generate=${T}/${ABI}-pgo ${partial_training}"
+		pgo_use_flags="-fprofile-use=${T}/${ABI}-pgo -fprofile-dir=${T}/${ABI}-pgo ${partial_training}"
+	fi
 
 	emake CFLAGS="${CFLAGS} ${pgo_generate_flags}"
 
@@ -151,14 +158,14 @@ multilib_src_compile() {
 				# https://packages.altlinux.org/en/sisyphus/srpms/xz/specfiles/#line-80
 				'-0 -C none'
 				'-2 -C crc32'
-				"$(usev extra-filters '-6 --arm --lzma2 -C crc64')"
-				"$(usev extra-filters '-6 --x86 --lzma2=lc=4 -C sha256')"
+				"$(usex extra-filters '-6 --arm --lzma2 -C crc64' '')"
+				"$(usex extra-filters '-6 --x86 --lzma2=lc=4 -C sha256' '')"
 				'-7e --format=lzma'
 
 				# Our own variants
 				''
 				'-e'
-				"$(usev extra-filters '--x86 --lzma2=preset=6e')"
+				"$(usex extra-filters '--x86 --lzma2=preset=6e' '')"
 			)
 			local test_variant
 			for test_variant in "${test_variants[@]}" ; do
@@ -182,13 +189,15 @@ multilib_src_install() {
 
 	# bug #934370 and bug #450436 (and bug #934515)
 	if ! tc-is-static-only && [[ ! -f "${ED}/usr/$(get_libdir)/liblzma$(get_libname)" ]] ; then
-		eerror "Sanity check for liblzma$(get_libname) failed."
+		eerror "Sanity check for liblzma$(get_libname) failed." # nocheck
 		eerror "Shared library wasn't built, possible libtool bug"
 		[[ -z ${I_KNOW_WHAT_I_AM_DOING} ]] && die "liblzma$(get_libname) not found in build, aborting"
 	fi
 }
 
 multilib_src_install_all() {
+	strip-lto-bytecode
+
 	find "${ED}" -type f -name '*.la' -delete || die
 
 	if use doc ; then
