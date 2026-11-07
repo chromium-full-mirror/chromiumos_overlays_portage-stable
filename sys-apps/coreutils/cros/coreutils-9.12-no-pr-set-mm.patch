@@ -1,0 +1,26 @@
+Do not call prctl(PR_SET_MM, PR_SET_MM_ARG_START, ...) in multicall mode:
+1. ChromeOS minijail seccomp policies for multicall coreutils tools
+   (e.g. cros_healthd healthd_rm, os_install_service) allow PR_SET_NAME
+   and kill PR_SET_MM with SIGSYS.
+2. secagentd captures mm->arg_start..mm->arg_end via eBPF at
+   sched_process_exec time; mutating mm->arg_start afterwards when
+   running with CAP_SYS_RESOURCE causes /proc/<pid>/cmdline to diverge
+   from the exec event (breaking secagentd.ProcessEvents).
+
+Bug: b/583049119
+
+--- a/src/coreutils.c
++++ b/src/coreutils.c
+@@ -116,12 +116,6 @@ launch_program (char const *prog_name, int prog_argc, char **prog_argv)
+   /* Not being able to set the program name is not a fatal error.  */
+   prctl (PR_SET_NAME, prog_argv[0]);
+ #endif
+-#if HAVE_PRCTL && defined PR_SET_MM_ARG_START
+-  /* Shift the beginning of the command line to prog_argv[0] (if set) so
+-     /proc/$pid/cmdline reflects a more specific value.  Note one needs
+-     CAP_SYS_RESOURCE or root privileges for this to succeed.  */
+-  prctl (PR_SET_MM, PR_SET_MM_ARG_START, prog_argv[0], 0, 0);
+-#endif
+ 
+   exit (prog_main (prog_argc, prog_argv));
+ }

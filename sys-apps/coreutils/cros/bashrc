@@ -1,0 +1,28 @@
+# Copyright 2026 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# See b/583049119 for details on these ChromeOS overrides.
+
+cros_pre_src_prepare_patches() {
+	eapply "${CROS_FILES_DIR}/coreutils-9.12-no-pr-set-mm.patch"
+}
+
+cros_pre_src_configure_overrides() {
+	# Avoid sandbox-2.29 ENAMETOOLONG on confdir3 (>PATH_MAX) during configure.
+	export gl_cv_func_getcwd_path_max=yes
+
+	# ChromeOS linux-headers backported __NR_mseal (462) without __NR_fchmodat2
+	# (452), so minijail kills glibc's fchmodat2 probe with SIGSYS instead of
+	# returning ENOSYS. Force gnulib's O_PATH + /proc/self/fd fallback.
+	export ac_cv_func_lchmod=no
+	export gl_cv_func_fchmodat_works=no
+
+	# ChromeOS minijail policies default to SECCOMP_RET_TRAP (SIGSYS) and
+	# sandboxed helpers (e.g. cupsd foomatic_shell) invoke cat without allowing
+	# splice/vmsplice or copy_file_range. Disable both so utilities fall back to
+	# read/write; cp still uses ioctl(FICLONE) for CoW reflinks on btrfs/XFS.
+	export ac_cv_func_vmsplice=no
+	export ac_cv_func_copy_file_range=no
+	export gl_cv_func_copy_file_range=no
+}
