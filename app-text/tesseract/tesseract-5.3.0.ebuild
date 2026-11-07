@@ -39,6 +39,7 @@ DEPEND="${COMMON_DEPEND}
 
 PATCHES=(
 	"${FILESDIR}"/${P}-gcc-13.patch
+	"${FILESDIR}"/${P}-cstdlib.patch
 )
 
 pkg_pretend() {
