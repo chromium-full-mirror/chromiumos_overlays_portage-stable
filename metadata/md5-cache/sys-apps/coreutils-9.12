@@ -1,0 +1,15 @@
+BDEPEND=app-arch/xz-utils dev-lang/perl sys-apps/help2man sys-apps/texinfo test? ( dev-debug/strace dev-lang/perl || ( >=dev-lang/python-3.11.0_p2:3.11 dev-lang/python:3.12 dev-lang/python:3.13 dev-lang/python:3.14 ) ) verify-sig? ( sec-keys/openpgp-keys-coreutils ) verify-sig? ( app-crypt/gnupg >=app-portage/gemato-16 )
+DEFINED_PHASES=configure install postinst prepare setup test unpack
+DEPEND=!static? ( acl? ( sys-apps/acl ) caps? ( sys-libs/libcap ) gmp? ( dev-libs/gmp:= ) openssl? ( dev-libs/openssl:= ) xattr? ( sys-apps/attr ) ) selinux? ( sys-libs/libselinux ) nls? ( virtual/libintl ) static? ( acl? ( sys-apps/acl[static-libs] ) caps? ( sys-libs/libcap ) gmp? ( dev-libs/gmp:=[static-libs] ) openssl? ( dev-libs/openssl:=[static-libs] ) xattr? ( sys-apps/attr[static-libs] ) )
+DESCRIPTION=Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)
+EAPI=7
+HOMEPAGE=https://www.gnu.org/software/coreutils/
+IUSE=acl caps gmp hostname kill multicall nls +openssl selinux +split-usr static test test-full vanilla xattr verify-sig
+KEYWORDS=*
+LICENSE=GPL-3+
+RDEPEND=!static? ( acl? ( sys-apps/acl ) caps? ( sys-libs/libcap ) gmp? ( dev-libs/gmp:= ) openssl? ( dev-libs/openssl:= ) xattr? ( sys-apps/attr ) ) selinux? ( sys-libs/libselinux ) nls? ( virtual/libintl ) hostname? ( !sys-apps/net-tools[hostname] ) kill? ( !sys-apps/util-linux[kill] !sys-process/procps[kill] ) !<app-forensics/tct-1.18-r1 !<net-fs/netatalk-2.0.3-r4 !net-mail/base64 !sys-apps/mktemp !<sys-apps/sandbox-2.10-r4 !sys-apps/stat !<sys-apps/util-linux-2.13
+RESTRICT=!test? ( test )
+SLOT=0
+SRC_URI=mirror://gnu/coreutils/coreutils-9.12.tar.xz verify-sig? ( mirror://gnu/coreutils/coreutils-9.12.tar.xz.sig ) !vanilla? ( https://distfiles.gentoo.org/pub/dev/sam@gentoo.org/sys-apps/coreutils/coreutils-9.12-patches.tar.xz )
+_eclasses_=branding	2a6fed62c79b3e2f7edc5293648f929c	eapi8-dosym	cd7d420bb5be5ee079f27239ce76b8f5	flag-o-matic	ad475baa777c9978fa035216c8264a10	multiprocessing	e5d48c933105327e0f826ce5108afc55	python-any-r1	f2f00fb79b5e888b5011d4c51240ae97	python-utils-r1	b471b2f540e984d2b7ef320db3cb42d9	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a	verify-sig	40b4f4f782cf67118f594ce604cc4c0a
+_md5_=3490286702373313a25e0931e17f939d
