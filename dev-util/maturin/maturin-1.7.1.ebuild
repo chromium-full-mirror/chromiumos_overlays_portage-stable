@@ -440,6 +440,10 @@ QA_FLAGS_IGNORED="usr/bin/${PN}"
 src_prepare() {
 	distutils-r1_src_prepare
 
+	pushd "${ECARGO_VENDOR}/minijinja-1.0.21" >/dev/null || die
+	eapply "${FILESDIR}/${P}-minijinja-trait-solver.patch"
+	popd >/dev/null || die
+
 	# we build the Rust executable (just once) via cargo_src_compile
 	sed -i -e '/setuptools_rust/d' -e '/rust_extensions/d' setup.py || die
 

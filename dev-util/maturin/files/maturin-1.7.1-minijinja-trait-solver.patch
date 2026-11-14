@@ -1,0 +1,259 @@
+From 4bb117b47c9db36a84ed0cb02d061acd89d34aa4 Mon Sep 17 00:00:00 2001
+From: Armin Ronacher <armin.ronacher@active-4.com>
+Date: Tue, 6 May 2025 12:09:11 +0200
+Subject: [PATCH] Backport of #787
+
+UPSTREAM-URL: https://github.com/mitsuhiko/minijinja/pull/790
+UPSTREAM-URL: https://github.com/mitsuhiko/minijinja/pull/787
+(cherry picked from commit 4bb117b47c9db36a84ed0cb02d061acd89d34aa4)
+---
+diff --git a/src/environment.rs b/src/environment.rs
+index b327b045e..805f357d9 100644
+--- a/src/environment.rs
++++ b/src/environment.rs
+@@ -676,9 +676,7 @@ impl<'source> Environment<'source> {
+     pub fn add_filter<N, F, Rv, Args>(&mut self, name: N, f: F)
+     where
+         N: Into<Cow<'source, str>>,
+-        // the crazy bounds here exist to enable borrowing in closures
+-        F: filters::Filter<Rv, Args>
+-            + for<'a> filters::Filter<Rv, <Args as FunctionArgs<'a>>::Output>,
++        F: filters::Filter<Rv, Args>,
+         Rv: FunctionResult,
+         Args: for<'a> FunctionArgs<'a>,
+     {
+@@ -699,8 +697,7 @@ impl<'source> Environment<'source> {
+     pub fn add_test<N, F, Rv, Args>(&mut self, name: N, f: F)
+     where
+         N: Into<Cow<'source, str>>,
+-        // the crazy bounds here exist to enable borrowing in closures
+-        F: tests::Test<Rv, Args> + for<'a> tests::Test<Rv, <Args as FunctionArgs<'a>>::Output>,
++        F: tests::Test<Rv, Args>,
+         Rv: tests::TestResult,
+         Args: for<'a> FunctionArgs<'a>,
+     {
+@@ -721,9 +718,7 @@ impl<'source> Environment<'source> {
+     pub fn add_function<N, F, Rv, Args>(&mut self, name: N, f: F)
+     where
+         N: Into<Cow<'source, str>>,
+-        // the crazy bounds here exist to enable borrowing in closures
+-        F: functions::Function<Rv, Args>
+-            + for<'a> functions::Function<Rv, <Args as FunctionArgs<'a>>::Output>,
++        F: functions::Function<Rv, Args>,
+         Rv: FunctionResult,
+         Args: for<'a> FunctionArgs<'a>,
+     {
+diff --git a/src/filters.rs b/src/filters.rs
+index 9dc90ebc0..722e269a3 100644
+--- a/src/filters.rs
++++ b/src/filters.rs
+@@ -199,28 +199,47 @@ pub(crate) struct BoxedFilter(Arc<FilterFunc>);
+ /// ```jinja
+ /// {{ "|".join(1, 2, 3) }} -> 1|2|3
+ /// ```
+-pub trait Filter<Rv, Args>: Send + Sync + 'static {
++pub trait Filter<Rv, Args: for<'a> FunctionArgs<'a>>: Send + Sync + 'static {
+     /// Applies a filter to value with the given arguments.
+     ///
+     /// The value is always the first argument.
+     #[doc(hidden)]
+-    fn apply_to(&self, args: Args, _: SealedMarker) -> Rv;
++    fn apply_to(&self, args: <Args as FunctionArgs<'_>>::Output, _: SealedMarker) -> Rv;
++}
++
++// This is necessary to avoid a bug in the trait solver. See
++// https://github.com/mitsuhiko/minijinja/pull/787 for more details.
++trait FilterHelper<Rv, Args> {
++    fn apply_to_nested(&self, args: Args) -> Rv;
+ }
+ 
+ macro_rules! tuple_impls {
+     ( $( $name:ident )* ) => {
+-        impl<Func, Rv, $($name),*> Filter<Rv, ($($name,)*)> for Func
++        impl<Func, Rv, $($name),*> FilterHelper<Rv, ($($name,)*)> for Func
+         where
+-            Func: Fn($($name),*) -> Rv + Send + Sync + 'static,
+-            Rv: FunctionResult,
+-            $($name: for<'a> ArgType<'a>,)*
++            Func: Fn($($name),*) -> Rv,
+         {
+-            fn apply_to(&self, args: ($($name,)*), _: SealedMarker) -> Rv {
++            fn apply_to_nested(&self, args: ($($name,)*)) -> Rv {
+                 #[allow(non_snake_case)]
+                 let ($($name,)*) = args;
+                 (self)($($name,)*)
+             }
+         }
++
++        impl<Func, Rv, $($name),*> Filter<Rv, ($($name,)*)> for Func
++        where
++            Func: Send + Sync + 'static,
++            // the crazy bounds here exist to enable borrowing in closures
++            Func: Fn($($name),*) -> Rv + for<'a> FilterHelper<Rv, ($(<$name as ArgType<'a>>::Output,)*)>,
++            Rv: FunctionResult,
++            $($name: for<'a> ArgType<'a>,)*
++        {
++            // Need to allow this lint for the one-element tuple case.
++            #[allow(clippy::needless_lifetimes)]
++            fn apply_to<'a>(&self, args: ($(<$name as ArgType<'a>>::Output,)*), _: SealedMarker) -> Rv {
++                self.apply_to_nested(args)
++            }
++        }
+     };
+ }
+ 
+@@ -235,7 +254,7 @@ impl BoxedFilter {
+     /// Creates a new boxed filter.
+     pub fn new<F, Rv, Args>(f: F) -> BoxedFilter
+     where
+-        F: Filter<Rv, Args> + for<'a> Filter<Rv, <Args as FunctionArgs<'a>>::Output>,
++        F: Filter<Rv, Args>,
+         Rv: FunctionResult,
+         Args: for<'a> FunctionArgs<'a>,
+     {
+diff --git a/src/functions.rs b/src/functions.rs
+index 554a557a8..18eff956d 100644
+--- a/src/functions.rs
++++ b/src/functions.rs
+@@ -176,26 +176,45 @@ pub(crate) struct BoxedFunction(Arc<FuncFunc>, #[cfg(feature = "debug")] &'stati
+ /// ```jinja
+ /// {{ sum(1, 2, 3) }} -> 6
+ /// ```
+-pub trait Function<Rv, Args>: Send + Sync + 'static {
++pub trait Function<Rv, Args: for<'a> FunctionArgs<'a>>: Send + Sync + 'static {
+     /// Calls a function with the given arguments.
+     #[doc(hidden)]
+-    fn invoke(&self, args: Args, _: SealedMarker) -> Rv;
++    fn invoke(&self, args: <Args as FunctionArgs<'_>>::Output, _: SealedMarker) -> Rv;
++}
++
++// This is necessary to avoid a bug in the trait solver. See
++// https://github.com/mitsuhiko/minijinja/pull/787 for more details.
++trait FunctionHelper<Rv, Args> {
++    fn invoke_nested(&self, args: Args) -> Rv;
+ }
+ 
+ macro_rules! tuple_impls {
+     ( $( $name:ident )* ) => {
+-        impl<Func, Rv, $($name),*> Function<Rv, ($($name,)*)> for Func
++        impl<Func, Rv, $($name),*> FunctionHelper<Rv, ($($name,)*)> for Func
+         where
+-            Func: Fn($($name),*) -> Rv + Send + Sync + 'static,
+-            Rv: FunctionResult,
+-            $($name: for<'a> ArgType<'a>,)*
++            Func: Fn($($name),*) -> Rv,
+         {
+-            fn invoke(&self, args: ($($name,)*), _: SealedMarker) -> Rv {
++            fn invoke_nested(&self, args: ($($name,)*)) -> Rv {
+                 #[allow(non_snake_case)]
+                 let ($($name,)*) = args;
+                 (self)($($name,)*)
+             }
+         }
++
++        impl<Func, Rv, $($name),*> Function<Rv, ($($name,)*)> for Func
++        where
++            Func: Send + Sync + 'static,
++            // the crazy bounds here exist to enable borrowing in closures
++            Func: Fn($($name),*) -> Rv + for<'a> FunctionHelper<Rv, ($(<$name as ArgType<'a>>::Output,)*)>,
++            Rv: FunctionResult,
++            $($name: for<'a> ArgType<'a>,)*
++        {
++            // Need to allow this lint for the one-element tuple case.
++            #[allow(clippy::needless_lifetimes)]
++            fn invoke<'a>(&self, args: ($(<$name as ArgType<'a>>::Output,)*), _: SealedMarker) -> Rv {
++                self.invoke_nested(args)
++            }
++        }
+     };
+ }
+ 
+@@ -210,7 +229,7 @@ impl BoxedFunction {
+     /// Creates a new boxed filter.
+     pub fn new<F, Rv, Args>(f: F) -> BoxedFunction
+     where
+-        F: Function<Rv, Args> + for<'a> Function<Rv, <Args as FunctionArgs<'a>>::Output>,
++        F: Function<Rv, Args>,
+         Rv: FunctionResult,
+         Args: for<'a> FunctionArgs<'a>,
+     {
+diff --git a/src/tests.rs b/src/tests.rs
+index 8d732edaa..70d611d42 100644
+--- a/src/tests.rs
++++ b/src/tests.rs
+@@ -147,26 +147,45 @@ impl TestResult for bool {
+ /// ```jinja
+ /// {{ "foo" is containing("o") }} -> true
+ /// ```
+-pub trait Test<Rv, Args>: Send + Sync + 'static {
++pub trait Test<Rv, Args: for<'a> FunctionArgs<'a>>: Send + Sync + 'static {
+     /// Performs a test to value with the given arguments.
+     #[doc(hidden)]
+-    fn perform(&self, args: Args, _: SealedMarker) -> Rv;
++    fn perform(&self, args: <Args as FunctionArgs<'_>>::Output, _: SealedMarker) -> Rv;
++}
++
++// This is necessary to avoid a bug in the trait solver. See
++// https://github.com/mitsuhiko/minijinja/pull/787 for more details.
++trait TestHelper<Rv, Args> {
++    fn perform_nested(&self, args: Args) -> Rv;
+ }
+ 
+ macro_rules! tuple_impls {
+     ( $( $name:ident )* ) => {
+-        impl<Func, Rv, $($name),*> Test<Rv, ($($name,)*)> for Func
++        impl<Func, Rv, $($name),*> TestHelper<Rv, ($($name,)*)> for Func
+         where
+-            Func: Fn($($name),*) -> Rv + Send + Sync + 'static,
+-            Rv: TestResult,
+-            $($name: for<'a> ArgType<'a>),*
++            Func: Fn($($name),*) -> Rv,
+         {
+-            fn perform(&self, args: ($($name,)*), _: SealedMarker) -> Rv {
++            fn perform_nested(&self, args: ($($name,)*)) -> Rv {
+                 #[allow(non_snake_case)]
+                 let ($($name,)*) = args;
+                 (self)($($name,)*)
+             }
+         }
++
++        impl<Func, Rv, $($name),*> Test<Rv, ($($name,)*)> for Func
++        where
++            Func: Send + Sync + 'static,
++            // the crazy bounds here exist to enable borrowing in closures
++            Func: Fn($($name),*) -> Rv + for<'a> TestHelper<Rv, ($(<$name as ArgType<'a>>::Output,)*)>,
++            Rv: TestResult,
++            $($name: for<'a> ArgType<'a>),*
++        {
++            // Need to allow this lint for the one-element tuple case.
++            #[allow(clippy::needless_lifetimes)]
++            fn perform<'a>(&self, args: ($(<$name as ArgType<'a>>::Output,)*), _: SealedMarker) -> Rv {
++                self.perform_nested(args)
++            }
++        }
+     };
+ }
+ 
+@@ -181,7 +200,7 @@ impl BoxedTest {
+     /// Creates a new boxed filter.
+     pub fn new<F, Rv, Args>(f: F) -> BoxedTest
+     where
+-        F: Test<Rv, Args> + for<'a> Test<Rv, <Args as FunctionArgs<'a>>::Output>,
++        F: Test<Rv, Args>,
+         Rv: TestResult,
+         Args: for<'a> FunctionArgs<'a>,
+     {
+diff --git a/src/value/mod.rs b/src/value/mod.rs
+index 4d2eaed37..0af1247c9 100644
+--- a/src/value/mod.rs
++++ b/src/value/mod.rs
+@@ -747,8 +747,7 @@ impl Value {
+     pub fn from_function<F, Rv, Args>(f: F) -> Value
+     where
+         // the crazy bounds here exist to enable borrowing in closures
+-        F: functions::Function<Rv, Args>
+-            + for<'a> functions::Function<Rv, <Args as FunctionArgs<'a>>::Output>,
++        F: functions::Function<Rv, Args>,
+         Rv: FunctionResult,
+         Args: for<'a> FunctionArgs<'a>,
+     {
