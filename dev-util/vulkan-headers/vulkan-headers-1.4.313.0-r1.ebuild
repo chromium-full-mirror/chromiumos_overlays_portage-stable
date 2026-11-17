@@ -3,7 +3,7 @@
 
 EAPI=7
 
-MY_PN=SPIRV-Headers
+MY_PN=Vulkan-Headers
 inherit cmake
 
 if [[ ${PV} == *9999* ]]; then
@@ -15,16 +15,23 @@ else
 	S="${WORKDIR}"/${MY_PN}-vulkan-sdk-${PV}
 fi
 
-DESCRIPTION="Machine-readable files for the SPIR-V Registry"
-HOMEPAGE="https://registry.khronos.org/SPIR-V/ https://github.com/KhronosGroup/SPIRV-Headers"
+DESCRIPTION="Vulkan Header files and API registry"
+HOMEPAGE="https://github.com/KhronosGroup/Vulkan-Headers"
 
-LICENSE="MIT"
+LICENSE="Apache-2.0"
 SLOT="0"
+IUSE="test"
+RESTRICT="!test? ( test )"
+
+PATCHES=(
+	"${FILESDIR}/UPSTREAM-33d7f51-VK_KHR_shader_fma.patch"
+)
 
 src_configure() {
 	local mycmakeargs=(
-		-DSPIRV_HEADERS_ENABLE_TESTS=OFF
-		-DSPIRV_HEADERS_ENABLE_INSTALL=ON
+		-DVULKAN_HEADERS_ENABLE_MODULE=OFF
+		-DVULKAN_HEADERS_ENABLE_TESTS=$(usex test)
 	)
+
 	cmake_src_configure
 }

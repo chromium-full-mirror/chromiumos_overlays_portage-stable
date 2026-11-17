@@ -1,0 +1,298 @@
+commit ee4777c9e51579f4ba42bfbf7f332b3c80ee6646 (HEAD)
+Author: gnl21 <gleese@broadcom.com>
+Date:   Fri Oct 10 02:46:27 2025 +0100
+--------
+Headers update for SPV_KHR_fma (#549)
+
+
+--------
+diff --git a/include/spirv/unified1/spirv.bf b/include/spirv/unified1/spirv.bf
+index 2fca6be..75a31af 100644
+--- a/include/spirv/unified1/spirv.bf
++++ b/include/spirv/unified1/spirv.bf
+@@ -1295,6 +1295,7 @@ namespace Spv
+             BitInstructions = 6025,
+             GroupNonUniformRotateKHR = 6026,
+             FloatControls2 = 6029,
++            FMAKHR = 6030,
+             AtomicFloat32AddEXT = 6033,
+             AtomicFloat64AddEXT = 6034,
+             LongCompositesINTEL = 6089,
+@@ -2009,6 +2010,7 @@ namespace Spv
+             OpUntypedInBoundsPtrAccessChainKHR = 4424,
+             OpUntypedArrayLengthKHR = 4425,
+             OpUntypedPrefetchKHR = 4426,
++            OpFmaKHR = 4427,
+             OpSubgroupAllKHR = 4428,
+             OpSubgroupAnyKHR = 4429,
+             OpSubgroupAllEqualKHR = 4430,
+diff --git a/include/spirv/unified1/spirv.core.grammar.json b/include/spirv/unified1/spirv.core.grammar.json
+index 1350da4..8263214 100644
+--- a/include/spirv/unified1/spirv.core.grammar.json
++++ b/include/spirv/unified1/spirv.core.grammar.json
+@@ -4590,6 +4590,20 @@
+         { "kind" : "IdRef",        "quantifier" : "?", "name" : "'Cache Type'" }
+       ]
+     },
++    {
++      "opname" : "OpFmaKHR",
++      "class"  : "Arithmetic",
++      "opcode" : 4427,
++      "operands" : [
++        { "kind" : "IdResultType" },
++        { "kind" : "IdResult" },
++        { "kind" : "IdRef",        "name" : "Operand 1" },
++        { "kind" : "IdRef",        "name" : "Operand 2" },
++        { "kind" : "IdRef",        "name" : "Operand 3" }
++      ],
++      "capabilities" : [ "FMAKHR" ],
++      "version" : "None"
++    },
+     {
+       "opname" : "OpSubgroupAllKHR",
+       "class"  : "Group",
+@@ -17201,6 +17215,12 @@
+           "extensions" : [ "SPV_KHR_float_controls2" ],
+           "version" : "None"
+         },
++        {
++          "enumerant" : "FMAKHR",
++          "value" : 6030,
++          "extensions" : [ "SPV_KHR_fma" ],
++          "version" : "None"
++        },
+         {
+           "enumerant" : "AtomicFloat32AddEXT",
+           "value" : 6033,
+diff --git a/include/spirv/unified1/spirv.cs b/include/spirv/unified1/spirv.cs
+index ee0d194..7ea6943 100644
+--- a/include/spirv/unified1/spirv.cs
++++ b/include/spirv/unified1/spirv.cs
+@@ -1294,6 +1294,7 @@ namespace Spv
+             BitInstructions = 6025,
+             GroupNonUniformRotateKHR = 6026,
+             FloatControls2 = 6029,
++            FMAKHR = 6030,
+             AtomicFloat32AddEXT = 6033,
+             AtomicFloat64AddEXT = 6034,
+             LongCompositesINTEL = 6089,
+@@ -2008,6 +2009,7 @@ namespace Spv
+             OpUntypedInBoundsPtrAccessChainKHR = 4424,
+             OpUntypedArrayLengthKHR = 4425,
+             OpUntypedPrefetchKHR = 4426,
++            OpFmaKHR = 4427,
+             OpSubgroupAllKHR = 4428,
+             OpSubgroupAnyKHR = 4429,
+             OpSubgroupAllEqualKHR = 4430,
+diff --git a/include/spirv/unified1/spirv.h b/include/spirv/unified1/spirv.h
+index d8df1b3..d9e83c8 100644
+--- a/include/spirv/unified1/spirv.h
++++ b/include/spirv/unified1/spirv.h
+@@ -1265,6 +1265,7 @@ typedef enum SpvCapability_ {
+     SpvCapabilityBitInstructions = 6025,
+     SpvCapabilityGroupNonUniformRotateKHR = 6026,
+     SpvCapabilityFloatControls2 = 6029,
++    SpvCapabilityFMAKHR = 6030,
+     SpvCapabilityAtomicFloat32AddEXT = 6033,
+     SpvCapabilityAtomicFloat64AddEXT = 6034,
+     SpvCapabilityLongCompositesINTEL = 6089,
+@@ -1945,6 +1946,7 @@ typedef enum SpvOp_ {
+     SpvOpUntypedInBoundsPtrAccessChainKHR = 4424,
+     SpvOpUntypedArrayLengthKHR = 4425,
+     SpvOpUntypedPrefetchKHR = 4426,
++    SpvOpFmaKHR = 4427,
+     SpvOpSubgroupAllKHR = 4428,
+     SpvOpSubgroupAnyKHR = 4429,
+     SpvOpSubgroupAllEqualKHR = 4430,
+@@ -2761,6 +2763,7 @@ inline void SpvHasResultAndType(SpvOp opcode, bool *hasResult, bool *hasResultTy
+     case SpvOpUntypedInBoundsPtrAccessChainKHR: *hasResult = true; *hasResultType = true; break;
+     case SpvOpUntypedArrayLengthKHR: *hasResult = true; *hasResultType = true; break;
+     case SpvOpUntypedPrefetchKHR: *hasResult = false; *hasResultType = false; break;
++    case SpvOpFmaKHR: *hasResult = true; *hasResultType = true; break;
+     case SpvOpSubgroupAllKHR: *hasResult = true; *hasResultType = true; break;
+     case SpvOpSubgroupAnyKHR: *hasResult = true; *hasResultType = true; break;
+     case SpvOpSubgroupAllEqualKHR: *hasResult = true; *hasResultType = true; break;
+@@ -4130,6 +4133,7 @@ inline const char* SpvCapabilityToString(SpvCapability value) {
+     case SpvCapabilityBitInstructions: return "BitInstructions";
+     case SpvCapabilityGroupNonUniformRotateKHR: return "GroupNonUniformRotateKHR";
+     case SpvCapabilityFloatControls2: return "FloatControls2";
++    case SpvCapabilityFMAKHR: return "FMAKHR";
+     case SpvCapabilityAtomicFloat32AddEXT: return "AtomicFloat32AddEXT";
+     case SpvCapabilityAtomicFloat64AddEXT: return "AtomicFloat64AddEXT";
+     case SpvCapabilityLongCompositesINTEL: return "LongCompositesINTEL";
+@@ -4708,6 +4712,7 @@ inline const char* SpvOpToString(SpvOp value) {
+     case SpvOpUntypedInBoundsPtrAccessChainKHR: return "OpUntypedInBoundsPtrAccessChainKHR";
+     case SpvOpUntypedArrayLengthKHR: return "OpUntypedArrayLengthKHR";
+     case SpvOpUntypedPrefetchKHR: return "OpUntypedPrefetchKHR";
++    case SpvOpFmaKHR: return "OpFmaKHR";
+     case SpvOpSubgroupAllKHR: return "OpSubgroupAllKHR";
+     case SpvOpSubgroupAnyKHR: return "OpSubgroupAnyKHR";
+     case SpvOpSubgroupAllEqualKHR: return "OpSubgroupAllEqualKHR";
+diff --git a/include/spirv/unified1/spirv.hpp b/include/spirv/unified1/spirv.hpp
+index bb69071..af88b53 100644
+--- a/include/spirv/unified1/spirv.hpp
++++ b/include/spirv/unified1/spirv.hpp
+@@ -1261,6 +1261,7 @@ enum Capability {
+     CapabilityBitInstructions = 6025,
+     CapabilityGroupNonUniformRotateKHR = 6026,
+     CapabilityFloatControls2 = 6029,
++    CapabilityFMAKHR = 6030,
+     CapabilityAtomicFloat32AddEXT = 6033,
+     CapabilityAtomicFloat64AddEXT = 6034,
+     CapabilityLongCompositesINTEL = 6089,
+@@ -1941,6 +1942,7 @@ enum Op {
+     OpUntypedInBoundsPtrAccessChainKHR = 4424,
+     OpUntypedArrayLengthKHR = 4425,
+     OpUntypedPrefetchKHR = 4426,
++    OpFmaKHR = 4427,
+     OpSubgroupAllKHR = 4428,
+     OpSubgroupAnyKHR = 4429,
+     OpSubgroupAllEqualKHR = 4430,
+@@ -2757,6 +2759,7 @@ inline void HasResultAndType(Op opcode, bool *hasResult, bool *hasResultType) {
+     case OpUntypedInBoundsPtrAccessChainKHR: *hasResult = true; *hasResultType = true; break;
+     case OpUntypedArrayLengthKHR: *hasResult = true; *hasResultType = true; break;
+     case OpUntypedPrefetchKHR: *hasResult = false; *hasResultType = false; break;
++    case OpFmaKHR: *hasResult = true; *hasResultType = true; break;
+     case OpSubgroupAllKHR: *hasResult = true; *hasResultType = true; break;
+     case OpSubgroupAnyKHR: *hasResult = true; *hasResultType = true; break;
+     case OpSubgroupAllEqualKHR: *hasResult = true; *hasResultType = true; break;
+@@ -4126,6 +4129,7 @@ inline const char* CapabilityToString(Capability value) {
+     case CapabilityBitInstructions: return "BitInstructions";
+     case CapabilityGroupNonUniformRotateKHR: return "GroupNonUniformRotateKHR";
+     case CapabilityFloatControls2: return "FloatControls2";
++    case CapabilityFMAKHR: return "FMAKHR";
+     case CapabilityAtomicFloat32AddEXT: return "AtomicFloat32AddEXT";
+     case CapabilityAtomicFloat64AddEXT: return "AtomicFloat64AddEXT";
+     case CapabilityLongCompositesINTEL: return "LongCompositesINTEL";
+@@ -4704,6 +4708,7 @@ inline const char* OpToString(Op value) {
+     case OpUntypedInBoundsPtrAccessChainKHR: return "OpUntypedInBoundsPtrAccessChainKHR";
+     case OpUntypedArrayLengthKHR: return "OpUntypedArrayLengthKHR";
+     case OpUntypedPrefetchKHR: return "OpUntypedPrefetchKHR";
++    case OpFmaKHR: return "OpFmaKHR";
+     case OpSubgroupAllKHR: return "OpSubgroupAllKHR";
+     case OpSubgroupAnyKHR: return "OpSubgroupAnyKHR";
+     case OpSubgroupAllEqualKHR: return "OpSubgroupAllEqualKHR";
+diff --git a/include/spirv/unified1/spirv.hpp11 b/include/spirv/unified1/spirv.hpp11
+index bc4485d..12bfd17 100644
+--- a/include/spirv/unified1/spirv.hpp11
++++ b/include/spirv/unified1/spirv.hpp11
+@@ -1261,6 +1261,7 @@ enum class Capability : unsigned {
+     BitInstructions = 6025,
+     GroupNonUniformRotateKHR = 6026,
+     FloatControls2 = 6029,
++    FMAKHR = 6030,
+     AtomicFloat32AddEXT = 6033,
+     AtomicFloat64AddEXT = 6034,
+     LongCompositesINTEL = 6089,
+@@ -1941,6 +1942,7 @@ enum class Op : unsigned {
+     OpUntypedInBoundsPtrAccessChainKHR = 4424,
+     OpUntypedArrayLengthKHR = 4425,
+     OpUntypedPrefetchKHR = 4426,
++    OpFmaKHR = 4427,
+     OpSubgroupAllKHR = 4428,
+     OpSubgroupAnyKHR = 4429,
+     OpSubgroupAllEqualKHR = 4430,
+@@ -2757,6 +2759,7 @@ inline void HasResultAndType(Op opcode, bool *hasResult, bool *hasResultType) {
+     case Op::OpUntypedInBoundsPtrAccessChainKHR: *hasResult = true; *hasResultType = true; break;
+     case Op::OpUntypedArrayLengthKHR: *hasResult = true; *hasResultType = true; break;
+     case Op::OpUntypedPrefetchKHR: *hasResult = false; *hasResultType = false; break;
++    case Op::OpFmaKHR: *hasResult = true; *hasResultType = true; break;
+     case Op::OpSubgroupAllKHR: *hasResult = true; *hasResultType = true; break;
+     case Op::OpSubgroupAnyKHR: *hasResult = true; *hasResultType = true; break;
+     case Op::OpSubgroupAllEqualKHR: *hasResult = true; *hasResultType = true; break;
+@@ -4126,6 +4129,7 @@ inline const char* CapabilityToString(Capability value) {
+     case Capability::BitInstructions: return "BitInstructions";
+     case Capability::GroupNonUniformRotateKHR: return "GroupNonUniformRotateKHR";
+     case Capability::FloatControls2: return "FloatControls2";
++    case Capability::FMAKHR: return "FMAKHR";
+     case Capability::AtomicFloat32AddEXT: return "AtomicFloat32AddEXT";
+     case Capability::AtomicFloat64AddEXT: return "AtomicFloat64AddEXT";
+     case Capability::LongCompositesINTEL: return "LongCompositesINTEL";
+@@ -4704,6 +4708,7 @@ inline const char* OpToString(Op value) {
+     case Op::OpUntypedInBoundsPtrAccessChainKHR: return "OpUntypedInBoundsPtrAccessChainKHR";
+     case Op::OpUntypedArrayLengthKHR: return "OpUntypedArrayLengthKHR";
+     case Op::OpUntypedPrefetchKHR: return "OpUntypedPrefetchKHR";
++    case Op::OpFmaKHR: return "OpFmaKHR";
+     case Op::OpSubgroupAllKHR: return "OpSubgroupAllKHR";
+     case Op::OpSubgroupAnyKHR: return "OpSubgroupAnyKHR";
+     case Op::OpSubgroupAllEqualKHR: return "OpSubgroupAllEqualKHR";
+diff --git a/include/spirv/unified1/spirv.json b/include/spirv/unified1/spirv.json
+index 7c4f9db..3f87dc4 100644
+--- a/include/spirv/unified1/spirv.json
++++ b/include/spirv/unified1/spirv.json
+@@ -1237,6 +1237,7 @@
+                     "BitInstructions": 6025,
+                     "GroupNonUniformRotateKHR": 6026,
+                     "FloatControls2": 6029,
++                    "FMAKHR": 6030,
+                     "AtomicFloat32AddEXT": 6033,
+                     "AtomicFloat64AddEXT": 6034,
+                     "LongCompositesINTEL": 6089,
+@@ -1928,6 +1929,7 @@
+                     "OpUntypedInBoundsPtrAccessChainKHR": 4424,
+                     "OpUntypedArrayLengthKHR": 4425,
+                     "OpUntypedPrefetchKHR": 4426,
++                    "OpFmaKHR": 4427,
+                     "OpSubgroupAllKHR": 4428,
+                     "OpSubgroupAnyKHR": 4429,
+                     "OpSubgroupAllEqualKHR": 4430,
+diff --git a/include/spirv/unified1/spirv.lua b/include/spirv/unified1/spirv.lua
+index 6cae8ce..cf6e7ad 100644
+--- a/include/spirv/unified1/spirv.lua
++++ b/include/spirv/unified1/spirv.lua
+@@ -1252,6 +1252,7 @@ spv = {
+         BitInstructions = 6025,
+         GroupNonUniformRotateKHR = 6026,
+         FloatControls2 = 6029,
++        FMAKHR = 6030,
+         AtomicFloat32AddEXT = 6033,
+         AtomicFloat64AddEXT = 6034,
+         LongCompositesINTEL = 6089,
+@@ -1932,6 +1933,7 @@ spv = {
+         OpUntypedInBoundsPtrAccessChainKHR = 4424,
+         OpUntypedArrayLengthKHR = 4425,
+         OpUntypedPrefetchKHR = 4426,
++        OpFmaKHR = 4427,
+         OpSubgroupAllKHR = 4428,
+         OpSubgroupAnyKHR = 4429,
+         OpSubgroupAllEqualKHR = 4430,
+diff --git a/include/spirv/unified1/spirv.py b/include/spirv/unified1/spirv.py
+index 7f6e8e8..b8e94bd 100644
+--- a/include/spirv/unified1/spirv.py
++++ b/include/spirv/unified1/spirv.py
+@@ -1223,6 +1223,7 @@ spv = {
+         'BitInstructions' : 6025,
+         'GroupNonUniformRotateKHR' : 6026,
+         'FloatControls2' : 6029,
++        'FMAKHR' : 6030,
+         'AtomicFloat32AddEXT' : 6033,
+         'AtomicFloat64AddEXT' : 6034,
+         'LongCompositesINTEL' : 6089,
+@@ -1876,6 +1877,7 @@ spv = {
+         'OpUntypedInBoundsPtrAccessChainKHR' : 4424,
+         'OpUntypedArrayLengthKHR' : 4425,
+         'OpUntypedPrefetchKHR' : 4426,
++        'OpFmaKHR' : 4427,
+         'OpSubgroupAllKHR' : 4428,
+         'OpSubgroupAnyKHR' : 4429,
+         'OpSubgroupAllEqualKHR' : 4430,
+diff --git a/include/spirv/unified1/spv.d b/include/spirv/unified1/spv.d
+index 63f6690..c23b569 100644
+--- a/include/spirv/unified1/spv.d
++++ b/include/spirv/unified1/spv.d
+@@ -1297,6 +1297,7 @@ enum Capability : uint
+     BitInstructions = 6025,
+     GroupNonUniformRotateKHR = 6026,
+     FloatControls2 = 6029,
++    FMAKHR = 6030,
+     AtomicFloat32AddEXT = 6033,
+     AtomicFloat64AddEXT = 6034,
+     LongCompositesINTEL = 6089,
+@@ -2011,6 +2012,7 @@ enum Op : uint
+     OpUntypedInBoundsPtrAccessChainKHR = 4424,
+     OpUntypedArrayLengthKHR = 4425,
+     OpUntypedPrefetchKHR = 4426,
++    OpFmaKHR = 4427,
+     OpSubgroupAllKHR = 4428,
+     OpSubgroupAnyKHR = 4429,
+     OpSubgroupAllEqualKHR = 4430,

@@ -1,0 +1,422 @@
+commit 3bcdf9527f53008a6b32b1b06b2762c8e8a7e268 (HEAD)
+Author: Jon Leech <oddhack@sonic.net>
+Date:   Tue Nov 17 09:00:28 2026 +0100
+--------
+Backport VK_KHR_shader_fma from v1.4.329
+
+Extracted VK_KHR_shader_fma definitions from upstream commit 33d7f512583b8de44d1b6384aa1cf482f92e53e9 (Update for Vulkan-Docs 1.4.329).
+
+--------
+diff --git a/include/vulkan/vulkan.cppm b/include/vulkan/vulkan.cppm
+index 781a93d..63e0b93 100644
+--- a/include/vulkan/vulkan.cppm
++++ b/include/vulkan/vulkan.cppm
+@@ -2714,6 +2714,10 @@ export namespace VULKAN_HPP_NAMESPACE
+   using VULKAN_HPP_NAMESPACE::MESAImageAlignmentControlExtensionName;
+   using VULKAN_HPP_NAMESPACE::MESAImageAlignmentControlSpecVersion;
+ 
++  //=== VK_KHR_shader_fma ===
++  using VULKAN_HPP_NAMESPACE::KHRShaderFmaExtensionName;
++  using VULKAN_HPP_NAMESPACE::KHRShaderFmaSpecVersion;
++
+   //=== VK_EXT_depth_clamp_control ===
+   using VULKAN_HPP_NAMESPACE::EXTDepthClampControlExtensionName;
+   using VULKAN_HPP_NAMESPACE::EXTDepthClampControlSpecVersion;
+@@ -4820,6 +4824,9 @@ export namespace VULKAN_HPP_NAMESPACE
+   using VULKAN_HPP_NAMESPACE::PhysicalDeviceImageAlignmentControlFeaturesMESA;
+   using VULKAN_HPP_NAMESPACE::PhysicalDeviceImageAlignmentControlPropertiesMESA;
+ 
++  //=== VK_KHR_shader_fma ===
++  using VULKAN_HPP_NAMESPACE::PhysicalDeviceShaderFmaFeaturesKHR;
++
+   //=== VK_EXT_depth_clamp_control ===
+   using VULKAN_HPP_NAMESPACE::DepthClampRangeEXT;
+   using VULKAN_HPP_NAMESPACE::PhysicalDeviceDepthClampControlFeaturesEXT;
+@@ -8543,6 +8550,10 @@ export namespace std
+   template <>
+   struct hash<VULKAN_HPP_NAMESPACE::ImageAlignmentControlCreateInfoMESA>;
+ 
++  //=== VK_KHR_shader_fma ===
++  template <>
++  struct hash<VULKAN_HPP_NAMESPACE::PhysicalDeviceShaderFmaFeaturesKHR>;
++
+   //=== VK_EXT_depth_clamp_control ===
+   template <>
+   struct hash<VULKAN_HPP_NAMESPACE::PhysicalDeviceDepthClampControlFeaturesEXT>;
+diff --git a/include/vulkan/vulkan.hpp b/include/vulkan/vulkan.hpp
+index 1dc3da0..e4bec67 100644
+--- a/include/vulkan/vulkan.hpp
++++ b/include/vulkan/vulkan.hpp
+@@ -8998,6 +8998,10 @@ namespace VULKAN_HPP_NAMESPACE
+   VULKAN_HPP_CONSTEXPR_INLINE auto MESAImageAlignmentControlExtensionName = VK_MESA_IMAGE_ALIGNMENT_CONTROL_EXTENSION_NAME;
+   VULKAN_HPP_CONSTEXPR_INLINE auto MESAImageAlignmentControlSpecVersion   = VK_MESA_IMAGE_ALIGNMENT_CONTROL_SPEC_VERSION;
+ 
++  //=== VK_KHR_shader_fma ===
++  VULKAN_HPP_CONSTEXPR_INLINE auto KHRShaderFmaExtensionName = VK_KHR_SHADER_FMA_EXTENSION_NAME;
++  VULKAN_HPP_CONSTEXPR_INLINE auto KHRShaderFmaSpecVersion   = VK_KHR_SHADER_FMA_SPEC_VERSION;
++
+   //=== VK_EXT_depth_clamp_control ===
+   VULKAN_HPP_CONSTEXPR_INLINE auto EXTDepthClampControlExtensionName = VK_EXT_DEPTH_CLAMP_CONTROL_EXTENSION_NAME;
+   VULKAN_HPP_CONSTEXPR_INLINE auto EXTDepthClampControlSpecVersion   = VK_EXT_DEPTH_CLAMP_CONTROL_SPEC_VERSION;
+@@ -17982,6 +17986,25 @@ namespace VULKAN_HPP_NAMESPACE
+     };
+   };
+ 
++  //=== VK_KHR_shader_fma ===
++  template <>
++  struct StructExtends<PhysicalDeviceShaderFmaFeaturesKHR, PhysicalDeviceFeatures2>
++  {
++    enum
++    {
++      value = true
++    };
++  };
++
++  template <>
++  struct StructExtends<PhysicalDeviceShaderFmaFeaturesKHR, DeviceCreateInfo>
++  {
++    enum
++    {
++      value = true
++    };
++  };
++
+   //=== VK_EXT_depth_clamp_control ===
+   template <>
+   struct StructExtends<PhysicalDeviceDepthClampControlFeaturesEXT, PhysicalDeviceFeatures2>
+diff --git a/include/vulkan/vulkan_core.h b/include/vulkan/vulkan_core.h
+index b57b368..5eb49d7 100644
+--- a/include/vulkan/vulkan_core.h
++++ b/include/vulkan/vulkan_core.h
+@@ -1233,6 +1233,7 @@ typedef enum VkStructureType {
+     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA = 1000575000,
+     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA = 1000575001,
+     VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA = 1000575002,
++    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FMA_FEATURES_KHR = 1000579000,
+     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT = 1000582000,
+     VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT = 1000582001,
+     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR = 1000586000,
+@@ -12918,6 +12919,19 @@ typedef struct VkMemoryBarrierAccessFlags3KHR {
+ } VkMemoryBarrierAccessFlags3KHR;
+ 
+ 
++// VK_KHR_shader_fma is a preprocessor guard. Do not pass it to API calls.
++#define VK_KHR_shader_fma 1
++#define VK_KHR_SHADER_FMA_SPEC_VERSION    1
++#define VK_KHR_SHADER_FMA_EXTENSION_NAME  "VK_KHR_shader_fma"
++typedef struct VkPhysicalDeviceShaderFmaFeaturesKHR {
++    VkStructureType    sType;
++    void*              pNext;
++    VkBool32           shaderFmaFloat16;
++    VkBool32           shaderFmaFloat32;
++    VkBool32           shaderFmaFloat64;
++} VkPhysicalDeviceShaderFmaFeaturesKHR;
++
++
+ 
+ // VK_KHR_video_maintenance2 is a preprocessor guard. Do not pass it to API calls.
+ #define VK_KHR_video_maintenance2 1
+diff --git a/include/vulkan/vulkan_enums.hpp b/include/vulkan/vulkan_enums.hpp
+index d315e45..71e1a5e 100644
+--- a/include/vulkan/vulkan_enums.hpp
++++ b/include/vulkan/vulkan_enums.hpp
+@@ -1579,6 +1579,7 @@ namespace VULKAN_HPP_NAMESPACE
+     ePhysicalDeviceImageAlignmentControlFeaturesMESA            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA,
+     ePhysicalDeviceImageAlignmentControlPropertiesMESA          = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA,
+     eImageAlignmentControlCreateInfoMESA                        = VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA,
++    ePhysicalDeviceShaderFmaFeaturesKHR                         = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FMA_FEATURES_KHR,
+     ePhysicalDeviceDepthClampControlFeaturesEXT                 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT,
+     ePipelineViewportDepthClampControlCreateInfoEXT             = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT,
+     ePhysicalDeviceVideoMaintenance2FeaturesKHR                 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR,
+diff --git a/include/vulkan/vulkan_extension_inspection.hpp b/include/vulkan/vulkan_extension_inspection.hpp
+index 2f901e9..b7d8622 100644
+--- a/include/vulkan/vulkan_extension_inspection.hpp
++++ b/include/vulkan/vulkan_extension_inspection.hpp
+@@ -467,6 +467,7 @@ namespace VULKAN_HPP_NAMESPACE
+       "VK_EXT_device_generated_commands",
+       "VK_KHR_maintenance8",
+       "VK_MESA_image_alignment_control",
++      "VK_KHR_shader_fma",
+       "VK_EXT_depth_clamp_control",
+       "VK_KHR_video_maintenance2",
+       "VK_HUAWEI_hdr_vivid",
+@@ -3485,7 +3486,7 @@ namespace VULKAN_HPP_NAMESPACE
+            ( extension == "VK_NV_shader_atomic_float16_vector" ) || ( extension == "VK_EXT_shader_replicated_composites" ) ||
+            ( extension == "VK_NV_ray_tracing_validation" ) || ( extension == "VK_NV_cluster_acceleration_structure" ) ||
+            ( extension == "VK_NV_partitioned_acceleration_structure" ) || ( extension == "VK_EXT_device_generated_commands" ) ||
+-           ( extension == "VK_KHR_maintenance8" ) || ( extension == "VK_MESA_image_alignment_control" ) || ( extension == "VK_EXT_depth_clamp_control" ) ||
++           ( extension == "VK_KHR_maintenance8" ) || ( extension == "VK_MESA_image_alignment_control" ) || ( extension == "VK_KHR_shader_fma" ) || ( extension == "VK_EXT_depth_clamp_control" ) ||
+            ( extension == "VK_KHR_video_maintenance2" ) || ( extension == "VK_HUAWEI_hdr_vivid" ) || ( extension == "VK_NV_cooperative_matrix2" ) ||
+            ( extension == "VK_ARM_pipeline_opacity_micromap" )
+ #if defined( VK_USE_PLATFORM_METAL_EXT )
+diff --git a/include/vulkan/vulkan_handles.hpp b/include/vulkan/vulkan_handles.hpp
+index a08b8bb..56b1b18 100644
+--- a/include/vulkan/vulkan_handles.hpp
++++ b/include/vulkan/vulkan_handles.hpp
+@@ -2022,6 +2022,9 @@ namespace VULKAN_HPP_NAMESPACE
+   struct PhysicalDeviceImageAlignmentControlPropertiesMESA;
+   struct ImageAlignmentControlCreateInfoMESA;
+ 
++  //=== VK_KHR_shader_fma ===
++  struct PhysicalDeviceShaderFmaFeaturesKHR;
++
+   //=== VK_EXT_depth_clamp_control ===
+   struct PhysicalDeviceDepthClampControlFeaturesEXT;
+   struct PipelineViewportDepthClampControlCreateInfoEXT;
+diff --git a/include/vulkan/vulkan_hash.hpp b/include/vulkan/vulkan_hash.hpp
+index ff23902..3413a59 100644
+--- a/include/vulkan/vulkan_hash.hpp
++++ b/include/vulkan/vulkan_hash.hpp
+@@ -12718,6 +12718,21 @@ namespace std
+     }
+   };
+ 
++  template <>
++  struct hash<VULKAN_HPP_NAMESPACE::PhysicalDeviceShaderFmaFeaturesKHR>
++  {
++    std::size_t operator()( VULKAN_HPP_NAMESPACE::PhysicalDeviceShaderFmaFeaturesKHR const & physicalDeviceShaderFmaFeaturesKHR ) const VULKAN_HPP_NOEXCEPT
++    {
++      std::size_t seed = 0;
++      VULKAN_HPP_HASH_COMBINE( seed, physicalDeviceShaderFmaFeaturesKHR.sType );
++      VULKAN_HPP_HASH_COMBINE( seed, physicalDeviceShaderFmaFeaturesKHR.pNext );
++      VULKAN_HPP_HASH_COMBINE( seed, physicalDeviceShaderFmaFeaturesKHR.shaderFmaFloat16 );
++      VULKAN_HPP_HASH_COMBINE( seed, physicalDeviceShaderFmaFeaturesKHR.shaderFmaFloat32 );
++      VULKAN_HPP_HASH_COMBINE( seed, physicalDeviceShaderFmaFeaturesKHR.shaderFmaFloat64 );
++      return seed;
++    }
++  };
++
+   template <>
+   struct hash<VULKAN_HPP_NAMESPACE::PhysicalDeviceShaderImageAtomicInt64FeaturesEXT>
+   {
+diff --git a/include/vulkan/vulkan_static_assertions.hpp b/include/vulkan/vulkan_static_assertions.hpp
+index ebfc9bf..d76f75b 100644
+--- a/include/vulkan/vulkan_static_assertions.hpp
++++ b/include/vulkan/vulkan_static_assertions.hpp
+@@ -8477,6 +8477,15 @@ VULKAN_HPP_STATIC_ASSERT( std::is_standard_layout<VULKAN_HPP_NAMESPACE::ImageAli
+ VULKAN_HPP_STATIC_ASSERT( std::is_nothrow_move_constructible<VULKAN_HPP_NAMESPACE::ImageAlignmentControlCreateInfoMESA>::value,
+                           "ImageAlignmentControlCreateInfoMESA is not nothrow_move_constructible!" );
+ 
++//=== VK_KHR_shader_fma ===
++
++VULKAN_HPP_STATIC_ASSERT( sizeof( VULKAN_HPP_NAMESPACE::PhysicalDeviceShaderFmaFeaturesKHR ) == sizeof( VkPhysicalDeviceShaderFmaFeaturesKHR ),
++                          "struct and wrapper have different size!" );
++VULKAN_HPP_STATIC_ASSERT( std::is_standard_layout<VULKAN_HPP_NAMESPACE::PhysicalDeviceShaderFmaFeaturesKHR>::value,
++                          "struct wrapper is not a standard layout!" );
++VULKAN_HPP_STATIC_ASSERT( std::is_nothrow_move_constructible<VULKAN_HPP_NAMESPACE::PhysicalDeviceShaderFmaFeaturesKHR>::value,
++                          "PhysicalDeviceShaderFmaFeaturesKHR is not nothrow_move_constructible!" );
++
+ //=== VK_EXT_depth_clamp_control ===
+ 
+ VULKAN_HPP_STATIC_ASSERT( sizeof( VULKAN_HPP_NAMESPACE::PhysicalDeviceDepthClampControlFeaturesEXT ) == sizeof( VkPhysicalDeviceDepthClampControlFeaturesEXT ),
+diff --git a/include/vulkan/vulkan_structs.hpp b/include/vulkan/vulkan_structs.hpp
+index 6181aad..7cc37be 100644
+--- a/include/vulkan/vulkan_structs.hpp
++++ b/include/vulkan/vulkan_structs.hpp
+@@ -103597,6 +103597,137 @@ namespace VULKAN_HPP_NAMESPACE
+ 
+   using PhysicalDeviceShaderFloatControls2FeaturesKHR = PhysicalDeviceShaderFloatControls2Features;
+ 
++  // wrapper struct for struct VkPhysicalDeviceShaderFmaFeaturesKHR, see
++  // https://registry.khronos.org/vulkan/specs/latest/man/html/VkPhysicalDeviceShaderFmaFeaturesKHR.html
++  struct PhysicalDeviceShaderFmaFeaturesKHR
++  {
++    using NativeType = VkPhysicalDeviceShaderFmaFeaturesKHR;
++
++    static const bool                                  allowDuplicate = false;
++    static VULKAN_HPP_CONST_OR_CONSTEXPR StructureType structureType  = StructureType::ePhysicalDeviceShaderFmaFeaturesKHR;
++
++#if !defined( VULKAN_HPP_NO_CONSTRUCTORS ) && !defined( VULKAN_HPP_NO_STRUCT_CONSTRUCTORS )
++    VULKAN_HPP_CONSTEXPR PhysicalDeviceShaderFmaFeaturesKHR( Bool32 shaderFmaFloat16_ = {},
++                                                             Bool32 shaderFmaFloat32_ = {},
++                                                             Bool32 shaderFmaFloat64_ = {},
++                                                             void * pNext_            = nullptr ) VULKAN_HPP_NOEXCEPT
++      : pNext{ pNext_ }
++      , shaderFmaFloat16{ shaderFmaFloat16_ }
++      , shaderFmaFloat32{ shaderFmaFloat32_ }
++      , shaderFmaFloat64{ shaderFmaFloat64_ }
++    {
++    }
++
++    VULKAN_HPP_CONSTEXPR PhysicalDeviceShaderFmaFeaturesKHR( PhysicalDeviceShaderFmaFeaturesKHR const & rhs ) VULKAN_HPP_NOEXCEPT = default;
++
++    PhysicalDeviceShaderFmaFeaturesKHR( VkPhysicalDeviceShaderFmaFeaturesKHR const & rhs ) VULKAN_HPP_NOEXCEPT
++      : PhysicalDeviceShaderFmaFeaturesKHR( *reinterpret_cast<PhysicalDeviceShaderFmaFeaturesKHR const *>( &rhs ) )
++    {
++    }
++
++    PhysicalDeviceShaderFmaFeaturesKHR & operator=( PhysicalDeviceShaderFmaFeaturesKHR const & rhs ) VULKAN_HPP_NOEXCEPT = default;
++#endif /*VULKAN_HPP_NO_CONSTRUCTORS*/
++
++    PhysicalDeviceShaderFmaFeaturesKHR & operator=( VkPhysicalDeviceShaderFmaFeaturesKHR const & rhs ) VULKAN_HPP_NOEXCEPT
++    {
++      *this = *reinterpret_cast<PhysicalDeviceShaderFmaFeaturesKHR const *>( &rhs );
++      return *this;
++    }
++
++#if !defined( VULKAN_HPP_NO_SETTERS ) && !defined( VULKAN_HPP_NO_STRUCT_SETTERS )
++    VULKAN_HPP_CONSTEXPR_14 PhysicalDeviceShaderFmaFeaturesKHR & setPNext( void * pNext_ ) VULKAN_HPP_NOEXCEPT
++    {
++      pNext = pNext_;
++      return *this;
++    }
++
++    VULKAN_HPP_CONSTEXPR_14 PhysicalDeviceShaderFmaFeaturesKHR & setShaderFmaFloat16( Bool32 shaderFmaFloat16_ ) VULKAN_HPP_NOEXCEPT
++    {
++      shaderFmaFloat16 = shaderFmaFloat16_;
++      return *this;
++    }
++
++    VULKAN_HPP_CONSTEXPR_14 PhysicalDeviceShaderFmaFeaturesKHR & setShaderFmaFloat32( Bool32 shaderFmaFloat32_ ) VULKAN_HPP_NOEXCEPT
++    {
++      shaderFmaFloat32 = shaderFmaFloat32_;
++      return *this;
++    }
++
++    VULKAN_HPP_CONSTEXPR_14 PhysicalDeviceShaderFmaFeaturesKHR & setShaderFmaFloat64( Bool32 shaderFmaFloat64_ ) VULKAN_HPP_NOEXCEPT
++    {
++      shaderFmaFloat64 = shaderFmaFloat64_;
++      return *this;
++    }
++#endif /*VULKAN_HPP_NO_SETTERS*/
++
++    operator VkPhysicalDeviceShaderFmaFeaturesKHR const &() const VULKAN_HPP_NOEXCEPT
++    {
++      return *reinterpret_cast<const VkPhysicalDeviceShaderFmaFeaturesKHR *>( this );
++    }
++
++    operator VkPhysicalDeviceShaderFmaFeaturesKHR &() VULKAN_HPP_NOEXCEPT
++    {
++      return *reinterpret_cast<VkPhysicalDeviceShaderFmaFeaturesKHR *>( this );
++    }
++
++    operator VkPhysicalDeviceShaderFmaFeaturesKHR const *() const VULKAN_HPP_NOEXCEPT
++    {
++      return reinterpret_cast<const VkPhysicalDeviceShaderFmaFeaturesKHR *>( this );
++    }
++
++    operator VkPhysicalDeviceShaderFmaFeaturesKHR *() VULKAN_HPP_NOEXCEPT
++    {
++      return reinterpret_cast<VkPhysicalDeviceShaderFmaFeaturesKHR *>( this );
++    }
++
++#if defined( VULKAN_HPP_USE_REFLECT )
++    std::tuple<StructureType const &, void * const &, Bool32 const &, Bool32 const &, Bool32 const &> reflect() const VULKAN_HPP_NOEXCEPT
++    {
++      return std::tie( sType, pNext, shaderFmaFloat16, shaderFmaFloat32, shaderFmaFloat64 );
++    }
++#endif
++
++#if defined( VULKAN_HPP_HAS_SPACESHIP_OPERATOR )
++    auto operator<=>( PhysicalDeviceShaderFmaFeaturesKHR const & ) const = default;
++#else
++    bool operator==( PhysicalDeviceShaderFmaFeaturesKHR const & rhs ) const VULKAN_HPP_NOEXCEPT
++    {
++#  if defined( VULKAN_HPP_USE_REFLECT )
++      return this->reflect() == rhs.reflect();
++#  else
++      return ( sType == rhs.sType ) && ( pNext == rhs.pNext ) && ( shaderFmaFloat16 == rhs.shaderFmaFloat16 ) && ( shaderFmaFloat32 == rhs.shaderFmaFloat32 ) &&
++             ( shaderFmaFloat64 == rhs.shaderFmaFloat64 );
++#  endif
++    }
++
++    bool operator!=( PhysicalDeviceShaderFmaFeaturesKHR const & rhs ) const VULKAN_HPP_NOEXCEPT
++    {
++      return !operator==( rhs );
++    }
++#endif
++
++  public:
++    StructureType sType            = StructureType::ePhysicalDeviceShaderFmaFeaturesKHR;
++    void *        pNext            = {};
++    Bool32        shaderFmaFloat16 = {};
++    Bool32        shaderFmaFloat32 = {};
++    Bool32        shaderFmaFloat64 = {};
++  };
++
++#if 20 <= VULKAN_HPP_CPP_VERSION
++  template <>
++  struct CppType<VkPhysicalDeviceShaderFmaFeaturesKHR>
++  {
++    using Type = PhysicalDeviceShaderFmaFeaturesKHR;
++  };
++#endif
++
++  template <>
++  struct CppType<StructureType, StructureType::ePhysicalDeviceShaderFmaFeaturesKHR>
++  {
++    using Type = PhysicalDeviceShaderFmaFeaturesKHR;
++  };
++
+   // wrapper struct for struct VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT, see
+   // https://registry.khronos.org/vulkan/specs/latest/man/html/VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT.html
+   struct PhysicalDeviceShaderImageAtomicInt64FeaturesEXT
+diff --git a/include/vulkan/vulkan_to_string.hpp b/include/vulkan/vulkan_to_string.hpp
+index 8042739..ffecab7 100644
+--- a/include/vulkan/vulkan_to_string.hpp
++++ b/include/vulkan/vulkan_to_string.hpp
+@@ -5111,6 +5111,7 @@ namespace VULKAN_HPP_NAMESPACE
+       case StructureType::ePhysicalDeviceImageAlignmentControlFeaturesMESA: return "PhysicalDeviceImageAlignmentControlFeaturesMESA";
+       case StructureType::ePhysicalDeviceImageAlignmentControlPropertiesMESA: return "PhysicalDeviceImageAlignmentControlPropertiesMESA";
+       case StructureType::eImageAlignmentControlCreateInfoMESA: return "ImageAlignmentControlCreateInfoMESA";
++      case StructureType::ePhysicalDeviceShaderFmaFeaturesKHR: return "PhysicalDeviceShaderFmaFeaturesKHR";
+       case StructureType::ePhysicalDeviceDepthClampControlFeaturesEXT: return "PhysicalDeviceDepthClampControlFeaturesEXT";
+       case StructureType::ePipelineViewportDepthClampControlCreateInfoEXT: return "PipelineViewportDepthClampControlCreateInfoEXT";
+       case StructureType::ePhysicalDeviceVideoMaintenance2FeaturesKHR: return "PhysicalDeviceVideoMaintenance2FeaturesKHR";
+diff --git a/registry/vk.xml b/registry/vk.xml
+index 82936d8..65e818c 100755
+--- a/registry/vk.xml
++++ b/registry/vk.xml
+@@ -8418,6 +8418,13 @@ typedef void* <name>MTLSharedEvent_id</name>;
+             <member optional="true"><type>void</type>*  <name>pNext</name></member>
+             <member limittype="max"><type>VkBool32</type>                <name>triStripVertexOrderIndependentOfProvokingVertex</name></member>
+         </type>
++        <type category="struct" name="VkPhysicalDeviceShaderFmaFeaturesKHR" structextends="VkPhysicalDeviceFeatures2,VkDeviceCreateInfo">
++            <member values="VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FMA_FEATURES_KHR"><type>VkStructureType</type> <name>sType</name></member>
++            <member optional="true"><type>void</type>*                              <name>pNext</name></member>
++            <member><type>VkBool32</type>                                           <name>shaderFmaFloat16</name></member>
++            <member><type>VkBool32</type>                                           <name>shaderFmaFloat32</name></member>
++            <member><type>VkBool32</type>                                           <name>shaderFmaFloat64</name></member>
++        </type>
+         <type category="struct" name="VkPhysicalDeviceRayTracingMotionBlurFeaturesNV" structextends="VkPhysicalDeviceFeatures2,VkDeviceCreateInfo">
+             <member values="VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MOTION_BLUR_FEATURES_NV"><type>VkStructureType</type> <name>sType</name></member>
+             <member optional="true" noautovalidity="true"><type>void</type>*        <name>pNext</name></member>
+@@ -27043,10 +27050,13 @@ typedef void* <name>MTLSharedEvent_id</name>;
+                 <enum bitpos="9" extends="VkShaderCreateFlagBitsEXT"        name="VK_SHADER_CREATE_RESERVED_9_BIT_EXT"/>
+             </require>
+         </extension>
+-        <extension name="VK_EXT_extension_580" number="580" author="EXT" contact="Graeme Leese @gnl21" supported="disabled">
++        <extension name="VK_KHR_shader_fma" number="580" type="device" author="KHR" contact="Graeme Leese @gnl21" supported="vulkan" ratified="vulkan">
+             <require>
+-                <enum value="0"                                             name="VK_EXT_EXTENSION_580_SPEC_VERSION"/>
+-                <enum value="&quot;VK_EXT_extension_580&quot;"              name="VK_EXT_EXTENSION_580_EXTENSION_NAME"/>
++                <enum value="1"                                  name="VK_KHR_SHADER_FMA_SPEC_VERSION"/>
++                <enum value="&quot;VK_KHR_shader_fma&quot;"      name="VK_KHR_SHADER_FMA_EXTENSION_NAME"/>
++                <enum offset="0" extends="VkStructureType"       name="VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FMA_FEATURES_KHR"/>
++                <type name="VkPhysicalDeviceShaderFmaFeaturesKHR"/>
++                <feature name="shaderFmaFloat32" struct="VkPhysicalDeviceShaderFmaFeaturesKHR"/>
+             </require>
+         </extension>
+         <extension name="VK_NV_extension_581" number="581" author="NV" contact="Piers Daniell @pdaniell-nv" supported="disabled">
+@@ -29065,6 +29075,9 @@ typedef void* <name>MTLSharedEvent_id</name>;
+             <enable version="VK_VERSION_1_4"/>
+             <enable extension="VK_KHR_shader_float_controls2"/>
+         </spirvextension>
++        <spirvextension name="SPV_KHR_fma">
++            <enable extension="VK_KHR_shader_fma"/>
++        </spirvextension>
+         <spirvextension name="SPV_KHR_quad_control">
+             <enable extension="VK_KHR_shader_quad_control"/>
+         </spirvextension>
+@@ -29664,6 +29677,11 @@ typedef void* <name>MTLSharedEvent_id</name>;
+         <spirvcapability name="TileShadingQCOM">
+             <enable struct="VkPhysicalDeviceTileShadingFeaturesQCOM" feature="tileShading" requires="VK_QCOM_tile_shading"/>
+         </spirvcapability>
++        <spirvcapability name="FMAKHR">
++            <enable struct="VkPhysicalDeviceShaderFmaFeaturesKHR" feature="shaderFmaFloat16" requires="VK_KHR_shader_fma"/>
++            <enable struct="VkPhysicalDeviceShaderFmaFeaturesKHR" feature="shaderFmaFloat32" requires="VK_KHR_shader_fma"/>
++            <enable struct="VkPhysicalDeviceShaderFmaFeaturesKHR" feature="shaderFmaFloat64" requires="VK_KHR_shader_fma"/>
++        </spirvcapability>
+     </spirvcapabilities>
+     <sync comment="Machine readable representation of the synchronization objects and their mappings">
+         <syncstage name="VK_PIPELINE_STAGE_2_NONE" alias="VK_PIPELINE_STAGE_NONE">
