@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -15,7 +15,7 @@ KEYWORDS="*"
 RDEPEND="
 	>=dev-perl/XML-SAX-Base-1.50.0
 	>=dev-perl/XML-NamespaceSupport-0.30.0
-	>=dev-libs/libxml2-2.4.1
+	>=dev-libs/libxml2-2.4.1:=
 	virtual/perl-File-Temp
 "
 BDEPEND="${RDEPEND}
