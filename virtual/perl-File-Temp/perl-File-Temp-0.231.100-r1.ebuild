@@ -9,7 +9,7 @@ KEYWORDS="*"
 LICENSE="metapackage"
 
 RDEPEND="
-	|| ( =dev-lang/perl-5.42* ~perl-core/${PN#perl-}-${PV} )
+	|| ( =dev-lang/perl-5.44* =dev-lang/perl-5.42* ~perl-core/${PN#perl-}-${PV} )
 "
 
 # this is the dev-lang/perl-5.34 and dev-lang/perl-5.36 version but we need the security patch

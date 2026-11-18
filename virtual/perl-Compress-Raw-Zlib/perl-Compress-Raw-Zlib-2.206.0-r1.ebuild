@@ -9,7 +9,7 @@ KEYWORDS="*"
 LICENSE="metapackage"
 
 RDEPEND="
-	|| ( =dev-lang/perl-5.42* ~perl-core/${PN#perl-}-${PV} )
+	|| ( =dev-lang/perl-5.44* =dev-lang/perl-5.42* ~perl-core/${PN#perl-}-${PV} )
 	!<perl-core/${PN#perl-}-${PV}
 	!>perl-core/${PN#perl-}-${PV}-r999
 "

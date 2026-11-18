@@ -8,7 +8,7 @@ SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="
-	|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* ~perl-core/${PN#perl-}-${PV} )
+	|| ( =dev-lang/perl-5.44* =dev-lang/perl-5.42* ~perl-core/${PN#perl-}-${PV} )
 	!<dev-perl/Test-Tester-0.114.0
 	!<dev-perl/Test-use-ok-0.160.0
 "
