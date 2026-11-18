@@ -77,6 +77,10 @@ case ${EAPI} in
 				DEPEND=${GENTOO_PERL_DEPSTRING}
 				BDEPEND=${GENTOO_PERL_DEPSTRING}
 				RDEPEND="${GENTOO_PERL_DEPSTRING} dev-lang/perl:="
+
+				BDEPEND+=" test? ( >=virtual/perl-Test-Simple-1 )"
+				IUSE+=" test"
+				RESTRICT="!test? ( test )"
 				;;
 			noslotop)
 				IUSE=${GENTOO_PERL_USESTRING}
