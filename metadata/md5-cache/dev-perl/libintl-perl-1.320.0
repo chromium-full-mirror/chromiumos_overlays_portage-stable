@@ -1,14 +1,14 @@
-BDEPEND=virtual/libintl !minimal? ( dev-perl/File-ShareDir ) virtual/perl-File-Spec >=virtual/perl-version-0.770.0 virtual/perl-ExtUtils-MakeMaker dev-lang/perl
+BDEPEND=virtual/libintl !minimal? ( dev-perl/File-ShareDir ) virtual/perl-File-Spec >=virtual/perl-version-0.770.0 virtual/perl-ExtUtils-MakeMaker >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
 DEFINED_PHASES=compile configure install prepare test
-DEPEND=virtual/libintl !minimal? ( dev-perl/File-ShareDir ) virtual/perl-File-Spec >=virtual/perl-version-0.770.0 dev-lang/perl
+DEPEND=virtual/libintl !minimal? ( dev-perl/File-ShareDir ) virtual/perl-File-Spec >=virtual/perl-version-0.770.0 >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
 DESCRIPTION=High-Level Interface to Uniforum Message Translation
 EAPI=7
 HOMEPAGE=http://guido-flohr.net/projects/libintl-perl https://metacpan.org/release/libintl-perl
-IUSE=minimal examples
+IUSE=minimal perl_features_debug perl_features_ithreads perl_features_quadmath examples
 KEYWORDS=*
 LICENSE=GPL-3
-RDEPEND=virtual/libintl !minimal? ( dev-perl/File-ShareDir ) virtual/perl-File-Spec >=virtual/perl-version-0.770.0 dev-lang/perl:=
+RDEPEND=virtual/libintl !minimal? ( dev-perl/File-ShareDir ) virtual/perl-File-Spec >=virtual/perl-version-0.770.0 >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] dev-lang/perl:=
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/G/GU/GUIDO/libintl-perl-1.32.tar.gz
-_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
+_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	0ffc14c66aac1d84388ae7b27b10ed9d	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
 _md5_=bc60d4e5b82e0f3b0c19f0a40f83334e

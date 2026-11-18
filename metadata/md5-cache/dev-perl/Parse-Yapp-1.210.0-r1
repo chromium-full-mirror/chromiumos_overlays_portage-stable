@@ -1,14 +1,14 @@
-BDEPEND=!<net-fs/samba-4.10.6 virtual/perl-ExtUtils-MakeMaker dev-lang/perl
+BDEPEND=!<net-fs/samba-4.10.6 virtual/perl-ExtUtils-MakeMaker >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
 DEFINED_PHASES=compile configure install prepare test
-DEPEND=dev-lang/perl
+DEPEND=>=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
 DESCRIPTION=Compiles yacc-like LALR grammars to generate Perl OO parser modules
 EAPI=7
 HOMEPAGE=https://metacpan.org/release/Parse-Yapp
-IUSE=examples
+IUSE=perl_features_debug perl_features_ithreads perl_features_quadmath examples
 KEYWORDS=*
 LICENSE=|| ( Artistic GPL-1+ )
-RDEPEND=!<net-fs/samba-4.10.6 dev-lang/perl:=
+RDEPEND=!<net-fs/samba-4.10.6 >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] dev-lang/perl:=
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/W/WB/WBRASWELL/Parse-Yapp-1.21.tar.gz
-_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	97206c028d9bdc9f248e022ac5c9fc83
+_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	0ffc14c66aac1d84388ae7b27b10ed9d	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
 _md5_=8fe0dc360ac3a2cc030a389534f026e4
