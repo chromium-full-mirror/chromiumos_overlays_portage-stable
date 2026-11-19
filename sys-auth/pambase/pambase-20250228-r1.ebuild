@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..12} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 inherit pam python-any-r1 readme.gentoo-r1
 
@@ -24,7 +24,7 @@ fi
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="caps debug elogind gnome-keyring homed minimal mktemp +nullok pam_krb5 pam_ssh passwdqc pwhistory pwquality securetty selinux +sha512 sssd systemd yescrypt"
+IUSE="caps debug elogind gnome-keyring homed minimal mktemp +nullok pam_krb5 pam_ssh +passwdqc pwhistory pwquality securetty selinux +sha512 sssd systemd yescrypt"
 
 RESTRICT="binchecks"
 
@@ -87,7 +87,7 @@ src_configure() {
 		$(usex securetty '--securetty' '') \
 		$(usex selinux '--selinux' '') \
 		$(usex sha512 '--sha512' '') \
-		$(usex systemd '--systemd' '') \
+		$(usex systemd '--systemd' '--openrc') \
 		$(usex yescrypt '--yescrypt' '') \
 		$(usex sssd '--sssd' '') \
 	|| die
