@@ -2,6 +2,6 @@ DEFINED_PHASES=-
 DESCRIPTION=Virtual for Data-Dumper
 EAPI=7
 KEYWORDS=*
-RDEPEND=|| ( =dev-lang/perl-5.42* ~perl-core/Data-Dumper-2.192.0 ) !<perl-core/Data-Dumper-2.192.0 !>perl-core/Data-Dumper-2.192.0-r999
+RDEPEND=|| ( =dev-lang/perl-5.44* =dev-lang/perl-5.42* ~perl-core/Data-Dumper-2.192.0 ) !<perl-core/Data-Dumper-2.192.0 !>perl-core/Data-Dumper-2.192.0-r999
 SLOT=0
-_md5_=25810e3d8d99ed282846c6b02eea31b3
+_md5_=12510461cb7c70ae15231b928e2ff7bd

@@ -4,6 +4,6 @@ EAPI=7
 IUSE=+ssl
 KEYWORDS=*
 PDEPEND=ssl? ( >=dev-perl/IO-Socket-SSL-2.7.0 )
-RDEPEND=|| ( =dev-lang/perl-5.42* =dev-lang/perl-5.38* ~perl-core/libnet-3.150.0 ) !<perl-core/libnet-3.150.0 !>perl-core/libnet-3.150.0-r999
+RDEPEND=|| ( =dev-lang/perl-5.44* =dev-lang/perl-5.42* ~perl-core/libnet-3.150.0 ) !<perl-core/libnet-3.150.0 !>perl-core/libnet-3.150.0-r999
 SLOT=0
-_md5_=e9e4050fe5c8a98cc8933aaff7b54f4e
+_md5_=56f706ab83396823d5d341f3669c9d3c

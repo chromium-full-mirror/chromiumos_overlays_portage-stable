@@ -3,6 +3,6 @@ DESCRIPTION=Virtual for Compress-Raw-Zlib
 EAPI=7
 KEYWORDS=*
 LICENSE=metapackage
-RDEPEND=|| ( =dev-lang/perl-5.42* ~perl-core/Compress-Raw-Zlib-2.206.0 ) !<perl-core/Compress-Raw-Zlib-2.206.0 !>perl-core/Compress-Raw-Zlib-2.206.0-r999
+RDEPEND=|| ( =dev-lang/perl-5.44* =dev-lang/perl-5.42* ~perl-core/Compress-Raw-Zlib-2.206.0 ) !<perl-core/Compress-Raw-Zlib-2.206.0 !>perl-core/Compress-Raw-Zlib-2.206.0-r999
 SLOT=0
-_md5_=5f45e20d1914151ca901aaaefb8d7f04
+_md5_=de45908e8a1859e0e64317995abfcfe6
