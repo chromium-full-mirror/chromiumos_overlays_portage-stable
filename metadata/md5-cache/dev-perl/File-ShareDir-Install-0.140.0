@@ -11,5 +11,5 @@ RDEPEND=virtual/perl-Carp virtual/perl-Exporter virtual/perl-File-Spec virtual/p
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/E/ET/ETHER/File-ShareDir-Install-0.14.tar.gz
-_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	8a974980cea5fea31cb69fdf9d466e6b	perl-module	0ffc14c66aac1d84388ae7b27b10ed9d	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
+_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	0ffc14c66aac1d84388ae7b27b10ed9d	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
 _md5_=109d0b223f254c25c47dabdf81d2fd22
