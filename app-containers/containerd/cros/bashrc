@@ -1,0 +1,44 @@
+# Copyright 2026 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# portage-stable's go-env.eclass predates `tc-export PKG_CONFIG` and
+# `go-env_run` (and newer Gentoo go-env.eclass uses Bash 5.2 `local -I`, while
+# CrOS SDK uses Bash 5.1). Shim both here so containerd's unmodified upstream
+# Gentoo ebuild builds target binaries and host manpages cleanly.
+cros_pre_src_compile_pkg_config() {
+	if [[ "${PKG_CONFIG:-pkg-config}" == "pkg-config" ]]; then
+		unset PKG_CONFIG
+		tc-export PKG_CONFIG
+	fi
+}
+
+if ! declare -F go-env_run >/dev/null; then
+	go-env_run() {
+		(
+			export CHOST="${CBUILD:-${CHOST}}"
+			unset GOARCH GOARM GO386 CGO_CFLAGS CGO_CPPFLAGS CGO_CXXFLAGS CGO_LDFLAGS
+			if [[ "${PKG_CONFIG:-pkg-config}" == "pkg-config" ]]; then
+				unset PKG_CONFIG
+			fi
+			tc-export CC CXX PKG_CONFIG
+			GOARCH="$(go-env_goarch)"
+			export GOARCH
+			case "${GOARCH}" in
+			386)
+				GO386="$(go-env_go386)"
+				export GO386
+				;;
+			arm)
+				GOARM="$(go-env_goarm)"
+				export GOARM
+				;;
+			esac
+			export CGO_CFLAGS="${CFLAGS}"
+			export CGO_CPPFLAGS="${CPPFLAGS}"
+			export CGO_CXXFLAGS="${CXXFLAGS}"
+			export CGO_LDFLAGS="${LDFLAGS}"
+			"$@"
+		)
+	}
+fi

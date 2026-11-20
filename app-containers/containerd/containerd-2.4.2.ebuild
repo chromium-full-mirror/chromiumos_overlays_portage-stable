@@ -1,9 +1,11 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-inherit go-module systemd
-GIT_REVISION=7c3aca7a610df76212171d200ca3811ff6096eb8
+
+inherit go-env go-module systemd toolchain-funcs
+
+GIT_REVISION=b7a25261e029d68978bbf290df0a62fc819b3c51
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -12,32 +14,29 @@ SRC_URI="https://github.com/containerd/containerd/archive/v${PV}.tar.gz -> ${P}.
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="apparmor btrfs device-mapper +cri hardened +seccomp selinux test"
+IUSE="apparmor btrfs device-mapper +cri +seccomp selinux test"
+# tests require root or docker
+RESTRICT+=" test"
 
 DEPEND="
 	btrfs? ( sys-fs/btrfs-progs )
 	seccomp? ( sys-libs/libseccomp )
 "
-
-# recommended version of runc is found in script/setup/runc-version
-RDEPEND="
-	${DEPEND}
-	~app-containers/runc-1.1.12[apparmor?,seccomp?]
+# recommended minimum version of runc is found in script/setup/runc-version
+RDEPEND="${DEPEND}
+	>=app-containers/runc-1.4.3[apparmor?,seccomp?]
+	selinux? ( sec-policy/selinux-docker )
 "
-
 BDEPEND="
 	dev-go/go-md2man
+	>=dev-lang/go-1.26.6
 	virtual/pkgconfig
 "
-
-# tests require root or docker
-RESTRICT+="test"
 
 src_prepare() {
 	default
 	sed -i \
 		-e "s/-s -w//" \
-		-e "s/-mod=readonly//" \
 		Makefile || die
 	sed -i \
 		-e "s:/usr/local:/usr:" \
@@ -54,22 +53,20 @@ src_compile() {
 		$(usev selinux)
 	)
 
-	myemakeargs=(
+	local myemakeargs=(
 		BUILDTAGS="${options[*]}"
-		LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')"
 		REVISION="${GIT_REVISION}"
 		VERSION=v${PV}
 	)
 
-	# race condition in man target https://bugs.gentoo.org/765100
-	# we need to explicitly specify GOFLAGS for "go run" to use vendor source
-	emake "${myemakeargs[@]}" man -j1 #nowarn
 	emake "${myemakeargs[@]}" all
 
+	# race condition in man target https://bugs.gentoo.org/765100
+	tc-env_build go-env_run emake "${myemakeargs[@]}" man -j1 #nowarn
 }
 
 src_install() {
-	rm "${D}"/bin/gen-manpages
+	rm bin/gen-manpages || die
 	dobin bin/*
 	doman man/*
 	newconfd "${FILESDIR}"/${PN}.confd "${PN}"

@@ -1,0 +1,19 @@
+# Copyright 2026 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+cros_pre_src_prepare_patches() {
+	eapply "${CROS_FILES_DIR}/runc-1.4.3-libseccomp-clang.patch"
+}
+
+# portage-stable's go-env.eclass predates `tc-export PKG_CONFIG` (added in
+# newer Gentoo go-env.eclass). Export target-prefixed PKG_CONFIG so cgo in
+# vendored libseccomp-golang invokes ${CHOST}-pkg-config rather than bare
+# pkg-config (blocked by CrOS build_toolchain_catch), keeping runc's upstream
+# Gentoo ebuild unmodified.
+cros_pre_src_compile_pkg_config() {
+	if [[ "${PKG_CONFIG:-pkg-config}" == "pkg-config" ]]; then
+		unset PKG_CONFIG
+		tc-export PKG_CONFIG
+	fi
+}
