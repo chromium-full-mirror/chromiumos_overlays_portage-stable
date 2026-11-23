@@ -1,14 +1,15 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit java-vm-2 toolchain-funcs
+inherit dot-a java-vm-2 toolchain-funcs
 
 abi_uri() {
 	local baseuri="https://github.com/adoptium/temurin$(ver_cut 1)-binaries/releases/download/jdk-${MY_PV}/"
 	local musl=
 	local os=linux
+	local libc=glibc
 
 	case ${2} in
 		*-macos)    os=mac      ;;
@@ -18,11 +19,19 @@ abi_uri() {
 	if [[ ${3} == musl ]]; then
 		os=alpine-linux
 		musl=true
+		libc=musl
+	fi
+
+	if [[ ${os} == mac ]]; then
+		libc=
 	fi
 
 	echo "${2-$1}? (
 		${musl:+ elibc_musl? ( }
 			${baseuri}/OpenJDK$(ver_cut 1)U-jdk_${1}_${os}_hotspot_${MY_PV//+/_}.tar.gz
+			static-libs? (
+				${baseuri}/OpenJDK$(ver_cut 1)U-static-libs${libc:+-$libc}_${1}_${os}_hotspot_${MY_PV//+/_}.tar.gz
+			)
 		${musl:+ ) } )"
 }
 
@@ -43,7 +52,7 @@ S="${WORKDIR}/jdk-${MY_PV}"
 LICENSE="GPL-2-with-classpath-exception"
 SLOT=$(ver_cut 1)
 KEYWORDS="*"
-IUSE="alsa cups headless-awt selinux source"
+IUSE="alsa cups headless-awt selinux source static-libs"
 
 RDEPEND="
 	>=sys-apps/baselayout-java-0.1.0-r1
@@ -53,7 +62,7 @@ RDEPEND="
 		media-libs/harfbuzz
 		elibc_glibc? ( >=sys-libs/glibc-2.2.5:* )
 		elibc_musl? ( sys-libs/musl )
-		sys-libs/zlib
+		virtual/zlib:=
 		alsa? ( media-libs/alsa-lib )
 		cups? ( net-print/cups )
 		selinux? ( sec-policy/selinux-java )
@@ -86,6 +95,14 @@ src_unpack() {
 src_install() {
 	local dest="/opt/${P}"
 	local ddest="${ED}/${dest#/}"
+
+	if use static-libs ; then
+		cd "${S}"-static-libs/lib/static/*/* || die
+		cp -pPR * "${S}"/lib || die
+		strip-lto-bytecode "${S}"/lib || die
+	fi
+
+	cd "${S}"
 
 	# https://bugs.gentoo.org/922741
 	docompress "${dest}/man"
