@@ -1,2 +1,2 @@
-# TODO: Add per-package OWNERS and delete this when done.
-*
+# Used by factory software in the SDK.
+include chromiumos/owners:v1:/factory/OWNERS.factory

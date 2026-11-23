@@ -1,0 +1,11 @@
+# Copyright 2026 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# ChromeOS Factory configs (umpire_http.py, dome, test_list_editor) include
+# /etc/nginx/mime.types without Gentoo's types_hash_max_size 4096 override.
+# Install NGINX's bundled conf/mime.types alongside mime.types.nginx.
+cros_post_src_install_factory_mime_types() {
+	insinto /etc/nginx
+	doins conf/mime.types
+}

@@ -3,11 +3,6 @@
 # Configuration file
 #NGINX_CONFIGFILE="/etc/nginx/nginx.conf"
 
-# PID file
-# If you should ever change this, remember to update
-# "/etc/logrotate.d/nginx", too.
-#NGINX_PIDFILE="/run/nginx.pid"
-
 # User to run nginx as
 # If you should ever change this, make sure this user has
 # execution permission on any of your log directories
@@ -30,3 +25,8 @@
 # that the service will be terminated within a given time (60 + 5 seconds
 # per default) when you are stopping the service.
 #NGINX_TERMTIMEOUT="TERM/60/KILL/5"
+
+# For the 'upgrade' function, this defines the maximum amount of time (in
+# seconds) the script should wait for the new NGINX binary to start before
+# producing an error.
+#NGINX_MAXWAITTIME="3"
