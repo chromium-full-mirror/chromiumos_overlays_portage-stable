@@ -1,14 +1,15 @@
-BDEPEND=>=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
+BDEPEND=>=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] test? ( >=virtual/perl-Test-Simple-1 )
 DEFINED_PHASES=compile configure install prepare test
 DEPEND=virtual/perl-Carp virtual/perl-Data-Dumper virtual/perl-Encode >=virtual/perl-Exporter-5.570.0 >=virtual/perl-MIME-Base64-2 virtual/perl-Scalar-List-Utils virtual/perl-libnet virtual/perl-parent virtual/perl-ExtUtils-MakeMaker >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
 DESCRIPTION=Uniform Resource Identifiers (absolute and relative)
 EAPI=7
 HOMEPAGE=https://metacpan.org/release/URI
-IUSE=perl_features_debug perl_features_ithreads perl_features_quadmath
+IUSE=perl_features_debug perl_features_ithreads perl_features_quadmath test
 KEYWORDS=*
 LICENSE=|| ( Artistic GPL-1+ )
 RDEPEND=virtual/perl-Carp virtual/perl-Data-Dumper virtual/perl-Encode >=virtual/perl-Exporter-5.570.0 >=virtual/perl-MIME-Base64-2 virtual/perl-Scalar-List-Utils virtual/perl-libnet virtual/perl-parent >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] dev-lang/perl:=
+RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/O/OA/OALDERS/URI-5.11.tar.gz
-_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	0ffc14c66aac1d84388ae7b27b10ed9d	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
+_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	20c6d2512d97e4f4295f312e33ade3e6	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
 _md5_=577205df6073f19a3da7e857a328aecd

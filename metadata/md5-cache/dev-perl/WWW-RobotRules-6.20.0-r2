@@ -1,14 +1,15 @@
-BDEPEND=!<dev-perl/libwww-perl-6 >=dev-perl/URI-1.10 >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
+BDEPEND=!<dev-perl/libwww-perl-6 >=dev-perl/URI-1.10 >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] test? ( >=virtual/perl-Test-Simple-1 )
 DEFINED_PHASES=compile configure install prepare test
 DEPEND=>=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
 DESCRIPTION=Parse /robots.txt file
 EAPI=7
 HOMEPAGE=https://metacpan.org/release/WWW-RobotRules
-IUSE=perl_features_debug perl_features_ithreads perl_features_quadmath
+IUSE=perl_features_debug perl_features_ithreads perl_features_quadmath test
 KEYWORDS=*
 LICENSE=|| ( Artistic GPL-1+ )
 RDEPEND=!<dev-perl/libwww-perl-6 >=dev-perl/URI-1.10 >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] dev-lang/perl:=
+RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/G/GA/GAAS/WWW-RobotRules-6.02.tar.gz
-_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	0ffc14c66aac1d84388ae7b27b10ed9d	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
+_eclasses_=multiprocessing	e5d48c933105327e0f826ce5108afc55	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	20c6d2512d97e4f4295f312e33ade3e6	toolchain-funcs	5fa645791b8a0d71c1ef741c2fca187a
 _md5_=5c6a42b339207a5aa4140bf73dc69b24
